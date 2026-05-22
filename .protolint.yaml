@@ -5,10 +5,10 @@ lint:
   - id: MESSAGE_NAMES_UPPER_CAMEL_CASE
     files:
     # NOTE: UNIX paths will be properly accepted by both UNIX and Windows.
-    - pkg/api/miniblog/v1/miniblog.proto
+    - pkg/api/apiserver/v1/apiserver.proto
   - id: ENUM_NAMES_UPPER_CAMEL_CASE
     files:
-    - pkg/api/miniblog/v1/miniblog.proto
+    - pkg/api/apiserver/v1/apiserver.proto
 
   # Linter files to walk.
   files:

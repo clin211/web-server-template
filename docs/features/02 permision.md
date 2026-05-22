@@ -2,7 +2,7 @@
 
 ## 一、功能概述
 
-为 cspedia 后台管理系统构建完整的 RBAC（基于角色的访问控制）权限管理体系，支持菜单级和按钮级权限控制，提供可视化的权限管理后台。基于现有 Gin + GORM + PostgreSQL 技术栈，前端采用 vue-pure-admin 框架，实现前后端无缝集成。
+为通用后台管理 skeleton 构建完整的 RBAC（基于角色的访问控制）权限管理体系，支持菜单级和按钮级权限控制，提供可视化的权限管理后台。基于现有 Gin + GORM + PostgreSQL 技术栈，前端可按需接入任意管理后台框架，实现前后端无缝集成。
 
 ## 二、背景
 
@@ -250,14 +250,14 @@ INSERT INTO casbin_rule (ptype, v0, v1) VALUES
 
 ```bash
 # 方式一：直接执行 SQL
-docker exec infra_postgres psql -U postgres -d cs-pedia -c "
+docker exec infra_postgres psql -U postgres -d template -c "
 INSERT INTO casbin_rule (ptype, v0, v1, v2, v3) VALUES
 ('p', 'role::admin', '/v1/new-endpoint', 'GET', 'allow'),
 ('p', 'role::admin', '/v1/new-endpoint', 'POST', 'allow');
 "
 
 # 方式二：使用初始化脚本
-docker exec infra_postgres psql -U postgres -d cs-pedia -f configs/permissions_init.sql
+docker exec infra_postgres psql -U postgres -d template -f configs/permissions_init.sql
 ```
 
 **注意事项**：

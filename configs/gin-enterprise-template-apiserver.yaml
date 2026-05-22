@@ -15,7 +15,10 @@
 #   APP_JWT_SECRET=$(openssl rand -hex 32) \
 #   APP_POSTGRESQL_PASSWORD=your_pg_pwd \
 #   APP_REDIS_PASSWORD=your_redis_pwd \
-#     ./apiserver -c configs/configs.yaml
+#     ./gin-enterprise-template-apiserver -c configs/gin-enterprise-template-apiserver.yaml
+#
+# 默认配置文件名由 cmd/.../app/server.go 根据二进制名动态推导
+# （ <binary>.yaml ），所以此处文件名应当与二进制名保持一致。
 #
 # 完整变量列表与示例值见根目录 .env.example。
 #

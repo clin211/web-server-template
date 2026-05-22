@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Blog Service API v1",
-    "description": "Blog 服务提供文章、分类、标签、评论、用户等模块的 RESTful API：\n- 用户认证与权限控制\n- 文章发布、编辑、删除、草稿与置顶\n- 分类与标签管理（创建、修改、归类）\n- 评论与回复、点赞与收藏\n- 搜索与筛选（按作者、标签、时间范围）\n- 附件/图片上传与资源管理\n- 通知与订阅\n- 管理后台与审计日志",
+    "title": "API Server v1",
+    "description": "基于 gin-enterprise-template 的通用后端 API 服务：\n- JWT 用户认证与权限控制\n- 用户、角色、权限、菜单管理\n- RESTful 资源接口\n- OpenTelemetry 可观测性\n- Casbin RBAC 授权",
     "version": "1.0",
     "contact": {
       "name": "gin-enterprise-template 项目",
@@ -12,7 +12,7 @@
   },
   "tags": [
     {
-      "name": "BlogService"
+      "name": "APIServer"
     }
   ],
   "schemes": [
@@ -30,7 +30,7 @@
       "get": {
         "summary": "健康检查",
         "description": "检查服务是否健康运行",
-        "operationId": "BlogService_Healthz",
+        "operationId": "APIServer_Healthz",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -54,7 +54,7 @@
       "post": {
         "summary": "用户登录",
         "description": "用户使用用户名和密码进行登录认证",
-        "operationId": "BlogService_Login",
+        "operationId": "APIServer_Login",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -88,7 +88,7 @@
       "put": {
         "summary": "刷新令牌",
         "description": "使用现有令牌刷新获取新的访问令牌",
-        "operationId": "BlogService_RefreshToken",
+        "operationId": "APIServer_RefreshToken",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -123,7 +123,7 @@
       "get": {
         "summary": "列表菜单",
         "description": "获取菜单列表",
-        "operationId": "BlogService_ListMenus",
+        "operationId": "APIServer_ListMenus",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -184,7 +184,7 @@
       "post": {
         "summary": "创建菜单",
         "description": "创建一个新的菜单",
-        "operationId": "BlogService_CreateMenu",
+        "operationId": "APIServer_CreateMenu",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -218,7 +218,7 @@
       "get": {
         "summary": "列表菜单树",
         "description": "获取菜单树结构",
-        "operationId": "BlogService_ListMenuTree",
+        "operationId": "APIServer_ListMenuTree",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -252,7 +252,7 @@
       "get": {
         "summary": "获取菜单",
         "description": "根据菜单 ID 获取菜单信息",
-        "operationId": "BlogService_GetMenu",
+        "operationId": "APIServer_GetMenu",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -283,7 +283,7 @@
       "delete": {
         "summary": "删除菜单",
         "description": "根据菜单 ID 删除菜单",
-        "operationId": "BlogService_DeleteMenu",
+        "operationId": "APIServer_DeleteMenu",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -314,7 +314,7 @@
       "put": {
         "summary": "更新菜单",
         "description": "根据菜单 ID 更新菜单信息",
-        "operationId": "BlogService_UpdateMenu",
+        "operationId": "APIServer_UpdateMenu",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -342,7 +342,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BlogServiceUpdateMenuBody"
+              "$ref": "#/definitions/APIServerUpdateMenuBody"
             }
           }
         ],
@@ -355,7 +355,7 @@
       "get": {
         "summary": "列表权限",
         "description": "获取权限列表",
-        "operationId": "BlogService_ListPermissions",
+        "operationId": "APIServer_ListPermissions",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -416,7 +416,7 @@
       "post": {
         "summary": "创建权限",
         "description": "创建一个新的权限",
-        "operationId": "BlogService_CreatePermission",
+        "operationId": "APIServer_CreatePermission",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -450,7 +450,7 @@
       "get": {
         "summary": "列表权限树",
         "description": "获取权限树结构",
-        "operationId": "BlogService_ListPermissionTree",
+        "operationId": "APIServer_ListPermissionTree",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -499,7 +499,7 @@
       "get": {
         "summary": "获取权限",
         "description": "根据权限 ID 获取权限信息",
-        "operationId": "BlogService_GetPermission",
+        "operationId": "APIServer_GetPermission",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -530,7 +530,7 @@
       "delete": {
         "summary": "删除权限",
         "description": "根据权限 ID 删除权限",
-        "operationId": "BlogService_DeletePermission",
+        "operationId": "APIServer_DeletePermission",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -561,7 +561,7 @@
       "put": {
         "summary": "更新权限",
         "description": "根据权限 ID 更新权限信息",
-        "operationId": "BlogService_UpdatePermission",
+        "operationId": "APIServer_UpdatePermission",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -589,7 +589,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BlogServiceUpdatePermissionBody"
+              "$ref": "#/definitions/APIServerUpdatePermissionBody"
             }
           }
         ],
@@ -602,7 +602,7 @@
       "get": {
         "summary": "列表角色",
         "description": "获取角色列表",
-        "operationId": "BlogService_ListRoles",
+        "operationId": "APIServer_ListRoles",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -656,7 +656,7 @@
       "post": {
         "summary": "创建角色",
         "description": "创建一个新的角色",
-        "operationId": "BlogService_CreateRole",
+        "operationId": "APIServer_CreateRole",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -690,7 +690,7 @@
       "get": {
         "summary": "获取角色",
         "description": "根据角色 ID 获取角色信息",
-        "operationId": "BlogService_GetRole",
+        "operationId": "APIServer_GetRole",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -721,7 +721,7 @@
       "delete": {
         "summary": "删除角色",
         "description": "根据角色 ID 删除角色",
-        "operationId": "BlogService_DeleteRole",
+        "operationId": "APIServer_DeleteRole",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -752,7 +752,7 @@
       "put": {
         "summary": "更新角色",
         "description": "根据角色 ID 更新角色信息",
-        "operationId": "BlogService_UpdateRole",
+        "operationId": "APIServer_UpdateRole",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -780,7 +780,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BlogServiceUpdateRoleBody"
+              "$ref": "#/definitions/APIServerUpdateRoleBody"
             }
           }
         ],
@@ -793,7 +793,7 @@
       "get": {
         "summary": "获取角色权限",
         "description": "获取角色的权限列表",
-        "operationId": "BlogService_GetRolePermissions",
+        "operationId": "APIServer_GetRolePermissions",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -824,7 +824,7 @@
       "post": {
         "summary": "给角色分配权限",
         "description": "为角色分配或更新权限",
-        "operationId": "BlogService_AssignPermissionsToRole",
+        "operationId": "APIServer_AssignPermissionsToRole",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -852,7 +852,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BlogServiceAssignPermissionsToRoleBody"
+              "$ref": "#/definitions/APIServerAssignPermissionsToRoleBody"
             }
           }
         ],
@@ -865,7 +865,7 @@
       "get": {
         "summary": "列表用户",
         "description": "获取所有用户的列表",
-        "operationId": "BlogService_ListUsers",
+        "operationId": "APIServer_ListUsers",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -904,7 +904,7 @@
       "post": {
         "summary": "创建用户",
         "description": "创建一个新的用户",
-        "operationId": "BlogService_CreateUser",
+        "operationId": "APIServer_CreateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -938,7 +938,7 @@
       "get": {
         "summary": "获取用户菜单树",
         "description": "获取当前用户的菜单树",
-        "operationId": "BlogService_GetUserMenuTree",
+        "operationId": "APIServer_GetUserMenuTree",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -962,7 +962,7 @@
       "get": {
         "summary": "获取用户",
         "description": "根据用户 ID 获取用户信息",
-        "operationId": "BlogService_GetUser",
+        "operationId": "APIServer_GetUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -993,7 +993,7 @@
       "delete": {
         "summary": "删除用户",
         "description": "根据用户 ID 删除用户",
-        "operationId": "BlogService_DeleteUser",
+        "operationId": "APIServer_DeleteUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1024,7 +1024,7 @@
       "put": {
         "summary": "更新用户",
         "description": "根据用户 ID 更新用户信息",
-        "operationId": "BlogService_UpdateUser",
+        "operationId": "APIServer_UpdateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1052,7 +1052,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BlogServiceUpdateUserBody"
+              "$ref": "#/definitions/APIServerUpdateUserBody"
             }
           }
         ],
@@ -1065,7 +1065,7 @@
       "get": {
         "summary": "获取用户角色",
         "description": "获取用户的角色列表和权限",
-        "operationId": "BlogService_GetUserRoles",
+        "operationId": "APIServer_GetUserRoles",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1096,7 +1096,7 @@
       "post": {
         "summary": "给用户分配角色",
         "description": "为用户分配角色",
-        "operationId": "BlogService_AssignRolesToUser",
+        "operationId": "APIServer_AssignRolesToUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1124,7 +1124,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/BlogServiceAssignRolesToUserBody"
+              "$ref": "#/definitions/APIServerAssignRolesToUserBody"
             }
           }
         ],
@@ -1137,7 +1137,7 @@
       "delete": {
         "summary": "从用户移除角色",
         "description": "从用户移除指定角色",
-        "operationId": "BlogService_RemoveRoleFromUser",
+        "operationId": "APIServer_RemoveRoleFromUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1175,7 +1175,7 @@
     }
   },
   "definitions": {
-    "BlogServiceAssignPermissionsToRoleBody": {
+    "APIServerAssignPermissionsToRoleBody": {
       "type": "object",
       "properties": {
         "permissionIDs": {
@@ -1192,7 +1192,7 @@
       },
       "title": "AssignPermissionsToRoleRequest 表示给角色分配权限请求"
     },
-    "BlogServiceAssignRolesToUserBody": {
+    "APIServerAssignRolesToUserBody": {
       "type": "object",
       "properties": {
         "roleIDs": {
@@ -1205,7 +1205,7 @@
       },
       "title": "AssignRolesToUserRequest 表示给用户分配角色请求"
     },
-    "BlogServiceUpdateMenuBody": {
+    "APIServerUpdateMenuBody": {
       "type": "object",
       "properties": {
         "parentID": {
@@ -1246,7 +1246,7 @@
       },
       "title": "UpdateMenuRequest 表示更新菜单请求"
     },
-    "BlogServiceUpdatePermissionBody": {
+    "APIServerUpdatePermissionBody": {
       "type": "object",
       "properties": {
         "permissionName": {
@@ -1265,7 +1265,7 @@
       },
       "title": "UpdatePermissionRequest 表示更新权限请求"
     },
-    "BlogServiceUpdateRoleBody": {
+    "APIServerUpdateRoleBody": {
       "type": "object",
       "properties": {
         "roleName": {
@@ -1289,7 +1289,7 @@
       },
       "title": "UpdateRoleRequest 表示更新角色请求"
     },
-    "BlogServiceUpdateUserBody": {
+    "APIServerUpdateUserBody": {
       "type": "object",
       "properties": {
         "username": {

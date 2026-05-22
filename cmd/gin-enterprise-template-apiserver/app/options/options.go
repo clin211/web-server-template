@@ -83,5 +83,6 @@ func (o *ServerOptions) Config() (*apiserver.Config, error) {
 		HTTPOptions:       o.HTTPOptions,
 		PostgreSQLOptions: o.PostgreSQLOptions,
 		RedisOptions:      o.RedisOptions,
+		OTelOptions:       o.OTelOptions,
 	}, nil
 }

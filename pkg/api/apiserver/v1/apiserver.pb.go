@@ -27,8 +27,8 @@ var File_apiserver_v1_apiserver_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\n" +
-	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x17apiserver/v1/menu.proto\x1a\x1dapiserver/v1/permission.proto\x1a\x17apiserver/v1/role.proto\x1a\x1capiserver/v1/user_role.proto2\xf5+\n" +
-	"\vBlogService\x12\x91\x01\n" +
+	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x17apiserver/v1/menu.proto\x1a\x1dapiserver/v1/permission.proto\x1a\x17apiserver/v1/role.proto\x1a\x1capiserver/v1/user_role.proto2\xf3+\n" +
+	"\tAPIServer\x12\x91\x01\n" +
 	"\aHealthz\x12\x16.google.protobuf.Empty\x1a\x1d.apiserver.v1.HealthzResponse\"O\x92A<\n" +
 	"\f服务治理\x12\f健康检查\x1a\x1e检查服务是否健康运行\x82\xd3\xe4\x93\x02\n" +
 	"\x12\b/healthz\x12\xac\x01\n" +
@@ -100,16 +100,13 @@ const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\fGetUserRoles\x12!.apiserver.v1.GetUserRolesRequest\x1a\".apiserver.v1.GetUserRolesResponse\"k\x92AH\n" +
 	"\f用户管理\x12\x12获取用户角色\x1a$获取用户的角色列表和权限\x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/users/{userID}/roles\x12\xd7\x01\n" +
 	"\x12RemoveRoleFromUser\x12'.apiserver.v1.RemoveRoleFromUserRequest\x1a(.apiserver.v1.RemoveRoleFromUserResponse\"n\x92AB\n" +
-	"\f用户管理\x12\x15从用户移除角色\x1a\x1b从用户移除指定角色\x82\xd3\xe4\x93\x02#*!/v1/users/{userID}/roles/{roleID}B\x8a\x05\x92A\xc5\x04\x12\x9a\x04\n" +
-	"\x13Blog Service API v1\x12\x8f\x03Blog 服务提供文章、分类、标签、评论、用户等模块的 RESTful API：\n" +
-	"- 用户认证与权限控制\n" +
-	"- 文章发布、编辑、删除、草稿与置顶\n" +
-	"- 分类与标签管理（创建、修改、归类）\n" +
-	"- 评论与回复、点赞与收藏\n" +
-	"- 搜索与筛选（按作者、标签、时间范围）\n" +
-	"- 附件/图片上传与资源管理\n" +
-	"- 通知与订阅\n" +
-	"- 管理后台与审计日志\"l\n" +
+	"\f用户管理\x12\x15从用户移除角色\x1a\x1b从用户移除指定角色\x82\xd3\xe4\x93\x02#*!/v1/users/{userID}/roles/{roleID}B\xc6\x03\x92A\x81\x03\x12\xd6\x02\n" +
+	"\rAPI Server v1\x12\xd1\x01基于 gin-enterprise-template 的通用后端 API 服务：\n" +
+	"- JWT 用户认证与权限控制\n" +
+	"- 用户、角色、权限、菜单管理\n" +
+	"- RESTful 资源接口\n" +
+	"- OpenTelemetry 可观测性\n" +
+	"- Casbin RBAC 授权\"l\n" +
 	"\x1egin-enterprise-template 项目\x122https://github.com/clin211/gin-enterprise-template\x1a\x16767425412lin@gmail.com2\x031.0*\x02\x01\x022\x10application/json:\x10application/jsonZ?github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1b\x06proto3"
 
 var file_apiserver_v1_apiserver_proto_goTypes = []any{
@@ -177,68 +174,68 @@ var file_apiserver_v1_apiserver_proto_goTypes = []any{
 	(*RemoveRoleFromUserResponse)(nil),      // 61: apiserver.v1.RemoveRoleFromUserResponse
 }
 var file_apiserver_v1_apiserver_proto_depIdxs = []int32{
-	0,  // 0: apiserver.v1.BlogService.Healthz:input_type -> google.protobuf.Empty
-	1,  // 1: apiserver.v1.BlogService.Login:input_type -> apiserver.v1.LoginRequest
-	2,  // 2: apiserver.v1.BlogService.RefreshToken:input_type -> apiserver.v1.RefreshTokenRequest
-	3,  // 3: apiserver.v1.BlogService.CreateUser:input_type -> apiserver.v1.CreateUserRequest
-	4,  // 4: apiserver.v1.BlogService.GetUser:input_type -> apiserver.v1.GetUserRequest
-	5,  // 5: apiserver.v1.BlogService.UpdateUser:input_type -> apiserver.v1.UpdateUserRequest
-	6,  // 6: apiserver.v1.BlogService.DeleteUser:input_type -> apiserver.v1.DeleteUserRequest
-	7,  // 7: apiserver.v1.BlogService.ListUsers:input_type -> apiserver.v1.ListUserRequest
-	8,  // 8: apiserver.v1.BlogService.CreateMenu:input_type -> apiserver.v1.CreateMenuRequest
-	9,  // 9: apiserver.v1.BlogService.GetMenu:input_type -> apiserver.v1.GetMenuRequest
-	10, // 10: apiserver.v1.BlogService.UpdateMenu:input_type -> apiserver.v1.UpdateMenuRequest
-	11, // 11: apiserver.v1.BlogService.DeleteMenu:input_type -> apiserver.v1.DeleteMenuRequest
-	12, // 12: apiserver.v1.BlogService.ListMenus:input_type -> apiserver.v1.ListMenuRequest
-	13, // 13: apiserver.v1.BlogService.ListMenuTree:input_type -> apiserver.v1.ListMenuTreeRequest
-	14, // 14: apiserver.v1.BlogService.GetUserMenuTree:input_type -> apiserver.v1.GetUserMenuTreeRequest
-	15, // 15: apiserver.v1.BlogService.CreatePermission:input_type -> apiserver.v1.CreatePermissionRequest
-	16, // 16: apiserver.v1.BlogService.GetPermission:input_type -> apiserver.v1.GetPermissionRequest
-	17, // 17: apiserver.v1.BlogService.UpdatePermission:input_type -> apiserver.v1.UpdatePermissionRequest
-	18, // 18: apiserver.v1.BlogService.DeletePermission:input_type -> apiserver.v1.DeletePermissionRequest
-	19, // 19: apiserver.v1.BlogService.ListPermissions:input_type -> apiserver.v1.ListPermissionRequest
-	20, // 20: apiserver.v1.BlogService.ListPermissionTree:input_type -> apiserver.v1.ListPermissionTreeRequest
-	21, // 21: apiserver.v1.BlogService.CreateRole:input_type -> apiserver.v1.CreateRoleRequest
-	22, // 22: apiserver.v1.BlogService.GetRole:input_type -> apiserver.v1.GetRoleRequest
-	23, // 23: apiserver.v1.BlogService.UpdateRole:input_type -> apiserver.v1.UpdateRoleRequest
-	24, // 24: apiserver.v1.BlogService.DeleteRole:input_type -> apiserver.v1.DeleteRoleRequest
-	25, // 25: apiserver.v1.BlogService.ListRoles:input_type -> apiserver.v1.ListRoleRequest
-	26, // 26: apiserver.v1.BlogService.AssignPermissionsToRole:input_type -> apiserver.v1.AssignPermissionsToRoleRequest
-	27, // 27: apiserver.v1.BlogService.GetRolePermissions:input_type -> apiserver.v1.GetRolePermissionsRequest
-	28, // 28: apiserver.v1.BlogService.AssignRolesToUser:input_type -> apiserver.v1.AssignRolesToUserRequest
-	29, // 29: apiserver.v1.BlogService.GetUserRoles:input_type -> apiserver.v1.GetUserRolesRequest
-	30, // 30: apiserver.v1.BlogService.RemoveRoleFromUser:input_type -> apiserver.v1.RemoveRoleFromUserRequest
-	31, // 31: apiserver.v1.BlogService.Healthz:output_type -> apiserver.v1.HealthzResponse
-	32, // 32: apiserver.v1.BlogService.Login:output_type -> apiserver.v1.LoginResponse
-	33, // 33: apiserver.v1.BlogService.RefreshToken:output_type -> apiserver.v1.RefreshTokenResponse
-	34, // 34: apiserver.v1.BlogService.CreateUser:output_type -> apiserver.v1.CreateUserResponse
-	35, // 35: apiserver.v1.BlogService.GetUser:output_type -> apiserver.v1.GetUserResponse
-	36, // 36: apiserver.v1.BlogService.UpdateUser:output_type -> apiserver.v1.UpdateUserResponse
-	37, // 37: apiserver.v1.BlogService.DeleteUser:output_type -> apiserver.v1.DeleteUserResponse
-	38, // 38: apiserver.v1.BlogService.ListUsers:output_type -> apiserver.v1.ListUserResponse
-	39, // 39: apiserver.v1.BlogService.CreateMenu:output_type -> apiserver.v1.CreateMenuResponse
-	40, // 40: apiserver.v1.BlogService.GetMenu:output_type -> apiserver.v1.GetMenuResponse
-	41, // 41: apiserver.v1.BlogService.UpdateMenu:output_type -> apiserver.v1.UpdateMenuResponse
-	42, // 42: apiserver.v1.BlogService.DeleteMenu:output_type -> apiserver.v1.DeleteMenuResponse
-	43, // 43: apiserver.v1.BlogService.ListMenus:output_type -> apiserver.v1.ListMenuResponse
-	44, // 44: apiserver.v1.BlogService.ListMenuTree:output_type -> apiserver.v1.ListMenuTreeResponse
-	45, // 45: apiserver.v1.BlogService.GetUserMenuTree:output_type -> apiserver.v1.GetUserMenuTreeResponse
-	46, // 46: apiserver.v1.BlogService.CreatePermission:output_type -> apiserver.v1.CreatePermissionResponse
-	47, // 47: apiserver.v1.BlogService.GetPermission:output_type -> apiserver.v1.GetPermissionResponse
-	48, // 48: apiserver.v1.BlogService.UpdatePermission:output_type -> apiserver.v1.UpdatePermissionResponse
-	49, // 49: apiserver.v1.BlogService.DeletePermission:output_type -> apiserver.v1.DeletePermissionResponse
-	50, // 50: apiserver.v1.BlogService.ListPermissions:output_type -> apiserver.v1.ListPermissionResponse
-	51, // 51: apiserver.v1.BlogService.ListPermissionTree:output_type -> apiserver.v1.ListPermissionTreeResponse
-	52, // 52: apiserver.v1.BlogService.CreateRole:output_type -> apiserver.v1.CreateRoleResponse
-	53, // 53: apiserver.v1.BlogService.GetRole:output_type -> apiserver.v1.GetRoleResponse
-	54, // 54: apiserver.v1.BlogService.UpdateRole:output_type -> apiserver.v1.UpdateRoleResponse
-	55, // 55: apiserver.v1.BlogService.DeleteRole:output_type -> apiserver.v1.DeleteRoleResponse
-	56, // 56: apiserver.v1.BlogService.ListRoles:output_type -> apiserver.v1.ListRoleResponse
-	57, // 57: apiserver.v1.BlogService.AssignPermissionsToRole:output_type -> apiserver.v1.AssignPermissionsToRoleResponse
-	58, // 58: apiserver.v1.BlogService.GetRolePermissions:output_type -> apiserver.v1.GetRolePermissionsResponse
-	59, // 59: apiserver.v1.BlogService.AssignRolesToUser:output_type -> apiserver.v1.AssignRolesToUserResponse
-	60, // 60: apiserver.v1.BlogService.GetUserRoles:output_type -> apiserver.v1.GetUserRolesResponse
-	61, // 61: apiserver.v1.BlogService.RemoveRoleFromUser:output_type -> apiserver.v1.RemoveRoleFromUserResponse
+	0,  // 0: apiserver.v1.APIServer.Healthz:input_type -> google.protobuf.Empty
+	1,  // 1: apiserver.v1.APIServer.Login:input_type -> apiserver.v1.LoginRequest
+	2,  // 2: apiserver.v1.APIServer.RefreshToken:input_type -> apiserver.v1.RefreshTokenRequest
+	3,  // 3: apiserver.v1.APIServer.CreateUser:input_type -> apiserver.v1.CreateUserRequest
+	4,  // 4: apiserver.v1.APIServer.GetUser:input_type -> apiserver.v1.GetUserRequest
+	5,  // 5: apiserver.v1.APIServer.UpdateUser:input_type -> apiserver.v1.UpdateUserRequest
+	6,  // 6: apiserver.v1.APIServer.DeleteUser:input_type -> apiserver.v1.DeleteUserRequest
+	7,  // 7: apiserver.v1.APIServer.ListUsers:input_type -> apiserver.v1.ListUserRequest
+	8,  // 8: apiserver.v1.APIServer.CreateMenu:input_type -> apiserver.v1.CreateMenuRequest
+	9,  // 9: apiserver.v1.APIServer.GetMenu:input_type -> apiserver.v1.GetMenuRequest
+	10, // 10: apiserver.v1.APIServer.UpdateMenu:input_type -> apiserver.v1.UpdateMenuRequest
+	11, // 11: apiserver.v1.APIServer.DeleteMenu:input_type -> apiserver.v1.DeleteMenuRequest
+	12, // 12: apiserver.v1.APIServer.ListMenus:input_type -> apiserver.v1.ListMenuRequest
+	13, // 13: apiserver.v1.APIServer.ListMenuTree:input_type -> apiserver.v1.ListMenuTreeRequest
+	14, // 14: apiserver.v1.APIServer.GetUserMenuTree:input_type -> apiserver.v1.GetUserMenuTreeRequest
+	15, // 15: apiserver.v1.APIServer.CreatePermission:input_type -> apiserver.v1.CreatePermissionRequest
+	16, // 16: apiserver.v1.APIServer.GetPermission:input_type -> apiserver.v1.GetPermissionRequest
+	17, // 17: apiserver.v1.APIServer.UpdatePermission:input_type -> apiserver.v1.UpdatePermissionRequest
+	18, // 18: apiserver.v1.APIServer.DeletePermission:input_type -> apiserver.v1.DeletePermissionRequest
+	19, // 19: apiserver.v1.APIServer.ListPermissions:input_type -> apiserver.v1.ListPermissionRequest
+	20, // 20: apiserver.v1.APIServer.ListPermissionTree:input_type -> apiserver.v1.ListPermissionTreeRequest
+	21, // 21: apiserver.v1.APIServer.CreateRole:input_type -> apiserver.v1.CreateRoleRequest
+	22, // 22: apiserver.v1.APIServer.GetRole:input_type -> apiserver.v1.GetRoleRequest
+	23, // 23: apiserver.v1.APIServer.UpdateRole:input_type -> apiserver.v1.UpdateRoleRequest
+	24, // 24: apiserver.v1.APIServer.DeleteRole:input_type -> apiserver.v1.DeleteRoleRequest
+	25, // 25: apiserver.v1.APIServer.ListRoles:input_type -> apiserver.v1.ListRoleRequest
+	26, // 26: apiserver.v1.APIServer.AssignPermissionsToRole:input_type -> apiserver.v1.AssignPermissionsToRoleRequest
+	27, // 27: apiserver.v1.APIServer.GetRolePermissions:input_type -> apiserver.v1.GetRolePermissionsRequest
+	28, // 28: apiserver.v1.APIServer.AssignRolesToUser:input_type -> apiserver.v1.AssignRolesToUserRequest
+	29, // 29: apiserver.v1.APIServer.GetUserRoles:input_type -> apiserver.v1.GetUserRolesRequest
+	30, // 30: apiserver.v1.APIServer.RemoveRoleFromUser:input_type -> apiserver.v1.RemoveRoleFromUserRequest
+	31, // 31: apiserver.v1.APIServer.Healthz:output_type -> apiserver.v1.HealthzResponse
+	32, // 32: apiserver.v1.APIServer.Login:output_type -> apiserver.v1.LoginResponse
+	33, // 33: apiserver.v1.APIServer.RefreshToken:output_type -> apiserver.v1.RefreshTokenResponse
+	34, // 34: apiserver.v1.APIServer.CreateUser:output_type -> apiserver.v1.CreateUserResponse
+	35, // 35: apiserver.v1.APIServer.GetUser:output_type -> apiserver.v1.GetUserResponse
+	36, // 36: apiserver.v1.APIServer.UpdateUser:output_type -> apiserver.v1.UpdateUserResponse
+	37, // 37: apiserver.v1.APIServer.DeleteUser:output_type -> apiserver.v1.DeleteUserResponse
+	38, // 38: apiserver.v1.APIServer.ListUsers:output_type -> apiserver.v1.ListUserResponse
+	39, // 39: apiserver.v1.APIServer.CreateMenu:output_type -> apiserver.v1.CreateMenuResponse
+	40, // 40: apiserver.v1.APIServer.GetMenu:output_type -> apiserver.v1.GetMenuResponse
+	41, // 41: apiserver.v1.APIServer.UpdateMenu:output_type -> apiserver.v1.UpdateMenuResponse
+	42, // 42: apiserver.v1.APIServer.DeleteMenu:output_type -> apiserver.v1.DeleteMenuResponse
+	43, // 43: apiserver.v1.APIServer.ListMenus:output_type -> apiserver.v1.ListMenuResponse
+	44, // 44: apiserver.v1.APIServer.ListMenuTree:output_type -> apiserver.v1.ListMenuTreeResponse
+	45, // 45: apiserver.v1.APIServer.GetUserMenuTree:output_type -> apiserver.v1.GetUserMenuTreeResponse
+	46, // 46: apiserver.v1.APIServer.CreatePermission:output_type -> apiserver.v1.CreatePermissionResponse
+	47, // 47: apiserver.v1.APIServer.GetPermission:output_type -> apiserver.v1.GetPermissionResponse
+	48, // 48: apiserver.v1.APIServer.UpdatePermission:output_type -> apiserver.v1.UpdatePermissionResponse
+	49, // 49: apiserver.v1.APIServer.DeletePermission:output_type -> apiserver.v1.DeletePermissionResponse
+	50, // 50: apiserver.v1.APIServer.ListPermissions:output_type -> apiserver.v1.ListPermissionResponse
+	51, // 51: apiserver.v1.APIServer.ListPermissionTree:output_type -> apiserver.v1.ListPermissionTreeResponse
+	52, // 52: apiserver.v1.APIServer.CreateRole:output_type -> apiserver.v1.CreateRoleResponse
+	53, // 53: apiserver.v1.APIServer.GetRole:output_type -> apiserver.v1.GetRoleResponse
+	54, // 54: apiserver.v1.APIServer.UpdateRole:output_type -> apiserver.v1.UpdateRoleResponse
+	55, // 55: apiserver.v1.APIServer.DeleteRole:output_type -> apiserver.v1.DeleteRoleResponse
+	56, // 56: apiserver.v1.APIServer.ListRoles:output_type -> apiserver.v1.ListRoleResponse
+	57, // 57: apiserver.v1.APIServer.AssignPermissionsToRole:output_type -> apiserver.v1.AssignPermissionsToRoleResponse
+	58, // 58: apiserver.v1.APIServer.GetRolePermissions:output_type -> apiserver.v1.GetRolePermissionsResponse
+	59, // 59: apiserver.v1.APIServer.AssignRolesToUser:output_type -> apiserver.v1.AssignRolesToUserResponse
+	60, // 60: apiserver.v1.APIServer.GetUserRoles:output_type -> apiserver.v1.GetUserRolesResponse
+	61, // 61: apiserver.v1.APIServer.RemoveRoleFromUser:output_type -> apiserver.v1.RemoveRoleFromUserResponse
 	31, // [31:62] is the sub-list for method output_type
 	0,  // [0:31] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name

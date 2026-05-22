@@ -66,7 +66,7 @@ COPY --from=builder /app/gin-enterprise-template-apiserver /app/gin-enterprise-t
 # 使用非 root（数值 UID 即可）
 USER 10001
 
-# 与 configs/configs.yaml 中 http.addr 端口保持一致
+# 与 configs/gin-enterprise-template-apiserver.yaml 中 http.addr 端口保持一致
 EXPOSE 5555
 
 # 健康检查（k8s 之外的 docker 运行时也能感知服务可用性）
@@ -75,4 +75,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 ENTRYPOINT ["/app/gin-enterprise-template-apiserver"]
 # 预计用 Compose volumes 挂载配置文件，保留默认命令
-CMD ["-c", "/app/configs/configs.yaml"]
+CMD ["-c", "/app/configs/gin-enterprise-template-apiserver.yaml"]

@@ -3,7 +3,23 @@
 > 本文档由架构师评审生成，列出该模板作为「通用 Go 企业级 Gin 脚手架」当前存在的问题及优化建议，按优先级分组。
 >
 > 评审时间：2026-04-25
+> 最近更新：2026-04-28（5 项 P0 全部修复，详见下方「修复进度」）
 > 评审范围：整个项目（cmd/internal/pkg/configs/Dockerfile/Makefile/README/golangci.yaml/.git 之外的所有源码与配置）
+
+---
+
+## 修复进度（2026-04-28 更新）
+
+| # | 问题 | 状态 | 关键提交点 |
+|---|------|------|-----------|
+| #1 | 硬编码密钥 | ✅ 已修复 | `configs/*.yaml` 改为占位符 + `.env.example` + viper AutomaticEnv |
+| #2 | 端口不一致 | ✅ 已修复 | 全部统一为 `5555`（README + build/docker/*.yml + Dockerfile + configs） |
+| #3 | 配置文件命名 | ✅ 已修复 | 重命名为 `configs/gin-enterprise-template-apiserver.yaml`；`searchDirs()` 加入 `./configs` |
+| #4 | service name 硬编码 | ✅ 已修复 | `Config` 增加 `OTelOptions`；`httpserver.go` 通过 `c.resolveServiceName()` 读取 |
+| #5 | defaultHomeDir 硬耦合 | ✅ 已修复 | 通过 `computeBinaryName()` 从 `os.Args[0]` 动态推导 |
+| #13 | Dockerfile HEALTHCHECK | ✅ 已修复 | 已添加 HEALTHCHECK 指令 |
+| #16 | `.env.example` | ✅ 已修复 | 已生成完整模板 |
+| 其他 | #6/#7/#8/#9/#10/#11/#12/#14/#15/#17/#18/#19/#20 | ⏳ 未处理 | 见下方各章节 |
 
 ---
 

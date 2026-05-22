@@ -5,11 +5,15 @@
 
 ## 1. 安全：替换所有默认密钥（P0，部署前必须）
 
-- [ ] `configs/configs.yaml` 中 `jwt.secret`：用 `openssl rand -hex 32` 生成
-- [ ] `configs/configs.yaml` 中 `postgresql.password`：改为强密码
-- [ ] `configs/configs.yaml` 中 `redis.password`：改为强密码
-- [ ] **建议**：把 `configs/configs.yaml` 加入 `.gitignore`，仅提交 `configs/configs.yaml.example`
+- [ ] `configs/<binary-name>.yaml` 中 `jwt.secret`：用 `openssl rand -hex 32` 生成
+- [ ] `configs/<binary-name>.yaml` 中 `postgresql.password`：改为强密码
+- [ ] `configs/<binary-name>.yaml` 中 `redis.password`：改为强密码
+- [ ] **建议**：把 `configs/<binary-name>.yaml` 加入 `.gitignore`，仅提交 `configs/<binary-name>.yaml.example`
 - [ ] **建议**：通过环境变量注入敏感字段（参考 `.env.example`）
+
+> 默认配置文件名由 `cmd/<binary-name>/app/server.go` 根据 `os.Args[0]` 动态推导，
+> 改名二进制后无需手动改源码；初始仓库内对应的实际文件名是
+> `configs/gin-enterprise-template-apiserver.yaml`。
 - [ ] 启动时确认 `Validate()` 没有报 `secret matches a known insecure/default value`
 
 ## 2. 项目身份信息
@@ -36,13 +40,13 @@
 ## 4. 数据库与配置
 
 - [ ] `configs/template.sql` → 改名为 `configs/<your-db-name>.sql`
-- [ ] `configs/configs.yaml` 中 `postgresql.database` 改为目标库名
+- [ ] `configs/<binary-name>.yaml` 中 `postgresql.database` 改为目标库名
 - [ ] 启动前先创建该数据库：`createdb <your-db-name>`
 - [ ] 检查 `internal/apiserver/model/*.gen.go` 是否需要重新跑 `gen-gorm-model`
 
 ## 5. 端口与对外暴露
 
-- [ ] `configs/configs.yaml` 中 `http.addr` 端口
+- [ ] `configs/<binary-name>.yaml` 中 `http.addr` 端口
 - [ ] `Dockerfile` 中 `EXPOSE`
 - [ ] `build/docker/<service>/docker-compose*.yml` 中 ports 映射
 - [ ] `README.md` 中所有提到端口的位置（curl/healthz/metrics）

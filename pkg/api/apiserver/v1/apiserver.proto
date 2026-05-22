@@ -19,11 +19,11 @@ import "apiserver/v1/user_role.proto";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     info: {
         // API名称
-        title: "Blog Service API v1";
+        title: "API Server v1";
         // API版本
         version: "1.0";
         // API 描述
-        description: "Blog 服务提供文章、分类、标签、评论、用户等模块的 RESTful API：\n- 用户认证与权限控制\n- 文章发布、编辑、删除、草稿与置顶\n- 分类与标签管理（创建、修改、归类）\n- 评论与回复、点赞与收藏\n- 搜索与筛选（按作者、标签、时间范围）\n- 附件/图片上传与资源管理\n- 通知与订阅\n- 管理后台与审计日志";
+        description: "基于 gin-enterprise-template 的通用后端 API 服务：\n- JWT 用户认证与权限控制\n- 用户、角色、权限、菜单管理\n- RESTful 资源接口\n- OpenTelemetry 可观测性\n- Casbin RBAC 授权";
         // 开发者的联系方式，包括项目名称、网址和电子邮件
         contact: {
             name: "gin-enterprise-template 项目";
@@ -39,7 +39,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     produces: "application/json";
 };
 
-service BlogService {
+service APIServer {
     // 健康检查
     rpc Healthz(google.protobuf.Empty) returns (HealthzResponse) {
         option (google.api.http) = {

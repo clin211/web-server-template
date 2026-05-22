@@ -30,6 +30,9 @@ type Config struct {
 	HTTPOptions       *genericoptions.HTTPOptions
 	PostgreSQLOptions *genericoptions.PostgreSQLOptions
 	RedisOptions      *genericoptions.RedisOptions
+	// OTelOptions 提供 service name / endpoint 等可观测性配置；
+	// httpserver 与 metrics 子系统从这里读取 service name，避免源码硬编码。
+	OTelOptions *genericoptions.OTelOptions
 }
 
 // Server 表示 Web 服务器。

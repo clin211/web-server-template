@@ -21,10 +21,8 @@
         "golangci",
         "healthz",
         "logtostderr",
-        "miniblog",
         "onexstack",
         "openapiv",
-        "pedia",
         "protoc"
     ]
 }

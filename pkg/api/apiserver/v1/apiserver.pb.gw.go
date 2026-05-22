@@ -36,7 +36,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_BlogService_Healthz_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_Healthz_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq emptypb.Empty
 		metadata runtime.ServerMetadata
@@ -48,7 +48,7 @@ func request_BlogService_Healthz_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_BlogService_Healthz_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_Healthz_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq emptypb.Empty
 		metadata runtime.ServerMetadata
@@ -57,7 +57,7 @@ func local_request_BlogService_Healthz_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_BlogService_Login_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_Login_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq LoginRequest
 		metadata runtime.ServerMetadata
@@ -72,7 +72,7 @@ func request_BlogService_Login_0(ctx context.Context, marshaler runtime.Marshale
 	return msg, metadata, err
 }
 
-func local_request_BlogService_Login_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_Login_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq LoginRequest
 		metadata runtime.ServerMetadata
@@ -84,7 +84,7 @@ func local_request_BlogService_Login_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func request_BlogService_RefreshToken_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_RefreshToken_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RefreshTokenRequest
 		metadata runtime.ServerMetadata
@@ -99,7 +99,7 @@ func request_BlogService_RefreshToken_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func local_request_BlogService_RefreshToken_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_RefreshToken_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RefreshTokenRequest
 		metadata runtime.ServerMetadata
@@ -111,7 +111,7 @@ func local_request_BlogService_RefreshToken_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func request_BlogService_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateUserRequest
 		metadata runtime.ServerMetadata
@@ -126,7 +126,7 @@ func request_BlogService_CreateUser_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateUserRequest
 		metadata runtime.ServerMetadata
@@ -138,7 +138,7 @@ func local_request_BlogService_CreateUser_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_BlogService_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetUserRequest
 		metadata runtime.ServerMetadata
@@ -159,7 +159,7 @@ func request_BlogService_GetUser_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_BlogService_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetUserRequest
 		metadata runtime.ServerMetadata
@@ -177,7 +177,7 @@ func local_request_BlogService_GetUser_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_BlogService_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateUserRequest
 		metadata runtime.ServerMetadata
@@ -201,7 +201,7 @@ func request_BlogService_UpdateUser_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateUserRequest
 		metadata runtime.ServerMetadata
@@ -222,7 +222,7 @@ func local_request_BlogService_UpdateUser_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_BlogService_DeleteUser_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_DeleteUser_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteUserRequest
 		metadata runtime.ServerMetadata
@@ -243,7 +243,7 @@ func request_BlogService_DeleteUser_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_DeleteUser_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_DeleteUser_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteUserRequest
 		metadata runtime.ServerMetadata
@@ -261,9 +261,9 @@ func local_request_BlogService_DeleteUser_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-var filter_BlogService_ListUsers_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_APIServer_ListUsers_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_BlogService_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListUserRequest
 		metadata runtime.ServerMetadata
@@ -274,14 +274,14 @@ func request_BlogService_ListUsers_0(ctx context.Context, marshaler runtime.Mars
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListUsers_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListUsers_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListUsers(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlogService_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListUserRequest
 		metadata runtime.ServerMetadata
@@ -289,14 +289,14 @@ func local_request_BlogService_ListUsers_0(ctx context.Context, marshaler runtim
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListUsers_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListUsers_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListUsers(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_BlogService_CreateMenu_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_CreateMenu_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateMenuRequest
 		metadata runtime.ServerMetadata
@@ -311,7 +311,7 @@ func request_BlogService_CreateMenu_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_CreateMenu_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_CreateMenu_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateMenuRequest
 		metadata runtime.ServerMetadata
@@ -323,7 +323,7 @@ func local_request_BlogService_CreateMenu_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_BlogService_GetMenu_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_GetMenu_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetMenuRequest
 		metadata runtime.ServerMetadata
@@ -344,7 +344,7 @@ func request_BlogService_GetMenu_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_BlogService_GetMenu_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_GetMenu_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetMenuRequest
 		metadata runtime.ServerMetadata
@@ -362,7 +362,7 @@ func local_request_BlogService_GetMenu_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_BlogService_UpdateMenu_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_UpdateMenu_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateMenuRequest
 		metadata runtime.ServerMetadata
@@ -386,7 +386,7 @@ func request_BlogService_UpdateMenu_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_UpdateMenu_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_UpdateMenu_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateMenuRequest
 		metadata runtime.ServerMetadata
@@ -407,7 +407,7 @@ func local_request_BlogService_UpdateMenu_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_BlogService_DeleteMenu_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_DeleteMenu_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteMenuRequest
 		metadata runtime.ServerMetadata
@@ -428,7 +428,7 @@ func request_BlogService_DeleteMenu_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_DeleteMenu_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_DeleteMenu_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteMenuRequest
 		metadata runtime.ServerMetadata
@@ -446,9 +446,9 @@ func local_request_BlogService_DeleteMenu_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-var filter_BlogService_ListMenus_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_APIServer_ListMenus_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_BlogService_ListMenus_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_ListMenus_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListMenuRequest
 		metadata runtime.ServerMetadata
@@ -459,14 +459,14 @@ func request_BlogService_ListMenus_0(ctx context.Context, marshaler runtime.Mars
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListMenus_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListMenus_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListMenus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlogService_ListMenus_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_ListMenus_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListMenuRequest
 		metadata runtime.ServerMetadata
@@ -474,16 +474,16 @@ func local_request_BlogService_ListMenus_0(ctx context.Context, marshaler runtim
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListMenus_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListMenus_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListMenus(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_BlogService_ListMenuTree_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_APIServer_ListMenuTree_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_BlogService_ListMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_ListMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListMenuTreeRequest
 		metadata runtime.ServerMetadata
@@ -494,14 +494,14 @@ func request_BlogService_ListMenuTree_0(ctx context.Context, marshaler runtime.M
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListMenuTree_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListMenuTree_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListMenuTree(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlogService_ListMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_ListMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListMenuTreeRequest
 		metadata runtime.ServerMetadata
@@ -509,14 +509,14 @@ func local_request_BlogService_ListMenuTree_0(ctx context.Context, marshaler run
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListMenuTree_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListMenuTree_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListMenuTree(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_BlogService_GetUserMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_GetUserMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetUserMenuTreeRequest
 		metadata runtime.ServerMetadata
@@ -528,7 +528,7 @@ func request_BlogService_GetUserMenuTree_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func local_request_BlogService_GetUserMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_GetUserMenuTree_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetUserMenuTreeRequest
 		metadata runtime.ServerMetadata
@@ -537,7 +537,7 @@ func local_request_BlogService_GetUserMenuTree_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-func request_BlogService_CreatePermission_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_CreatePermission_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreatePermissionRequest
 		metadata runtime.ServerMetadata
@@ -552,7 +552,7 @@ func request_BlogService_CreatePermission_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_BlogService_CreatePermission_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_CreatePermission_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreatePermissionRequest
 		metadata runtime.ServerMetadata
@@ -564,7 +564,7 @@ func local_request_BlogService_CreatePermission_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-func request_BlogService_GetPermission_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_GetPermission_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetPermissionRequest
 		metadata runtime.ServerMetadata
@@ -585,7 +585,7 @@ func request_BlogService_GetPermission_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func local_request_BlogService_GetPermission_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_GetPermission_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetPermissionRequest
 		metadata runtime.ServerMetadata
@@ -603,7 +603,7 @@ func local_request_BlogService_GetPermission_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
-func request_BlogService_UpdatePermission_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_UpdatePermission_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdatePermissionRequest
 		metadata runtime.ServerMetadata
@@ -627,7 +627,7 @@ func request_BlogService_UpdatePermission_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_BlogService_UpdatePermission_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_UpdatePermission_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdatePermissionRequest
 		metadata runtime.ServerMetadata
@@ -648,7 +648,7 @@ func local_request_BlogService_UpdatePermission_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-func request_BlogService_DeletePermission_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_DeletePermission_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeletePermissionRequest
 		metadata runtime.ServerMetadata
@@ -669,7 +669,7 @@ func request_BlogService_DeletePermission_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_BlogService_DeletePermission_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_DeletePermission_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeletePermissionRequest
 		metadata runtime.ServerMetadata
@@ -687,9 +687,9 @@ func local_request_BlogService_DeletePermission_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-var filter_BlogService_ListPermissions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_APIServer_ListPermissions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_BlogService_ListPermissions_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_ListPermissions_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListPermissionRequest
 		metadata runtime.ServerMetadata
@@ -700,14 +700,14 @@ func request_BlogService_ListPermissions_0(ctx context.Context, marshaler runtim
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListPermissions_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListPermissions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListPermissions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlogService_ListPermissions_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_ListPermissions_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListPermissionRequest
 		metadata runtime.ServerMetadata
@@ -715,16 +715,16 @@ func local_request_BlogService_ListPermissions_0(ctx context.Context, marshaler 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListPermissions_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListPermissions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListPermissions(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_BlogService_ListPermissionTree_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_APIServer_ListPermissionTree_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_BlogService_ListPermissionTree_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_ListPermissionTree_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListPermissionTreeRequest
 		metadata runtime.ServerMetadata
@@ -735,14 +735,14 @@ func request_BlogService_ListPermissionTree_0(ctx context.Context, marshaler run
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListPermissionTree_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListPermissionTree_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListPermissionTree(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlogService_ListPermissionTree_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_ListPermissionTree_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListPermissionTreeRequest
 		metadata runtime.ServerMetadata
@@ -750,14 +750,14 @@ func local_request_BlogService_ListPermissionTree_0(ctx context.Context, marshal
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListPermissionTree_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListPermissionTree_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListPermissionTree(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_BlogService_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateRoleRequest
 		metadata runtime.ServerMetadata
@@ -772,7 +772,7 @@ func request_BlogService_CreateRole_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateRoleRequest
 		metadata runtime.ServerMetadata
@@ -784,7 +784,7 @@ func local_request_BlogService_CreateRole_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_BlogService_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetRoleRequest
 		metadata runtime.ServerMetadata
@@ -805,7 +805,7 @@ func request_BlogService_GetRole_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_BlogService_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetRoleRequest
 		metadata runtime.ServerMetadata
@@ -823,7 +823,7 @@ func local_request_BlogService_GetRole_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_BlogService_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateRoleRequest
 		metadata runtime.ServerMetadata
@@ -847,7 +847,7 @@ func request_BlogService_UpdateRole_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateRoleRequest
 		metadata runtime.ServerMetadata
@@ -868,7 +868,7 @@ func local_request_BlogService_UpdateRole_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_BlogService_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteRoleRequest
 		metadata runtime.ServerMetadata
@@ -889,7 +889,7 @@ func request_BlogService_DeleteRole_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_BlogService_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq DeleteRoleRequest
 		metadata runtime.ServerMetadata
@@ -907,9 +907,9 @@ func local_request_BlogService_DeleteRole_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-var filter_BlogService_ListRoles_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_APIServer_ListRoles_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_BlogService_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListRoleRequest
 		metadata runtime.ServerMetadata
@@ -920,14 +920,14 @@ func request_BlogService_ListRoles_0(ctx context.Context, marshaler runtime.Mars
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListRoles_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListRoles_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListRoles(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlogService_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListRoleRequest
 		metadata runtime.ServerMetadata
@@ -935,14 +935,14 @@ func local_request_BlogService_ListRoles_0(ctx context.Context, marshaler runtim
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlogService_ListRoles_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListRoles_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListRoles(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_BlogService_AssignPermissionsToRole_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_AssignPermissionsToRole_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq AssignPermissionsToRoleRequest
 		metadata runtime.ServerMetadata
@@ -966,7 +966,7 @@ func request_BlogService_AssignPermissionsToRole_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
-func local_request_BlogService_AssignPermissionsToRole_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_AssignPermissionsToRole_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq AssignPermissionsToRoleRequest
 		metadata runtime.ServerMetadata
@@ -987,7 +987,7 @@ func local_request_BlogService_AssignPermissionsToRole_0(ctx context.Context, ma
 	return msg, metadata, err
 }
 
-func request_BlogService_GetRolePermissions_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_GetRolePermissions_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetRolePermissionsRequest
 		metadata runtime.ServerMetadata
@@ -1008,7 +1008,7 @@ func request_BlogService_GetRolePermissions_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func local_request_BlogService_GetRolePermissions_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_GetRolePermissions_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetRolePermissionsRequest
 		metadata runtime.ServerMetadata
@@ -1026,7 +1026,7 @@ func local_request_BlogService_GetRolePermissions_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
-func request_BlogService_AssignRolesToUser_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_AssignRolesToUser_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq AssignRolesToUserRequest
 		metadata runtime.ServerMetadata
@@ -1050,7 +1050,7 @@ func request_BlogService_AssignRolesToUser_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-func local_request_BlogService_AssignRolesToUser_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_AssignRolesToUser_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq AssignRolesToUserRequest
 		metadata runtime.ServerMetadata
@@ -1071,7 +1071,7 @@ func local_request_BlogService_AssignRolesToUser_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
-func request_BlogService_GetUserRoles_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_GetUserRoles_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetUserRolesRequest
 		metadata runtime.ServerMetadata
@@ -1092,7 +1092,7 @@ func request_BlogService_GetUserRoles_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func local_request_BlogService_GetUserRoles_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_GetUserRoles_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetUserRolesRequest
 		metadata runtime.ServerMetadata
@@ -1110,7 +1110,7 @@ func local_request_BlogService_GetUserRoles_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func request_BlogService_RemoveRoleFromUser_0(ctx context.Context, marshaler runtime.Marshaler, client BlogServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_APIServer_RemoveRoleFromUser_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RemoveRoleFromUserRequest
 		metadata runtime.ServerMetadata
@@ -1139,7 +1139,7 @@ func request_BlogService_RemoveRoleFromUser_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func local_request_BlogService_RemoveRoleFromUser_0(ctx context.Context, marshaler runtime.Marshaler, server BlogServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_APIServer_RemoveRoleFromUser_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RemoveRoleFromUserRequest
 		metadata runtime.ServerMetadata
@@ -1165,639 +1165,639 @@ func local_request_BlogService_RemoveRoleFromUser_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
-// RegisterBlogServiceHandlerServer registers the http handlers for service BlogService to "mux".
-// UnaryRPC     :call BlogServiceServer directly.
+// RegisterAPIServerHandlerServer registers the http handlers for service APIServer to "mux".
+// UnaryRPC     :call APIServerServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBlogServiceHandlerFromEndpoint instead.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAPIServerHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
-func RegisterBlogServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BlogServiceServer) error {
-	mux.Handle(http.MethodGet, pattern_BlogService_Healthz_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+func RegisterAPIServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, server APIServerServer) error {
+	mux.Handle(http.MethodGet, pattern_APIServer_Healthz_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/Healthz", runtime.WithHTTPPathPattern("/healthz"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/Healthz", runtime.WithHTTPPathPattern("/healthz"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_Healthz_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_Healthz_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_Healthz_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_Healthz_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/Login", runtime.WithHTTPPathPattern("/v1/auth/login"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/Login", runtime.WithHTTPPathPattern("/v1/auth/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_Login_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_Login_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_Login_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_Login_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_RefreshToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_RefreshToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/RefreshToken", runtime.WithHTTPPathPattern("/v1/auth/refresh-token"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/RefreshToken", runtime.WithHTTPPathPattern("/v1/auth/refresh-token"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_RefreshToken_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_RefreshToken_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_RefreshToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_RefreshToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/CreateUser", runtime.WithHTTPPathPattern("/v1/users"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateUser", runtime.WithHTTPPathPattern("/v1/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_CreateUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_CreateUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/GetUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_GetUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_GetUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdateUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_UpdateUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_UpdateUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/DeleteUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_DeleteUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_DeleteUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeleteUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeleteUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/ListUsers", runtime.WithHTTPPathPattern("/v1/users"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListUsers", runtime.WithHTTPPathPattern("/v1/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_ListUsers_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_ListUsers_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListUsers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListUsers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/CreateMenu", runtime.WithHTTPPathPattern("/v1/menus"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateMenu", runtime.WithHTTPPathPattern("/v1/menus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_CreateMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_CreateMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/GetMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_GetMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_GetMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdateMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_UpdateMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_UpdateMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeleteMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/DeleteMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_DeleteMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_DeleteMenu_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeleteMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeleteMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListMenus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListMenus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/ListMenus", runtime.WithHTTPPathPattern("/v1/menus"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListMenus", runtime.WithHTTPPathPattern("/v1/menus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_ListMenus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_ListMenus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListMenus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListMenus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/ListMenuTree", runtime.WithHTTPPathPattern("/v1/menus/tree"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListMenuTree", runtime.WithHTTPPathPattern("/v1/menus/tree"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_ListMenuTree_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_ListMenuTree_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetUserMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetUserMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/GetUserMenuTree", runtime.WithHTTPPathPattern("/v1/users/menu-tree"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetUserMenuTree", runtime.WithHTTPPathPattern("/v1/users/menu-tree"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_GetUserMenuTree_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_GetUserMenuTree_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetUserMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetUserMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/CreatePermission", runtime.WithHTTPPathPattern("/v1/permissions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/CreatePermission", runtime.WithHTTPPathPattern("/v1/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_CreatePermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_CreatePermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetPermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetPermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/GetPermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetPermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_GetPermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_GetPermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetPermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetPermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdatePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdatePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_UpdatePermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_UpdatePermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeletePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeletePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/DeletePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/DeletePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_DeletePermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_DeletePermission_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeletePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeletePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListPermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListPermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/ListPermissions", runtime.WithHTTPPathPattern("/v1/permissions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListPermissions", runtime.WithHTTPPathPattern("/v1/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_ListPermissions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_ListPermissions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListPermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListPermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListPermissionTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListPermissionTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/ListPermissionTree", runtime.WithHTTPPathPattern("/v1/permissions/tree"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListPermissionTree", runtime.WithHTTPPathPattern("/v1/permissions/tree"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_ListPermissionTree_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_ListPermissionTree_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListPermissionTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListPermissionTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/CreateRole", runtime.WithHTTPPathPattern("/v1/roles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateRole", runtime.WithHTTPPathPattern("/v1/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_CreateRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_CreateRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/GetRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_GetRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_GetRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdateRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_UpdateRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_UpdateRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/DeleteRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_DeleteRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_DeleteRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/ListRoles", runtime.WithHTTPPathPattern("/v1/roles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListRoles", runtime.WithHTTPPathPattern("/v1/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_ListRoles_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_ListRoles_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_AssignPermissionsToRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_AssignPermissionsToRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/AssignPermissionsToRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/AssignPermissionsToRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_AssignPermissionsToRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_AssignPermissionsToRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_AssignPermissionsToRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_AssignPermissionsToRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetRolePermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetRolePermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/GetRolePermissions", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetRolePermissions", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_GetRolePermissions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_GetRolePermissions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetRolePermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetRolePermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_AssignRolesToUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_AssignRolesToUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/AssignRolesToUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/AssignRolesToUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_AssignRolesToUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_AssignRolesToUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_AssignRolesToUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_AssignRolesToUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetUserRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetUserRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/GetUserRoles", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetUserRoles", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_GetUserRoles_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_GetUserRoles_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetUserRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetUserRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_RemoveRoleFromUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_RemoveRoleFromUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.BlogService/RemoveRoleFromUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/RemoveRoleFromUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlogService_RemoveRoleFromUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_APIServer_RemoveRoleFromUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_RemoveRoleFromUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_RemoveRoleFromUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterBlogServiceHandlerFromEndpoint is same as RegisterBlogServiceHandler but
+// RegisterAPIServerHandlerFromEndpoint is same as RegisterAPIServerHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterBlogServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterAPIServerHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
@@ -1816,615 +1816,615 @@ func RegisterBlogServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 			}
 		}()
 	}()
-	return RegisterBlogServiceHandler(ctx, mux, conn)
+	return RegisterAPIServerHandler(ctx, mux, conn)
 }
 
-// RegisterBlogServiceHandler registers the http handlers for service BlogService to "mux".
+// RegisterAPIServerHandler registers the http handlers for service APIServer to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterBlogServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterBlogServiceHandlerClient(ctx, mux, NewBlogServiceClient(conn))
+func RegisterAPIServerHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterAPIServerHandlerClient(ctx, mux, NewAPIServerClient(conn))
 }
 
-// RegisterBlogServiceHandlerClient registers the http handlers for service BlogService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "BlogServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "BlogServiceClient"
+// RegisterAPIServerHandlerClient registers the http handlers for service APIServer
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "APIServerClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "APIServerClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "BlogServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
-func RegisterBlogServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BlogServiceClient) error {
-	mux.Handle(http.MethodGet, pattern_BlogService_Healthz_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "APIServerClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterAPIServerHandlerClient(ctx context.Context, mux *runtime.ServeMux, client APIServerClient) error {
+	mux.Handle(http.MethodGet, pattern_APIServer_Healthz_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/Healthz", runtime.WithHTTPPathPattern("/healthz"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/Healthz", runtime.WithHTTPPathPattern("/healthz"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_Healthz_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_Healthz_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_Healthz_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_Healthz_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/Login", runtime.WithHTTPPathPattern("/v1/auth/login"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/Login", runtime.WithHTTPPathPattern("/v1/auth/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_Login_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_Login_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_Login_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_Login_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_RefreshToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_RefreshToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/RefreshToken", runtime.WithHTTPPathPattern("/v1/auth/refresh-token"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/RefreshToken", runtime.WithHTTPPathPattern("/v1/auth/refresh-token"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_RefreshToken_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_RefreshToken_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_RefreshToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_RefreshToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/CreateUser", runtime.WithHTTPPathPattern("/v1/users"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateUser", runtime.WithHTTPPathPattern("/v1/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_CreateUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_CreateUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/GetUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_GetUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_GetUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdateUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_UpdateUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_UpdateUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/DeleteUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteUser", runtime.WithHTTPPathPattern("/v1/users/{userID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_DeleteUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_DeleteUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeleteUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeleteUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/ListUsers", runtime.WithHTTPPathPattern("/v1/users"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListUsers", runtime.WithHTTPPathPattern("/v1/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_ListUsers_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_ListUsers_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListUsers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListUsers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/CreateMenu", runtime.WithHTTPPathPattern("/v1/menus"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateMenu", runtime.WithHTTPPathPattern("/v1/menus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_CreateMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_CreateMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/GetMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_GetMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_GetMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdateMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_UpdateMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_UpdateMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdateMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeleteMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteMenu_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/DeleteMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteMenu", runtime.WithHTTPPathPattern("/v1/menus/{menuID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_DeleteMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_DeleteMenu_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeleteMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeleteMenu_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListMenus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListMenus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/ListMenus", runtime.WithHTTPPathPattern("/v1/menus"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListMenus", runtime.WithHTTPPathPattern("/v1/menus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_ListMenus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_ListMenus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListMenus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListMenus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/ListMenuTree", runtime.WithHTTPPathPattern("/v1/menus/tree"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListMenuTree", runtime.WithHTTPPathPattern("/v1/menus/tree"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_ListMenuTree_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_ListMenuTree_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetUserMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetUserMenuTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/GetUserMenuTree", runtime.WithHTTPPathPattern("/v1/users/menu-tree"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetUserMenuTree", runtime.WithHTTPPathPattern("/v1/users/menu-tree"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_GetUserMenuTree_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_GetUserMenuTree_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetUserMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetUserMenuTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/CreatePermission", runtime.WithHTTPPathPattern("/v1/permissions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/CreatePermission", runtime.WithHTTPPathPattern("/v1/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_CreatePermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_CreatePermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetPermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetPermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/GetPermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetPermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_GetPermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_GetPermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetPermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetPermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdatePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdatePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdatePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_UpdatePermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_UpdatePermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdatePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeletePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeletePermission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/DeletePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/DeletePermission", runtime.WithHTTPPathPattern("/v1/permissions/{permissionID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_DeletePermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_DeletePermission_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeletePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeletePermission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListPermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListPermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/ListPermissions", runtime.WithHTTPPathPattern("/v1/permissions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListPermissions", runtime.WithHTTPPathPattern("/v1/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_ListPermissions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_ListPermissions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListPermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListPermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListPermissionTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListPermissionTree_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/ListPermissionTree", runtime.WithHTTPPathPattern("/v1/permissions/tree"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListPermissionTree", runtime.WithHTTPPathPattern("/v1/permissions/tree"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_ListPermissionTree_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_ListPermissionTree_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListPermissionTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListPermissionTree_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/CreateRole", runtime.WithHTTPPathPattern("/v1/roles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateRole", runtime.WithHTTPPathPattern("/v1/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_CreateRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_CreateRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/GetRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_GetRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_GetRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPut, pattern_BlogService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/UpdateRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_UpdateRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_UpdateRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/DeleteRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_DeleteRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_DeleteRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/ListRoles", runtime.WithHTTPPathPattern("/v1/roles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListRoles", runtime.WithHTTPPathPattern("/v1/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_ListRoles_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_ListRoles_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_AssignPermissionsToRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_AssignPermissionsToRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/AssignPermissionsToRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/AssignPermissionsToRole", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_AssignPermissionsToRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_AssignPermissionsToRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_AssignPermissionsToRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_AssignPermissionsToRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetRolePermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetRolePermissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/GetRolePermissions", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetRolePermissions", runtime.WithHTTPPathPattern("/v1/roles/{roleID}/permissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_GetRolePermissions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_GetRolePermissions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetRolePermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetRolePermissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_BlogService_AssignRolesToUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_APIServer_AssignRolesToUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/AssignRolesToUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/AssignRolesToUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_AssignRolesToUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_AssignRolesToUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_AssignRolesToUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_AssignRolesToUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlogService_GetUserRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APIServer_GetUserRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/GetUserRoles", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetUserRoles", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_GetUserRoles_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_GetUserRoles_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_GetUserRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_GetUserRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlogService_RemoveRoleFromUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_APIServer_RemoveRoleFromUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.BlogService/RemoveRoleFromUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles/{roleID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/RemoveRoleFromUser", runtime.WithHTTPPathPattern("/v1/users/{userID}/roles/{roleID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlogService_RemoveRoleFromUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIServer_RemoveRoleFromUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlogService_RemoveRoleFromUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIServer_RemoveRoleFromUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_BlogService_Healthz_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"healthz"}, ""))
-	pattern_BlogService_Login_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "login"}, ""))
-	pattern_BlogService_RefreshToken_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "refresh-token"}, ""))
-	pattern_BlogService_CreateUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
-	pattern_BlogService_GetUser_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
-	pattern_BlogService_UpdateUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
-	pattern_BlogService_DeleteUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
-	pattern_BlogService_ListUsers_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
-	pattern_BlogService_CreateMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
-	pattern_BlogService_GetMenu_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
-	pattern_BlogService_UpdateMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
-	pattern_BlogService_DeleteMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
-	pattern_BlogService_ListMenus_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
-	pattern_BlogService_ListMenuTree_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "menus", "tree"}, ""))
-	pattern_BlogService_GetUserMenuTree_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "users", "menu-tree"}, ""))
-	pattern_BlogService_CreatePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
-	pattern_BlogService_GetPermission_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
-	pattern_BlogService_UpdatePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
-	pattern_BlogService_DeletePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
-	pattern_BlogService_ListPermissions_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
-	pattern_BlogService_ListPermissionTree_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "permissions", "tree"}, ""))
-	pattern_BlogService_CreateRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
-	pattern_BlogService_GetRole_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
-	pattern_BlogService_UpdateRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
-	pattern_BlogService_DeleteRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
-	pattern_BlogService_ListRoles_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
-	pattern_BlogService_AssignPermissionsToRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
-	pattern_BlogService_GetRolePermissions_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
-	pattern_BlogService_AssignRolesToUser_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
-	pattern_BlogService_GetUserRoles_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
-	pattern_BlogService_RemoveRoleFromUser_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "users", "userID", "roles", "roleID"}, ""))
+	pattern_APIServer_Healthz_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"healthz"}, ""))
+	pattern_APIServer_Login_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "login"}, ""))
+	pattern_APIServer_RefreshToken_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "refresh-token"}, ""))
+	pattern_APIServer_CreateUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
+	pattern_APIServer_GetUser_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
+	pattern_APIServer_UpdateUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
+	pattern_APIServer_DeleteUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
+	pattern_APIServer_ListUsers_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
+	pattern_APIServer_CreateMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
+	pattern_APIServer_GetMenu_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
+	pattern_APIServer_UpdateMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
+	pattern_APIServer_DeleteMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
+	pattern_APIServer_ListMenus_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
+	pattern_APIServer_ListMenuTree_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "menus", "tree"}, ""))
+	pattern_APIServer_GetUserMenuTree_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "users", "menu-tree"}, ""))
+	pattern_APIServer_CreatePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
+	pattern_APIServer_GetPermission_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
+	pattern_APIServer_UpdatePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
+	pattern_APIServer_DeletePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
+	pattern_APIServer_ListPermissions_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
+	pattern_APIServer_ListPermissionTree_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "permissions", "tree"}, ""))
+	pattern_APIServer_CreateRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
+	pattern_APIServer_GetRole_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
+	pattern_APIServer_UpdateRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
+	pattern_APIServer_DeleteRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
+	pattern_APIServer_ListRoles_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
+	pattern_APIServer_AssignPermissionsToRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
+	pattern_APIServer_GetRolePermissions_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
+	pattern_APIServer_AssignRolesToUser_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
+	pattern_APIServer_GetUserRoles_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
+	pattern_APIServer_RemoveRoleFromUser_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "users", "userID", "roles", "roleID"}, ""))
 )
 
 var (
-	forward_BlogService_Healthz_0                 = runtime.ForwardResponseMessage
-	forward_BlogService_Login_0                   = runtime.ForwardResponseMessage
-	forward_BlogService_RefreshToken_0            = runtime.ForwardResponseMessage
-	forward_BlogService_CreateUser_0              = runtime.ForwardResponseMessage
-	forward_BlogService_GetUser_0                 = runtime.ForwardResponseMessage
-	forward_BlogService_UpdateUser_0              = runtime.ForwardResponseMessage
-	forward_BlogService_DeleteUser_0              = runtime.ForwardResponseMessage
-	forward_BlogService_ListUsers_0               = runtime.ForwardResponseMessage
-	forward_BlogService_CreateMenu_0              = runtime.ForwardResponseMessage
-	forward_BlogService_GetMenu_0                 = runtime.ForwardResponseMessage
-	forward_BlogService_UpdateMenu_0              = runtime.ForwardResponseMessage
-	forward_BlogService_DeleteMenu_0              = runtime.ForwardResponseMessage
-	forward_BlogService_ListMenus_0               = runtime.ForwardResponseMessage
-	forward_BlogService_ListMenuTree_0            = runtime.ForwardResponseMessage
-	forward_BlogService_GetUserMenuTree_0         = runtime.ForwardResponseMessage
-	forward_BlogService_CreatePermission_0        = runtime.ForwardResponseMessage
-	forward_BlogService_GetPermission_0           = runtime.ForwardResponseMessage
-	forward_BlogService_UpdatePermission_0        = runtime.ForwardResponseMessage
-	forward_BlogService_DeletePermission_0        = runtime.ForwardResponseMessage
-	forward_BlogService_ListPermissions_0         = runtime.ForwardResponseMessage
-	forward_BlogService_ListPermissionTree_0      = runtime.ForwardResponseMessage
-	forward_BlogService_CreateRole_0              = runtime.ForwardResponseMessage
-	forward_BlogService_GetRole_0                 = runtime.ForwardResponseMessage
-	forward_BlogService_UpdateRole_0              = runtime.ForwardResponseMessage
-	forward_BlogService_DeleteRole_0              = runtime.ForwardResponseMessage
-	forward_BlogService_ListRoles_0               = runtime.ForwardResponseMessage
-	forward_BlogService_AssignPermissionsToRole_0 = runtime.ForwardResponseMessage
-	forward_BlogService_GetRolePermissions_0      = runtime.ForwardResponseMessage
-	forward_BlogService_AssignRolesToUser_0       = runtime.ForwardResponseMessage
-	forward_BlogService_GetUserRoles_0            = runtime.ForwardResponseMessage
-	forward_BlogService_RemoveRoleFromUser_0      = runtime.ForwardResponseMessage
+	forward_APIServer_Healthz_0                 = runtime.ForwardResponseMessage
+	forward_APIServer_Login_0                   = runtime.ForwardResponseMessage
+	forward_APIServer_RefreshToken_0            = runtime.ForwardResponseMessage
+	forward_APIServer_CreateUser_0              = runtime.ForwardResponseMessage
+	forward_APIServer_GetUser_0                 = runtime.ForwardResponseMessage
+	forward_APIServer_UpdateUser_0              = runtime.ForwardResponseMessage
+	forward_APIServer_DeleteUser_0              = runtime.ForwardResponseMessage
+	forward_APIServer_ListUsers_0               = runtime.ForwardResponseMessage
+	forward_APIServer_CreateMenu_0              = runtime.ForwardResponseMessage
+	forward_APIServer_GetMenu_0                 = runtime.ForwardResponseMessage
+	forward_APIServer_UpdateMenu_0              = runtime.ForwardResponseMessage
+	forward_APIServer_DeleteMenu_0              = runtime.ForwardResponseMessage
+	forward_APIServer_ListMenus_0               = runtime.ForwardResponseMessage
+	forward_APIServer_ListMenuTree_0            = runtime.ForwardResponseMessage
+	forward_APIServer_GetUserMenuTree_0         = runtime.ForwardResponseMessage
+	forward_APIServer_CreatePermission_0        = runtime.ForwardResponseMessage
+	forward_APIServer_GetPermission_0           = runtime.ForwardResponseMessage
+	forward_APIServer_UpdatePermission_0        = runtime.ForwardResponseMessage
+	forward_APIServer_DeletePermission_0        = runtime.ForwardResponseMessage
+	forward_APIServer_ListPermissions_0         = runtime.ForwardResponseMessage
+	forward_APIServer_ListPermissionTree_0      = runtime.ForwardResponseMessage
+	forward_APIServer_CreateRole_0              = runtime.ForwardResponseMessage
+	forward_APIServer_GetRole_0                 = runtime.ForwardResponseMessage
+	forward_APIServer_UpdateRole_0              = runtime.ForwardResponseMessage
+	forward_APIServer_DeleteRole_0              = runtime.ForwardResponseMessage
+	forward_APIServer_ListRoles_0               = runtime.ForwardResponseMessage
+	forward_APIServer_AssignPermissionsToRole_0 = runtime.ForwardResponseMessage
+	forward_APIServer_GetRolePermissions_0      = runtime.ForwardResponseMessage
+	forward_APIServer_AssignRolesToUser_0       = runtime.ForwardResponseMessage
+	forward_APIServer_GetUserRoles_0            = runtime.ForwardResponseMessage
+	forward_APIServer_RemoveRoleFromUser_0      = runtime.ForwardResponseMessage
 )

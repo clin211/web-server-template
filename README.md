@@ -2,7 +2,7 @@
 
 > **安全提示（必读）**
 >
-> 本仓库 `configs/configs.yaml` 中的密钥与密码字段是占位符（`CHANGE_ME_*`），并非可用值。
+> 本仓库 `configs/gin-enterprise-template-apiserver.yaml` 中的密钥与密码字段是占位符（`CHANGE_ME_*`），并非可用值。
 > **首次部署到任何环境（开发/测试/生产）前必须替换：**
 >
 > - `jwt.secret`：用 `openssl rand -hex 32` 生成（≥ 32 字符）
@@ -13,7 +13,7 @@
 > 完整 fork 后清单见 [`docs/FORK-CHECKLIST.md`](./docs/FORK-CHECKLIST.md)。
 > 改进路线见 [`docs/template-improvements.md`](./docs/template-improvements.md)。
 
-gin-enterprise-template 是一个基于 Go 语言开发的现代化知识库管理系统，采用简洁架构设计，具有代码质量高、扩展能力强、符合 Go 编码及最佳实践等特点。基于 Go 语言开发的现代化微服务应用，采用简洁架构设计，具有代码质量高、扩展能力强、符合 Go 编码及最佳实践等特点。
+gin-enterprise-template 是一个基于 Go 语言开发的通用企业级后端 skeleton，采用简洁架构设计，具有代码质量高、扩展能力强、符合 Go 编码及最佳实践等特点。
 
 gin-enterprise-template 具有以下特性：
 
@@ -165,7 +165,7 @@ docker compose up -d
 docker compose logs -f
 
 # 6. 测试健康检查
-curl localhost:5556/healthz
+curl localhost:5555/healthz
 ```
 
 #### 生产环境部署
@@ -184,7 +184,7 @@ cd build/docker/gin-enterprise-template-apiserver
 VERSION=v1.0.0 docker compose -f docker-compose.prod.yml up -d
 
 # 4. 验证
-curl localhost:5556/healthz
+curl localhost:5555/healthz
 docker logs gin-enterprise-template-apiserver
 ```
 
@@ -304,18 +304,18 @@ docker network inspect gin-enterprise-template_net
 docker exec -it gin-enterprise-template-apiserver ping host.docker.internal
 
 # 从宿主机测试端口
-telnet localhost 5556
-nc -zv localhost 5556
+telnet localhost 5555
+nc -zv localhost 5555
 ```
 
 ### API 测试
 
 ```bash
 # 健康检查
-curl -i localhost:5556/healthz
+curl -i localhost:5555/healthz
 
 # 创建用户
-curl -X POST http://localhost:5556/v1/users \
+curl -X POST http://localhost:5555/v1/users \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -324,7 +324,7 @@ curl -X POST http://localhost:5556/v1/users \
   }'
 
 # 用户登录
-curl -X POST http://localhost:5556/v1/auth/login \
+curl -X POST http://localhost:5555/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -332,10 +332,10 @@ curl -X POST http://localhost:5556/v1/auth/login \
   }'
 
 # 查看指标
-curl localhost:5556/metrics
+curl localhost:5555/metrics
 
 # 查看 pprof
-curl localhost:5556/debug/pprof/
+curl localhost:5555/debug/pprof/
 ```
 
 ### 故障排查
@@ -373,15 +373,15 @@ docker logs gin-enterprise-template-apiserver | grep -i "database\|postgres"
 
 ```bash
 # 1. 查看端口占用
-lsof -i :5556
-netstat -an | grep 5556
+lsof -i :5555
+netstat -an | grep 5555
 
 # 2. 停止占用端口的进程
 kill -9 <PID>
 
-# 3. 修改 docker-compose.yml 使用其他端口
+# 3. 修改 docker-compose.yml 使用其他端口（左侧为宿主机端口，右侧为容器内端口）
 # ports:
-#   - "5557:5556"
+#   - "5557:5555"
 ```
 
 #### 问题：磁盘空间不足
@@ -424,7 +424,7 @@ docker builder prune
 
 | 服务 | 容器端口 | 宿主机端口 |
 |------|---------|-----------|
-| gin-enterprise-template-apiserver | 5556 | 5556 |
+| gin-enterprise-template-apiserver | 5555 | 5555 |
 | PostgreSQL | 5432 | 54321 |
 | Redis | 6379 | 56379 |
 | OTEL Collector | 4327 | 4327 |
@@ -485,13 +485,13 @@ logging:
 
 ```bash
 # Prometheus 指标
-curl localhost:5556/metrics
+curl localhost:5555/metrics
 
 # 容器资源使用
 docker stats gin-enterprise-template-apiserver
 
 # 健康检查
-while true; do curl -s localhost:5556/healthz | jq -r .timestamp; sleep 5; done
+while true; do curl -s localhost:5555/healthz | jq -r .timestamp; sleep 5; done
 ```
 
 ## 附录

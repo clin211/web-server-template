@@ -138,13 +138,23 @@ func run(ctx context.Context, opts *options.ServerOptions) error {
 	return server.Run(ctx)
 }
 
-// searchDirs 返回搜索配置文件的默认目录。
+// searchDirs 返回搜索配置文件的默认目录，优先级从高到低依次为：
+//  1. ~/.${binary}             —— 用户私有配置（部署/产线常用位置）
+//  2. ./configs                —— 仓库内置配置（默认开发体验，无需 -c 参数）
+//  3. .                        —— 当前工作目录（兜底，便于自定义脚本）
+//
+// 由于 viper 会按顺序在这些目录里查找 ${binary}.yaml，确保仓库克隆后
+// 直接 `make run` 也能命中 `configs/${binary}.yaml`。
 func searchDirs() []string {
 	// 获取用户的主目录。
 	homeDir, err := os.UserHomeDir()
 	// 如果无法获取用户的主目录，打印错误消息并退出程序。
 	cobra.CheckErr(err)
-	return []string{filepath.Join(homeDir, defaultHomeDir), "."}
+	return []string{
+		filepath.Join(homeDir, defaultHomeDir),
+		"./configs",
+		".",
+	}
 }
 
 // filePath 检索默认配置文件的完整路径。

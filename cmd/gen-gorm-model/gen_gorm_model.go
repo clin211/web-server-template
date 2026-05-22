@@ -36,7 +36,7 @@ type GenerateConfig struct {
 
 // 预定义的生成配置.
 var generateConfigs = map[string]GenerateConfig{
-	"gin-enterprise-template": {ModelPackagePath: "../../internal/apiserver/model", GenerateFunc: GenerateCspediaModels},
+	"gin-enterprise-template": {ModelPackagePath: "../../internal/apiserver/model", GenerateFunc: GenerateTemplateModels},
 }
 
 // 命令行参数.
@@ -44,7 +44,7 @@ var (
 	addr       = "127.0.0.1:5432"
 	username   = "postgres"
 	password   = "postgres"
-	database   = "cs-pedia"
+	database   = "template"
 	modelPath  = ""
 	components = pflag.StringSlice("component", []string{"gin-enterprise-template"}, "Generated model code's for specified component.")
 	help       = pflag.BoolP("help", "h", false, "Show this help message.")
@@ -164,8 +164,8 @@ func applyGeneratorOptions(g *gen.Generator) {
 	)
 }
 
-// GenerateCspediaModels 为 gin-enterprise-template 组件生成模型.
-func GenerateCspediaModels(g *gen.Generator) {
+// GenerateTemplateModels 为 gin-enterprise-template 组件生成模型。
+func GenerateTemplateModels(g *gen.Generator) {
 	// 系统核心表
 	g.GenerateModelAs("user", "UserM")
 	g.GenerateModelAs("user_config", "UserConfigM")
