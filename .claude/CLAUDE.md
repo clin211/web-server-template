@@ -15,7 +15,7 @@
 
 ## 2. 项目概述（Project Overview）
 
-* 微服务博客后端 API，使用 **Gin + GORM + JWT + Casbin + OpenTelemetry**
+* 后端 API，使用 **Gin + GORM + JWT + Casbin + OpenTelemetry**
 * 核心理念：**整洁架构 + 模块化 + 可观测性**
 * 目录结构：
 

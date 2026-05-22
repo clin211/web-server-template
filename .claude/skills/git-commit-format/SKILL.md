@@ -90,18 +90,12 @@ Commit-Message-Assisted-by: Claude (via Claude Code)
 
 ```sh
 docs: 更正 CHANGELOG 拼写
-
-Signed-off-by: Bryan Cox <brcox@redhat.com>
-Commit-Message-Assisted-by: Claude (via Claude Code)
 ```
 
 ### 带范围
 
 ```sh
 feat(azure): 添加工作负载身份支持
-
-Signed-off-by: Bryan Cox <brcox@redhat.com>
-Commit-Message-Assisted-by: Claude (via Claude Code)
 ```
 
 ### 多段落带脚注
@@ -109,15 +103,10 @@ Commit-Message-Assisted-by: Claude (via Claude Code)
 ```sh
 fix: 防止请求竞态
 
-引入请求 ID 并引用最新请求。忽略
-来自最新请求之外的传入响应。
+- 引入请求 ID 并引用最新请求。忽略
+- 来自最新请求之外的传入响应。
 
-移除用于缓解竞态但现在已过时的超时设置。
-
-Reviewed-by: Jane Doe
-Refs: #123
-Signed-off-by: Bryan Cox <brcox@redhat.com>
-Commit-Message-Assisted-by: Claude (via Claude Code)
+- 移除用于缓解竞态但现在已过时的超时设置。
 ```
 
 ## 快速检查清单
