@@ -1,28 +1,18 @@
-# ==============================================================================
-# gin-enterprise-template-apiserver 配置文件
-#
-# 本项目默认通过 configs/ 目录下的 YAML 文件维护运行配置。
-#
-# 默认配置文件名由 cmd/.../app/server.go 根据二进制名动态推导
-# （ <binary>.yaml ），所以此处文件名应当与二进制名保持一致。
-#
-# 敏感字段（密钥、密码）必须替换为项目自己的安全值，避免使用模板占位符。
-# ==============================================================================
 http:
   addr: 0.0.0.0:5555 # 服务监听地址（与 README、Dockerfile EXPOSE 保持一致）
 timeout: 30s # 服务端超时
 
 jwt:
   # 必填：至少 32 字符随机字符串，可通过 openssl rand -hex 32 生成
-  secret: ""
+  secret: "509b6f89be5a69ba54e65c9ed3a14735e945fc83908229c303c703b5a5aa5fe2"
   access-expiration: 2h # Access Token 有效期。单位：h(小时)
   refresh-expiration: 168h # Refresh Token 有效期，单位：h(小时)
 
 postgresql:
-  addr: 127.0.0.1:5432
+  addr: 127.0.0.1:54321
   database: template
   username: postgres
-  password: ""
+  password: "postgres"
   max-idle-connections: 100 # 最大空闲连接数
   max-open-connections: 1000 # 最大打开连接数
   max-connection-life-time: 5m # 连接最大生命周期
@@ -30,9 +20,9 @@ postgresql:
 
 redis:
   # Redis 数据库相关配置
-  addr: 127.0.0.1:6379 # Redis 服务器地址和端口，默认 127.0.0.1:6379
+  addr: 127.0.0.1:56379 # Redis 服务器地址和端口，默认 127.0.0.1:6379
   username: "" # Redis 用户名（使用默认用户，留空）
-  password: ""
+  password: "e9a7ff6291ee4869246848899221e9cc"
   database: 0 # Redis 数据库索引，默认 0
   max-retries: 3 # 最大重试次数，默认 3
   min-idle-conns: 0 # 最小空闲连接数，默认 0
