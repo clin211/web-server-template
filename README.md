@@ -1,541 +1,388 @@
-# Project gin-enterprise-template
+# gin-enterprise-template
 
-> **安全提示（必读）**
->
-> 本仓库 `configs/gin-enterprise-template-apiserver.yaml` 中的密钥与密码字段是占位符（`CHANGE_ME_*`），并非可用值。
-> **首次部署到任何环境（开发/测试/生产）前必须替换：**
->
-> - `jwt.secret`：用 `openssl rand -hex 32` 生成（≥ 32 字符）
-> - `postgresql.password` / `redis.password`：改为强密码或通过环境变量注入
->
-> 程序启动时会校验默认/弱 secret 并直接拒绝运行（参见 `pkg/options/jwt_options.go`）。
->
-> 完整 fork 后清单见 [`docs/FORK-CHECKLIST.md`](./docs/FORK-CHECKLIST.md)。
-> 改进路线见 [`docs/template-improvements.md`](./docs/template-improvements.md)。
+`gin-enterprise-template` 是一个基于 Go 1.25+、Gin、GORM、JWT、Casbin 与 OpenTelemetry 的企业级后端 API skeleton。项目以整洁架构、模块化分层、可观测性和可复制的工程规范为核心，当前提供 `gin-enterprise-template-apiserver` 一个后端服务。
 
-gin-enterprise-template 是一个基于 Go 语言开发的通用企业级后端 skeleton，采用简洁架构设计，具有代码质量高、扩展能力强、符合 Go 编码及最佳实践等特点。
+## 安全提示
 
-gin-enterprise-template 具有以下特性：
+仓库中的配置文件只保留模板占位值，首次在任何环境运行前都必须替换敏感配置：
 
-- 软件架构：采用简洁架构设计，确保项目结构清晰、易维护；
-- 高频 Go 包：使用了 Go 项目开发中常用的包，如 gin、otel、gorm、gin、uuid、cobra、viper、pflag、resty、govalidator、slog、protobuf、casbin、onexstack 等；
-- 目录结构：遵循 [project-layout](https://github.com/golang-standards/project-layout) 规范，采用标准化的目录结构；
-- 认证与授权：实现了基于 JWT 的认证和基于 Casbin 的授权功能；
-- 错误处理：设计了独立的错误包及错误码管理机制；
-- 构建与管理：使用高质量的 Makefile 对项目进行管理；
-- 代码质量：通过 golangci-lint 工具对代码进行静态检查，确保代码质量；
-- 测试覆盖：包含单元测试、性能测试、模糊测试和示例测试等多种测试案例；
-- 丰富的 Web 功能：支持 Trace ID、优雅关停、中间件、跨域处理、异常恢复等功能；
-- 多种数据交换格式：支持 JSON 和 Protobuf 数据格式的交换；
-- 开发规范：遵循多种开发规范，包括代码规范、版本规范、接口规范、日志规范、错误规范以及提交规范等；
-- API 设计：接口设计遵循 RESTful API 规范；
-- 项目具有 Dockerfile，并且 Dockerfile 符合最佳实践；
+- `jwt.secret`：必须是至少 32 字符的随机字符串，可用 `openssl rand -hex 32` 生成；
+- `postgresql.password`：替换为当前数据库真实密码；
+- `redis.password`：替换为当前 Redis 真实密码；
+- 生产环境不要提交包含真实密钥、密码或证书的配置文件。
 
-## Getting Started
+程序启动时会校验空值、默认值和弱 JWT secret，不满足要求会直接拒绝运行。
 
-### Prerequisites
+## 功能特性
 
-在开始之前，请确保您的开发环境中安装了以下工具：
+- Web 框架：基于 Gin 提供 RESTful API；
+- 数据访问：基于 GORM 访问 PostgreSQL，支持 Redis；
+- 认证授权：JWT Access Token / Refresh Token 与 Casbin RBAC；
+- 权限模型：支持用户、角色、权限、菜单和菜单树；
+- 可观测性：OpenTelemetry、Prometheus `/metrics`、结构化 `slog` 日志；
+- 诊断能力：健康检查 `/healthz` 与 pprof `/debug/pprof/`；
+- 工程化：Makefile、Dockerfile、Protobuf、Wire、golangci-lint；
+- 测试能力：单元测试、覆盖率检查、竞态检测、基准测试入口。
 
-**必需工具：**
+## 系统架构
 
-- [Go](https://golang.org/dl/) 1.25.3 或更高版本
-- [Git](https://git-scm.com/) 版本控制工具
-- [Make](https://www.gnu.org/software/make/) 构建工具
-
-**可选工具：**
-
-- [Docker](https://www.docker.com/) 容器化部署
-- [golangci-lint](https://golangci-lint.run/) 代码静态检查
-
-**验证安装：**
-
-```bash
-$ go version  
-go version go1.25.3 linux/amd64  
-$ make --version  
-GNU Make 4.3  
+```mermaid
+flowchart LR
+    Client["客户端"] -->|HTTP :5555| Gin["Gin HTTP Server"]
+    Gin --> MW["中间件\nRecovery / CORS / AuthN / AuthZ / OTel"]
+    MW --> Handler["Handler\nHTTP 参数解析与响应封装"]
+    Handler --> Biz["Biz\n业务逻辑与事务边界"]
+    Biz --> Store["Store\n数据访问抽象"]
+    Store --> PG[(PostgreSQL)]
+    Store --> Redis[(Redis)]
+    Gin --> Metrics["Prometheus /metrics"]
+    Gin --> Pprof["pprof /debug/pprof"]
 ```
 
-### Building
+| 层级 | 目录 | 职责 |
+|------|------|------|
+| Handler | `internal/apiserver/handler/` | HTTP 请求绑定、校验、响应封装与路由注册 |
+| Biz | `internal/apiserver/biz/` | 业务编排、事务边界、领域规则 |
+| Store | `internal/apiserver/store/` | 数据访问接口与 GORM 操作封装 |
+| Model | `internal/apiserver/model/` | 数据库模型定义 |
+| pkg | `pkg/` | 可复用基础库、API 定义、配置选项、认证授权等 |
 
-> 提示：项目配置文件配置项 `metadata.makefileMode` 不能为 `none`，如果为 `none` 需要自行构建。
+依赖注入入口：`internal/apiserver/wire.go` 与生成文件 `internal/apiserver/wire_gen.go`。
 
-在项目根目录下，执行以下命令构建项目：
+## 目录结构
 
-1. 安装依赖工具和包
-
-```bash
-make deps  # 安装项目所需的开发工具  
-go mod tidy # 下载 Go 模块依赖  
+```text
+gin-enterprise-template/
+├── api/                         # OpenAPI 等生成产物
+├── build/docker/                # Docker Compose 清单
+├── cmd/                         # 应用入口
+│   └── gin-enterprise-template-apiserver/
+├── configs/                     # 运行配置与 OTEL Collector 配置
+├── docs/                        # 功能文档
+├── internal/apiserver/          # apiserver 业务代码
+│   ├── biz/
+│   ├── handler/
+│   ├── model/
+│   ├── pkg/
+│   └── store/
+├── pkg/                         # 可复用公共包与 API 定义
+├── scripts/                     # 构建与辅助脚本
+├── third_party/                 # 第三方 proto 等依赖
+├── web/                         # 前端或管理端预留目录
+├── docker-compose.env.yml       # 本地依赖服务 Compose
+├── Dockerfile                   # 应用镜像构建文件
+├── Makefile
+├── go.mod
+└── README.md
 ```
 
-1. 生成代码
+## 环境要求
+
+| 工具 | 版本 / 说明 |
+|------|-------------|
+| Go | `1.25.3` 或更高版本 |
+| Git | 用于版本控制 |
+| Make | 用于统一构建、测试、代码生成 |
+| Docker / Docker Compose | 可选，用于启动依赖服务和构建镜像 |
+| golangci-lint | 可选，用于静态检查 |
+| protoc 及插件 | 可通过 `make deps` 安装 |
+
+## 快速开始
+
+### 1. 安装依赖并生成代码
 
 ```bash
-make protoc # generate gRPC code  
-go get cloud.google.com/go/compute@latest cloud.google.com/go/compute/metadata@latest  
-go mod tidy # tidy dependencies  
-go generate ./... # run all go:generate directives  
+make deps
+make tidy
+make protoc
+make generate
 ```
 
-1. 构建应用
+### 2. 准备运行配置
 
-```bash
-make build # build all binary files locate in cmd/  
+默认配置文件是：
+
+```text
+configs/gin-enterprise-template-apiserver.yaml
 ```
 
-**构建结果：**
-
-```bash
-_output/platforms/  
-├── linux/  
-│   └── amd64/  
-│       └── gin-enterprise-template-apiserver  # apiserver 服务二进制文件  
-└── darwin/  
-    └── amd64/  
-        └── gin-enterprise-template-apiserver  
-```
-
-### Running
-
-启动服务有多种方式：
-
-1. 使用构建的二进制文件运行
-
-  ```bash  
-  # 启动 apiserver 服务  
-  $ _output/platforms/linux/amd64/gin-enterprise-template-apiserver --config configs/gin-enterprise-template-apiserver.yaml  
-  # 服务将在以下端口启动：  
-  # - HTTP API: http://localhost:5555
-  # - Health Check: http://localhost:5555/healthz  
-  # - Metrics: http://localhost:5555/metrics  
-  $ curl http://localhost:5555/healthz # 测试：打开另外一个终端，调用健康检查接口  
-  ```
-
-1. 使用 Docker 运行
-
-```bash
-# 构建镜像  
-$ make image
-$ docker run --name gin-enterprise-template-apiserver -v configs/gin-enterprise-template-apiserver.yaml:/etc/gin-enterprise-template-apiserver.yaml -p 5555:5555 gin-enterprise-template/gin-enterprise-template-apiserver:latest -c /etc/gin-enterprise-template-apiserver.yaml
-```
-
-**配置文件示例：**  
-
-gin-enterprise-template-apiserver 配置文件 `configs/gin-enterprise-template-apiserver.yaml`：
+至少需要更新以下字段：
 
 ```yaml
-addr: 0.0.0.0:5555 # 服务监听地址
-timeout: 30s # 服务端超时
+jwt:
+  secret: "请替换为至少 32 字符随机字符串"
+
+postgresql:
+  addr: 127.0.0.1:5432
+  database: template
+  username: postgres
+  password: "请替换为数据库密码"
+
+redis:
+  addr: 127.0.0.1:6379
+  password: "请替换为 Redis 密码"
+```
+
+如果使用 `docker-compose.env.yml` 启动本地依赖服务，宿主机端口与默认配置不同，需要同步调整：
+
+| 服务 | Compose 容器端口 | 宿主机端口 | Compose 默认凭据 |
+|------|------------------|------------|------------------|
+| PostgreSQL | `5432` | `54321` | `postgres / postgres`，数据库 `template` |
+| Redis | `6379` | `56379` | 密码 `CHANGE_ME_REDIS_PASSWORD` |
+| OTEL Collector gRPC | `4327` | `4327` | 无 |
+| OTEL Collector HTTP | `4328` | `4328` | 无 |
+| OTEL Collector Health | `13133` | `13133` | 无 |
+
+### 3. 启动本地依赖服务
+
+```bash
+docker compose -f docker-compose.env.yml up -d
+```
+
+### 4. 构建并运行服务
+
+```bash
+make build BINS=gin-enterprise-template-apiserver
+
+_output/platforms/$(go env GOOS)/$(go env GOARCH)/gin-enterprise-template-apiserver \
+  --config configs/gin-enterprise-template-apiserver.yaml
+```
+
+服务默认监听：
+
+```text
+http://localhost:5555
+```
+
+### 5. 验证服务
+
+```bash
+curl -i http://localhost:5555/healthz
+curl -i http://localhost:5555/metrics
+curl -i http://localhost:5555/debug/pprof/
+```
+
+## 常用 Make 命令
+
+| 命令 | 说明 |
+|------|------|
+| `make all` | 执行 `deps protoc tidy format generate build cover` |
+| `make deps` | 安装构建、Protobuf、代码生成等开发工具 |
+| `make tidy` | 执行 `go mod tidy` |
+| `make protoc` | 编译 Protobuf，并生成 OpenAPI 产物到 `api/openapi/` |
+| `make generate` | 执行 `go generate ./...` |
+| `make build` | 构建当前平台所有二进制 |
+| `make build BINS=gin-enterprise-template-apiserver` | 构建 apiserver |
+| `make build.multiarch` | 构建多平台二进制 |
+| `make test` | 执行单元测试、覆盖率、race 检测和 shuffle |
+| `make cover` | 执行测试并检查覆盖率阈值 |
+| `make lint` | 执行 golangci-lint 静态检查 |
+| `make format` | 执行 `gofmt -s -w ./` |
+| `make clean` | 删除 `_output/` 构建产物 |
+| `make help` | 查看 Makefile 帮助 |
+
+构建产物默认输出到：
+
+```text
+_output/platforms/<GOOS>/<GOARCH>/gin-enterprise-template-apiserver
+```
+
+## Docker 使用说明
+
+当前仓库的应用 `Dockerfile` 位于项目根目录。
+
+```bash
+docker build \
+  --build-arg OS=linux \
+  --build-arg ARCH=amd64 \
+  -f Dockerfile \
+  -t gin-enterprise-template/gin-enterprise-template-apiserver:latest \
+  .
+```
+
+应用容器的 Compose 清单位于：
+
+```text
+build/docker/gin-enterprise-template-apiserver/docker-compose.yml
+build/docker/gin-enterprise-template-apiserver/docker-compose.prod.yml
+```
+
+使用这些 Compose 清单前，请先确认：
+
+- 配置文件已准备好，并挂载到容器内的 `/app/configs/gin-enterprise-template-apiserver.yaml`；
+- `jwt.secret`、数据库密码和 Redis 密码已经替换；
+- Compose 中引用的 Dockerfile 路径与当前仓库实际路径一致。
+
+## 关键配置
+
+当前主要配置文件：
+
+| 文件 | 用途 |
+|------|------|
+| `configs/gin-enterprise-template-apiserver.yaml` | apiserver 本地运行配置 |
+| `configs/otel-collector.yaml` | OTEL Collector 配置 |
+| `docker-compose.env.yml` | 本地 PostgreSQL、Redis、OTEL Collector 依赖服务 |
+| `Dockerfile` | 应用镜像构建文件 |
+| `build/docker/gin-enterprise-template-apiserver/docker-compose.yml` | 应用容器开发 Compose 清单 |
+| `build/docker/gin-enterprise-template-apiserver/docker-compose.prod.yml` | 应用容器生产 Compose 清单 |
+
+核心配置示例：
+
+```yaml
+http:
+  addr: 0.0.0.0:5555
+timeout: 30s
+
+jwt:
+  secret: ""
+  access-expiration: 2h
+  refresh-expiration: 168h
+
+postgresql:
+  addr: 127.0.0.1:5432
+  database: template
+  username: postgres
+  password: ""
+  max-idle-connections: 100
+  max-open-connections: 1000
+
+redis:
+  addr: 127.0.0.1:6379
+  username: ""
+  password: ""
+  database: 0
+  pool-size: 10
+
 otel:
   endpoint: 127.0.0.1:4327
   service-name: gin-enterprise-template-apiserver
-  output-mode: otel
+  output-mode: classic
   level: debug
   add-source: true
   use-prometheus-endpoint: true
-  slog: # 改配置项只有 output-mod 为 slog 时生效
-    format: text
-    time-format: "2006-01-02 15:04:05"
-    output: stdout
-```  
-
-## 快速参考手册
-
-### 构建和部署命令
-
-#### 本地开发环境
-
-```bash
-# 1. 启动依赖服务（PostgreSQL, Redis, OTEL）
-docker compose -f docker-compose.env.yml up -d
-
-# 2. 构建应用
-make build BINS=gin-enterprise-template-apiserver
-
-# 3. 构建镜像
-make image PLATFORM=linux_amd64 VERSION=v0.0.5-alpha IMAGES=gin-enterprise-template-apiserver
-
-# 4. 启动应用容器
-cd build/docker/gin-enterprise-template-apiserver
-docker compose up -d
-
-# 5. 查看日志
-docker compose logs -f
-
-# 6. 测试健康检查
-curl localhost:5555/healthz
 ```
 
-#### 生产环境部署
+`otel.output-mode` 支持：`otel`、`console`、`file`、`classic`、`hybrid`。
+
+## API 概览
+
+通用接口：
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/healthz` | 健康检查 |
+| `GET` | `/metrics` | Prometheus 指标 |
+| `GET` | `/debug/pprof/` | pprof 入口 |
+
+认证接口：
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/v1/auth/login` | 用户登录，返回 Access Token 与 Refresh Token |
+| `PUT` | `/v1/auth/refresh-token` | 使用 Refresh Token 刷新令牌 |
+
+用户与 RBAC 接口：
+
+| 资源 | 路径 | 能力 |
+|------|------|------|
+| 用户 | `/v1/users`、`/v1/users/:userID` | 创建、查询、更新、删除、列表 |
+| 用户密码 | `/v1/users/:userID/change-password` | 修改密码 |
+| 用户角色 | `/v1/users/:userID/roles`、`/v1/users/:userID/roles/:roleID` | 分配、查询、移除角色 |
+| 用户菜单 | `/v1/users/menu-tree` | 获取当前用户可见菜单树 |
+| 角色 | `/v1/roles`、`/v1/roles/:roleID` | 创建、查询、更新、删除、列表 |
+| 角色权限 | `/v1/roles/:roleID/permissions` | 分配和查询角色权限 |
+| 权限 | `/v1/permissions`、`/v1/permissions/:permissionID` | 创建、查询、更新、删除、列表 |
+| 权限树 | `/v1/permissions/tree` | 获取权限树 |
+| 菜单 | `/v1/menus`、`/v1/menus/:menuID` | 创建、查询、更新、删除、列表 |
+| 菜单树 | `/v1/menus/tree` | 获取菜单树 |
+
+除创建用户、登录、刷新令牌等开放接口外，业务资源接口会经过 JWT 认证和 Casbin 授权中间件。
+
+## API 调试示例
+
+创建用户：
 
 ```bash
-# 1. 准备生产配置
-cp configs/gin-enterprise-template-apiserver.prod.yaml.example configs/gin-enterprise-template-apiserver.prod.yaml
-vim configs/gin-enterprise-template-apiserver.prod.yaml  # 修改数据库地址、密码等
-
-# 2. 构建生产镜像
-make build BINS=gin-enterprise-template-apiserver
-make image PLATFORM=linux_amd64 VERSION=v1.0.0 IMAGES=gin-enterprise-template-apiserver
-
-# 3. 部署
-cd build/docker/gin-enterprise-template-apiserver
-VERSION=v1.0.0 docker compose -f docker-compose.prod.yml up -d
-
-# 4. 验证
-curl localhost:5555/healthz
-docker logs gin-enterprise-template-apiserver
-```
-
-### 常用运维命令
-
-#### 查看状态
-
-```bash
-# 查看运行中的容器
-docker ps
-
-# 查看所有容器（包括停止的）
-docker ps -a
-
-# 查看特定容器
-docker ps | grep gin-enterprise-template-apiserver
-
-# 查看容器详细信息
-docker inspect gin-enterprise-template-apiserver
-
-# 查看资源使用
-docker stats gin-enterprise-template-apiserver
-```
-
-#### 日志管理
-
-```bash
-# 实时查看日志
-docker logs -f gin-enterprise-template-apiserver
-
-# 查看最近 50 行
-docker logs --tail 50 gin-enterprise-template-apiserver
-
-# 查看最近 30 分钟的日志
-docker logs --since 30m gin-enterprise-template-apiserver
-
-# 查看特定时间段
-docker logs --since "2025-11-09T10:00:00" gin-enterprise-template-apiserver
-```
-
-#### 容器操作
-
-```bash
-# 启动容器
-docker start gin-enterprise-template-apiserver
-
-# 停止容器
-docker stop gin-enterprise-template-apiserver
-
-# 重启容器
-docker restart gin-enterprise-template-apiserver
-
-# 删除容器
-docker rm gin-enterprise-template-apiserver
-
-# 强制删除运行中的容器
-docker rm -f gin-enterprise-template-apiserver
-```
-
-#### Docker Compose 操作
-
-```bash
-# 启动服务
-docker compose up -d
-
-# 停止服务
-docker compose down
-
-# 重启服务
-docker compose restart
-
-# 查看服务状态
-docker compose ps
-
-# 查看日志
-docker compose logs -f
-
-# 重新构建并启动
-docker compose up -d --build
-```
-
-### 镜像管理
-
-```bash
-# 查看本地镜像
-docker images | grep gin-enterprise-template-apiserver
-
-# 删除镜像
-docker rmi gin-enterprise-template/gin-enterprise-template-apiserver:v0.0.5-alpha
-
-# 清理未使用的镜像
-docker image prune
-
-# 导出镜像
-docker save gin-enterprise-template/gin-enterprise-template-apiserver:v0.0.5-alpha -o gin-enterprise-template-apiserver.tar
-
-# 导入镜像
-docker load -i gin-enterprise-template-apiserver.tar
-
-# 标记镜像
-docker tag gin-enterprise-template/gin-enterprise-template-apiserver:v0.0.5-alpha gin-enterprise-template/gin-enterprise-template-apiserver:latest
-```
-
-### 网络调试
-
-```bash
-# 查看容器网络配置
-docker inspect gin-enterprise-template-apiserver | grep -A 20 "Networks"
-
-# 查看 Docker 网络
-docker network ls
-
-# 查看网络详情
-docker network inspect gin-enterprise-template_net
-
-# 测试容器内网络连接（如果容器有 shell）
-docker exec -it gin-enterprise-template-apiserver ping host.docker.internal
-
-# 从宿主机测试端口
-telnet localhost 5555
-nc -zv localhost 5555
-```
-
-### API 测试
-
-```bash
-# 健康检查
-curl -i localhost:5555/healthz
-
-# 创建用户
 curl -X POST http://localhost:5555/v1/users \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
     "password": "Test@123",
-    "email": "test@example.com"
+    "email": "test@example.com",
+    "phone": "13800138000"
   }'
+```
 
-# 用户登录
+登录：
+
+```bash
 curl -X POST http://localhost:5555/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
     "password": "Test@123"
   }'
-
-# 查看指标
-curl localhost:5555/metrics
-
-# 查看 pprof
-curl localhost:5555/debug/pprof/
 ```
 
-### 故障排查
-
-#### 问题：容器启动后立即退出
+带 Token 访问受保护接口：
 
 ```bash
-# 1. 查看日志
-docker logs gin-enterprise-template-apiserver
-
-# 2. 检查退出代码
-docker inspect gin-enterprise-template-apiserver | grep -A 5 "State"
-
-# 3. 尝试交互式启动（如果可能）
-docker run -it --rm gin-enterprise-template/gin-enterprise-template-apiserver:v0.0.5-alpha /bin/sh
+curl http://localhost:5555/v1/users \
+  -H "Authorization: Bearer <access-token>"
 ```
 
-#### 问题：无法连接数据库
+## 可观测性
+
+- Gin 全局接入 OpenTelemetry 中间件；
+- `/metrics` 暴露 Prometheus 指标，并从 Trace 中排除该路径；
+- `/debug/pprof/` 提供运行时诊断入口；
+- 日志使用结构化 `slog`，可通过 `otel.slog` 配置输出格式和位置；
+- `configs/otel-collector.yaml` 提供本地 OTEL Collector 配置。
+
+常用检查命令：
 
 ```bash
-# 1. 检查数据库是否运行
-docker ps | grep postgres
-
-# 2. 从宿主机测试数据库连接
-telnet localhost 54321
-
-# 3. 检查配置文件
-cat configs/gin-enterprise-template-apiserver.docker.yaml | grep -A 5 postgresql
-
-# 4. 查看应用日志
-docker logs gin-enterprise-template-apiserver | grep -i "database\|postgres"
+curl http://localhost:5555/metrics
+curl http://localhost:5555/debug/pprof/
+docker logs gin-enterprise-template-otel-collector
 ```
 
-#### 问题：端口冲突
+## 测试与质量检查
 
 ```bash
-# 1. 查看端口占用
+make test
+make cover
+make lint
+go test -bench=. ./...
+```
+
+项目推荐表格驱动测试，并在涉及并发时显式处理竞态风险。
+
+## 文档索引
+
+当前仓库内已有文档：
+
+- [User 模块业务逻辑文档](docs/features/01%20user.md)
+- [RBAC 权限管理系统](docs/features/02%20permision.md)
+
+## 常见问题
+
+### 启动时报 JWT secret 错误
+
+检查 `configs/gin-enterprise-template-apiserver.yaml` 中的 `jwt.secret`，确保它非空、不是默认占位值，并且长度不少于 32 字符。
+
+### 本地二进制无法连接数据库或 Redis
+
+如果依赖服务由 `docker-compose.env.yml` 启动，请确认本地配置使用宿主机映射端口：PostgreSQL `127.0.0.1:54321`，Redis `127.0.0.1:56379`，并同步 Compose 中的密码。
+
+### Docker Compose 找不到配置或 Dockerfile
+
+当前根目录存在 `Dockerfile`，应用 Compose 清单位于 `build/docker/gin-enterprise-template-apiserver/`。使用前请确认 Compose 中的 `dockerfile` 与 `volumes` 路径指向当前仓库中真实存在的文件。
+
+### 端口冲突
+
+```bash
 lsof -i :5555
-netstat -an | grep 5555
-
-# 2. 停止占用端口的进程
-kill -9 <PID>
-
-# 3. 修改 docker-compose.yml 使用其他端口（左侧为宿主机端口，右侧为容器内端口）
-# ports:
-#   - "5557:5555"
 ```
 
-#### 问题：磁盘空间不足
-
-```bash
-# 查看 Docker 占用空间
-docker system df
-
-# 清理未使用的资源
-docker system prune
-
-# 清理所有未使用的镜像
-docker image prune -a
-
-# 清理构建缓存
-docker builder prune
-```
-
-### 配置文件位置
-
-| 文件 | 用途 |
-|------|------|
-| `configs/gin-enterprise-template-apiserver.yaml` | 本地开发配置（非 Docker） |
-| `configs/gin-enterprise-template-apiserver.docker.yaml` | Docker 开发环境配置 |
-| `configs/gin-enterprise-template-apiserver.prod.yaml.example` | 生产环境配置模板 |
-| `build/docker/gin-enterprise-template-apiserver/Dockerfile` | 镜像构建文件 |
-| `build/docker/gin-enterprise-template-apiserver/docker-compose.yml` | 开发环境 Compose |
-| `build/docker/gin-enterprise-template-apiserver/docker-compose.prod.yml` | 生产环境 Compose |
-| `docker-compose.env.yml` | 依赖服务 Compose |
-
-### 环境变量
-
-| 变量 | 说明 | 默认值 |
-|------|------|--------|
-| `VERSION` | 镜像版本 | `latest` |
-| `TZ` | 时区 | `Asia/Shanghai` |
-| `GOPROXY` | Go 代理 | `https://goproxy.cn,direct` |
-
-### 端口映射
-
-| 服务 | 容器端口 | 宿主机端口 |
-|------|---------|-----------|
-| gin-enterprise-template-apiserver | 5555 | 5555 |
-| PostgreSQL | 5432 | 54321 |
-| Redis | 6379 | 56379 |
-| OTEL Collector | 4327 | 4327 |
-| OTEL Collector (HTTP) | 4328 | 4328 |
-| OTEL Health | 13133 | 13133 |
-
-### 性能优化建议
-
-#### 镜像构建优化
-
-```bash
-# 使用缓存加速构建
-make image PLATFORM=linux_amd64 VERSION=vX.X.X IMAGES=gin-enterprise-template-apiserver
-
-# 并行构建多个平台
-make build.multiarch BINS=gin-enterprise-template-apiserver
-```
-
-#### 资源限制
-
-在生产环境 `docker-compose.prod.yml` 中配置：
-
-```yaml
-deploy:
-  resources:
-    limits:
-      cpus: '2.0'
-      memory: 2G
-    reservations:
-      cpus: '0.5'
-      memory: 512M
-```
-
-#### 日志限制
-
-```yaml
-logging:
-  driver: json-file
-  options:
-    max-size: "50m"
-    max-file: "5"
-    compress: "true"
-```
-
-### 安全检查清单
-
-- [ ] 修改默认 JWT 密钥
-- [ ] 使用强密码（数据库、Redis）
-- [ ] 配置文件权限设置为 600
-- [ ] 启用 TLS/SSL（生产环境）
-- [ ] 定期更新基础镜像
-- [ ] 限制容器资源使用
-- [ ] 配置防火墙规则
-- [ ] 启用日志审计
-- [ ] 定期备份数据
-
-### 监控指标
-
-```bash
-# Prometheus 指标
-curl localhost:5555/metrics
-
-# 容器资源使用
-docker stats gin-enterprise-template-apiserver
-
-# 健康检查
-while true; do curl -s localhost:5555/healthz | jq -r .timestamp; sleep 5; done
-```
-
-## 附录
-
-### 项目结构
-
-```bash
-gin-enterprise-template/  
-├── cmd/                     # 应用程序入口  
-│   └── gin-enterprise-template-apiserver/       # apiserver 服务  
-│       └── main.go          # 主函数  
-├── internal/                # 私有应用程序代码  
-│   └── apiserver/             # apiserver 内部包  
-│       ├── biz/             # 业务逻辑层  
-│       ├── handler/         # gin 处理器  
-│       ├── model/           # GORM 数据模型  
-│       ├── pkg/             # 内部工具包  
-│       └── store/           # 数据访问层  
-├── pkg/                     # 公共库代码  
-│   ├── api/                 # API 定义  
-├── examples/                # 示例代码  
-│   └── client/              # 客户端示例  
-├── configs/                 # 配置文件  
-├── docs/                    # 项目文档  
-├── build/                   # 构建配置  
-│   └── docker/              # Docker 文件  
-├── scripts/                 # 构建和部署脚本  
-├── third_party/             # 第三方依赖  
-├── Makefile                 # 构建配置  
-├── go.mod                   # Go 模块文件  
-├── go.sum                   # Go 模块校验文件  
-└── README.md                # 项目说明文档  
-```
-
-### 相关链接
-
-- [项目文档](docs/)
-- [问题追踪](github.com/clin211/gin-enterprise-template/issues)
-- [讨论区](github.com/clin211/gin-enterprise-template/discussions)
-- [项目看板](github.com/clin211/gin-enterprise-template/projects)
-- [发布页面](github.com/clin211/gin-enterprise-template/releases)
-
-### 支持
-
-如果这个项目对您有帮助，请考虑给我们一个 ⭐️ 来支持项目发展！
-
-[![Star History Chart](https://api.star-history.com/svg?repos=github.com/clin211/gin-enterprise-template&type=Date)](https://star-history.com/#github.com/clin211/gin-enterprise-template&Date)
+如需更换监听端口，请修改 `configs/gin-enterprise-template-apiserver.yaml` 中的 `http.addr`。
