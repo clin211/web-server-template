@@ -30,7 +30,7 @@ type config struct {
 }
 
 func newConfig(options []Option) config {
-	var c config
+	c := config{level: slog.LevelDebug}
 	for _, opt := range options {
 		c = opt.apply(c)
 	}
@@ -157,7 +157,7 @@ type Handler struct {
 	attrs  *kvBuffer
 	group  *group
 	logger log.Logger
-	level  slog.Level // 添加最低日志级别��段
+	level  slog.Level
 
 	source bool
 }
@@ -235,7 +235,6 @@ func (h *Handler) convertRecord(r slog.Record) log.Record {
 // Enabled 如果 Handler 被启用以记录提供的上下文和级别，则返回 true。
 // 否则，如果未启用，则返回 false。
 func (h *Handler) Enabled(ctx context.Context, l slog.Level) bool {
-	// 首先检查本地级别过滤
 	if l < h.level {
 		return false
 	}
@@ -335,7 +334,7 @@ func (g *group) NextNonEmpty() *group {
 // 传递的 kvs 在返回值中呈现，但不添加到组中。
 //
 // 这不会检查 g。调用者有责任确保 g 非空或 kvs 非空，以返回有效的组表示
-//（根据 slog）。
+// （根据 slog）。
 func (g *group) KeyValue(kvs ...log.KeyValue) log.KeyValue {
 	// 假设已经对组 g 进行了检查（即非空）。
 	out := log.Map(g.name, g.attrs.KeyValues(kvs...)...)

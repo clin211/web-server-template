@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package apiserver.v1;
 
-import "google/protobuf/empty.proto";
 import "apiserver/v1/role.proto";
 
 option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";

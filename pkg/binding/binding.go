@@ -42,7 +42,7 @@ func init() {
 //	    c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 //	    return
 //	}
-func Bind(c *gin.Context, obj interface{}, bindFuncs ...func(*gin.Context, interface{}) error) error {
+func Bind(c *gin.Context, obj any, bindFuncs ...func(*gin.Context, any) error) error {
 	// 执行所有绑定函数（验证已被禁用）
 	for _, bindFunc := range bindFuncs {
 		if err := bindFunc(c, obj); err != nil {
@@ -62,12 +62,17 @@ func Bind(c *gin.Context, obj interface{}, bindFuncs ...func(*gin.Context, inter
 
 // URI 将 URI 参数绑定到给定对象。
 // 使用 Gin 的 ShouldBindUri 但不进行验证。
-func URI(c *gin.Context, obj interface{}) error {
+func URI(c *gin.Context, obj any) error {
 	return c.ShouldBindUri(obj)
 }
 
 // JSON 将 JSON 请求体绑定到给定对象。
 // 使用 Gin 的 ShouldBindJSON 但不进行验证。
-func JSON(c *gin.Context, obj interface{}) error {
+func JSON(c *gin.Context, obj any) error {
 	return c.ShouldBindJSON(obj)
+}
+
+// Query 将 Query 参数绑定到给定对象。
+func Query(c *gin.Context, obj any) error {
+	return c.ShouldBindQuery(obj)
 }

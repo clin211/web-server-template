@@ -34,6 +34,10 @@ type IStore interface {
 	Permission() PermissionStore
 	Menu() MenuStore
 	UserRole() UserRoleStore
+	// ScheduledTask 获取定时任务存储接口.
+	ScheduledTask() ScheduledTaskStore
+	// ScheduledTaskExecution 获取定时任务执行记录存储接口.
+	ScheduledTaskExecution() ScheduledTaskExecutionStore
 }
 
 // transactionKey 是用于在 context.Context 中存储事务上下文的键。
@@ -63,7 +67,7 @@ func NewStore(db *gorm.DB) *datastore {
 
 // DB 根据输入条件（wheres）过滤数据库实例。
 // 如果未提供条件，函数将从上下文返回数据库实例
-//（事务实例或核心数据库实例）。
+// （事务实例或核心数据库实例）。
 func (store *datastore) DB(ctx context.Context, wheres ...where.Where) *gorm.DB {
 	db := store.core
 	// 尝试从上下文中检索事务实例。
@@ -116,4 +120,14 @@ func (store *datastore) Menu() MenuStore {
 // UserRole 返回一个实现了 UserRoleStore 接口的实例.
 func (store *datastore) UserRole() UserRoleStore {
 	return newUserRoleStore(store)
+}
+
+// ScheduledTask 返回一个实现了 ScheduledTaskStore 接口的实例.
+func (store *datastore) ScheduledTask() ScheduledTaskStore {
+	return newScheduledTaskStore(store)
+}
+
+// ScheduledTaskExecution 返回一个实现了 ScheduledTaskExecutionStore 接口的实例.
+func (store *datastore) ScheduledTaskExecution() ScheduledTaskExecutionStore {
+	return newScheduledTaskExecutionStore(store)
 }

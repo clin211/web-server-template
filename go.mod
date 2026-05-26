@@ -19,6 +19,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2
 	github.com/h2non/filetype v1.1.3
+	github.com/hibiken/asynq v0.25.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/kisielk/errcheck v1.8.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.1
@@ -27,6 +28,7 @@ require (
 	github.com/prometheus/common v0.65.0
 	github.com/redis/go-redis/extra/rediscensus/v9 v9.7.0
 	github.com/redis/go-redis/v9 v9.7.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.52.0
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/sony/sonyflake v1.2.0
@@ -64,6 +66,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.11
+	gorm.io/datatypes v1.2.4
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.31.0
 	k8s.io/apimachinery v0.34.1
@@ -203,7 +206,6 @@ require (
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gorm.io/datatypes v1.2.4 // indirect
 	gorm.io/driver/sqlserver v1.5.3 // indirect
 	gorm.io/hints v1.1.0 // indirect
 	gorm.io/plugin/dbresolver v1.6.2 // indirect

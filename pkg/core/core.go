@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/clin211/gin-enterprise-template/pkg/binding"
 	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
@@ -120,6 +123,36 @@ func HandleQueryRequest[T any, R any](c *gin.Context, handler Handler[T, R], val
 	HandleRequest(c, c.ShouldBindQuery, handler, validators...)
 }
 
+func HandleUriQueryRequest[T any, R any](c *gin.Context, handler Handler[T, R], validators ...Validator[T]) {
+	var request T
+	if err := ShouldBindUriQuery(c, &request, validators...); err != nil {
+		WriteResponse(c, nil, err)
+		return
+	}
+	response, err := handler(c.Request.Context(), &request)
+	WriteResponse(c, response, err)
+}
+
+func HandleProtoJSONRequest[T any, R any](c *gin.Context, handler Handler[T, R], validators ...Validator[T]) {
+	var request T
+	if err := ShouldBindProtoJSON(c, &request, validators...); err != nil {
+		WriteResponse(c, nil, err)
+		return
+	}
+	response, err := handler(c.Request.Context(), &request)
+	WriteResponse(c, response, err)
+}
+
+func HandleUriProtoJSONRequest[T any, R any](c *gin.Context, handler Handler[T, R], validators ...Validator[T]) {
+	var request T
+	if err := ShouldBindUriProtoJSON(c, &request, validators...); err != nil {
+		WriteResponse(c, nil, err)
+		return
+	}
+	response, err := handler(c.Request.Context(), &request)
+	WriteResponse(c, response, err)
+}
+
 // HandleUriRequest 是处理 URI 请求的快捷函数.
 func HandleUriRequest[T any, R any](c *gin.Context, handler Handler[T, R], validators ...Validator[T]) {
 	HandleRequest(c, c.ShouldBindUri, handler, validators...)
@@ -154,6 +187,42 @@ func ShouldBindQuery[T any](c *gin.Context, rq *T, validators ...Validator[T]) e
 // ShouldBindUri 使用 URI 格式的绑定函数绑定请求参数并执行验证。
 func ShouldBindUri[T any](c *gin.Context, rq *T, validators ...Validator[T]) error {
 	return ReadRequest(c, rq, c.ShouldBindUri, validators...)
+}
+
+func ShouldBindUriQuery[T any](c *gin.Context, rq *T, validators ...Validator[T]) error {
+	if err := binding.Bind(c, rq, binding.URI, binding.Query); err != nil {
+		return errorsx.ErrBind.WithDetails(err.Error())
+	}
+	return FinalizeRequest(c, rq, validators...)
+}
+
+func ShouldBindProtoJSON[T any](c *gin.Context, rq *T, validators ...Validator[T]) error {
+	if err := bindProtoJSON(c, rq); err != nil {
+		return errorsx.ErrBind.WithDetails(err.Error())
+	}
+	return FinalizeRequest(c, rq, validators...)
+}
+
+func ShouldBindUriProtoJSON[T any](c *gin.Context, rq *T, validators ...Validator[T]) error {
+	if err := bindProtoJSON(c, rq); err != nil {
+		return errorsx.ErrBind.WithDetails(err.Error())
+	}
+	if err := binding.URI(c, rq); err != nil {
+		return errorsx.ErrBind.WithDetails(err.Error())
+	}
+	return FinalizeRequest(c, rq, validators...)
+}
+
+func bindProtoJSON[T any](c *gin.Context, rq *T) error {
+	message, ok := any(rq).(proto.Message)
+	if !ok {
+		return errorsx.ErrBind.WithMessage("request is not a protobuf message")
+	}
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		return err
+	}
+	return protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(body, message)
 }
 
 // ShouldBindAll 将 URI 参数、Query/Form 参数以及 JSON Body 一并绑定到结构体中。
@@ -237,7 +306,7 @@ func WriteBizError(c *gin.Context, bizErr *errorsx.BizError) {
 }
 
 // WriteSuccess 写入成功响应的便捷函数
-func WriteSuccess(c *gin.Context, data interface{}, message ...string) {
+func WriteSuccess(c *gin.Context, data any, message ...string) {
 	response := errorsx.Success(data, message...)
 	c.JSON(http.StatusOK, response)
 }

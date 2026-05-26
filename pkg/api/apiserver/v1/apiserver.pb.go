@@ -27,7 +27,7 @@ var File_apiserver_v1_apiserver_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\n" +
-	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x17apiserver/v1/menu.proto\x1a\x1dapiserver/v1/permission.proto\x1a\x17apiserver/v1/role.proto\x1a\x1capiserver/v1/user_role.proto2\xf3+\n" +
+	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x17apiserver/v1/menu.proto\x1a\x1dapiserver/v1/permission.proto\x1a\x17apiserver/v1/role.proto\x1a\x1capiserver/v1/user_role.proto\x1a!apiserver/v1/scheduled_task.proto2\xe8:\n" +
 	"\tAPIServer\x12\x91\x01\n" +
 	"\aHealthz\x12\x16.google.protobuf.Empty\x1a\x1d.apiserver.v1.HealthzResponse\"O\x92A<\n" +
 	"\f服务治理\x12\f健康检查\x1a\x1e检查服务是否健康运行\x82\xd3\xe4\x93\x02\n" +
@@ -100,7 +100,23 @@ const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\fGetUserRoles\x12!.apiserver.v1.GetUserRolesRequest\x1a\".apiserver.v1.GetUserRolesResponse\"k\x92AH\n" +
 	"\f用户管理\x12\x12获取用户角色\x1a$获取用户的角色列表和权限\x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/users/{userID}/roles\x12\xd7\x01\n" +
 	"\x12RemoveRoleFromUser\x12'.apiserver.v1.RemoveRoleFromUserRequest\x1a(.apiserver.v1.RemoveRoleFromUserResponse\"n\x92AB\n" +
-	"\f用户管理\x12\x15从用户移除角色\x1a\x1b从用户移除指定角色\x82\xd3\xe4\x93\x02#*!/v1/users/{userID}/roles/{roleID}B\xc6\x03\x92A\x81\x03\x12\xd6\x02\n" +
+	"\f用户管理\x12\x15从用户移除角色\x1a\x1b从用户移除指定角色\x82\xd3\xe4\x93\x02#*!/v1/users/{userID}/roles/{roleID}\x12\xd5\x01\n" +
+	"\x13CreateScheduledTask\x12(.apiserver.v1.CreateScheduledTaskRequest\x1a).apiserver.v1.CreateScheduledTaskResponse\"i\x92AH\n" +
+	"\x12定时任务管理\x12\x12创建定时任务\x1a\x1e创建一个新的定时任务\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/scheduled-tasks\x12\xf2\x01\n" +
+	"\x13UpdateScheduledTask\x12(.apiserver.v1.UpdateScheduledTaskRequest\x1a).apiserver.v1.UpdateScheduledTaskResponse\"\x85\x01\x92AR\n" +
+	"\x12定时任务管理\x12\x12更新定时任务\x1a(根据任务 ID 更新定时任务信息\x82\xd3\xe4\x93\x02*:\x01*\x1a%/v1/scheduled-tasks/{scheduledTaskID}\x12\xe8\x01\n" +
+	"\x13DeleteScheduledTask\x12(.apiserver.v1.DeleteScheduledTaskRequest\x1a).apiserver.v1.DeleteScheduledTaskResponse\"|\x92AL\n" +
+	"\x12定时任务管理\x12\x12删除定时任务\x1a\"根据任务 ID 删除定时任务\x82\xd3\xe4\x93\x02'*%/v1/scheduled-tasks/{scheduledTaskID}\x12\xe6\x01\n" +
+	"\x10GetScheduledTask\x12%.apiserver.v1.GetScheduledTaskRequest\x1a&.apiserver.v1.GetScheduledTaskResponse\"\x82\x01\x92AR\n" +
+	"\x12定时任务管理\x12\x12获取定时任务\x1a(根据任务 ID 获取定时任务信息\x82\xd3\xe4\x93\x02'\x12%/v1/scheduled-tasks/{scheduledTaskID}\x12\xc9\x01\n" +
+	"\x12ListScheduledTasks\x12'.apiserver.v1.ListScheduledTasksRequest\x1a(.apiserver.v1.ListScheduledTasksResponse\"`\x92AB\n" +
+	"\x12定时任务管理\x12\x12列表定时任务\x1a\x18获取定时任务列表\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/scheduled-tasks\x12\xf2\x01\n" +
+	"\x13ToggleScheduledTask\x12(.apiserver.v1.ToggleScheduledTaskRequest\x1a).apiserver.v1.ToggleScheduledTaskResponse\"\x85\x01\x92AK\n" +
+	"\x12定时任务管理\x12\x18切换定时任务状态\x1a\x1b启用或禁用定时任务\x82\xd3\xe4\x93\x021:\x01*\x1a,/v1/scheduled-tasks/{scheduledTaskID}/toggle\x12\xf6\x01\n" +
+	"\x14TriggerScheduledTask\x12).apiserver.v1.TriggerScheduledTaskRequest\x1a*.apiserver.v1.TriggerScheduledTaskResponse\"\x86\x01\x92AN\n" +
+	"\x12定时任务管理\x12\x18手动触发定时任务\x1a\x1e立即执行一次定时任务\x82\xd3\xe4\x93\x02/\"-/v1/scheduled-tasks/{scheduledTaskID}/trigger\x12\x97\x02\n" +
+	"\x1bListScheduledTaskExecutions\x120.apiserver.v1.ListScheduledTaskExecutionsRequest\x1a1.apiserver.v1.ListScheduledTaskExecutionsResponse\"\x92\x01\x92AW\n" +
+	"\x12定时任务管理\x12\x18列表任务执行记录\x1a'获取定时任务的执行历史记录\x82\xd3\xe4\x93\x022\x120/v1/scheduled-tasks/{scheduledTaskID}/executionsB\xc6\x03\x92A\x81\x03\x12\xd6\x02\n" +
 	"\rAPI Server v1\x12\xd1\x01基于 gin-enterprise-template 的通用后端 API 服务：\n" +
 	"- JWT 用户认证与权限控制\n" +
 	"- 用户、角色、权限、菜单管理\n" +
@@ -110,68 +126,84 @@ const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\x1egin-enterprise-template 项目\x122https://github.com/clin211/gin-enterprise-template\x1a\x16767425412lin@gmail.com2\x031.0*\x02\x01\x022\x10application/json:\x10application/jsonZ?github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1b\x06proto3"
 
 var file_apiserver_v1_apiserver_proto_goTypes = []any{
-	(*emptypb.Empty)(nil),                   // 0: google.protobuf.Empty
-	(*LoginRequest)(nil),                    // 1: apiserver.v1.LoginRequest
-	(*RefreshTokenRequest)(nil),             // 2: apiserver.v1.RefreshTokenRequest
-	(*CreateUserRequest)(nil),               // 3: apiserver.v1.CreateUserRequest
-	(*GetUserRequest)(nil),                  // 4: apiserver.v1.GetUserRequest
-	(*UpdateUserRequest)(nil),               // 5: apiserver.v1.UpdateUserRequest
-	(*DeleteUserRequest)(nil),               // 6: apiserver.v1.DeleteUserRequest
-	(*ListUserRequest)(nil),                 // 7: apiserver.v1.ListUserRequest
-	(*CreateMenuRequest)(nil),               // 8: apiserver.v1.CreateMenuRequest
-	(*GetMenuRequest)(nil),                  // 9: apiserver.v1.GetMenuRequest
-	(*UpdateMenuRequest)(nil),               // 10: apiserver.v1.UpdateMenuRequest
-	(*DeleteMenuRequest)(nil),               // 11: apiserver.v1.DeleteMenuRequest
-	(*ListMenuRequest)(nil),                 // 12: apiserver.v1.ListMenuRequest
-	(*ListMenuTreeRequest)(nil),             // 13: apiserver.v1.ListMenuTreeRequest
-	(*GetUserMenuTreeRequest)(nil),          // 14: apiserver.v1.GetUserMenuTreeRequest
-	(*CreatePermissionRequest)(nil),         // 15: apiserver.v1.CreatePermissionRequest
-	(*GetPermissionRequest)(nil),            // 16: apiserver.v1.GetPermissionRequest
-	(*UpdatePermissionRequest)(nil),         // 17: apiserver.v1.UpdatePermissionRequest
-	(*DeletePermissionRequest)(nil),         // 18: apiserver.v1.DeletePermissionRequest
-	(*ListPermissionRequest)(nil),           // 19: apiserver.v1.ListPermissionRequest
-	(*ListPermissionTreeRequest)(nil),       // 20: apiserver.v1.ListPermissionTreeRequest
-	(*CreateRoleRequest)(nil),               // 21: apiserver.v1.CreateRoleRequest
-	(*GetRoleRequest)(nil),                  // 22: apiserver.v1.GetRoleRequest
-	(*UpdateRoleRequest)(nil),               // 23: apiserver.v1.UpdateRoleRequest
-	(*DeleteRoleRequest)(nil),               // 24: apiserver.v1.DeleteRoleRequest
-	(*ListRoleRequest)(nil),                 // 25: apiserver.v1.ListRoleRequest
-	(*AssignPermissionsToRoleRequest)(nil),  // 26: apiserver.v1.AssignPermissionsToRoleRequest
-	(*GetRolePermissionsRequest)(nil),       // 27: apiserver.v1.GetRolePermissionsRequest
-	(*AssignRolesToUserRequest)(nil),        // 28: apiserver.v1.AssignRolesToUserRequest
-	(*GetUserRolesRequest)(nil),             // 29: apiserver.v1.GetUserRolesRequest
-	(*RemoveRoleFromUserRequest)(nil),       // 30: apiserver.v1.RemoveRoleFromUserRequest
-	(*HealthzResponse)(nil),                 // 31: apiserver.v1.HealthzResponse
-	(*LoginResponse)(nil),                   // 32: apiserver.v1.LoginResponse
-	(*RefreshTokenResponse)(nil),            // 33: apiserver.v1.RefreshTokenResponse
-	(*CreateUserResponse)(nil),              // 34: apiserver.v1.CreateUserResponse
-	(*GetUserResponse)(nil),                 // 35: apiserver.v1.GetUserResponse
-	(*UpdateUserResponse)(nil),              // 36: apiserver.v1.UpdateUserResponse
-	(*DeleteUserResponse)(nil),              // 37: apiserver.v1.DeleteUserResponse
-	(*ListUserResponse)(nil),                // 38: apiserver.v1.ListUserResponse
-	(*CreateMenuResponse)(nil),              // 39: apiserver.v1.CreateMenuResponse
-	(*GetMenuResponse)(nil),                 // 40: apiserver.v1.GetMenuResponse
-	(*UpdateMenuResponse)(nil),              // 41: apiserver.v1.UpdateMenuResponse
-	(*DeleteMenuResponse)(nil),              // 42: apiserver.v1.DeleteMenuResponse
-	(*ListMenuResponse)(nil),                // 43: apiserver.v1.ListMenuResponse
-	(*ListMenuTreeResponse)(nil),            // 44: apiserver.v1.ListMenuTreeResponse
-	(*GetUserMenuTreeResponse)(nil),         // 45: apiserver.v1.GetUserMenuTreeResponse
-	(*CreatePermissionResponse)(nil),        // 46: apiserver.v1.CreatePermissionResponse
-	(*GetPermissionResponse)(nil),           // 47: apiserver.v1.GetPermissionResponse
-	(*UpdatePermissionResponse)(nil),        // 48: apiserver.v1.UpdatePermissionResponse
-	(*DeletePermissionResponse)(nil),        // 49: apiserver.v1.DeletePermissionResponse
-	(*ListPermissionResponse)(nil),          // 50: apiserver.v1.ListPermissionResponse
-	(*ListPermissionTreeResponse)(nil),      // 51: apiserver.v1.ListPermissionTreeResponse
-	(*CreateRoleResponse)(nil),              // 52: apiserver.v1.CreateRoleResponse
-	(*GetRoleResponse)(nil),                 // 53: apiserver.v1.GetRoleResponse
-	(*UpdateRoleResponse)(nil),              // 54: apiserver.v1.UpdateRoleResponse
-	(*DeleteRoleResponse)(nil),              // 55: apiserver.v1.DeleteRoleResponse
-	(*ListRoleResponse)(nil),                // 56: apiserver.v1.ListRoleResponse
-	(*AssignPermissionsToRoleResponse)(nil), // 57: apiserver.v1.AssignPermissionsToRoleResponse
-	(*GetRolePermissionsResponse)(nil),      // 58: apiserver.v1.GetRolePermissionsResponse
-	(*AssignRolesToUserResponse)(nil),       // 59: apiserver.v1.AssignRolesToUserResponse
-	(*GetUserRolesResponse)(nil),            // 60: apiserver.v1.GetUserRolesResponse
-	(*RemoveRoleFromUserResponse)(nil),      // 61: apiserver.v1.RemoveRoleFromUserResponse
+	(*emptypb.Empty)(nil),                       // 0: google.protobuf.Empty
+	(*LoginRequest)(nil),                        // 1: apiserver.v1.LoginRequest
+	(*RefreshTokenRequest)(nil),                 // 2: apiserver.v1.RefreshTokenRequest
+	(*CreateUserRequest)(nil),                   // 3: apiserver.v1.CreateUserRequest
+	(*GetUserRequest)(nil),                      // 4: apiserver.v1.GetUserRequest
+	(*UpdateUserRequest)(nil),                   // 5: apiserver.v1.UpdateUserRequest
+	(*DeleteUserRequest)(nil),                   // 6: apiserver.v1.DeleteUserRequest
+	(*ListUserRequest)(nil),                     // 7: apiserver.v1.ListUserRequest
+	(*CreateMenuRequest)(nil),                   // 8: apiserver.v1.CreateMenuRequest
+	(*GetMenuRequest)(nil),                      // 9: apiserver.v1.GetMenuRequest
+	(*UpdateMenuRequest)(nil),                   // 10: apiserver.v1.UpdateMenuRequest
+	(*DeleteMenuRequest)(nil),                   // 11: apiserver.v1.DeleteMenuRequest
+	(*ListMenuRequest)(nil),                     // 12: apiserver.v1.ListMenuRequest
+	(*ListMenuTreeRequest)(nil),                 // 13: apiserver.v1.ListMenuTreeRequest
+	(*GetUserMenuTreeRequest)(nil),              // 14: apiserver.v1.GetUserMenuTreeRequest
+	(*CreatePermissionRequest)(nil),             // 15: apiserver.v1.CreatePermissionRequest
+	(*GetPermissionRequest)(nil),                // 16: apiserver.v1.GetPermissionRequest
+	(*UpdatePermissionRequest)(nil),             // 17: apiserver.v1.UpdatePermissionRequest
+	(*DeletePermissionRequest)(nil),             // 18: apiserver.v1.DeletePermissionRequest
+	(*ListPermissionRequest)(nil),               // 19: apiserver.v1.ListPermissionRequest
+	(*ListPermissionTreeRequest)(nil),           // 20: apiserver.v1.ListPermissionTreeRequest
+	(*CreateRoleRequest)(nil),                   // 21: apiserver.v1.CreateRoleRequest
+	(*GetRoleRequest)(nil),                      // 22: apiserver.v1.GetRoleRequest
+	(*UpdateRoleRequest)(nil),                   // 23: apiserver.v1.UpdateRoleRequest
+	(*DeleteRoleRequest)(nil),                   // 24: apiserver.v1.DeleteRoleRequest
+	(*ListRoleRequest)(nil),                     // 25: apiserver.v1.ListRoleRequest
+	(*AssignPermissionsToRoleRequest)(nil),      // 26: apiserver.v1.AssignPermissionsToRoleRequest
+	(*GetRolePermissionsRequest)(nil),           // 27: apiserver.v1.GetRolePermissionsRequest
+	(*AssignRolesToUserRequest)(nil),            // 28: apiserver.v1.AssignRolesToUserRequest
+	(*GetUserRolesRequest)(nil),                 // 29: apiserver.v1.GetUserRolesRequest
+	(*RemoveRoleFromUserRequest)(nil),           // 30: apiserver.v1.RemoveRoleFromUserRequest
+	(*CreateScheduledTaskRequest)(nil),          // 31: apiserver.v1.CreateScheduledTaskRequest
+	(*UpdateScheduledTaskRequest)(nil),          // 32: apiserver.v1.UpdateScheduledTaskRequest
+	(*DeleteScheduledTaskRequest)(nil),          // 33: apiserver.v1.DeleteScheduledTaskRequest
+	(*GetScheduledTaskRequest)(nil),             // 34: apiserver.v1.GetScheduledTaskRequest
+	(*ListScheduledTasksRequest)(nil),           // 35: apiserver.v1.ListScheduledTasksRequest
+	(*ToggleScheduledTaskRequest)(nil),          // 36: apiserver.v1.ToggleScheduledTaskRequest
+	(*TriggerScheduledTaskRequest)(nil),         // 37: apiserver.v1.TriggerScheduledTaskRequest
+	(*ListScheduledTaskExecutionsRequest)(nil),  // 38: apiserver.v1.ListScheduledTaskExecutionsRequest
+	(*HealthzResponse)(nil),                     // 39: apiserver.v1.HealthzResponse
+	(*LoginResponse)(nil),                       // 40: apiserver.v1.LoginResponse
+	(*RefreshTokenResponse)(nil),                // 41: apiserver.v1.RefreshTokenResponse
+	(*CreateUserResponse)(nil),                  // 42: apiserver.v1.CreateUserResponse
+	(*GetUserResponse)(nil),                     // 43: apiserver.v1.GetUserResponse
+	(*UpdateUserResponse)(nil),                  // 44: apiserver.v1.UpdateUserResponse
+	(*DeleteUserResponse)(nil),                  // 45: apiserver.v1.DeleteUserResponse
+	(*ListUserResponse)(nil),                    // 46: apiserver.v1.ListUserResponse
+	(*CreateMenuResponse)(nil),                  // 47: apiserver.v1.CreateMenuResponse
+	(*GetMenuResponse)(nil),                     // 48: apiserver.v1.GetMenuResponse
+	(*UpdateMenuResponse)(nil),                  // 49: apiserver.v1.UpdateMenuResponse
+	(*DeleteMenuResponse)(nil),                  // 50: apiserver.v1.DeleteMenuResponse
+	(*ListMenuResponse)(nil),                    // 51: apiserver.v1.ListMenuResponse
+	(*ListMenuTreeResponse)(nil),                // 52: apiserver.v1.ListMenuTreeResponse
+	(*GetUserMenuTreeResponse)(nil),             // 53: apiserver.v1.GetUserMenuTreeResponse
+	(*CreatePermissionResponse)(nil),            // 54: apiserver.v1.CreatePermissionResponse
+	(*GetPermissionResponse)(nil),               // 55: apiserver.v1.GetPermissionResponse
+	(*UpdatePermissionResponse)(nil),            // 56: apiserver.v1.UpdatePermissionResponse
+	(*DeletePermissionResponse)(nil),            // 57: apiserver.v1.DeletePermissionResponse
+	(*ListPermissionResponse)(nil),              // 58: apiserver.v1.ListPermissionResponse
+	(*ListPermissionTreeResponse)(nil),          // 59: apiserver.v1.ListPermissionTreeResponse
+	(*CreateRoleResponse)(nil),                  // 60: apiserver.v1.CreateRoleResponse
+	(*GetRoleResponse)(nil),                     // 61: apiserver.v1.GetRoleResponse
+	(*UpdateRoleResponse)(nil),                  // 62: apiserver.v1.UpdateRoleResponse
+	(*DeleteRoleResponse)(nil),                  // 63: apiserver.v1.DeleteRoleResponse
+	(*ListRoleResponse)(nil),                    // 64: apiserver.v1.ListRoleResponse
+	(*AssignPermissionsToRoleResponse)(nil),     // 65: apiserver.v1.AssignPermissionsToRoleResponse
+	(*GetRolePermissionsResponse)(nil),          // 66: apiserver.v1.GetRolePermissionsResponse
+	(*AssignRolesToUserResponse)(nil),           // 67: apiserver.v1.AssignRolesToUserResponse
+	(*GetUserRolesResponse)(nil),                // 68: apiserver.v1.GetUserRolesResponse
+	(*RemoveRoleFromUserResponse)(nil),          // 69: apiserver.v1.RemoveRoleFromUserResponse
+	(*CreateScheduledTaskResponse)(nil),         // 70: apiserver.v1.CreateScheduledTaskResponse
+	(*UpdateScheduledTaskResponse)(nil),         // 71: apiserver.v1.UpdateScheduledTaskResponse
+	(*DeleteScheduledTaskResponse)(nil),         // 72: apiserver.v1.DeleteScheduledTaskResponse
+	(*GetScheduledTaskResponse)(nil),            // 73: apiserver.v1.GetScheduledTaskResponse
+	(*ListScheduledTasksResponse)(nil),          // 74: apiserver.v1.ListScheduledTasksResponse
+	(*ToggleScheduledTaskResponse)(nil),         // 75: apiserver.v1.ToggleScheduledTaskResponse
+	(*TriggerScheduledTaskResponse)(nil),        // 76: apiserver.v1.TriggerScheduledTaskResponse
+	(*ListScheduledTaskExecutionsResponse)(nil), // 77: apiserver.v1.ListScheduledTaskExecutionsResponse
 }
 var file_apiserver_v1_apiserver_proto_depIdxs = []int32{
 	0,  // 0: apiserver.v1.APIServer.Healthz:input_type -> google.protobuf.Empty
@@ -205,39 +237,55 @@ var file_apiserver_v1_apiserver_proto_depIdxs = []int32{
 	28, // 28: apiserver.v1.APIServer.AssignRolesToUser:input_type -> apiserver.v1.AssignRolesToUserRequest
 	29, // 29: apiserver.v1.APIServer.GetUserRoles:input_type -> apiserver.v1.GetUserRolesRequest
 	30, // 30: apiserver.v1.APIServer.RemoveRoleFromUser:input_type -> apiserver.v1.RemoveRoleFromUserRequest
-	31, // 31: apiserver.v1.APIServer.Healthz:output_type -> apiserver.v1.HealthzResponse
-	32, // 32: apiserver.v1.APIServer.Login:output_type -> apiserver.v1.LoginResponse
-	33, // 33: apiserver.v1.APIServer.RefreshToken:output_type -> apiserver.v1.RefreshTokenResponse
-	34, // 34: apiserver.v1.APIServer.CreateUser:output_type -> apiserver.v1.CreateUserResponse
-	35, // 35: apiserver.v1.APIServer.GetUser:output_type -> apiserver.v1.GetUserResponse
-	36, // 36: apiserver.v1.APIServer.UpdateUser:output_type -> apiserver.v1.UpdateUserResponse
-	37, // 37: apiserver.v1.APIServer.DeleteUser:output_type -> apiserver.v1.DeleteUserResponse
-	38, // 38: apiserver.v1.APIServer.ListUsers:output_type -> apiserver.v1.ListUserResponse
-	39, // 39: apiserver.v1.APIServer.CreateMenu:output_type -> apiserver.v1.CreateMenuResponse
-	40, // 40: apiserver.v1.APIServer.GetMenu:output_type -> apiserver.v1.GetMenuResponse
-	41, // 41: apiserver.v1.APIServer.UpdateMenu:output_type -> apiserver.v1.UpdateMenuResponse
-	42, // 42: apiserver.v1.APIServer.DeleteMenu:output_type -> apiserver.v1.DeleteMenuResponse
-	43, // 43: apiserver.v1.APIServer.ListMenus:output_type -> apiserver.v1.ListMenuResponse
-	44, // 44: apiserver.v1.APIServer.ListMenuTree:output_type -> apiserver.v1.ListMenuTreeResponse
-	45, // 45: apiserver.v1.APIServer.GetUserMenuTree:output_type -> apiserver.v1.GetUserMenuTreeResponse
-	46, // 46: apiserver.v1.APIServer.CreatePermission:output_type -> apiserver.v1.CreatePermissionResponse
-	47, // 47: apiserver.v1.APIServer.GetPermission:output_type -> apiserver.v1.GetPermissionResponse
-	48, // 48: apiserver.v1.APIServer.UpdatePermission:output_type -> apiserver.v1.UpdatePermissionResponse
-	49, // 49: apiserver.v1.APIServer.DeletePermission:output_type -> apiserver.v1.DeletePermissionResponse
-	50, // 50: apiserver.v1.APIServer.ListPermissions:output_type -> apiserver.v1.ListPermissionResponse
-	51, // 51: apiserver.v1.APIServer.ListPermissionTree:output_type -> apiserver.v1.ListPermissionTreeResponse
-	52, // 52: apiserver.v1.APIServer.CreateRole:output_type -> apiserver.v1.CreateRoleResponse
-	53, // 53: apiserver.v1.APIServer.GetRole:output_type -> apiserver.v1.GetRoleResponse
-	54, // 54: apiserver.v1.APIServer.UpdateRole:output_type -> apiserver.v1.UpdateRoleResponse
-	55, // 55: apiserver.v1.APIServer.DeleteRole:output_type -> apiserver.v1.DeleteRoleResponse
-	56, // 56: apiserver.v1.APIServer.ListRoles:output_type -> apiserver.v1.ListRoleResponse
-	57, // 57: apiserver.v1.APIServer.AssignPermissionsToRole:output_type -> apiserver.v1.AssignPermissionsToRoleResponse
-	58, // 58: apiserver.v1.APIServer.GetRolePermissions:output_type -> apiserver.v1.GetRolePermissionsResponse
-	59, // 59: apiserver.v1.APIServer.AssignRolesToUser:output_type -> apiserver.v1.AssignRolesToUserResponse
-	60, // 60: apiserver.v1.APIServer.GetUserRoles:output_type -> apiserver.v1.GetUserRolesResponse
-	61, // 61: apiserver.v1.APIServer.RemoveRoleFromUser:output_type -> apiserver.v1.RemoveRoleFromUserResponse
-	31, // [31:62] is the sub-list for method output_type
-	0,  // [0:31] is the sub-list for method input_type
+	31, // 31: apiserver.v1.APIServer.CreateScheduledTask:input_type -> apiserver.v1.CreateScheduledTaskRequest
+	32, // 32: apiserver.v1.APIServer.UpdateScheduledTask:input_type -> apiserver.v1.UpdateScheduledTaskRequest
+	33, // 33: apiserver.v1.APIServer.DeleteScheduledTask:input_type -> apiserver.v1.DeleteScheduledTaskRequest
+	34, // 34: apiserver.v1.APIServer.GetScheduledTask:input_type -> apiserver.v1.GetScheduledTaskRequest
+	35, // 35: apiserver.v1.APIServer.ListScheduledTasks:input_type -> apiserver.v1.ListScheduledTasksRequest
+	36, // 36: apiserver.v1.APIServer.ToggleScheduledTask:input_type -> apiserver.v1.ToggleScheduledTaskRequest
+	37, // 37: apiserver.v1.APIServer.TriggerScheduledTask:input_type -> apiserver.v1.TriggerScheduledTaskRequest
+	38, // 38: apiserver.v1.APIServer.ListScheduledTaskExecutions:input_type -> apiserver.v1.ListScheduledTaskExecutionsRequest
+	39, // 39: apiserver.v1.APIServer.Healthz:output_type -> apiserver.v1.HealthzResponse
+	40, // 40: apiserver.v1.APIServer.Login:output_type -> apiserver.v1.LoginResponse
+	41, // 41: apiserver.v1.APIServer.RefreshToken:output_type -> apiserver.v1.RefreshTokenResponse
+	42, // 42: apiserver.v1.APIServer.CreateUser:output_type -> apiserver.v1.CreateUserResponse
+	43, // 43: apiserver.v1.APIServer.GetUser:output_type -> apiserver.v1.GetUserResponse
+	44, // 44: apiserver.v1.APIServer.UpdateUser:output_type -> apiserver.v1.UpdateUserResponse
+	45, // 45: apiserver.v1.APIServer.DeleteUser:output_type -> apiserver.v1.DeleteUserResponse
+	46, // 46: apiserver.v1.APIServer.ListUsers:output_type -> apiserver.v1.ListUserResponse
+	47, // 47: apiserver.v1.APIServer.CreateMenu:output_type -> apiserver.v1.CreateMenuResponse
+	48, // 48: apiserver.v1.APIServer.GetMenu:output_type -> apiserver.v1.GetMenuResponse
+	49, // 49: apiserver.v1.APIServer.UpdateMenu:output_type -> apiserver.v1.UpdateMenuResponse
+	50, // 50: apiserver.v1.APIServer.DeleteMenu:output_type -> apiserver.v1.DeleteMenuResponse
+	51, // 51: apiserver.v1.APIServer.ListMenus:output_type -> apiserver.v1.ListMenuResponse
+	52, // 52: apiserver.v1.APIServer.ListMenuTree:output_type -> apiserver.v1.ListMenuTreeResponse
+	53, // 53: apiserver.v1.APIServer.GetUserMenuTree:output_type -> apiserver.v1.GetUserMenuTreeResponse
+	54, // 54: apiserver.v1.APIServer.CreatePermission:output_type -> apiserver.v1.CreatePermissionResponse
+	55, // 55: apiserver.v1.APIServer.GetPermission:output_type -> apiserver.v1.GetPermissionResponse
+	56, // 56: apiserver.v1.APIServer.UpdatePermission:output_type -> apiserver.v1.UpdatePermissionResponse
+	57, // 57: apiserver.v1.APIServer.DeletePermission:output_type -> apiserver.v1.DeletePermissionResponse
+	58, // 58: apiserver.v1.APIServer.ListPermissions:output_type -> apiserver.v1.ListPermissionResponse
+	59, // 59: apiserver.v1.APIServer.ListPermissionTree:output_type -> apiserver.v1.ListPermissionTreeResponse
+	60, // 60: apiserver.v1.APIServer.CreateRole:output_type -> apiserver.v1.CreateRoleResponse
+	61, // 61: apiserver.v1.APIServer.GetRole:output_type -> apiserver.v1.GetRoleResponse
+	62, // 62: apiserver.v1.APIServer.UpdateRole:output_type -> apiserver.v1.UpdateRoleResponse
+	63, // 63: apiserver.v1.APIServer.DeleteRole:output_type -> apiserver.v1.DeleteRoleResponse
+	64, // 64: apiserver.v1.APIServer.ListRoles:output_type -> apiserver.v1.ListRoleResponse
+	65, // 65: apiserver.v1.APIServer.AssignPermissionsToRole:output_type -> apiserver.v1.AssignPermissionsToRoleResponse
+	66, // 66: apiserver.v1.APIServer.GetRolePermissions:output_type -> apiserver.v1.GetRolePermissionsResponse
+	67, // 67: apiserver.v1.APIServer.AssignRolesToUser:output_type -> apiserver.v1.AssignRolesToUserResponse
+	68, // 68: apiserver.v1.APIServer.GetUserRoles:output_type -> apiserver.v1.GetUserRolesResponse
+	69, // 69: apiserver.v1.APIServer.RemoveRoleFromUser:output_type -> apiserver.v1.RemoveRoleFromUserResponse
+	70, // 70: apiserver.v1.APIServer.CreateScheduledTask:output_type -> apiserver.v1.CreateScheduledTaskResponse
+	71, // 71: apiserver.v1.APIServer.UpdateScheduledTask:output_type -> apiserver.v1.UpdateScheduledTaskResponse
+	72, // 72: apiserver.v1.APIServer.DeleteScheduledTask:output_type -> apiserver.v1.DeleteScheduledTaskResponse
+	73, // 73: apiserver.v1.APIServer.GetScheduledTask:output_type -> apiserver.v1.GetScheduledTaskResponse
+	74, // 74: apiserver.v1.APIServer.ListScheduledTasks:output_type -> apiserver.v1.ListScheduledTasksResponse
+	75, // 75: apiserver.v1.APIServer.ToggleScheduledTask:output_type -> apiserver.v1.ToggleScheduledTaskResponse
+	76, // 76: apiserver.v1.APIServer.TriggerScheduledTask:output_type -> apiserver.v1.TriggerScheduledTaskResponse
+	77, // 77: apiserver.v1.APIServer.ListScheduledTaskExecutions:output_type -> apiserver.v1.ListScheduledTaskExecutionsResponse
+	39, // [39:78] is the sub-list for method output_type
+	0,  // [0:39] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -254,6 +302,7 @@ func file_apiserver_v1_apiserver_proto_init() {
 	file_apiserver_v1_permission_proto_init()
 	file_apiserver_v1_role_proto_init()
 	file_apiserver_v1_user_role_proto_init()
+	file_apiserver_v1_scheduled_task_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -805,6 +805,45 @@ ALTER TABLE "public"."user" ADD CONSTRAINT "user_phone_key" UNIQUE ("phone");
 ALTER TABLE "public"."user" ADD CONSTRAINT "user_pkey" PRIMARY KEY ("id");
 
 -- ----------------------------
+-- Data for default admin user
+-- ----------------------------
+WITH upsert_user AS (
+  INSERT INTO public."user" (
+    username,
+    password,
+    nickname,
+    gender,
+    status,
+    description
+  )
+  VALUES (
+    'admin',
+    '$2a$10$Kmayn0.fBDDdASBInmv0.ubO58mYVqZFQnIbnAs1qQyKIuItrqPRK',
+    '管理员',
+    0,
+    0,
+    '系统管理员'
+  )
+  ON CONFLICT (username) DO UPDATE
+  SET
+    password = EXCLUDED.password,
+    nickname = EXCLUDED.nickname,
+    status = EXCLUDED.status,
+    updated_at = CURRENT_TIMESTAMP
+  RETURNING user_id
+)
+INSERT INTO public.casbin_rule (ptype, v0, v1)
+SELECT 'g', user_id::text, 'role::admin'
+FROM upsert_user
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM public.casbin_rule
+  WHERE ptype = 'g'
+    AND v0 = (SELECT user_id::text FROM upsert_user)
+    AND v1 = 'role::admin'
+);
+
+-- ----------------------------
 -- Indexes structure for table user_config
 -- ----------------------------
 CREATE INDEX "idx_user_config_user" ON "public"."user_config" USING btree (
@@ -882,3 +921,182 @@ ALTER TABLE "public"."user_config" ADD CONSTRAINT "user_config_user_id_fkey" FOR
 -- ----------------------------
 ALTER TABLE "public"."user_role" ADD CONSTRAINT "user_role_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."role" ("role_id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "public"."user_role" ADD CONSTRAINT "user_role_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."user" ("user_id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- ----------------------------
+-- Sequence structure for scheduled_task_id_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."scheduled_task_id_seq";
+CREATE SEQUENCE "public"."scheduled_task_id_seq"
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 9223372036854775807
+START 1
+CACHE 1;
+ALTER SEQUENCE "public"."scheduled_task_id_seq" OWNER TO "postgres";
+COMMENT ON SEQUENCE "public"."scheduled_task_id_seq" IS '定时任务表内部ID序列';
+
+-- ----------------------------
+-- Sequence structure for scheduled_task_execution_id_seq
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."scheduled_task_execution_id_seq";
+CREATE SEQUENCE "public"."scheduled_task_execution_id_seq"
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 9223372036854775807
+START 1
+CACHE 1;
+ALTER SEQUENCE "public"."scheduled_task_execution_id_seq" OWNER TO "postgres";
+COMMENT ON SEQUENCE "public"."scheduled_task_execution_id_seq" IS '定时任务执行记录表内部ID序列';
+
+-- ----------------------------
+-- Table structure for scheduled_task
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."scheduled_task";
+CREATE TABLE "public"."scheduled_task" (
+  "id" int8 NOT NULL DEFAULT nextval('scheduled_task_id_seq'::regclass),
+  "scheduled_task_id" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "name" varchar(128) COLLATE "pg_catalog"."default" NOT NULL,
+  "task_type" varchar(128) COLLATE "pg_catalog"."default" NOT NULL,
+  "payload" jsonb NOT NULL DEFAULT '{}',
+  "cron_expr" varchar(64) COLLATE "pg_catalog"."default" NOT NULL,
+  "queue" varchar(64) COLLATE "pg_catalog"."default" NOT NULL,
+  "enabled" bool NOT NULL DEFAULT true,
+  "timezone" varchar(64) COLLATE "pg_catalog"."default" NOT NULL,
+  "user_id" varchar(64) COLLATE "pg_catalog"."default" NOT NULL,
+  "next_run_time" timestamptz(6),
+  "last_scheduled_at" timestamptz(6),
+  "last_execution_id" varchar(128) COLLATE "pg_catalog"."default",
+  "last_error" varchar(512) COLLATE "pg_catalog"."default",
+  "created_at" timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "deleted_at" timestamptz(6)
+);
+ALTER TABLE "public"."scheduled_task" OWNER TO "postgres";
+COMMENT ON COLUMN "public"."scheduled_task"."id" IS '内部主键ID（自增序列）';
+COMMENT ON COLUMN "public"."scheduled_task"."scheduled_task_id" IS '定时任务业务唯一UUID';
+COMMENT ON COLUMN "public"."scheduled_task"."name" IS '任务名称';
+COMMENT ON COLUMN "public"."scheduled_task"."task_type" IS '任务类型（对应 worker 注册的 TaskType）';
+COMMENT ON COLUMN "public"."scheduled_task"."payload" IS '任务载荷（JSONB格式，传递给 worker 的参数）';
+COMMENT ON COLUMN "public"."scheduled_task"."cron_expr" IS 'Cron 表达式（如 0 9 * * *）';
+COMMENT ON COLUMN "public"."scheduled_task"."queue" IS 'Asynq 队列名称';
+COMMENT ON COLUMN "public"."scheduled_task"."enabled" IS '是否启用（true=启用, false=暂停）';
+COMMENT ON COLUMN "public"."scheduled_task"."timezone" IS 'Cron 表达式时区（如 Asia/Shanghai）';
+COMMENT ON COLUMN "public"."scheduled_task"."user_id" IS '创建者用户UUID';
+COMMENT ON COLUMN "public"."scheduled_task"."next_run_time" IS '下次执行时间（由调度器计算）';
+COMMENT ON COLUMN "public"."scheduled_task"."last_scheduled_at" IS '最近一次调度时间';
+COMMENT ON COLUMN "public"."scheduled_task"."last_execution_id" IS '最近一次执行记录UUID';
+COMMENT ON COLUMN "public"."scheduled_task"."last_error" IS '最近一次执行错误信息';
+COMMENT ON COLUMN "public"."scheduled_task"."created_at" IS '创建时间';
+COMMENT ON COLUMN "public"."scheduled_task"."updated_at" IS '更新时间';
+COMMENT ON COLUMN "public"."scheduled_task"."deleted_at" IS '软删除时间（NULL=未删除）';
+COMMENT ON TABLE "public"."scheduled_task" IS '定时任务表，存储定时任务的配置与调度状态';
+
+-- ----------------------------
+-- Table structure for scheduled_task_execution
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."scheduled_task_execution";
+CREATE TABLE "public"."scheduled_task_execution" (
+  "id" int8 NOT NULL DEFAULT nextval('scheduled_task_execution_id_seq'::regclass),
+  "execution_id" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "scheduled_task_id" varchar(128) COLLATE "pg_catalog"."default" NOT NULL,
+  "user_id" varchar(64) COLLATE "pg_catalog"."default" NOT NULL,
+  "trigger_type" varchar(32) COLLATE "pg_catalog"."default" NOT NULL,
+  "scheduled_at" timestamptz(6) NOT NULL,
+  "enqueued_at" timestamptz(6),
+  "asynq_task_id" varchar(128) COLLATE "pg_catalog"."default",
+  "dispatch_status" varchar(32) COLLATE "pg_catalog"."default" NOT NULL,
+  "process_status" varchar(32) COLLATE "pg_catalog"."default" NOT NULL,
+  "attempt" int4 NOT NULL DEFAULT 0,
+  "error_msg" varchar(1024) COLLATE "pg_catalog"."default",
+  "started_at" timestamptz(6),
+  "finished_at" timestamptz(6),
+  "duration_ms" int8 NOT NULL DEFAULT 0,
+  "created_at" timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE "public"."scheduled_task_execution" OWNER TO "postgres";
+COMMENT ON COLUMN "public"."scheduled_task_execution"."id" IS '内部主键ID（自增序列）';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."execution_id" IS '执行记录业务唯一UUID';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."scheduled_task_id" IS '关联的定时任务UUID';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."user_id" IS '创建者用户UUID';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."trigger_type" IS '触发类型（scheduled=定时触发, manual=手动触发）';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."scheduled_at" IS '计划执行时间';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."enqueued_at" IS '任务入队时间';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."asynq_task_id" IS 'Asynq 内部任务ID';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."dispatch_status" IS '调度状态（pending=enqueued=入队成功, failed=入队失败）';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."process_status" IS '处理状态（pending=待处理, running=执行中, completed=成功, failed=失败）';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."attempt" IS '执行重试次数';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."error_msg" IS '执行错误信息';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."started_at" IS '开始执行时间';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."finished_at" IS '执行完成时间';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."duration_ms" IS '执行耗时（毫秒）';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."created_at" IS '创建时间';
+COMMENT ON COLUMN "public"."scheduled_task_execution"."updated_at" IS '更新时间';
+COMMENT ON TABLE "public"."scheduled_task_execution" IS '定时任务执行记录表，记录每次任务执行的调度与处理状态';
+
+-- ----------------------------
+-- Alter sequences owned by
+-- ----------------------------
+ALTER SEQUENCE "public"."scheduled_task_id_seq"
+OWNED BY "public"."scheduled_task"."id";
+SELECT setval('"public"."scheduled_task_id_seq"', 1, false);
+
+ALTER SEQUENCE "public"."scheduled_task_execution_id_seq"
+OWNED BY "public"."scheduled_task_execution"."id";
+SELECT setval('"public"."scheduled_task_execution_id_seq"', 1, false);
+
+-- ----------------------------
+-- Indexes structure for table scheduled_task
+-- ----------------------------
+CREATE INDEX "idx_scheduled_task_enabled_next_run" ON "public"."scheduled_task" USING btree (
+  "enabled" "pg_catalog"."bool_ops" ASC NULLS LAST,
+  "next_run_time" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
+) WHERE enabled = true;
+CREATE INDEX "idx_scheduled_task_type" ON "public"."scheduled_task" USING btree (
+  "task_type" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
+);
+CREATE INDEX "idx_scheduled_task_user_id" ON "public"."scheduled_task" USING btree (
+  "user_id" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
+);
+
+-- ----------------------------
+-- Uniques structure for table scheduled_task
+-- GORM 生成唯一索引名为 idx_scheduled_task_id，同时会生成约束 uni_scheduled_task_scheduled_task_id
+ALTER TABLE "public"."scheduled_task" ADD CONSTRAINT "uni_scheduled_task_scheduled_task_id" UNIQUE ("scheduled_task_id");
+ALTER TABLE "public"."scheduled_task" ADD CONSTRAINT "scheduled_task_scheduled_task_id_key" UNIQUE ("scheduled_task_id");
+
+-- ----------------------------
+-- Primary Key structure for table scheduled_task
+-- ----------------------------
+ALTER TABLE "public"."scheduled_task" ADD CONSTRAINT "scheduled_task_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
+-- Indexes structure for table scheduled_task_execution
+-- ----------------------------
+CREATE INDEX "idx_dispatch_status" ON "public"."scheduled_task_execution" USING btree (
+  "dispatch_status" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
+);
+CREATE INDEX "idx_execution_task_id" ON "public"."scheduled_task_execution" USING btree (
+  "scheduled_task_id" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
+);
+CREATE INDEX "idx_execution_user_id" ON "public"."scheduled_task_execution" USING btree (
+  "user_id" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
+);
+CREATE INDEX "idx_process_status" ON "public"."scheduled_task_execution" USING btree (
+  "process_status" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
+);
+CREATE INDEX "idx_task_scheduled_at" ON "public"."scheduled_task_execution" USING btree (
+  "scheduled_task_id" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST,
+  "scheduled_at" "pg_catalog"."timestamptz_ops" ASC NULLS LAST
+);
+
+-- ----------------------------
+-- Uniques structure for table scheduled_task_execution
+-- GORM 生成唯一索引名为 idx_execution_id，同时会生成约束 uni_scheduled_task_execution_execution_id
+ALTER TABLE "public"."scheduled_task_execution" ADD CONSTRAINT "uni_scheduled_task_execution_execution_id" UNIQUE ("execution_id");
+ALTER TABLE "public"."scheduled_task_execution" ADD CONSTRAINT "idx_execution_id" UNIQUE ("execution_id");
+
+-- ----------------------------
+-- Primary Key structure for table scheduled_task_execution
+-- ----------------------------
+ALTER TABLE "public"."scheduled_task_execution" ADD CONSTRAINT "scheduled_task_execution_pkey" PRIMARY KEY ("id");

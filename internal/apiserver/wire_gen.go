@@ -8,9 +8,13 @@ package apiserver
 
 import (
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/biz"
+	job2 "github.com/clin211/gin-enterprise-template/internal/apiserver/job"
+	"github.com/clin211/gin-enterprise-template/internal/apiserver/job/tasks"
+	"github.com/clin211/gin-enterprise-template/internal/apiserver/job/worker"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/validation"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	"github.com/clin211/gin-enterprise-template/pkg/authz"
+	"github.com/clin211/gin-enterprise-template/pkg/job"
 )
 
 // Injectors from wire.go:
@@ -27,7 +31,24 @@ func NewServer(config *Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	bizBiz := biz.NewBiz(datastore, authzAuthz)
+	client, err := ProvideRedis(config)
+	if err != nil {
+		return nil, err
+	}
+	registry := tasks.NewRegistry()
+	metrics, err := job.NewMetrics()
+	if err != nil {
+		return nil, err
+	}
+	jobOptions := ProvideJobOptions(config)
+	asynqProducer := job.NewAsynqProducer(client, registry, metrics, jobOptions)
+	redisLock := job.NewRedisLockWithClient(client, jobOptions)
+	schedulerTaskStore := job2.NewSchedulerTaskStore(datastore)
+	scheduler, err := job.NewScheduler(registry, asynqProducer, redisLock, metrics, schedulerTaskStore, jobOptions)
+	if err != nil {
+		return nil, err
+	}
+	bizBiz := biz.NewBiz(datastore, authzAuthz, asynqProducer, scheduler, registry, jobOptions)
 	validator := validation.New(datastore)
 	userRetriever := &UserRetriever{
 		store: datastore,
@@ -43,9 +64,15 @@ func NewServer(config *Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	executionRecorder := job2.NewExecutionRecorder(datastore)
+	workerWorker := worker.NewWorker(client, registry, metrics, executionRecorder, jobOptions)
 	apiserverServer := &Server{
-		cfg: serverConfig,
-		srv: server,
+		cfg:         serverConfig,
+		srv:         server,
+		worker:      workerWorker,
+		scheduler:   scheduler,
+		producer:    asynqProducer,
+		redisClient: client,
 	}
 	return apiserverServer, nil
 }

@@ -9,7 +9,6 @@ package v1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -315,7 +314,7 @@ var File_apiserver_v1_user_role_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_user_role_proto_rawDesc = "" +
 	"\n" +
-	"\x1capiserver/v1/user_role.proto\x12\fapiserver.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17apiserver/v1/role.proto\"L\n" +
+	"\x1capiserver/v1/user_role.proto\x12\fapiserver.v1\x1a\x17apiserver/v1/role.proto\"L\n" +
 	"\x18AssignRolesToUserRequest\x12\x16\n" +
 	"\x06userID\x18\x01 \x01(\tR\x06userID\x12\x18\n" +
 	"\aroleIDs\x18\x02 \x03(\tR\aroleIDs\"\x1b\n" +

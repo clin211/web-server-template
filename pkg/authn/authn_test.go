@@ -1,6 +1,7 @@
 package authn
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -34,11 +35,17 @@ func TestEncrypt(t *testing.T) {
 			source:  "密码123",
 			wantErr: false,
 		},
+		{
+			name:    "测试密码",
+			source:  "123456abcX",
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			hashed, err := Encrypt(tt.source)
+			fmt.Printf("%s 加密后的密码: %s\n", tt.name, hashed)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Encrypt() error = %v, wantErr %v", err, tt.wantErr)
 				return

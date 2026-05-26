@@ -1165,6 +1165,328 @@ func local_request_APIServer_RemoveRoleFromUser_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
+func request_APIServer_CreateScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq CreateScheduledTaskRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.CreateScheduledTask(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_CreateScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq CreateScheduledTaskRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.CreateScheduledTask(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_APIServer_UpdateScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq UpdateScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := client.UpdateScheduledTask(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_UpdateScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq UpdateScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := server.UpdateScheduledTask(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_APIServer_DeleteScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq DeleteScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := client.DeleteScheduledTask(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_DeleteScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq DeleteScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := server.DeleteScheduledTask(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_APIServer_GetScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := client.GetScheduledTask(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_GetScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := server.GetScheduledTask(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+var filter_APIServer_ListScheduledTasks_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+func request_APIServer_ListScheduledTasks_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListScheduledTasksRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListScheduledTasks_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.ListScheduledTasks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_ListScheduledTasks_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListScheduledTasksRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListScheduledTasks_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListScheduledTasks(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_APIServer_ToggleScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ToggleScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := client.ToggleScheduledTask(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_ToggleScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ToggleScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := server.ToggleScheduledTask(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_APIServer_TriggerScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq TriggerScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := client.TriggerScheduledTask(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_TriggerScheduledTask_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq TriggerScheduledTaskRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	msg, err := server.TriggerScheduledTask(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+var filter_APIServer_ListScheduledTaskExecutions_0 = &utilities.DoubleArray{Encoding: map[string]int{"scheduledTaskID": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
+func request_APIServer_ListScheduledTaskExecutions_0(ctx context.Context, marshaler runtime.Marshaler, client APIServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListScheduledTaskExecutionsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListScheduledTaskExecutions_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.ListScheduledTaskExecutions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_APIServer_ListScheduledTaskExecutions_0(ctx context.Context, marshaler runtime.Marshaler, server APIServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListScheduledTaskExecutionsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["scheduledTaskID"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "scheduledTaskID")
+	}
+	protoReq.ScheduledTaskID, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "scheduledTaskID", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIServer_ListScheduledTaskExecutions_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListScheduledTaskExecutions(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 // RegisterAPIServerHandlerServer registers the http handlers for service APIServer to "mux".
 // UnaryRPC     :call APIServerServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -1791,6 +2113,166 @@ func RegisterAPIServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_APIServer_RemoveRoleFromUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_CreateScheduledTask_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_CreateScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_UpdateScheduledTask_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_UpdateScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_DeleteScheduledTask_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_DeleteScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_APIServer_GetScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/GetScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_GetScheduledTask_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_GetScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_APIServer_ListScheduledTasks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListScheduledTasks", runtime.WithHTTPPathPattern("/v1/scheduled-tasks"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_ListScheduledTasks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_ListScheduledTasks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_APIServer_ToggleScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ToggleScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}/toggle"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_ToggleScheduledTask_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_ToggleScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_APIServer_TriggerScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/TriggerScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}/trigger"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_TriggerScheduledTask_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_TriggerScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_APIServer_ListScheduledTaskExecutions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/apiserver.v1.APIServer/ListScheduledTaskExecutions", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}/executions"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_APIServer_ListScheduledTaskExecutions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_ListScheduledTaskExecutions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 
 	return nil
 }
@@ -2358,73 +2840,225 @@ func RegisterAPIServerHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_APIServer_RemoveRoleFromUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_APIServer_CreateScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/CreateScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_CreateScheduledTask_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_CreateScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_APIServer_UpdateScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/UpdateScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_UpdateScheduledTask_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_UpdateScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodDelete, pattern_APIServer_DeleteScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/DeleteScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_DeleteScheduledTask_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_DeleteScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_APIServer_GetScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/GetScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_GetScheduledTask_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_GetScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_APIServer_ListScheduledTasks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListScheduledTasks", runtime.WithHTTPPathPattern("/v1/scheduled-tasks"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_ListScheduledTasks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_ListScheduledTasks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_APIServer_ToggleScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ToggleScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}/toggle"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_ToggleScheduledTask_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_ToggleScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_APIServer_TriggerScheduledTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/TriggerScheduledTask", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}/trigger"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_TriggerScheduledTask_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_TriggerScheduledTask_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_APIServer_ListScheduledTaskExecutions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/apiserver.v1.APIServer/ListScheduledTaskExecutions", runtime.WithHTTPPathPattern("/v1/scheduled-tasks/{scheduledTaskID}/executions"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIServer_ListScheduledTaskExecutions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_APIServer_ListScheduledTaskExecutions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_APIServer_Healthz_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"healthz"}, ""))
-	pattern_APIServer_Login_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "login"}, ""))
-	pattern_APIServer_RefreshToken_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "refresh-token"}, ""))
-	pattern_APIServer_CreateUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
-	pattern_APIServer_GetUser_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
-	pattern_APIServer_UpdateUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
-	pattern_APIServer_DeleteUser_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
-	pattern_APIServer_ListUsers_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
-	pattern_APIServer_CreateMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
-	pattern_APIServer_GetMenu_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
-	pattern_APIServer_UpdateMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
-	pattern_APIServer_DeleteMenu_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
-	pattern_APIServer_ListMenus_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
-	pattern_APIServer_ListMenuTree_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "menus", "tree"}, ""))
-	pattern_APIServer_GetUserMenuTree_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "users", "menu-tree"}, ""))
-	pattern_APIServer_CreatePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
-	pattern_APIServer_GetPermission_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
-	pattern_APIServer_UpdatePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
-	pattern_APIServer_DeletePermission_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
-	pattern_APIServer_ListPermissions_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
-	pattern_APIServer_ListPermissionTree_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "permissions", "tree"}, ""))
-	pattern_APIServer_CreateRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
-	pattern_APIServer_GetRole_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
-	pattern_APIServer_UpdateRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
-	pattern_APIServer_DeleteRole_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
-	pattern_APIServer_ListRoles_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
-	pattern_APIServer_AssignPermissionsToRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
-	pattern_APIServer_GetRolePermissions_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
-	pattern_APIServer_AssignRolesToUser_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
-	pattern_APIServer_GetUserRoles_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
-	pattern_APIServer_RemoveRoleFromUser_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "users", "userID", "roles", "roleID"}, ""))
+	pattern_APIServer_Healthz_0                     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"healthz"}, ""))
+	pattern_APIServer_Login_0                       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "login"}, ""))
+	pattern_APIServer_RefreshToken_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "auth", "refresh-token"}, ""))
+	pattern_APIServer_CreateUser_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
+	pattern_APIServer_GetUser_0                     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
+	pattern_APIServer_UpdateUser_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
+	pattern_APIServer_DeleteUser_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "userID"}, ""))
+	pattern_APIServer_ListUsers_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "users"}, ""))
+	pattern_APIServer_CreateMenu_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
+	pattern_APIServer_GetMenu_0                     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
+	pattern_APIServer_UpdateMenu_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
+	pattern_APIServer_DeleteMenu_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "menus", "menuID"}, ""))
+	pattern_APIServer_ListMenus_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "menus"}, ""))
+	pattern_APIServer_ListMenuTree_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "menus", "tree"}, ""))
+	pattern_APIServer_GetUserMenuTree_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "users", "menu-tree"}, ""))
+	pattern_APIServer_CreatePermission_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
+	pattern_APIServer_GetPermission_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
+	pattern_APIServer_UpdatePermission_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
+	pattern_APIServer_DeletePermission_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "permissions", "permissionID"}, ""))
+	pattern_APIServer_ListPermissions_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "permissions"}, ""))
+	pattern_APIServer_ListPermissionTree_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "permissions", "tree"}, ""))
+	pattern_APIServer_CreateRole_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
+	pattern_APIServer_GetRole_0                     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
+	pattern_APIServer_UpdateRole_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
+	pattern_APIServer_DeleteRole_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "roles", "roleID"}, ""))
+	pattern_APIServer_ListRoles_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "roles"}, ""))
+	pattern_APIServer_AssignPermissionsToRole_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
+	pattern_APIServer_GetRolePermissions_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "roles", "roleID", "permissions"}, ""))
+	pattern_APIServer_AssignRolesToUser_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
+	pattern_APIServer_GetUserRoles_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "users", "userID", "roles"}, ""))
+	pattern_APIServer_RemoveRoleFromUser_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "users", "userID", "roles", "roleID"}, ""))
+	pattern_APIServer_CreateScheduledTask_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "scheduled-tasks"}, ""))
+	pattern_APIServer_UpdateScheduledTask_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "scheduled-tasks", "scheduledTaskID"}, ""))
+	pattern_APIServer_DeleteScheduledTask_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "scheduled-tasks", "scheduledTaskID"}, ""))
+	pattern_APIServer_GetScheduledTask_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "scheduled-tasks", "scheduledTaskID"}, ""))
+	pattern_APIServer_ListScheduledTasks_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "scheduled-tasks"}, ""))
+	pattern_APIServer_ToggleScheduledTask_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "scheduled-tasks", "scheduledTaskID", "toggle"}, ""))
+	pattern_APIServer_TriggerScheduledTask_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "scheduled-tasks", "scheduledTaskID", "trigger"}, ""))
+	pattern_APIServer_ListScheduledTaskExecutions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "scheduled-tasks", "scheduledTaskID", "executions"}, ""))
 )
 
 var (
-	forward_APIServer_Healthz_0                 = runtime.ForwardResponseMessage
-	forward_APIServer_Login_0                   = runtime.ForwardResponseMessage
-	forward_APIServer_RefreshToken_0            = runtime.ForwardResponseMessage
-	forward_APIServer_CreateUser_0              = runtime.ForwardResponseMessage
-	forward_APIServer_GetUser_0                 = runtime.ForwardResponseMessage
-	forward_APIServer_UpdateUser_0              = runtime.ForwardResponseMessage
-	forward_APIServer_DeleteUser_0              = runtime.ForwardResponseMessage
-	forward_APIServer_ListUsers_0               = runtime.ForwardResponseMessage
-	forward_APIServer_CreateMenu_0              = runtime.ForwardResponseMessage
-	forward_APIServer_GetMenu_0                 = runtime.ForwardResponseMessage
-	forward_APIServer_UpdateMenu_0              = runtime.ForwardResponseMessage
-	forward_APIServer_DeleteMenu_0              = runtime.ForwardResponseMessage
-	forward_APIServer_ListMenus_0               = runtime.ForwardResponseMessage
-	forward_APIServer_ListMenuTree_0            = runtime.ForwardResponseMessage
-	forward_APIServer_GetUserMenuTree_0         = runtime.ForwardResponseMessage
-	forward_APIServer_CreatePermission_0        = runtime.ForwardResponseMessage
-	forward_APIServer_GetPermission_0           = runtime.ForwardResponseMessage
-	forward_APIServer_UpdatePermission_0        = runtime.ForwardResponseMessage
-	forward_APIServer_DeletePermission_0        = runtime.ForwardResponseMessage
-	forward_APIServer_ListPermissions_0         = runtime.ForwardResponseMessage
-	forward_APIServer_ListPermissionTree_0      = runtime.ForwardResponseMessage
-	forward_APIServer_CreateRole_0              = runtime.ForwardResponseMessage
-	forward_APIServer_GetRole_0                 = runtime.ForwardResponseMessage
-	forward_APIServer_UpdateRole_0              = runtime.ForwardResponseMessage
-	forward_APIServer_DeleteRole_0              = runtime.ForwardResponseMessage
-	forward_APIServer_ListRoles_0               = runtime.ForwardResponseMessage
-	forward_APIServer_AssignPermissionsToRole_0 = runtime.ForwardResponseMessage
-	forward_APIServer_GetRolePermissions_0      = runtime.ForwardResponseMessage
-	forward_APIServer_AssignRolesToUser_0       = runtime.ForwardResponseMessage
-	forward_APIServer_GetUserRoles_0            = runtime.ForwardResponseMessage
-	forward_APIServer_RemoveRoleFromUser_0      = runtime.ForwardResponseMessage
+	forward_APIServer_Healthz_0                     = runtime.ForwardResponseMessage
+	forward_APIServer_Login_0                       = runtime.ForwardResponseMessage
+	forward_APIServer_RefreshToken_0                = runtime.ForwardResponseMessage
+	forward_APIServer_CreateUser_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_GetUser_0                     = runtime.ForwardResponseMessage
+	forward_APIServer_UpdateUser_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_DeleteUser_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_ListUsers_0                   = runtime.ForwardResponseMessage
+	forward_APIServer_CreateMenu_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_GetMenu_0                     = runtime.ForwardResponseMessage
+	forward_APIServer_UpdateMenu_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_DeleteMenu_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_ListMenus_0                   = runtime.ForwardResponseMessage
+	forward_APIServer_ListMenuTree_0                = runtime.ForwardResponseMessage
+	forward_APIServer_GetUserMenuTree_0             = runtime.ForwardResponseMessage
+	forward_APIServer_CreatePermission_0            = runtime.ForwardResponseMessage
+	forward_APIServer_GetPermission_0               = runtime.ForwardResponseMessage
+	forward_APIServer_UpdatePermission_0            = runtime.ForwardResponseMessage
+	forward_APIServer_DeletePermission_0            = runtime.ForwardResponseMessage
+	forward_APIServer_ListPermissions_0             = runtime.ForwardResponseMessage
+	forward_APIServer_ListPermissionTree_0          = runtime.ForwardResponseMessage
+	forward_APIServer_CreateRole_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_GetRole_0                     = runtime.ForwardResponseMessage
+	forward_APIServer_UpdateRole_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_DeleteRole_0                  = runtime.ForwardResponseMessage
+	forward_APIServer_ListRoles_0                   = runtime.ForwardResponseMessage
+	forward_APIServer_AssignPermissionsToRole_0     = runtime.ForwardResponseMessage
+	forward_APIServer_GetRolePermissions_0          = runtime.ForwardResponseMessage
+	forward_APIServer_AssignRolesToUser_0           = runtime.ForwardResponseMessage
+	forward_APIServer_GetUserRoles_0                = runtime.ForwardResponseMessage
+	forward_APIServer_RemoveRoleFromUser_0          = runtime.ForwardResponseMessage
+	forward_APIServer_CreateScheduledTask_0         = runtime.ForwardResponseMessage
+	forward_APIServer_UpdateScheduledTask_0         = runtime.ForwardResponseMessage
+	forward_APIServer_DeleteScheduledTask_0         = runtime.ForwardResponseMessage
+	forward_APIServer_GetScheduledTask_0            = runtime.ForwardResponseMessage
+	forward_APIServer_ListScheduledTasks_0          = runtime.ForwardResponseMessage
+	forward_APIServer_ToggleScheduledTask_0         = runtime.ForwardResponseMessage
+	forward_APIServer_TriggerScheduledTask_0        = runtime.ForwardResponseMessage
+	forward_APIServer_ListScheduledTaskExecutions_0 = runtime.ForwardResponseMessage
 )

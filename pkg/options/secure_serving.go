@@ -121,7 +121,7 @@ func (s *SecureServingOptions) Complete() error {
 
 	if len(s.ServerCert.CertDirectory) > 0 {
 		if len(s.ServerCert.PairName) == 0 {
-			return fmt.Errorf("--" + s.fullPrefix + ".tls.pair-name is required if --" + s.fullPrefix + ".tls.cert-dir is set")
+			return fmt.Errorf("--%s.tls.pair-name is required if --%s.tls.cert-dir is set", s.fullPrefix, s.fullPrefix)
 		}
 		keyCert.CertFile = path.Join(s.ServerCert.CertDirectory, s.ServerCert.PairName+".crt")
 		keyCert.KeyFile = path.Join(s.ServerCert.CertDirectory, s.ServerCert.PairName+".key")

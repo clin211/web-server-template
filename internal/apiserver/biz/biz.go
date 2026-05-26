@@ -1,13 +1,16 @@
 package biz
 
 import (
-	userv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/user"
-	rolev1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/role"
-	permissionv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/permission"
 	menuv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/menu"
+	permissionv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/permission"
+	rolev1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/role"
+	scheduledtaskv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/scheduled_task"
+	userv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/user"
 	userrolev1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/user_role"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	"github.com/clin211/gin-enterprise-template/pkg/authz"
+	genericjob "github.com/clin211/gin-enterprise-template/pkg/job"
+	genericoptions "github.com/clin211/gin-enterprise-template/pkg/options"
 	"github.com/google/wire"
 )
 
@@ -29,20 +32,26 @@ type IBiz interface {
 	MenuV1() menuv1.MenuBiz
 	// UserRoleV1 获取用户角色业务接口.
 	UserRoleV1() userrolev1.UserRoleBiz
+	// ScheduledTaskV1 获取定时任务业务接口.
+	ScheduledTaskV1() scheduledtaskv1.ScheduledTaskBiz
 }
 
 // biz 是 IBiz 的具体实现。
 type biz struct {
-	store store.IStore
-	authz *authz.Authz
+	store      store.IStore
+	authz      *authz.Authz
+	producer   *genericjob.AsynqProducer
+	scheduler  *genericjob.Scheduler
+	registry   *genericjob.Registry
+	jobOptions *genericoptions.JobOptions
 }
 
 // 确保 biz 实现了 IBiz 接口。
 var _ IBiz = (*biz)(nil)
 
 // NewBiz 创建 IBiz 实例。
-func NewBiz(store store.IStore, authz *authz.Authz) *biz {
-	return &biz{store: store, authz: authz}
+func NewBiz(store store.IStore, authz *authz.Authz, producer *genericjob.AsynqProducer, scheduler *genericjob.Scheduler, registry *genericjob.Registry, jobOptions *genericoptions.JobOptions) *biz {
+	return &biz{store: store, authz: authz, producer: producer, scheduler: scheduler, registry: registry, jobOptions: jobOptions}
 }
 
 // UserV1 返回一个实现了 UserBiz 接口的实例.
@@ -68,4 +77,9 @@ func (b *biz) MenuV1() menuv1.MenuBiz {
 // UserRoleV1 返回一个实现了 UserRoleBiz 接口的实例.
 func (b *biz) UserRoleV1() userrolev1.UserRoleBiz {
 	return userrolev1.New(b.store, b.authz)
+}
+
+// ScheduledTaskV1 返回一个实现了 ScheduledTaskBiz 接口的实例.
+func (b *biz) ScheduledTaskV1() scheduledtaskv1.ScheduledTaskBiz {
+	return scheduledtaskv1.New(b.store, b.authz, b.producer, b.scheduler, b.registry, b.jobOptions)
 }

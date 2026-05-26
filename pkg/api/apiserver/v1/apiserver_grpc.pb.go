@@ -20,37 +20,45 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	APIServer_Healthz_FullMethodName                 = "/apiserver.v1.APIServer/Healthz"
-	APIServer_Login_FullMethodName                   = "/apiserver.v1.APIServer/Login"
-	APIServer_RefreshToken_FullMethodName            = "/apiserver.v1.APIServer/RefreshToken"
-	APIServer_CreateUser_FullMethodName              = "/apiserver.v1.APIServer/CreateUser"
-	APIServer_GetUser_FullMethodName                 = "/apiserver.v1.APIServer/GetUser"
-	APIServer_UpdateUser_FullMethodName              = "/apiserver.v1.APIServer/UpdateUser"
-	APIServer_DeleteUser_FullMethodName              = "/apiserver.v1.APIServer/DeleteUser"
-	APIServer_ListUsers_FullMethodName               = "/apiserver.v1.APIServer/ListUsers"
-	APIServer_CreateMenu_FullMethodName              = "/apiserver.v1.APIServer/CreateMenu"
-	APIServer_GetMenu_FullMethodName                 = "/apiserver.v1.APIServer/GetMenu"
-	APIServer_UpdateMenu_FullMethodName              = "/apiserver.v1.APIServer/UpdateMenu"
-	APIServer_DeleteMenu_FullMethodName              = "/apiserver.v1.APIServer/DeleteMenu"
-	APIServer_ListMenus_FullMethodName               = "/apiserver.v1.APIServer/ListMenus"
-	APIServer_ListMenuTree_FullMethodName            = "/apiserver.v1.APIServer/ListMenuTree"
-	APIServer_GetUserMenuTree_FullMethodName         = "/apiserver.v1.APIServer/GetUserMenuTree"
-	APIServer_CreatePermission_FullMethodName        = "/apiserver.v1.APIServer/CreatePermission"
-	APIServer_GetPermission_FullMethodName           = "/apiserver.v1.APIServer/GetPermission"
-	APIServer_UpdatePermission_FullMethodName        = "/apiserver.v1.APIServer/UpdatePermission"
-	APIServer_DeletePermission_FullMethodName        = "/apiserver.v1.APIServer/DeletePermission"
-	APIServer_ListPermissions_FullMethodName         = "/apiserver.v1.APIServer/ListPermissions"
-	APIServer_ListPermissionTree_FullMethodName      = "/apiserver.v1.APIServer/ListPermissionTree"
-	APIServer_CreateRole_FullMethodName              = "/apiserver.v1.APIServer/CreateRole"
-	APIServer_GetRole_FullMethodName                 = "/apiserver.v1.APIServer/GetRole"
-	APIServer_UpdateRole_FullMethodName              = "/apiserver.v1.APIServer/UpdateRole"
-	APIServer_DeleteRole_FullMethodName              = "/apiserver.v1.APIServer/DeleteRole"
-	APIServer_ListRoles_FullMethodName               = "/apiserver.v1.APIServer/ListRoles"
-	APIServer_AssignPermissionsToRole_FullMethodName = "/apiserver.v1.APIServer/AssignPermissionsToRole"
-	APIServer_GetRolePermissions_FullMethodName      = "/apiserver.v1.APIServer/GetRolePermissions"
-	APIServer_AssignRolesToUser_FullMethodName       = "/apiserver.v1.APIServer/AssignRolesToUser"
-	APIServer_GetUserRoles_FullMethodName            = "/apiserver.v1.APIServer/GetUserRoles"
-	APIServer_RemoveRoleFromUser_FullMethodName      = "/apiserver.v1.APIServer/RemoveRoleFromUser"
+	APIServer_Healthz_FullMethodName                     = "/apiserver.v1.APIServer/Healthz"
+	APIServer_Login_FullMethodName                       = "/apiserver.v1.APIServer/Login"
+	APIServer_RefreshToken_FullMethodName                = "/apiserver.v1.APIServer/RefreshToken"
+	APIServer_CreateUser_FullMethodName                  = "/apiserver.v1.APIServer/CreateUser"
+	APIServer_GetUser_FullMethodName                     = "/apiserver.v1.APIServer/GetUser"
+	APIServer_UpdateUser_FullMethodName                  = "/apiserver.v1.APIServer/UpdateUser"
+	APIServer_DeleteUser_FullMethodName                  = "/apiserver.v1.APIServer/DeleteUser"
+	APIServer_ListUsers_FullMethodName                   = "/apiserver.v1.APIServer/ListUsers"
+	APIServer_CreateMenu_FullMethodName                  = "/apiserver.v1.APIServer/CreateMenu"
+	APIServer_GetMenu_FullMethodName                     = "/apiserver.v1.APIServer/GetMenu"
+	APIServer_UpdateMenu_FullMethodName                  = "/apiserver.v1.APIServer/UpdateMenu"
+	APIServer_DeleteMenu_FullMethodName                  = "/apiserver.v1.APIServer/DeleteMenu"
+	APIServer_ListMenus_FullMethodName                   = "/apiserver.v1.APIServer/ListMenus"
+	APIServer_ListMenuTree_FullMethodName                = "/apiserver.v1.APIServer/ListMenuTree"
+	APIServer_GetUserMenuTree_FullMethodName             = "/apiserver.v1.APIServer/GetUserMenuTree"
+	APIServer_CreatePermission_FullMethodName            = "/apiserver.v1.APIServer/CreatePermission"
+	APIServer_GetPermission_FullMethodName               = "/apiserver.v1.APIServer/GetPermission"
+	APIServer_UpdatePermission_FullMethodName            = "/apiserver.v1.APIServer/UpdatePermission"
+	APIServer_DeletePermission_FullMethodName            = "/apiserver.v1.APIServer/DeletePermission"
+	APIServer_ListPermissions_FullMethodName             = "/apiserver.v1.APIServer/ListPermissions"
+	APIServer_ListPermissionTree_FullMethodName          = "/apiserver.v1.APIServer/ListPermissionTree"
+	APIServer_CreateRole_FullMethodName                  = "/apiserver.v1.APIServer/CreateRole"
+	APIServer_GetRole_FullMethodName                     = "/apiserver.v1.APIServer/GetRole"
+	APIServer_UpdateRole_FullMethodName                  = "/apiserver.v1.APIServer/UpdateRole"
+	APIServer_DeleteRole_FullMethodName                  = "/apiserver.v1.APIServer/DeleteRole"
+	APIServer_ListRoles_FullMethodName                   = "/apiserver.v1.APIServer/ListRoles"
+	APIServer_AssignPermissionsToRole_FullMethodName     = "/apiserver.v1.APIServer/AssignPermissionsToRole"
+	APIServer_GetRolePermissions_FullMethodName          = "/apiserver.v1.APIServer/GetRolePermissions"
+	APIServer_AssignRolesToUser_FullMethodName           = "/apiserver.v1.APIServer/AssignRolesToUser"
+	APIServer_GetUserRoles_FullMethodName                = "/apiserver.v1.APIServer/GetUserRoles"
+	APIServer_RemoveRoleFromUser_FullMethodName          = "/apiserver.v1.APIServer/RemoveRoleFromUser"
+	APIServer_CreateScheduledTask_FullMethodName         = "/apiserver.v1.APIServer/CreateScheduledTask"
+	APIServer_UpdateScheduledTask_FullMethodName         = "/apiserver.v1.APIServer/UpdateScheduledTask"
+	APIServer_DeleteScheduledTask_FullMethodName         = "/apiserver.v1.APIServer/DeleteScheduledTask"
+	APIServer_GetScheduledTask_FullMethodName            = "/apiserver.v1.APIServer/GetScheduledTask"
+	APIServer_ListScheduledTasks_FullMethodName          = "/apiserver.v1.APIServer/ListScheduledTasks"
+	APIServer_ToggleScheduledTask_FullMethodName         = "/apiserver.v1.APIServer/ToggleScheduledTask"
+	APIServer_TriggerScheduledTask_FullMethodName        = "/apiserver.v1.APIServer/TriggerScheduledTask"
+	APIServer_ListScheduledTaskExecutions_FullMethodName = "/apiserver.v1.APIServer/ListScheduledTaskExecutions"
 )
 
 // APIServerClient is the client API for APIServer service.
@@ -123,6 +131,15 @@ type APIServerClient interface {
 	GetUserRoles(ctx context.Context, in *GetUserRolesRequest, opts ...grpc.CallOption) (*GetUserRolesResponse, error)
 	// 从用户移除角色
 	RemoveRoleFromUser(ctx context.Context, in *RemoveRoleFromUserRequest, opts ...grpc.CallOption) (*RemoveRoleFromUserResponse, error)
+	// ========== 定时任务管理 ==========
+	CreateScheduledTask(ctx context.Context, in *CreateScheduledTaskRequest, opts ...grpc.CallOption) (*CreateScheduledTaskResponse, error)
+	UpdateScheduledTask(ctx context.Context, in *UpdateScheduledTaskRequest, opts ...grpc.CallOption) (*UpdateScheduledTaskResponse, error)
+	DeleteScheduledTask(ctx context.Context, in *DeleteScheduledTaskRequest, opts ...grpc.CallOption) (*DeleteScheduledTaskResponse, error)
+	GetScheduledTask(ctx context.Context, in *GetScheduledTaskRequest, opts ...grpc.CallOption) (*GetScheduledTaskResponse, error)
+	ListScheduledTasks(ctx context.Context, in *ListScheduledTasksRequest, opts ...grpc.CallOption) (*ListScheduledTasksResponse, error)
+	ToggleScheduledTask(ctx context.Context, in *ToggleScheduledTaskRequest, opts ...grpc.CallOption) (*ToggleScheduledTaskResponse, error)
+	TriggerScheduledTask(ctx context.Context, in *TriggerScheduledTaskRequest, opts ...grpc.CallOption) (*TriggerScheduledTaskResponse, error)
+	ListScheduledTaskExecutions(ctx context.Context, in *ListScheduledTaskExecutionsRequest, opts ...grpc.CallOption) (*ListScheduledTaskExecutionsResponse, error)
 }
 
 type aPIServerClient struct {
@@ -443,6 +460,86 @@ func (c *aPIServerClient) RemoveRoleFromUser(ctx context.Context, in *RemoveRole
 	return out, nil
 }
 
+func (c *aPIServerClient) CreateScheduledTask(ctx context.Context, in *CreateScheduledTaskRequest, opts ...grpc.CallOption) (*CreateScheduledTaskResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateScheduledTaskResponse)
+	err := c.cc.Invoke(ctx, APIServer_CreateScheduledTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) UpdateScheduledTask(ctx context.Context, in *UpdateScheduledTaskRequest, opts ...grpc.CallOption) (*UpdateScheduledTaskResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateScheduledTaskResponse)
+	err := c.cc.Invoke(ctx, APIServer_UpdateScheduledTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) DeleteScheduledTask(ctx context.Context, in *DeleteScheduledTaskRequest, opts ...grpc.CallOption) (*DeleteScheduledTaskResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteScheduledTaskResponse)
+	err := c.cc.Invoke(ctx, APIServer_DeleteScheduledTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) GetScheduledTask(ctx context.Context, in *GetScheduledTaskRequest, opts ...grpc.CallOption) (*GetScheduledTaskResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetScheduledTaskResponse)
+	err := c.cc.Invoke(ctx, APIServer_GetScheduledTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) ListScheduledTasks(ctx context.Context, in *ListScheduledTasksRequest, opts ...grpc.CallOption) (*ListScheduledTasksResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScheduledTasksResponse)
+	err := c.cc.Invoke(ctx, APIServer_ListScheduledTasks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) ToggleScheduledTask(ctx context.Context, in *ToggleScheduledTaskRequest, opts ...grpc.CallOption) (*ToggleScheduledTaskResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ToggleScheduledTaskResponse)
+	err := c.cc.Invoke(ctx, APIServer_ToggleScheduledTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) TriggerScheduledTask(ctx context.Context, in *TriggerScheduledTaskRequest, opts ...grpc.CallOption) (*TriggerScheduledTaskResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TriggerScheduledTaskResponse)
+	err := c.cc.Invoke(ctx, APIServer_TriggerScheduledTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) ListScheduledTaskExecutions(ctx context.Context, in *ListScheduledTaskExecutionsRequest, opts ...grpc.CallOption) (*ListScheduledTaskExecutionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScheduledTaskExecutionsResponse)
+	err := c.cc.Invoke(ctx, APIServer_ListScheduledTaskExecutions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // APIServerServer is the server API for APIServer service.
 // All implementations must embed UnimplementedAPIServerServer
 // for forward compatibility.
@@ -513,6 +610,15 @@ type APIServerServer interface {
 	GetUserRoles(context.Context, *GetUserRolesRequest) (*GetUserRolesResponse, error)
 	// 从用户移除角色
 	RemoveRoleFromUser(context.Context, *RemoveRoleFromUserRequest) (*RemoveRoleFromUserResponse, error)
+	// ========== 定时任务管理 ==========
+	CreateScheduledTask(context.Context, *CreateScheduledTaskRequest) (*CreateScheduledTaskResponse, error)
+	UpdateScheduledTask(context.Context, *UpdateScheduledTaskRequest) (*UpdateScheduledTaskResponse, error)
+	DeleteScheduledTask(context.Context, *DeleteScheduledTaskRequest) (*DeleteScheduledTaskResponse, error)
+	GetScheduledTask(context.Context, *GetScheduledTaskRequest) (*GetScheduledTaskResponse, error)
+	ListScheduledTasks(context.Context, *ListScheduledTasksRequest) (*ListScheduledTasksResponse, error)
+	ToggleScheduledTask(context.Context, *ToggleScheduledTaskRequest) (*ToggleScheduledTaskResponse, error)
+	TriggerScheduledTask(context.Context, *TriggerScheduledTaskRequest) (*TriggerScheduledTaskResponse, error)
+	ListScheduledTaskExecutions(context.Context, *ListScheduledTaskExecutionsRequest) (*ListScheduledTaskExecutionsResponse, error)
 	mustEmbedUnimplementedAPIServerServer()
 }
 
@@ -615,6 +721,30 @@ func (UnimplementedAPIServerServer) GetUserRoles(context.Context, *GetUserRolesR
 }
 func (UnimplementedAPIServerServer) RemoveRoleFromUser(context.Context, *RemoveRoleFromUserRequest) (*RemoveRoleFromUserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveRoleFromUser not implemented")
+}
+func (UnimplementedAPIServerServer) CreateScheduledTask(context.Context, *CreateScheduledTaskRequest) (*CreateScheduledTaskResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateScheduledTask not implemented")
+}
+func (UnimplementedAPIServerServer) UpdateScheduledTask(context.Context, *UpdateScheduledTaskRequest) (*UpdateScheduledTaskResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateScheduledTask not implemented")
+}
+func (UnimplementedAPIServerServer) DeleteScheduledTask(context.Context, *DeleteScheduledTaskRequest) (*DeleteScheduledTaskResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteScheduledTask not implemented")
+}
+func (UnimplementedAPIServerServer) GetScheduledTask(context.Context, *GetScheduledTaskRequest) (*GetScheduledTaskResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetScheduledTask not implemented")
+}
+func (UnimplementedAPIServerServer) ListScheduledTasks(context.Context, *ListScheduledTasksRequest) (*ListScheduledTasksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListScheduledTasks not implemented")
+}
+func (UnimplementedAPIServerServer) ToggleScheduledTask(context.Context, *ToggleScheduledTaskRequest) (*ToggleScheduledTaskResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ToggleScheduledTask not implemented")
+}
+func (UnimplementedAPIServerServer) TriggerScheduledTask(context.Context, *TriggerScheduledTaskRequest) (*TriggerScheduledTaskResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TriggerScheduledTask not implemented")
+}
+func (UnimplementedAPIServerServer) ListScheduledTaskExecutions(context.Context, *ListScheduledTaskExecutionsRequest) (*ListScheduledTaskExecutionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListScheduledTaskExecutions not implemented")
 }
 func (UnimplementedAPIServerServer) mustEmbedUnimplementedAPIServerServer() {}
 func (UnimplementedAPIServerServer) testEmbeddedByValue()                   {}
@@ -1195,6 +1325,150 @@ func _APIServer_RemoveRoleFromUser_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _APIServer_CreateScheduledTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateScheduledTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).CreateScheduledTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_CreateScheduledTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).CreateScheduledTask(ctx, req.(*CreateScheduledTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_UpdateScheduledTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateScheduledTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).UpdateScheduledTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_UpdateScheduledTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).UpdateScheduledTask(ctx, req.(*UpdateScheduledTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_DeleteScheduledTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteScheduledTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).DeleteScheduledTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_DeleteScheduledTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).DeleteScheduledTask(ctx, req.(*DeleteScheduledTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_GetScheduledTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetScheduledTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).GetScheduledTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_GetScheduledTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).GetScheduledTask(ctx, req.(*GetScheduledTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_ListScheduledTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScheduledTasksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).ListScheduledTasks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_ListScheduledTasks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).ListScheduledTasks(ctx, req.(*ListScheduledTasksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_ToggleScheduledTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ToggleScheduledTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).ToggleScheduledTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_ToggleScheduledTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).ToggleScheduledTask(ctx, req.(*ToggleScheduledTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_TriggerScheduledTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TriggerScheduledTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).TriggerScheduledTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_TriggerScheduledTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).TriggerScheduledTask(ctx, req.(*TriggerScheduledTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_ListScheduledTaskExecutions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScheduledTaskExecutionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).ListScheduledTaskExecutions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_ListScheduledTaskExecutions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).ListScheduledTaskExecutions(ctx, req.(*ListScheduledTaskExecutionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // APIServer_ServiceDesc is the grpc.ServiceDesc for APIServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1325,6 +1599,38 @@ var APIServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveRoleFromUser",
 			Handler:    _APIServer_RemoveRoleFromUser_Handler,
+		},
+		{
+			MethodName: "CreateScheduledTask",
+			Handler:    _APIServer_CreateScheduledTask_Handler,
+		},
+		{
+			MethodName: "UpdateScheduledTask",
+			Handler:    _APIServer_UpdateScheduledTask_Handler,
+		},
+		{
+			MethodName: "DeleteScheduledTask",
+			Handler:    _APIServer_DeleteScheduledTask_Handler,
+		},
+		{
+			MethodName: "GetScheduledTask",
+			Handler:    _APIServer_GetScheduledTask_Handler,
+		},
+		{
+			MethodName: "ListScheduledTasks",
+			Handler:    _APIServer_ListScheduledTasks_Handler,
+		},
+		{
+			MethodName: "ToggleScheduledTask",
+			Handler:    _APIServer_ToggleScheduledTask_Handler,
+		},
+		{
+			MethodName: "TriggerScheduledTask",
+			Handler:    _APIServer_TriggerScheduledTask_Handler,
+		},
+		{
+			MethodName: "ListScheduledTaskExecutions",
+			Handler:    _APIServer_ListScheduledTaskExecutions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
