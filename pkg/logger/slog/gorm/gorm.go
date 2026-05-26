@@ -19,10 +19,15 @@ type SlogLogger struct {
 }
 
 // New 返回一个带有合理默认值的新 SlogLogger 实例。
-func New(l *slog.Logger) *SlogLogger {
+// level 参数对应 GORM logger.LogLevel：1=Silent, 2=Error, 3=Warn, 4=Info。
+func New(l *slog.Logger, level ...logger.LogLevel) *SlogLogger {
+	lvl := logger.Info
+	if len(level) > 0 {
+		lvl = level[0]
+	}
 	return &SlogLogger{
 		Logger:                    l,
-		LogLevel:                  logger.Info,
+		LogLevel:                  lvl,
 		SlowThreshold:             200 * time.Millisecond,
 		IgnoreRecordNotFoundError: true,
 	}

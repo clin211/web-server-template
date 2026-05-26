@@ -46,9 +46,6 @@ func (x *GetRoleResponse) Default() {
 }
 
 func (x *ListRoleRequest) Default() {
-	if x.PageSize == 0 {
-		x.PageSize = 10
-	}
 }
 
 func (x *ListRoleResponse) Default() {

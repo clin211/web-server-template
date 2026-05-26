@@ -620,14 +620,14 @@
         "parameters": [
           {
             "name": "pageToken",
-            "description": "pageToken 表示分页游标\n@gotags: form:\"page_token\"",
+            "description": "pageToken 表示分页游标\n@gotags: form:\"pageToken\"",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "pageSize",
-            "description": "pageSize 表示每页数量\n@gotags: form:\"page_size\"",
+            "description": "pageSize 表示每页数量\n@gotags: form:\"pageSize\"",
             "in": "query",
             "required": false,
             "type": "string",

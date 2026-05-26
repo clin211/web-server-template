@@ -91,7 +91,7 @@ func (v *Validator) ValidateRoleRules() genericvalidation.Rules {
 			if !ok {
 				return errno.ErrInvalidArgument.WithMessage("pageSize must be an int64")
 			}
-			if size <= 0 || size > 100 {
+			if size < 0 || size > 100 {
 				return errno.ErrInvalidArgument.WithMessage("pageSize must be between 1 and 100")
 			}
 			return nil

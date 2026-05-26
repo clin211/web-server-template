@@ -7,9 +7,10 @@ import (
 
 	"github.com/spf13/pflag"
 	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 
 	"github.com/clin211/gin-enterprise-template/pkg/db"
-	gormlogger "github.com/clin211/gin-enterprise-template/pkg/logger/slog/gorm"
+	gormslog "github.com/clin211/gin-enterprise-template/pkg/logger/slog/gorm"
 )
 
 var _ IOptions = (*PostgreSQLOptions)(nil)
@@ -70,7 +71,7 @@ func (o *PostgreSQLOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 		"Maximum open connections allowed to connect to postgresql.")
 	fs.DurationVar(&o.MaxConnectionLifeTime, fullPrefix+".max-connection-life-time", o.MaxConnectionLifeTime, ""+
 		"Maximum connection life time allowed to connect to postgresql.")
-	fs.IntVar(&o.LogLevel, fullPrefix+".log-mode", o.LogLevel, ""+
+	fs.IntVar(&o.LogLevel, fullPrefix+".log-level", o.LogLevel, ""+
 		"Specify gorm log level.")
 }
 
@@ -84,7 +85,7 @@ func (o *PostgreSQLOptions) NewDB() (*gorm.DB, error) {
 		MaxIdleConnections:    o.MaxIdleConnections,
 		MaxOpenConnections:    o.MaxOpenConnections,
 		MaxConnectionLifeTime: o.MaxConnectionLifeTime,
-		Logger:                gormlogger.New(slog.Default()),
+		Logger:                gormslog.New(slog.Default(), gormlogger.LogLevel(o.LogLevel)),
 	}
 
 	return db.NewPostgreSQL(opts)

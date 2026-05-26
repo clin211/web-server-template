@@ -551,11 +551,11 @@ func (x *GetRoleResponse) GetRole() *Role {
 type ListRoleRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// pageToken 表示分页游标
-	// @gotags: form:"page_token"
-	PageToken string `protobuf:"bytes,1,opt,name=pageToken,proto3" json:"pageToken,omitempty" form:"page_token"`
+	// @gotags: form:"pageToken"
+	PageToken string `protobuf:"bytes,1,opt,name=pageToken,proto3" json:"pageToken,omitempty" form:"pageToken"`
 	// pageSize 表示每页数量
-	// @gotags: form:"page_size"
-	PageSize int64 `protobuf:"varint,2,opt,name=pageSize,proto3" json:"pageSize,omitempty" form:"page_size"`
+	// @gotags: form:"pageSize"
+	PageSize int64 `protobuf:"varint,2,opt,name=pageSize,proto3" json:"pageSize,omitempty" form:"pageSize"`
 	// status 表示状态过滤（0=启用,1=禁用，留空表示全部）
 	// @gotags: form:"status"
 	Status *int32 `protobuf:"varint,3,opt,name=status,proto3,oneof" json:"status,omitempty" form:"status"`
