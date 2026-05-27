@@ -2055,22 +2055,22 @@
       "properties": {
         "status": {
           "$ref": "#/definitions/v1ServiceStatus",
-          "description": "status represents the health status of the service."
+          "title": "status 表示服务的健康状态。"
         },
         "timestamp": {
           "type": "string",
-          "description": "timestamp represents the timestamp of the request."
+          "title": "timestamp 表示请求的时间戳。"
         },
         "message": {
           "type": "string",
-          "description": "message represents an optional status message, providing additional\ninformation about the service's health."
+          "title": "message 表示可选的状态消息，用于提供关于服务健康状态的额外\n信息。"
         },
         "version": {
           "type": "string",
-          "description": "version represents the version of the service."
+          "title": "version 表示服务版本。"
         }
       },
-      "description": "HealthzResponse represents the response structure for a health check."
+      "title": "HealthzResponse 表示健康检查的响应结构。"
     },
     "v1ListMenuResponse": {
       "type": "object",
@@ -2702,7 +2702,8 @@
         "Unhealthy"
       ],
       "default": "Healthy",
-      "description": "ServiceStatus represents the health status of the service.\n\n - Healthy: Healthy indicates that the service is healthy.\n - Unhealthy: Unhealthy indicates that the service is unhealthy."
+      "description": "- Healthy: Healthy 表示服务处于健康状态。\n - Unhealthy: Unhealthy 表示服务处于不健康状态。",
+      "title": "ServiceStatus 表示服务的健康状态。"
     },
     "v1ToggleScheduledTaskResponse": {
       "type": "object",

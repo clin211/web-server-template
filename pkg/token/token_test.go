@@ -12,29 +12,37 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+func initTestConfig() {
+	Reset()
+	Init("Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5", 2*time.Hour, 7*24*time.Hour, WithIdentityKey("identityKey"))
+}
+
 // TestInit 测试 Init 函数
 func TestInit(t *testing.T) {
 	// 重置配置以确保测试环境干净
 	Reset()
 
 	// 测试默认配置
-	assert.Equal(t, "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5", config.key)
-	assert.Equal(t, "identityKey", config.identityKey)
-	assert.Equal(t, 2*time.Hour, config.accessExpiration)
-	assert.Equal(t, 7*24*time.Hour, config.refreshExpiration)
+	cfg := GetConfig()
+	assert.Equal(t, "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5", cfg.key)
+	assert.Equal(t, "identityKey", cfg.identityKey)
+	assert.Equal(t, 2*time.Hour, cfg.accessExpiration)
+	assert.Equal(t, 7*24*time.Hour, cfg.refreshExpiration)
 
 	// 测试自定义配置
 	Reset()
 	Init("newKey", 3*time.Hour, 14*24*time.Hour, WithIdentityKey("newIdentityKey"))
 
-	assert.Equal(t, "newKey", config.key)
-	assert.Equal(t, "newIdentityKey", config.identityKey)
+	cfg = GetConfig()
+	assert.Equal(t, "newKey", cfg.key)
+	assert.Equal(t, "newIdentityKey", cfg.identityKey)
 
 	// 再次调用 Init，确保配置不会被覆盖（因为使用了 once.Do）
 	Init("anotherKey", 1*time.Hour, 7*24*time.Hour, WithIdentityKey("anotherIdentityKey"))
 
-	assert.Equal(t, "newKey", config.key)                 // 仍然是 "newKey"
-	assert.Equal(t, "newIdentityKey", config.identityKey) // 仍然是 "newIdentityKey"
+	cfg = GetConfig()
+	assert.Equal(t, "newKey", cfg.key)                 // 仍然是 "newKey"
+	assert.Equal(t, "newIdentityKey", cfg.identityKey) // 仍然是 "newIdentityKey"
 
 	// 为后续测试重置配置
 	Reset()
@@ -43,6 +51,8 @@ func TestInit(t *testing.T) {
 
 // TestSign 测试 Sign 函数（双Token）
 func TestSign(t *testing.T) {
+	initTestConfig()
+
 	identityKey := "testUser"
 	accessToken, refreshToken, accessExpireAt, refreshExpireAt, err := Sign(identityKey)
 
@@ -55,7 +65,8 @@ func TestSign(t *testing.T) {
 	assert.True(t, refreshExpireAt.After(accessExpireAt))
 
 	// 解析 Access Token
-	parsedIdentityKey, err := ParseIdentity(accessToken, config.key)
+	cfg := GetConfig()
+	parsedIdentityKey, err := ParseIdentity(accessToken, cfg.key)
 	assert.NoError(t, err)
 	assert.Equal(t, identityKey, parsedIdentityKey)
 
@@ -77,6 +88,8 @@ func TestSign(t *testing.T) {
 
 // TestParseRefreshToken 测试解析 Refresh Token
 func TestParseRefreshToken(t *testing.T) {
+	initTestConfig()
+
 	identityKey := "testUser"
 	_, refreshToken, _, _, err := Sign(identityKey)
 	assert.NoError(t, err)
@@ -95,8 +108,11 @@ func TestParseRefreshToken(t *testing.T) {
 
 // TestParseInvalidToken 测试解析无效的 token
 func TestParseInvalidToken(t *testing.T) {
+	initTestConfig()
+
 	invalidToken := "invalid.token.string"
-	identityKey, err := ParseIdentity(invalidToken, config.key)
+	cfg := GetConfig()
+	identityKey, err := ParseIdentity(invalidToken, cfg.key)
 
 	assert.Error(t, err)
 	assert.Empty(t, identityKey)
@@ -104,6 +120,8 @@ func TestParseInvalidToken(t *testing.T) {
 
 // TestParseRequestWithGin 测试从 Gin 上下文解析 token
 func TestParseRequestWithGin(t *testing.T) {
+	initTestConfig()
+
 	// 设置 Gin 上下文
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
@@ -141,6 +159,8 @@ func TestParseRequestWithGin(t *testing.T) {
 
 // TestParseRequestWithGRPC 测试从 gRPC 上下文解析 token
 func TestParseRequestWithGRPC(t *testing.T) {
+	initTestConfig()
+
 	// 创建 gRPC 上下文
 	md := metadata.New(map[string]string{"Authorization": "Bearer "})
 	ctx := metadata.NewIncomingContext(context.Background(), md)
@@ -163,6 +183,8 @@ func TestParseRequestWithGRPC(t *testing.T) {
 
 // TestGetTokenType 测试获取 token 类型
 func TestGetTokenType(t *testing.T) {
+	initTestConfig()
+
 	accessToken, refreshToken, _, _, err := Sign("testUser")
 	assert.NoError(t, err)
 
@@ -193,12 +215,16 @@ func TestGetTokenType(t *testing.T) {
 
 // TestGetAccessExpiration 测试获取 Access Token 过期时间
 func TestGetAccessExpiration(t *testing.T) {
+	initTestConfig()
+
 	duration := GetAccessExpiration()
 	assert.Equal(t, 2*time.Hour, duration)
 }
 
 // TestGetRefreshExpiration 测试获取 Refresh Token 过期时间
 func TestGetRefreshExpiration(t *testing.T) {
+	initTestConfig()
+
 	duration := GetRefreshExpiration()
 	assert.Equal(t, 7*24*time.Hour, duration)
 }

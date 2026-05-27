@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -39,15 +40,46 @@ const (
 )
 
 var (
-	config = Config{
+	configValue atomic.Value
+	once        sync.Once // 确保配置只被初始化一次
+)
+
+func init() {
+	storeConfig(defaultConfig())
+}
+
+func defaultConfig() Config {
+	return Config{
 		key:               "",
 		identityKey:       "",
 		accessExpiration:  2 * time.Hour,
 		refreshExpiration: 7 * 24 * time.Hour,
-		skipPaths:         []string{}, // 默认不跳过任何路径
+		skipPaths:         []string{},
 	}
-	once sync.Once // 确保配置只被初始化一次
-)
+}
+
+func resetConfig() Config {
+	return Config{
+		key:               "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5",
+		identityKey:       "identityKey",
+		accessExpiration:  2 * time.Hour,
+		refreshExpiration: 7 * 24 * time.Hour,
+		skipPaths:         []string{},
+	}
+}
+
+func cloneConfig(cfg Config) Config {
+	cfg.skipPaths = append([]string{}, cfg.skipPaths...)
+	return cfg
+}
+
+func loadConfig() Config {
+	return configValue.Load().(Config)
+}
+
+func storeConfig(cfg Config) {
+	configValue.Store(cloneConfig(cfg))
+}
 
 // 预定义错误
 var (
@@ -123,38 +155,35 @@ func WithSkipPathsPattern(patterns ...string) Option {
 // Init 设置包级别的配置 config, config 会用于本包后面的 token 签发和解析.
 func Init(key string, accessExpiration, refreshExpiration time.Duration, opts ...Option) {
 	once.Do(func() {
+		cfg := cloneConfig(loadConfig())
 		if key != "" {
-			config.key = key // 设置密钥
+			cfg.key = key
 		}
 		if accessExpiration > 0 {
-			config.accessExpiration = accessExpiration
+			cfg.accessExpiration = accessExpiration
 		}
 		if refreshExpiration > 0 {
-			config.refreshExpiration = refreshExpiration
+			cfg.refreshExpiration = refreshExpiration
 		}
 
-		// 应用所有配置选项
 		for _, opt := range opts {
-			opt(&config)
+			opt(&cfg)
 		}
+
+		storeConfig(cfg)
 	})
 }
 
 // Reset 重置配置（主要用于测试）
 func Reset() {
 	once = sync.Once{}
-	config = Config{
-		key:               "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5",
-		identityKey:       "identityKey",
-		accessExpiration:  2 * time.Hour,
-		refreshExpiration: 7 * 24 * time.Hour,
-		skipPaths:         []string{},
-	}
+	storeConfig(resetConfig())
 }
 
 // shouldSkipPath 检查路径是否应该跳过认证
 func shouldSkipPath(requestPath string) bool {
-	for _, skipPath := range config.skipPaths {
+	cfg := loadConfig()
+	for _, skipPath := range cfg.skipPaths {
 		if matchPath(requestPath, skipPath) {
 			return true
 		}
@@ -261,13 +290,14 @@ func ParseIdentity(tokenString string, key string) (string, error) {
 
 // extractIdentity 从 claims 中提取身份信息
 func extractIdentity(claims jwt.MapClaims) (string, error) {
+	cfg := loadConfig()
 	// 如果没有配置身份键，返回空字符串（表示不需要身份验证）
-	if config.identityKey == "" {
+	if cfg.identityKey == "" {
 		return "", nil
 	}
 
 	// 检查身份键是否存在
-	value, exists := claims[config.identityKey]
+	value, exists := claims[cfg.identityKey]
 	if !exists {
 		return "", ErrMissingIdentityKey
 	}
@@ -308,7 +338,8 @@ func ParseRequest(ctx context.Context) (string, error) {
 		return "", ErrNotAccessToken
 	}
 
-	return ParseIdentity(tokenString, config.key)
+	cfg := loadConfig()
+	return ParseIdentity(tokenString, cfg.key)
 }
 
 // shouldSkipRequestPath 检查请求路径是否应该跳过认证
@@ -340,7 +371,8 @@ func ParseRequestIgnoreSkip(ctx context.Context) (string, error) {
 		return "", ErrNotAccessToken
 	}
 
-	return ParseIdentity(tokenString, config.key)
+	cfg := loadConfig()
+	return ParseIdentity(tokenString, cfg.key)
 }
 
 // extractTokenFromRequest 从不同类型的请求上下文中提取 token
@@ -389,13 +421,14 @@ func parseAuthorizationHeader(header string) (string, error) {
 
 // Sign 使用 jwtSecret 签发 Access Token 和 Refresh Token 对
 func Sign(identityValue string) (accessToken, refreshToken string, accessExpireAt, refreshExpireAt time.Time, err error) {
-	if config.key == "" {
+	cfg := loadConfig()
+	if cfg.key == "" {
 		return "", "", time.Time{}, time.Time{}, jwt.ErrInvalidKey
 	}
 
 	now := time.Now()
-	accessExpireAt = now.Add(config.accessExpiration)
-	refreshExpireAt = now.Add(config.refreshExpiration)
+	accessExpireAt = now.Add(cfg.accessExpiration)
+	refreshExpireAt = now.Add(cfg.refreshExpiration)
 
 	// 签发 Access Token
 	accessClaims := jwt.MapClaims{
@@ -404,12 +437,12 @@ func Sign(identityValue string) (accessToken, refreshToken string, accessExpireA
 		"iat":        now.Unix(),
 		"exp":        accessExpireAt.Unix(),
 	}
-	if config.identityKey != "" && identityValue != "" {
-		accessClaims[config.identityKey] = identityValue
+	if cfg.identityKey != "" && identityValue != "" {
+		accessClaims[cfg.identityKey] = identityValue
 	}
 
 	accessTokenObj := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
-	accessToken, err = accessTokenObj.SignedString([]byte(config.key))
+	accessToken, err = accessTokenObj.SignedString([]byte(cfg.key))
 	if err != nil {
 		return "", "", time.Time{}, time.Time{}, fmt.Errorf("failed to sign access token: %w", err)
 	}
@@ -421,12 +454,12 @@ func Sign(identityValue string) (accessToken, refreshToken string, accessExpireA
 		"iat":        now.Unix(),
 		"exp":        refreshExpireAt.Unix(),
 	}
-	if config.identityKey != "" && identityValue != "" {
-		refreshClaims[config.identityKey] = identityValue
+	if cfg.identityKey != "" && identityValue != "" {
+		refreshClaims[cfg.identityKey] = identityValue
 	}
 
 	refreshTokenObj := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
-	refreshToken, err = refreshTokenObj.SignedString([]byte(config.key))
+	refreshToken, err = refreshTokenObj.SignedString([]byte(cfg.key))
 	if err != nil {
 		return "", "", time.Time{}, time.Time{}, fmt.Errorf("failed to sign refresh token: %w", err)
 	}
@@ -436,12 +469,13 @@ func Sign(identityValue string) (accessToken, refreshToken string, accessExpireA
 
 // SignWithClaims 使用自定义 claims 签发 token（使用 accessExpiration）
 func SignWithClaims(customClaims jwt.MapClaims) (string, time.Time, error) {
-	if config.key == "" {
+	cfg := loadConfig()
+	if cfg.key == "" {
 		return "", time.Time{}, jwt.ErrInvalidKey
 	}
 
 	now := time.Now()
-	expireAt := now.Add(config.accessExpiration)
+	expireAt := now.Add(cfg.accessExpiration)
 
 	// 合并自定义 claims 和必要的时间字段
 	claims := make(jwt.MapClaims)
@@ -464,7 +498,7 @@ func SignWithClaims(customClaims jwt.MapClaims) (string, time.Time, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// 签发 token
-	tokenString, err := token.SignedString([]byte(config.key))
+	tokenString, err := token.SignedString([]byte(cfg.key))
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("failed to sign token: %w", err)
 	}
@@ -478,7 +512,8 @@ func Parse(tokenString string) error {
 		return ErrEmptyToken
 	}
 
-	if config.key == "" {
+	cfg := loadConfig()
+	if cfg.key == "" {
 		return jwt.ErrInvalidKey
 	}
 
@@ -486,7 +521,7 @@ func Parse(tokenString string) error {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(config.key), nil
+		return []byte(cfg.key), nil
 	})
 	if err != nil {
 		return err
@@ -505,7 +540,8 @@ func GetClaims(tokenString string) (jwt.MapClaims, error) {
 		return nil, ErrEmptyToken
 	}
 
-	if config.key == "" {
+	cfg := loadConfig()
+	if cfg.key == "" {
 		return nil, jwt.ErrInvalidKey
 	}
 
@@ -513,7 +549,7 @@ func GetClaims(tokenString string) (jwt.MapClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(config.key), nil
+		return []byte(cfg.key), nil
 	})
 	if err != nil {
 		return nil, err
@@ -533,27 +569,31 @@ func GetClaims(tokenString string) (jwt.MapClaims, error) {
 
 // GetConfig 获取当前配置（用于调试和测试）
 func GetConfig() Config {
-	return config
+	return cloneConfig(loadConfig())
 }
 
 // IsIdentityRequired 检查是否需要身份验证
 func IsIdentityRequired() bool {
-	return config.identityKey != ""
+	cfg := loadConfig()
+	return cfg.identityKey != ""
 }
 
 // GetAccessExpiration 获取 Access Token 过期时间
 func GetAccessExpiration() time.Duration {
-	return config.accessExpiration
+	cfg := loadConfig()
+	return cfg.accessExpiration
 }
 
 // GetRefreshExpiration 获取 Refresh Token 过期时间
 func GetRefreshExpiration() time.Duration {
-	return config.refreshExpiration
+	cfg := loadConfig()
+	return cfg.refreshExpiration
 }
 
 // GetSkipPaths 获取跳过认证的路径列表
 func GetSkipPaths() []string {
-	return append([]string{}, config.skipPaths...) // 返回副本
+	cfg := loadConfig()
+	return append([]string{}, cfg.skipPaths...) // 返回副本
 }
 
 // IsPathSkipped 检查指定路径是否被跳过认证
@@ -608,7 +648,8 @@ func ParseRefreshToken(tokenString string) (string, error) {
 		return "", ErrNotRefreshToken
 	}
 
-	return ParseIdentity(tokenString, config.key)
+	cfg := loadConfig()
+	return ParseIdentity(tokenString, cfg.key)
 }
 
 // GetTokenType 获取 token 类型

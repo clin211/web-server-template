@@ -9,9 +9,26 @@ import (
 
 // UserModelToUserV1 将模型层的 UserM（用户模型对象）转换为 Protobuf 层的 User（v1 用户对象）.
 func UserModelToUserV1(userModel *model.UserM) *v1.User {
-	var protoUser v1.User
-	_ = core.CopyWithConverters(&protoUser, userModel)
-	return &protoUser
+	if userModel == nil {
+		return &v1.User{}
+	}
+
+	return &v1.User{
+		UserID:    userModel.UserID,
+		Username:  userModel.Username,
+		Nickname:  userModel.Nickname,
+		Email:     derefString(userModel.Email),
+		Phone:     derefString(userModel.Phone),
+		CreatedAt: userModel.CreatedAt.Unix(),
+		UpdatedAt: userModel.UpdatedAt.Unix(),
+	}
+}
+
+func derefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 // UserV1ToUserModel 将 Protobuf 层的 User（v1 用户对象）转换为模型层的 UserM（用户模型对象）.
@@ -19,4 +36,13 @@ func UserV1ToUserModel(protoUser *v1.User) *model.UserM {
 	var userModel model.UserM
 	_ = core.CopyWithConverters(&userModel, protoUser)
 	return &userModel
+}
+
+// UserModelListToUserV1List 将用户模型列表转换为 Protobuf 列表.
+func UserModelListToUserV1List(users []*model.UserM) []*v1.User {
+	result := make([]*v1.User, len(users))
+	for i, user := range users {
+		result[i] = UserModelToUserV1(user)
+	}
+	return result
 }

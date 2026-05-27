@@ -117,6 +117,21 @@ func (c *Cursor) GetFloat64(key string) (float64, bool) {
 	}
 }
 
+// NextPageToken 根据返回条数和最后一条记录 ID 生成下一页游标。
+func NextPageToken(length, pageSize int, lastID func() int64) string {
+	if length == 0 || length < pageSize {
+		return ""
+	}
+
+	cursor, err := NewCursor("id", lastID())
+	if err != nil {
+		return ""
+	}
+
+	token, _ := cursor.Encode()
+	return token
+}
+
 // DecodeCursor 解析 page_token 字符串，返回 Cursor 对象
 func DecodeCursor(tokenStr string) (*Cursor, error) {
 	if tokenStr == "" {

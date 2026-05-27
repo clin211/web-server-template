@@ -234,7 +234,7 @@ func (whr *Options) Where(db *gorm.DB) *gorm.DB {
 	db = db.Where(whr.Filters).Clauses(whr.Clauses...)
 	// 应用基于游标的分页的游标条件
 	if whr.Cursor != nil {
-		db = db.Where("id > ?", *whr.Cursor)
+		db = db.Where("id < ?", *whr.Cursor)
 	}
 	return db.Offset(whr.Offset).Limit(whr.Limit)
 }

@@ -17,16 +17,9 @@ func (b *menuBiz) List(ctx context.Context, rq *v1.ListMenuRequest) (*v1.ListMen
 		return nil, err
 	}
 
-	// 生成下一页的 page_token
-	// 只有当返回的数据量等于 pageSize 时，才说明可能有下一页
-	var nextPageToken string
-	if len(menus) == pageSize {
-		lastMenu := menus[len(menus)-1]
-		cursor, err := pagination.NewCursor("id", lastMenu.ID)
-		if err == nil {
-			nextPageToken, _ = cursor.Encode()
-		}
-	}
+	nextPageToken := pagination.NextPageToken(len(menus), pageSize, func() int64 {
+		return menus[len(menus)-1].ID
+	})
 
 	return &v1.ListMenuResponse{
 		TotalCount: total,

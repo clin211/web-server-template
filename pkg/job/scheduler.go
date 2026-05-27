@@ -233,29 +233,33 @@ func (s *Scheduler) registerTask(ctx context.Context, task SystemTask, source st
 	}
 
 	fingerprint := taskFingerprint(task, payload)
-	s.mu.RLock()
+
+	var removedSource string
+	s.mu.Lock()
 	old, ok := s.entries[task.Name]
 	if ok && old.source == source && old.fingerprint == fingerprint {
-		s.mu.RUnlock()
+		s.mu.Unlock()
 		return nil
 	}
-	s.mu.RUnlock()
 
 	entryID, err := s.cron.AddFunc(cronSpec, func() {
 		s.dispatch(context.WithoutCancel(ctx), task, source)
 	})
 	if err != nil {
+		s.mu.Unlock()
 		return fmt.Errorf("register scheduled task %q: %w", task.Name, err)
 	}
 
-	s.mu.Lock()
-	if old, ok := s.entries[task.Name]; ok {
+	if ok {
 		s.cron.Remove(old.id)
-		s.metrics.AddRegisteredTasks(ctx, old.source, -1)
+		removedSource = old.source
 	}
 	s.entries[task.Name] = schedulerEntry{id: entryID, source: source, fingerprint: fingerprint}
 	s.mu.Unlock()
 
+	if removedSource != "" {
+		s.metrics.AddRegisteredTasks(ctx, removedSource, -1)
+	}
 	s.metrics.AddRegisteredTasks(ctx, source, 1)
 	slog.InfoContext(ctx, "Registered scheduled task", "source", source, "name", task.Name, "cronExpr", task.CronExpr, "taskType", task.TaskType)
 	return nil
@@ -271,11 +275,11 @@ func (s *Scheduler) UnregisterTask(ctx context.Context, name string) {
 	entry, ok := s.entries[name]
 	if ok {
 		delete(s.entries, name)
+		s.cron.Remove(entry.id)
 	}
 	s.mu.Unlock()
 
 	if ok {
-		s.cron.Remove(entry.id)
 		s.metrics.AddRegisteredTasks(ctx, entry.source, -1)
 	}
 }

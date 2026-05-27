@@ -33,7 +33,9 @@ func (b *scheduledTaskBiz) List(ctx context.Context, rq *v1.ListScheduledTasksRe
 	return &v1.ListScheduledTasksResponse{
 		TotalCount:     total,
 		ScheduledTasks: conversion.ScheduledTaskModelListToScheduledTaskV1List(tasks),
-		PageToken:      nextPageToken(len(tasks), pageSize, func() int64 { return tasks[len(tasks)-1].ID }),
+		PageToken: pagination.NextPageToken(len(tasks), pageSize, func() int64 {
+			return tasks[len(tasks)-1].ID
+		}),
 	}, nil
 }
 
@@ -51,17 +53,4 @@ func decodePageCursor(pageToken string) *int64 {
 		return nil
 	}
 	return &id
-}
-
-// nextPageToken generates a cursor-encoded page token if more pages exist.
-func nextPageToken(length int, pageSize int, lastID func() int64) string {
-	if length == 0 || length < pageSize {
-		return ""
-	}
-	cursor, err := pagination.NewCursor("id", lastID())
-	if err != nil {
-		return ""
-	}
-	token, _ := cursor.Encode()
-	return token
 }

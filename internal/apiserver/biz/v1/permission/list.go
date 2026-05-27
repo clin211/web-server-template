@@ -17,16 +17,9 @@ func (b *permissionBiz) List(ctx context.Context, rq *v1.ListPermissionRequest) 
 		return nil, err
 	}
 
-	// 生成下一页的 page_token
-	// 只有当返回的数据量等于 pageSize 时，才说明可能有下一页
-	var nextPageToken string
-	if len(perms) == pageSize {
-		lastPerm := perms[len(perms)-1]
-		cursor, err := pagination.NewCursor("id", lastPerm.ID)
-		if err == nil {
-			nextPageToken, _ = cursor.Encode()
-		}
-	}
+	nextPageToken := pagination.NextPageToken(len(perms), pageSize, func() int64 {
+		return perms[len(perms)-1].ID
+	})
 
 	return &v1.ListPermissionResponse{
 		TotalCount:  total,

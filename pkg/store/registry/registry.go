@@ -8,6 +8,7 @@ import (
 
 // 定义一个Registry类型用于管理模型注册
 type Registry struct {
+	mu     sync.RWMutex
 	models []interface{}
 }
 
@@ -32,6 +33,9 @@ func Register(model interface{}) {
 
 // Register 添加新的模型到Registry
 func (r *Registry) Register(model interface{}) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	r.models = append(r.models, model)
 }
 
@@ -45,7 +49,11 @@ func Migrate(db *gorm.DB) error {
 
 // Migrate 执行所有注册模型的迁移
 func (r *Registry) Migrate(db *gorm.DB) error {
-	for _, model := range r.models {
+	r.mu.RLock()
+	models := append([]interface{}{}, r.models...)
+	r.mu.RUnlock()
+
+	for _, model := range models {
 		if err := db.AutoMigrate(model); err != nil {
 			return err
 		}

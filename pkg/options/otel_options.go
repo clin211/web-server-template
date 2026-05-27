@@ -116,16 +116,12 @@ type OTelOptions struct {
 	Slog *SlogOptions `json:"slog,omitempty" mapstructure:"slog"`
 
 	// 内部状态
-	mu        sync.RWMutex
-	providers *OTelProviders
-	files     []io.Closer
-	resource  *resource.Resource
+	mu         sync.RWMutex
+	resourceMu sync.Mutex
+	providers  *OTelProviders
+	files      []io.Closer
+	resource   *resource.Resource
 }
-
-var (
-	resourceOnce sync.Once
-	otelResource *resource.Resource
-)
 
 // NewOTelOptions 创建具有合理默认值的新 OTelOptions
 func NewOTelOptions() *OTelOptions {
@@ -225,38 +221,46 @@ func (o *OTelOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 
 // GetResource 创建或返回缓存的资源配置
 func (o *OTelOptions) GetResource() *resource.Resource {
-	resourceOnce.Do(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+	if o == nil {
+		return resource.Default()
+	}
 
-		// 基本资源属性
-		attrs := []resource.Option{
-			resource.WithAttributes(
-				semconv.ServiceName(o.ServiceName),
-				semconv.ServiceVersion(o.ServiceVersion),
-				semconv.ServiceInstanceID(o.ServiceInstanceID),
-				semconv.DeploymentEnvironment(o.Environment),
-			),
-		}
+	o.resourceMu.Lock()
+	defer o.resourceMu.Unlock()
 
-		// 如果启用，添加系统资源信息
-		if o.WithResource {
-			attrs = append(attrs,
-				resource.WithOS(),
-				resource.WithProcess(),
-				resource.WithContainer(),
-				resource.WithHost(),
-			)
-		}
+	if o.resource != nil {
+		return o.resource
+	}
 
-		var err error
-		otelResource, err = resource.New(ctx, attrs...)
-		if err != nil {
-			// 回退到默认资源
-			otelResource = resource.Default()
-		}
-	})
-	return otelResource
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// 基本资源属性
+	attrs := []resource.Option{
+		resource.WithAttributes(
+			semconv.ServiceName(o.ServiceName),
+			semconv.ServiceVersion(o.ServiceVersion),
+			semconv.ServiceInstanceID(o.ServiceInstanceID),
+			semconv.DeploymentEnvironment(o.Environment),
+		),
+	}
+
+	// 如果启用，添加系统资源信息
+	if o.WithResource {
+		attrs = append(attrs,
+			resource.WithOS(),
+			resource.WithProcess(),
+			resource.WithContainer(),
+			resource.WithHost(),
+		)
+	}
+
+	res, err := resource.New(ctx, attrs...)
+	if err != nil {
+		res = resource.Default()
+	}
+	o.resource = res
+	return o.resource
 }
 
 // createFileWriter 创建并管理文件写入器

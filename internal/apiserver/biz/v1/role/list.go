@@ -17,16 +17,9 @@ func (b *roleBiz) List(ctx context.Context, rq *v1.ListRoleRequest) (*v1.ListRol
 		return nil, err
 	}
 
-	// 生成下一页的 page_token
-	// 只有当返回的数据量等于 pageSize 时，才说明可能有下一页
-	var nextPageToken string
-	if len(roles) > pageSize {
-		lastRole := roles[len(roles)-1]
-		cursor, err := pagination.NewCursor("id", lastRole.ID)
-		if err == nil {
-			nextPageToken, _ = cursor.Encode()
-		}
-	}
+	nextPageToken := pagination.NextPageToken(len(roles), pageSize, func() int64 {
+		return roles[len(roles)-1].ID
+	})
 
 	return &v1.ListRoleResponse{
 		TotalCount: total,

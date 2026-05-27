@@ -12,9 +12,24 @@ type PermissionModel = model.PermissionM
 
 // PermissionModelToPermissionV1 将模型层的 PermissionM 转换为 Protobuf 层的 Permission.
 func PermissionModelToPermissionV1(permissionModel *model.PermissionM) *v1.Permission {
-	var protoPermission v1.Permission
-	_ = core.CopyWithConverters(&protoPermission, permissionModel)
-	return &protoPermission
+	if permissionModel == nil {
+		return &v1.Permission{}
+	}
+
+	return &v1.Permission{
+		PermissionID:   permissionModel.PermissionID,
+		PermissionName: permissionModel.PermissionName,
+		PermissionCode: permissionModel.PermissionCode,
+		ResourceType:   permissionModel.ResourceType,
+		ResourcePath:   stringPtrValue(permissionModel.ResourcePath),
+		Action:         permissionModel.Action,
+		Description:    stringPtrValue(permissionModel.Description),
+		ParentID:       stringPtrValue(permissionModel.ParentID),
+		Path:           stringPtrValue(permissionModel.Path),
+		Status:         int32(permissionModel.Status),
+		CreatedAt:      permissionModel.CreatedAt.Unix(),
+		UpdatedAt:      permissionModel.UpdatedAt.Unix(),
+	}
 }
 
 // PermissionV1ToPermissionModel 将 Protobuf 层的 Permission 转换为模型层的 PermissionM.
@@ -27,8 +42,8 @@ func PermissionV1ToPermissionModel(protoPermission *v1.Permission) *model.Permis
 // PermissionModelListToPermissionV1List 将权限模型列表转换为 Protobuf 列表.
 func PermissionModelListToPermissionV1List(permissions []*model.PermissionM) []*v1.Permission {
 	result := make([]*v1.Permission, len(permissions))
-	for i, p := range permissions {
-		result[i] = PermissionModelToPermissionV1(p)
+	for i, permission := range permissions {
+		result[i] = PermissionModelToPermissionV1(permission)
 	}
 	return result
 }
@@ -40,47 +55,35 @@ func PermissionModelToPermissionTreeV1(permissionModel *model.PermissionM) *v1.P
 		PermissionName: permissionModel.PermissionName,
 		PermissionCode: permissionModel.PermissionCode,
 		ResourceType:   permissionModel.ResourceType,
-		ResourcePath:   safeString(permissionModel.ResourcePath),
+		ResourcePath:   stringPtrValue(permissionModel.ResourcePath),
 		Action:         permissionModel.Action,
 	}
 }
 
-// safeString 安全地获取字符串值，处理 nil 指针.
-func safeString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
 // PermissionModelListToPermissionTreeV1 将权限模型列表转换为权限树.
 func PermissionModelListToPermissionTreeV1(permissions []*model.PermissionM, assignedIDs map[string]bool) []*v1.PermissionTree {
-	treeMap := make(map[string]*v1.PermissionTree)
-	var roots []*v1.PermissionTree
+	treeMap := make(map[string]*v1.PermissionTree, len(permissions))
+	roots := make([]*v1.PermissionTree, 0, len(permissions))
 
-	// 第一遍：创建所有节点
-	for _, p := range permissions {
+	for _, permission := range permissions {
 		node := &v1.PermissionTree{
-			PermissionID:   p.PermissionID,
-			PermissionName: p.PermissionName,
-			PermissionCode: p.PermissionCode,
-			ResourceType:   p.ResourceType,
-			ResourcePath:   safeString(p.ResourcePath),
-			Action:         p.Action,
-			Assigned:       assignedIDs[p.PermissionID],
+			PermissionID:   permission.PermissionID,
+			PermissionName: permission.PermissionName,
+			PermissionCode: permission.PermissionCode,
+			ResourceType:   permission.ResourceType,
+			ResourcePath:   stringPtrValue(permission.ResourcePath),
+			Action:         permission.Action,
+			Assigned:       assignedIDs[permission.PermissionID],
 		}
-		treeMap[p.PermissionID] = node
+		treeMap[permission.PermissionID] = node
 	}
 
-	// 第二遍：构建树形结构
-	for _, p := range permissions {
-		node := treeMap[p.PermissionID]
-		if p.ParentID == nil || *p.ParentID == "" {
+	for _, permission := range permissions {
+		node := treeMap[permission.PermissionID]
+		if permission.ParentID == nil || *permission.ParentID == "" {
 			roots = append(roots, node)
-		} else {
-			if parent, ok := treeMap[*p.ParentID]; ok {
-				parent.Children = append(parent.Children, node)
-			}
+		} else if parent, ok := treeMap[*permission.ParentID]; ok {
+			parent.Children = append(parent.Children, node)
 		}
 	}
 

@@ -115,11 +115,15 @@ func registerSchedulerTask(ctx context.Context, scheduler ClientTaskScheduler, t
 		return fmt.Errorf("unmarshal scheduled task payload: %w", err)
 	}
 	return scheduler.RegisterClientTask(ctx, genericjob.SystemTask{
-		Name:     task.ScheduledTaskID,
-		CronExpr: task.CronExpr,
-		TaskType: task.TaskType,
-		Queue:    task.Queue,
-		Payload:  payload,
+		Name:      task.ScheduledTaskID,
+		CronExpr:  task.CronExpr,
+		TaskType:  task.TaskType,
+		Queue:     task.Queue,
+		Payload:   payload,
+		Enabled:   task.Enabled,
+		Timezone:  task.Timezone,
+		UserID:    task.UserID,
+		UpdatedAt: task.UpdatedAt,
 	})
 }
 

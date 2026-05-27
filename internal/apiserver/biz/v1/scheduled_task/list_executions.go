@@ -37,6 +37,8 @@ func (b *scheduledTaskBiz) ListExecutions(ctx context.Context, rq *v1.ListSchedu
 	return &v1.ListScheduledTaskExecutionsResponse{
 		TotalCount: total,
 		Executions: conversion.ScheduledTaskExecutionModelListToExecutionV1List(executions),
-		PageToken:  nextPageToken(len(executions), pageSize, func() int64 { return executions[len(executions)-1].ID }),
+		PageToken: pagination.NextPageToken(len(executions), pageSize, func() int64 {
+			return executions[len(executions)-1].ID
+		}),
 	}, nil
 }
