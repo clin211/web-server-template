@@ -146,8 +146,12 @@ image.%: build.% ## 构建指定的 Docker 镜像
 		$(PROJ_ROOT_DIR)
 
 .PHONY: format
-format: ## Format source code with gofmt (-s -w).
+format: format.proto ## Format source code with gofmt (-s -w) and protobuf with buf.
 	@gofmt -s -w ./
+
+.PHONY: format.proto
+format.proto: ## Format protobuf files in pkg/api/apiserver/v1 with buf.
+	@buf format -w $(PROJ_ROOT_DIR) --path pkg/api/apiserver/v1
 
 .PHONY: add-copyright
 add-copyright: ## Add copyright headers (skip third_party, vendor, _output).

@@ -1328,7 +1328,7 @@ var File_apiserver_v1_scheduled_task_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_scheduled_task_proto_rawDesc = "" +
 	"\n" +
-	"!apiserver/v1/scheduled_task.proto\x12\fapiserver.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a,github.com/onexstack/defaults/defaults.proto\"\xec\x03\n" +
+	"!apiserver/v1/scheduled_task.proto\x12\fapiserver.v1\x1a,github.com/onexstack/defaults/defaults.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xec\x03\n" +
 	"\rScheduledTask\x12(\n" +
 	"\x0fscheduledTaskID\x18\x01 \x01(\tR\x0fscheduledTaskID\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +

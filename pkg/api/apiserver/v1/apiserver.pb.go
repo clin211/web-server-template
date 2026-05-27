@@ -27,7 +27,7 @@ var File_apiserver_v1_apiserver_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\n" +
-	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x17apiserver/v1/menu.proto\x1a\x1dapiserver/v1/permission.proto\x1a\x17apiserver/v1/role.proto\x1a\x1capiserver/v1/user_role.proto\x1a!apiserver/v1/scheduled_task.proto2\xe8:\n" +
+	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/menu.proto\x1a\x1dapiserver/v1/permission.proto\x1a\x17apiserver/v1/role.proto\x1a!apiserver/v1/scheduled_task.proto\x1a\x17apiserver/v1/user.proto\x1a\x1capiserver/v1/user_role.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xe8:\n" +
 	"\tAPIServer\x12\x91\x01\n" +
 	"\aHealthz\x12\x16.google.protobuf.Empty\x1a\x1d.apiserver.v1.HealthzResponse\"O\x92A<\n" +
 	"\f服务治理\x12\f健康检查\x1a\x1e检查服务是否健康运行\x82\xd3\xe4\x93\x02\n" +
@@ -116,14 +116,14 @@ const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\x14TriggerScheduledTask\x12).apiserver.v1.TriggerScheduledTaskRequest\x1a*.apiserver.v1.TriggerScheduledTaskResponse\"\x86\x01\x92AN\n" +
 	"\x12定时任务管理\x12\x18手动触发定时任务\x1a\x1e立即执行一次定时任务\x82\xd3\xe4\x93\x02/\"-/v1/scheduled-tasks/{scheduledTaskID}/trigger\x12\x97\x02\n" +
 	"\x1bListScheduledTaskExecutions\x120.apiserver.v1.ListScheduledTaskExecutionsRequest\x1a1.apiserver.v1.ListScheduledTaskExecutionsResponse\"\x92\x01\x92AW\n" +
-	"\x12定时任务管理\x12\x18列表任务执行记录\x1a'获取定时任务的执行历史记录\x82\xd3\xe4\x93\x022\x120/v1/scheduled-tasks/{scheduledTaskID}/executionsB\xc6\x03\x92A\x81\x03\x12\xd6\x02\n" +
+	"\x12定时任务管理\x12\x18列表任务执行记录\x1a'获取定时任务的执行历史记录\x82\xd3\xe4\x93\x022\x120/v1/scheduled-tasks/{scheduledTaskID}/executionsB\xc9\x03\x92A\x81\x03\x12\xd6\x02\n" +
 	"\rAPI Server v1\x12\xd1\x01基于 gin-enterprise-template 的通用后端 API 服务：\n" +
 	"- JWT 用户认证与权限控制\n" +
 	"- 用户、角色、权限、菜单管理\n" +
 	"- RESTful 资源接口\n" +
 	"- OpenTelemetry 可观测性\n" +
 	"- Casbin RBAC 授权\"l\n" +
-	"\x1egin-enterprise-template 项目\x122https://github.com/clin211/gin-enterprise-template\x1a\x16767425412lin@gmail.com2\x031.0*\x02\x01\x022\x10application/json:\x10application/jsonZ?github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1b\x06proto3"
+	"\x1egin-enterprise-template 项目\x122https://github.com/clin211/gin-enterprise-template\x1a\x16767425412lin@gmail.com2\x031.0*\x02\x01\x022\x10application/json:\x10application/jsonZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
 
 var file_apiserver_v1_apiserver_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),                       // 0: google.protobuf.Empty
@@ -297,12 +297,12 @@ func file_apiserver_v1_apiserver_proto_init() {
 		return
 	}
 	file_apiserver_v1_healthz_proto_init()
-	file_apiserver_v1_user_proto_init()
 	file_apiserver_v1_menu_proto_init()
 	file_apiserver_v1_permission_proto_init()
 	file_apiserver_v1_role_proto_init()
-	file_apiserver_v1_user_role_proto_init()
 	file_apiserver_v1_scheduled_task_proto_init()
+	file_apiserver_v1_user_proto_init()
+	file_apiserver_v1_user_role_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -2,122 +2,122 @@ syntax = "proto3";
 
 package apiserver.v1;
 
-import "google/protobuf/struct.proto";
 import "github.com/onexstack/defaults/defaults.proto";
+import "google/protobuf/struct.proto";
 
 option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";
 
 // ScheduledTask 表示客户端可管理的定时任务信息。
 message ScheduledTask {
-    // scheduledTaskID 表示定时任务 ID。
-    string scheduledTaskID = 1;
-    // name 表示定时任务名称。
-    string name = 2;
-    // taskType 表示要投递的异步任务类型。
-    string taskType = 3;
-    // payload 表示任务入队时携带的 JSON 负载。
-    google.protobuf.Struct payload = 4;
-    // cronExpr 表示五段式 Cron 表达式。
-    string cronExpr = 5;
-    // queue 表示任务投递目标队列。
-    string queue = 6;
-    // enabled 表示定时任务是否启用。
-    bool enabled = 7;
-    // timezone 表示该定时任务使用的时区。
-    string timezone = 8;
-    // userID 表示定时任务所属用户 ID。
-    string userID = 9;
-    // nextRunTime 表示下一次预计触发时间。
-    int64 nextRunTime = 10;
-    // lastScheduledAt 表示最近一次调度时间。
-    int64 lastScheduledAt = 11;
-    // lastExecutionID 表示最近一次执行记录 ID。
-    string lastExecutionID = 12;
-    // lastError 表示最近一次调度错误信息。
-    string lastError = 13;
-    // createdAt 表示创建时间。
-    int64 createdAt = 14;
-    // updatedAt 表示最后更新时间。
-    int64 updatedAt = 15;
+  // scheduledTaskID 表示定时任务 ID。
+  string scheduledTaskID = 1;
+  // name 表示定时任务名称。
+  string name = 2;
+  // taskType 表示要投递的异步任务类型。
+  string taskType = 3;
+  // payload 表示任务入队时携带的 JSON 负载。
+  google.protobuf.Struct payload = 4;
+  // cronExpr 表示五段式 Cron 表达式。
+  string cronExpr = 5;
+  // queue 表示任务投递目标队列。
+  string queue = 6;
+  // enabled 表示定时任务是否启用。
+  bool enabled = 7;
+  // timezone 表示该定时任务使用的时区。
+  string timezone = 8;
+  // userID 表示定时任务所属用户 ID。
+  string userID = 9;
+  // nextRunTime 表示下一次预计触发时间。
+  int64 nextRunTime = 10;
+  // lastScheduledAt 表示最近一次调度时间。
+  int64 lastScheduledAt = 11;
+  // lastExecutionID 表示最近一次执行记录 ID。
+  string lastExecutionID = 12;
+  // lastError 表示最近一次调度错误信息。
+  string lastError = 13;
+  // createdAt 表示创建时间。
+  int64 createdAt = 14;
+  // updatedAt 表示最后更新时间。
+  int64 updatedAt = 15;
 }
 
 // ScheduledTaskExecution 表示定时任务的一次执行记录。
 message ScheduledTaskExecution {
-    // executionID 表示执行记录 ID。
-    string executionID = 1;
-    // scheduledTaskID 表示对应的定时任务 ID。
-    string scheduledTaskID = 2;
-    // userID 表示定时任务所属用户 ID。
-    string userID = 3;
-    // triggerType 表示触发执行的方式。
-    string triggerType = 4;
-    // scheduledAt 表示计划调度时间。
-    int64 scheduledAt = 5;
-    // enqueuedAt 表示任务成功入队时间。
-    int64 enqueuedAt = 6;
-    // asynqTaskID 表示异步队列中的任务 ID。
-    string asynqTaskID = 7;
-    // dispatchStatus 表示任务入队阶段状态。
-    string dispatchStatus = 8;
-    // processStatus 表示任务处理阶段状态。
-    string processStatus = 9;
-    // attempt 表示当前处理尝试次数。
-    int32 attempt = 10;
-    // errorMsg 表示执行失败时的错误信息。
-    string errorMsg = 11;
-    // startedAt 表示任务开始处理时间。
-    int64 startedAt = 12;
-    // finishedAt 表示任务结束处理时间。
-    int64 finishedAt = 13;
-    // durationMs 表示任务处理耗时，单位为毫秒。
-    int64 durationMs = 14;
-    // createdAt 表示创建时间。
-    int64 createdAt = 15;
-    // updatedAt 表示最后更新时间。
-    int64 updatedAt = 16;
+  // executionID 表示执行记录 ID。
+  string executionID = 1;
+  // scheduledTaskID 表示对应的定时任务 ID。
+  string scheduledTaskID = 2;
+  // userID 表示定时任务所属用户 ID。
+  string userID = 3;
+  // triggerType 表示触发执行的方式。
+  string triggerType = 4;
+  // scheduledAt 表示计划调度时间。
+  int64 scheduledAt = 5;
+  // enqueuedAt 表示任务成功入队时间。
+  int64 enqueuedAt = 6;
+  // asynqTaskID 表示异步队列中的任务 ID。
+  string asynqTaskID = 7;
+  // dispatchStatus 表示任务入队阶段状态。
+  string dispatchStatus = 8;
+  // processStatus 表示任务处理阶段状态。
+  string processStatus = 9;
+  // attempt 表示当前处理尝试次数。
+  int32 attempt = 10;
+  // errorMsg 表示执行失败时的错误信息。
+  string errorMsg = 11;
+  // startedAt 表示任务开始处理时间。
+  int64 startedAt = 12;
+  // finishedAt 表示任务结束处理时间。
+  int64 finishedAt = 13;
+  // durationMs 表示任务处理耗时，单位为毫秒。
+  int64 durationMs = 14;
+  // createdAt 表示创建时间。
+  int64 createdAt = 15;
+  // updatedAt 表示最后更新时间。
+  int64 updatedAt = 16;
 }
 
 // CreateScheduledTaskRequest 表示创建定时任务请求。
 message CreateScheduledTaskRequest {
-    // name 表示定时任务名称。
-    string name = 1;
-    // taskType 表示要投递的异步任务类型。
-    string taskType = 2;
-    // payload 表示任务入队时携带的 JSON 负载。
-    google.protobuf.Struct payload = 3;
-    // cronExpr 表示五段式 Cron 表达式。
-    string cronExpr = 4;
-    // queue 表示任务投递目标队列。
-    string queue = 5 [(defaults.value).string = "default"];
-    // enabled 表示定时任务是否启用。
-    bool enabled = 6;
-    // timezone 表示该定时任务使用的时区。
-    string timezone = 7 [(defaults.value).string = "Asia/Shanghai"];
+  // name 表示定时任务名称。
+  string name = 1;
+  // taskType 表示要投递的异步任务类型。
+  string taskType = 2;
+  // payload 表示任务入队时携带的 JSON 负载。
+  google.protobuf.Struct payload = 3;
+  // cronExpr 表示五段式 Cron 表达式。
+  string cronExpr = 4;
+  // queue 表示任务投递目标队列。
+  string queue = 5 [(defaults.value).string = "default"];
+  // enabled 表示定时任务是否启用。
+  bool enabled = 6;
+  // timezone 表示该定时任务使用的时区。
+  string timezone = 7 [(defaults.value).string = "Asia/Shanghai"];
 }
 
 // CreateScheduledTaskResponse 表示创建定时任务响应。
 message CreateScheduledTaskResponse {
-    // scheduledTaskID 表示新创建的定时任务 ID。
-    string scheduledTaskID = 1;
+  // scheduledTaskID 表示新创建的定时任务 ID。
+  string scheduledTaskID = 1;
 }
 
 // UpdateScheduledTaskRequest 表示更新定时任务请求。
 message UpdateScheduledTaskRequest {
-    // scheduledTaskID 表示定时任务 ID。
-    // @gotags: uri:"scheduledTaskID"
-    string scheduledTaskID = 1;
-    // name 表示可选的定时任务名称。
-    optional string name = 2;
-    // payload 表示可选的任务 JSON 负载。
-    google.protobuf.Struct payload = 3;
-    // cronExpr 表示可选的五段式 Cron 表达式。
-    optional string cronExpr = 4;
-    // queue 表示可选的任务投递目标队列。
-    optional string queue = 5;
-    // enabled 表示可选的启用状态。
-    optional bool enabled = 6;
-    // timezone 表示可选的任务时区。
-    optional string timezone = 7;
+  // scheduledTaskID 表示定时任务 ID。
+  // @gotags: uri:"scheduledTaskID"
+  string scheduledTaskID = 1;
+  // name 表示可选的定时任务名称。
+  optional string name = 2;
+  // payload 表示可选的任务 JSON 负载。
+  google.protobuf.Struct payload = 3;
+  // cronExpr 表示可选的五段式 Cron 表达式。
+  optional string cronExpr = 4;
+  // queue 表示可选的任务投递目标队列。
+  optional string queue = 5;
+  // enabled 表示可选的启用状态。
+  optional bool enabled = 6;
+  // timezone 表示可选的任务时区。
+  optional string timezone = 7;
 }
 
 // UpdateScheduledTaskResponse 表示更新定时任务响应。
@@ -125,9 +125,9 @@ message UpdateScheduledTaskResponse {}
 
 // DeleteScheduledTaskRequest 表示删除定时任务请求。
 message DeleteScheduledTaskRequest {
-    // scheduledTaskID 表示定时任务 ID。
-    // @gotags: uri:"scheduledTaskID"
-    string scheduledTaskID = 1;
+  // scheduledTaskID 表示定时任务 ID。
+  // @gotags: uri:"scheduledTaskID"
+  string scheduledTaskID = 1;
 }
 
 // DeleteScheduledTaskResponse 表示删除定时任务响应。
@@ -135,96 +135,96 @@ message DeleteScheduledTaskResponse {}
 
 // GetScheduledTaskRequest 表示获取定时任务请求。
 message GetScheduledTaskRequest {
-    // scheduledTaskID 表示定时任务 ID。
-    // @gotags: uri:"scheduledTaskID"
-    string scheduledTaskID = 1;
+  // scheduledTaskID 表示定时任务 ID。
+  // @gotags: uri:"scheduledTaskID"
+  string scheduledTaskID = 1;
 }
 
 // GetScheduledTaskResponse 表示获取定时任务响应。
 message GetScheduledTaskResponse {
-    // scheduledTask 表示返回的定时任务信息。
-    ScheduledTask scheduledTask = 1;
+  // scheduledTask 表示返回的定时任务信息。
+  ScheduledTask scheduledTask = 1;
 }
 
 // ListScheduledTasksRequest 表示定时任务列表请求。
 message ListScheduledTasksRequest {
-    // pageToken 表示分页游标，用于获取下一页数据。
-    // @gotags: form:"page_token"
-    string pageToken = 1;
-    // pageSize 表示每页数量。
-    // @gotags: form:"page_size"
-    int64 pageSize = 2;
-    // enabled 表示可选的启用状态筛选条件。
-    // @gotags: form:"enabled"
-    optional bool enabled = 3;
-    // taskType 表示可选的任务类型筛选条件。
-    // @gotags: form:"task_type"
-    optional string taskType = 4;
+  // pageToken 表示分页游标，用于获取下一页数据。
+  // @gotags: form:"page_token"
+  string pageToken = 1;
+  // pageSize 表示每页数量。
+  // @gotags: form:"page_size"
+  int64 pageSize = 2;
+  // enabled 表示可选的启用状态筛选条件。
+  // @gotags: form:"enabled"
+  optional bool enabled = 3;
+  // taskType 表示可选的任务类型筛选条件。
+  // @gotags: form:"task_type"
+  optional string taskType = 4;
 }
 
 // ListScheduledTasksResponse 表示定时任务列表响应。
 message ListScheduledTasksResponse {
-    // totalCount 表示符合条件的定时任务总数。
-    int64 totalCount = 1;
-    // scheduledTasks 表示定时任务列表。
-    repeated ScheduledTask scheduledTasks = 2;
-    // pageToken 表示分页游标；为空表示没有更多数据。
-    string pageToken = 3;
+  // totalCount 表示符合条件的定时任务总数。
+  int64 totalCount = 1;
+  // scheduledTasks 表示定时任务列表。
+  repeated ScheduledTask scheduledTasks = 2;
+  // pageToken 表示分页游标；为空表示没有更多数据。
+  string pageToken = 3;
 }
 
 // ToggleScheduledTaskRequest 表示切换定时任务启用状态请求。
 message ToggleScheduledTaskRequest {
-    // scheduledTaskID 表示定时任务 ID。
-    // @gotags: uri:"scheduledTaskID"
-    string scheduledTaskID = 1;
-    // enabled 表示目标启用状态。
-    bool enabled = 2;
+  // scheduledTaskID 表示定时任务 ID。
+  // @gotags: uri:"scheduledTaskID"
+  string scheduledTaskID = 1;
+  // enabled 表示目标启用状态。
+  bool enabled = 2;
 }
 
 // ToggleScheduledTaskResponse 表示切换定时任务启用状态响应。
 message ToggleScheduledTaskResponse {
-    // scheduledTask 表示切换后的定时任务信息。
-    ScheduledTask scheduledTask = 1;
+  // scheduledTask 表示切换后的定时任务信息。
+  ScheduledTask scheduledTask = 1;
 }
 
 // TriggerScheduledTaskRequest 表示手动触发定时任务请求。
 message TriggerScheduledTaskRequest {
-    // scheduledTaskID 表示定时任务 ID。
-    // @gotags: uri:"scheduledTaskID"
-    string scheduledTaskID = 1;
+  // scheduledTaskID 表示定时任务 ID。
+  // @gotags: uri:"scheduledTaskID"
+  string scheduledTaskID = 1;
 }
 
 // TriggerScheduledTaskResponse 表示手动触发定时任务响应。
 message TriggerScheduledTaskResponse {
-    // executionID 表示本次手动触发创建的执行记录 ID。
-    string executionID = 1;
+  // executionID 表示本次手动触发创建的执行记录 ID。
+  string executionID = 1;
 }
 
 // ListScheduledTaskExecutionsRequest 表示定时任务执行记录列表请求。
 message ListScheduledTaskExecutionsRequest {
-    // scheduledTaskID 表示定时任务 ID。
-    // @gotags: uri:"scheduledTaskID"
-    string scheduledTaskID = 1;
-    // pageToken 表示分页游标，用于获取下一页数据。
-    // @gotags: form:"page_token"
-    string pageToken = 2;
-    // pageSize 表示每页数量。
-    // @gotags: form:"page_size"
-    int64 pageSize = 3;
-    // dispatchStatus 表示可选的入队阶段状态筛选条件。
-    // @gotags: form:"dispatch_status"
-    optional string dispatchStatus = 4;
-    // processStatus 表示可选的处理阶段状态筛选条件。
-    // @gotags: form:"process_status"
-    optional string processStatus = 5;
+  // scheduledTaskID 表示定时任务 ID。
+  // @gotags: uri:"scheduledTaskID"
+  string scheduledTaskID = 1;
+  // pageToken 表示分页游标，用于获取下一页数据。
+  // @gotags: form:"page_token"
+  string pageToken = 2;
+  // pageSize 表示每页数量。
+  // @gotags: form:"page_size"
+  int64 pageSize = 3;
+  // dispatchStatus 表示可选的入队阶段状态筛选条件。
+  // @gotags: form:"dispatch_status"
+  optional string dispatchStatus = 4;
+  // processStatus 表示可选的处理阶段状态筛选条件。
+  // @gotags: form:"process_status"
+  optional string processStatus = 5;
 }
 
 // ListScheduledTaskExecutionsResponse 表示定时任务执行记录列表响应。
 message ListScheduledTaskExecutionsResponse {
-    // totalCount 表示符合条件的执行记录总数。
-    int64 totalCount = 1;
-    // executions 表示执行记录列表。
-    repeated ScheduledTaskExecution executions = 2;
-    // pageToken 表示分页游标；为空表示没有更多数据。
-    string pageToken = 3;
+  // totalCount 表示符合条件的执行记录总数。
+  int64 totalCount = 1;
+  // executions 表示执行记录列表。
+  repeated ScheduledTaskExecution executions = 2;
+  // pageToken 表示分页游标；为空表示没有更多数据。
+  string pageToken = 3;
 }
