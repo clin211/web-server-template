@@ -1,4 +1,4 @@
-# Gin Enterprise Template
+# Web Server Template
 
 企业级 Go 后端 API 模板集合，基于 Go 1.25+、Gin、GORM、JWT、Casbin 与 OpenTelemetry。
 
