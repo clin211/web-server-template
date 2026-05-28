@@ -1,0 +1,156 @@
+syntax = "proto3";
+
+package apiserver.v1;
+
+import "github.com/onexstack/defaults/defaults.proto";
+
+option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";
+
+// Permission 表示权限信息
+message Permission {
+    // permissionID 表示权限 ID
+    string permissionID = 1;
+    // permissionName 表示权限名称
+    string permissionName = 2;
+    // permissionCode 表示权限编码
+    string permissionCode = 3;
+    // resourceType 表示资源类型（menu=菜单, button=按钮）
+    string resourceType = 4;
+    // resourcePath 表示资源路径
+    string resourcePath = 5;
+    // action 表示操作（GET/POST 等）
+    string action = 6;
+    // description 表示权限描述
+    string description = 7;
+    // parentID 表示父权限 ID
+    string parentID = 8;
+    // path 表示全路径
+    string path = 9;
+    // status 表示权限状态（0=启用,1=禁用）
+    int32 status = 10;
+    // createdAt 表示创建时间
+    int64 createdAt = 11;
+    // updatedAt 表示更新时间
+    int64 updatedAt = 12;
+}
+
+// CreatePermissionRequest 表示创建权限请求
+message CreatePermissionRequest {
+    // permissionName 表示权限名称
+    string permissionName = 1;
+    // permissionCode 表示权限编码
+    string permissionCode = 2;
+    // resourceType 表示资源类型（menu=菜单, button=按钮）
+    string resourceType = 3;
+    // resourcePath 表示资源路径
+    optional string resourcePath = 4;
+    // action 表示操作（GET/POST 等）
+    string action = 5;
+    // description 表示权限描述
+    optional string description = 6;
+    // parentID 表示父权限 ID
+    optional string parentID = 7;
+}
+
+// CreatePermissionResponse 表示创建权限响应
+message CreatePermissionResponse {
+    // permissionID 表示新创建的权限 ID
+    string permissionID = 1;
+}
+
+// UpdatePermissionRequest 表示更新权限请求
+message UpdatePermissionRequest {
+    // permissionID 表示权限 ID
+    // @gotags: uri:"permissionID"
+    string permissionID = 1;
+    // permissionName 表示可选的权限名称
+    optional string permissionName = 2;
+    // description 表示可选的权限描述
+    optional string description = 3;
+    // status 表示可选的权限状态（0=启用,1=禁用）
+    optional int32 status = 4;
+}
+
+// UpdatePermissionResponse 表示更新权限响应
+message UpdatePermissionResponse {
+}
+
+// DeletePermissionRequest 表示删除权限请求
+message DeletePermissionRequest {
+    // permissionID 表示权限 ID
+    // @gotags: uri:"permissionID"
+    string permissionID = 1;
+}
+
+// DeletePermissionResponse 表示删除权限响应
+message DeletePermissionResponse {
+}
+
+// GetPermissionRequest 表示获取权限请求
+message GetPermissionRequest {
+    // permissionID 表示权限 ID
+    // @gotags: uri:"permissionID"
+    string permissionID = 1;
+}
+
+// GetPermissionResponse 表示获取权限响应
+message GetPermissionResponse {
+    // permission 表示返回的权限信息
+    Permission permission = 1;
+}
+
+// ListPermissionRequest 表示权限列表请求
+message ListPermissionRequest {
+    // pageToken 表示分页游标
+    // @gotags: form:"page_token"
+    string pageToken = 1;
+    // pageSize 表示每页数量
+    // @gotags: form:"page_size"
+    int64 pageSize = 2;
+    // resourceType 表示资源类型过滤（menu=菜单, button=按钮，留空表示全部）
+    // @gotags: form:"resource_type"
+    optional string resourceType = 3;
+    // status 表示状态过滤（0=启用,1=禁用，留空表示全部）
+    // @gotags: form:"status"
+    optional int32 status = 4;
+    // parentID 表示父权限 ID 过滤
+    // @gotags: form:"parent_id"
+    optional string parentID = 5;
+}
+
+// ListPermissionResponse 表示权限列表响应
+message ListPermissionResponse {
+    // totalCount 表示总权限数
+    int64 totalCount = 1;
+    // permissions 表示权限列表
+    repeated Permission permissions = 2;
+    // pageToken 表示下一页游标
+    string pageToken = 3;
+}
+
+// ListPermissionTreeRequest 表示权限树请求
+message ListPermissionTreeRequest {
+    // level 表示层级深度（0=全部，1=仅根节点，2=两级，以此类推）
+    // @gotags: form:"level"
+    optional int32 level = 1 [(defaults.value).int32 = 0];
+    // resourceType 表示资源类型过滤
+    // @gotags: form:"resource_type"
+    optional string resourceType = 2;
+    // status 表示状态过滤
+    // @gotags: form:"status"
+    optional int32 status = 3;
+}
+
+// ListPermissionTreeResponse 表示权限树响应
+message ListPermissionTreeResponse {
+    // permissions 表示权限树
+    repeated PermissionTreeNode permissions = 1;
+}
+
+// PermissionTreeNode 表示权限树节点
+message PermissionTreeNode {
+    // permission 表示权限信息
+    Permission permission = 1;
+    // children 表示子权限列表
+    repeated PermissionTreeNode children = 2;
+}

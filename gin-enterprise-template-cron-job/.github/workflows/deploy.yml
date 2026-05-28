@@ -1,0 +1,61 @@
+name: Docker Image CI
+on:
+  push:
+    branches:
+      - "release"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: give version
+        run: |
+          echo "VERSION=$(git describe --tags --always --match='v*')" >> $GITHUB_ENV
+
+      - name: print version
+        run: |
+          echo "print version is ${{env.VERSION}}"
+
+      - name: "use env version build binary file"
+        working-directory: .
+        run: |
+          echo "use env version build binary file"
+          ls -l
+          make build VERSION=${{env.VERSION}} BINS=gin-enterprise-template-apiserver
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Aliyun Container Registry
+        run: |
+          echo "Login to Aliyun Container Registry"
+          docker login --username=${{secrets.ALIYUN_USERNAME}} --password=${{secrets.ALIYUN_PASSWORD}} registry.cn-chengdu.aliyuncs.com
+
+      - name: "use binary file build docker image"
+        working-directory: .
+        run: |
+          echo "use binary file build docker image"
+          echo "Building Docker image with tag: ${{env.VERSION}}"
+          # 使用项目根目录作为构建上下文，指定 Dockerfile 路径
+          docker build . \
+            --file Dockerfile \
+            --build-arg OS=linux \
+            --build-arg ARCH=amd64 \
+            --tag registry.cn-chengdu.aliyuncs.com/go-practice/gin-enterprise-template:${{env.VERSION}}
+
+          echo "Pushing Docker image to registry..."
+          docker push registry.cn-chengdu.aliyuncs.com/go-practice/gin-enterprise-template:${{env.VERSION}}
+
+      - name: deploy to remote server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{secrets.HOST}}
+          username: root
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          port: 22
+          script: |
+            echo "deploy the image with tag is ${{env.VERSION}}"
+            cd /home/project/gin-enterprise-template
+            sh setup.sh ${{secrets.ALIYUN_USERNAME}} ${{secrets.ALIYUN_PASSWORD}} ${{env.VERSION}}

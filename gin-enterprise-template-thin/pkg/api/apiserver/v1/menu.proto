@@ -1,0 +1,179 @@
+syntax = "proto3";
+
+package apiserver.v1;
+
+import "github.com/onexstack/defaults/defaults.proto";
+
+option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";
+
+// Menu 表示菜单信息
+message Menu {
+    // menuID 表示菜单 ID
+    string menuID = 1;
+    // parentID 表示父菜单 ID
+    string parentID = 2;
+    // menuName 表示菜单名称
+    string menuName = 3;
+    // menuCode 表示菜单编码
+    string menuCode = 4;
+    // menuType 表示菜单类型（menu=目录, page=页面）
+    string menuType = 5;
+    // icon 表示菜单图标
+    string icon = 6;
+    // path 表示路由路径
+    string path = 7;
+    // component 表示前端组件路径
+    string component = 8;
+    // permissionID 表示关联权限 ID
+    string permissionID = 9;
+    // sortOrder 表示排序序号
+    int32 sortOrder = 10;
+    // visible 表示是否可见（0=隐藏,1=显示）
+    int32 visible = 11;
+    // status 表示菜单状态（0=启用,1=禁用）
+    int32 status = 12;
+    // createdAt 表示创建时间
+    int64 createdAt = 13;
+    // updatedAt 表示更新时间
+    int64 updatedAt = 14;
+}
+
+// CreateMenuRequest 表示创建菜单请求
+message CreateMenuRequest {
+    // parentID 表示父菜单 ID
+    optional string parentID = 1;
+    // menuName 表示菜单名称
+    string menuName = 2;
+    // menuCode 表示菜单编码
+    string menuCode = 3;
+    // menuType 表示菜单类型（menu=目录, page=页面）
+    string menuType = 4;
+    // icon 表示菜单图标
+    optional string icon = 5;
+    // path 表示路由路径
+    optional string path = 6;
+    // component 表示前端组件路径
+    optional string component = 7;
+    // permissionID 表示关联权限 ID
+    optional string permissionID = 8;
+    // sortOrder 表示排序序号
+    optional int32 sortOrder = 9 [(defaults.value).int32 = 0];
+}
+
+// CreateMenuResponse 表示创建菜单响应
+message CreateMenuResponse {
+    // menuID 表示新创建的菜单 ID
+    string menuID = 1;
+}
+
+// UpdateMenuRequest 表示更新菜单请求
+message UpdateMenuRequest {
+    // menuID 表示菜单 ID
+    // @gotags: uri:"menuID"
+    string menuID = 1;
+    // parentID 表示可选的父菜单 ID
+    optional string parentID = 2;
+    // menuName 表示可选的菜单名称
+    optional string menuName = 3;
+    // icon 表示可选的菜单图标
+    optional string icon = 4;
+    // path 表示可选的路由路径
+    optional string path = 5;
+    // component 表示可选的前端组件路径
+    optional string component = 6;
+    // sortOrder 表示可选的排序序号
+    optional int32 sortOrder = 7;
+    // visible 表示可选的是否可见（0=隐藏,1=显示）
+    optional int32 visible = 8 [(defaults.value).int32 = 1];
+    // status 表示可选的菜单状态（0=启用,1=禁用）
+    optional int32 status = 9;
+}
+
+// UpdateMenuResponse 表示更新菜单响应
+message UpdateMenuResponse {
+}
+
+// DeleteMenuRequest 表示删除菜单请求
+message DeleteMenuRequest {
+    // menuID 表示菜单 ID
+    // @gotags: uri:"menuID"
+    string menuID = 1;
+}
+
+// DeleteMenuResponse 表示删除菜单响应
+message DeleteMenuResponse {
+}
+
+// GetMenuRequest 表示获取菜单请求
+message GetMenuRequest {
+    // menuID 表示菜单 ID
+    // @gotags: uri:"menuID"
+    string menuID = 1;
+}
+
+// GetMenuResponse 表示获取菜单响应
+message GetMenuResponse {
+    // menu 表示返回的菜单信息
+    Menu menu = 1;
+}
+
+// ListMenuRequest 表示菜单列表请求
+message ListMenuRequest {
+    // pageToken 表示分页游标
+    // @gotags: form:"page_token"
+    string pageToken = 1;
+    // pageSize 表示每页数量
+    // @gotags: form:"page_size"
+    int64 pageSize = 2;
+    // status 表示状态过滤（0=启用,1=禁用，留空表示全部）
+    // @gotags: form:"status"
+    optional int32 status = 3;
+    // menuType 表示菜单类型过滤（menu=目录, page=页面，留空表示全部）
+    // @gotags: form:"menu_type"
+    optional string menuType = 4;
+    // parentID 表示父菜单 ID 过滤
+    // @gotags: form:"parent_id"
+    optional string parentID = 5;
+}
+
+// ListMenuResponse 表示菜单列表响应
+message ListMenuResponse {
+    // totalCount 表示总菜单数
+    int64 totalCount = 1;
+    // menus 表示菜单列表
+    repeated Menu menus = 2;
+    // pageToken 表示下一页游标
+    string pageToken = 3;
+}
+
+// ListMenuTreeRequest 表示菜单树请求
+message ListMenuTreeRequest {
+    // status 表示状态过滤（0=启用,1=禁用，留空表示全部）
+    // @gotags: form:"status"
+    optional int32 status = 1;
+}
+
+// ListMenuTreeResponse 表示菜单树响应
+message ListMenuTreeResponse {
+    // menus 表示菜单树
+    repeated MenuTreeNode menus = 1;
+}
+
+// MenuTreeNode 表示菜单树节点
+message MenuTreeNode {
+    // menu 表示菜单信息
+    Menu menu = 1;
+    // children 表示子菜单列表
+    repeated MenuTreeNode children = 2;
+}
+
+// GetUserMenuTreeRequest 表示获取用户菜单树请求
+message GetUserMenuTreeRequest {
+    // 该请求从 JWT 获取用户 ID，无需额外参数
+}
+
+// GetUserMenuTreeResponse 表示获取用户菜单树响应
+message GetUserMenuTreeResponse {
+    // menus 表示用户可见的菜单树
+    repeated MenuTreeNode menus = 1;
+}

@@ -1,0 +1,78 @@
+http:
+  addr: 0.0.0.0:5558 # 服务监听地址（与 README、Dockerfile EXPOSE 保持一致）
+timeout: 30s # 服务端超时
+
+jwt:
+  # 必填：至少 32 字符随机字符串，可通过 openssl rand -hex 32 生成
+  secret: "509b6f89be5a69ba54e65c9ed3a14735e945fc83908229c303c703b5a5aa5fe2"
+  access-expiration: 2h # Access Token 有效期。单位：h(小时)
+  refresh-expiration: 168h # Refresh Token 有效期，单位：h(小时)
+
+postgresql:
+  addr: 127.0.0.1:54321
+  database: enterprise_template
+  username: postgres
+  password: "postgres"
+  max-idle-connections: 100 # 最大空闲连接数
+  max-open-connections: 1000 # 最大打开连接数
+  max-connection-life-time: 5m # 连接最大生命周期
+  log-level: 2 # 日志级别: 1=Silent(静默), 2=Error(错误), 3=Warn(警告), 4=Info(所有日志含SQL)，对应 gorm.io/gorm/logger.LogLevel
+
+# Redis 数据库相关配置
+redis:
+  addr: 127.0.0.1:56379 # Redis 服务器地址和端口，默认 127.0.0.1:6379
+  username: "" # Redis 用户名（使用默认用户，留空）
+  password: "e9a7ff6291ee4869246848899221e9cc"
+  database: 0 # Redis 数据库索引，默认 0
+  max-retries: 3 # 最大重试次数，默认 3
+  min-idle-conns: 0 # 最小空闲连接数，默认 0
+  dial-timeout: 5s # 拨号超时时间，默认 5
+  read-timeout: 3s # 读取超时时间，默认 3
+  write-timeout: 3s # 写入超时时间，默认 3
+  pool-time: 4s # 连接池超时时间，默认 4s
+  pool-size: 10 # 连接池大小，默认 10
+  enable-trace: false # 是否启用链路追踪，默认 false
+
+job:
+  async:
+    enabled: true
+    worker:
+      concurrency: 10
+      strict-priority: false
+      queues:
+        critical: 6
+        default: 3
+        low: 1
+    retry:
+      max-retry: 3
+      timeout: 30s
+      deadline: 5m
+    dead-letter:
+      retention: 168h
+  scheduler:
+    enabled: false
+    timezone: "Asia/Shanghai"
+    lock-ttl: 2m
+    reconcile-interval: 1m
+    min-interval: 1m
+  client-task:
+    enabled: false
+    max-tasks-per-user: 100
+    max-payload-bytes: 8192
+    allowed-queues:
+      - default
+      - low
+  system-tasks: []
+
+otel:
+  endpoint: 127.0.0.1:4327
+  service-name: gin-enterprise-template-apiserver
+  output-mode: classic # 支持 otel、console、file、classic、hybrid
+  level: info # 日志级别：debug、info、warn/warning、error（不区分大小写）
+  add-source: true
+  use-prometheus-endpoint: true
+  slog:
+    # 该配置项只有 output-mode 为 slog 时生效
+    format: json
+    time-format: "2006-01-02 15:04:05"
+    output: ./_output/apiserver.log # 支持 stdout, stderr, or file path

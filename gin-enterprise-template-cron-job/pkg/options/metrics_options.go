@@ -1,0 +1,56 @@
+package options
+
+import (
+	"github.com/jinzhu/copier"
+	"github.com/spf13/pflag"
+	"k8s.io/component-base/metrics"
+)
+
+var _ IOptions = (*MetricsOptions)(nil)
+
+// MetricsOptions 包含从组件公开指标所需的所有参数。
+type MetricsOptions struct {
+	ShowHiddenMetricsForVersion string            `json:"show-hidden-metrics-for-version" mapstructure:"show-hidden-metrics-for-version"`
+	DisabledMetrics             []string          `json:"disabled-metrics" mapstructure:"disabled-metrics"`
+	AllowListMapping            map[string]string `json:"allow-metric-labels" mapstructure:"allow-metric-labels"`
+}
+
+// NewMetricsOptions 返回默认指标选项。
+func NewMetricsOptions() *MetricsOptions {
+	opts := metrics.NewOptions()
+
+	var o MetricsOptions
+	_ = copier.Copy(&o, &opts)
+	return &o
+}
+
+func (o *MetricsOptions) Native() *metrics.Options {
+	var opts metrics.Options
+	_ = copier.Copy(&opts, &o)
+	return &opts
+}
+
+// Validate 验证指标标志选项。
+func (o *MetricsOptions) Validate() []error {
+	return o.Native().Validate()
+}
+
+// AddFlags 添加用于公开组件指标的标志。
+func (o *MetricsOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
+	fs.StringVar(&o.ShowHiddenMetricsForVersion, fullPrefix+".show-hidden-metrics-for-version", o.ShowHiddenMetricsForVersion,
+		"The previous version for which you want to show hidden metrics. "+
+			"Only the previous minor version is meaningful, other values will not be allowed. "+
+			"The format is <major>.<minor>, e.g.: '1.16'. "+
+			"The purpose of this format is make sure you have the opportunity to notice if the next release hides additional metrics, "+
+			"rather than being surprised when they are permanently removed in the release after that.")
+	fs.StringSliceVar(&o.DisabledMetrics,
+		fullPrefix+".disabled-metrics",
+		o.DisabledMetrics,
+		"This flag provides an escape hatch for misbehaving metrics. "+
+			"You must provide the fully qualified metric name in order to disable it. "+
+			"Disclaimer: disabling metrics is higher in precedence than showing hidden metrics.")
+	fs.StringToStringVar(&o.AllowListMapping, fullPrefix+".allow-metric-labels", o.AllowListMapping,
+		"The map from metric-label to value allow-list of this label. The key's format is <MetricName>,<LabelName>. "+
+			"The value's format is <allowed_value>,<allowed_value>..."+
+			"e.g. metric1,label1='v1,v2,v3', metric1,label2='v1,v2,v3' metric2,label1='v1,v2,v3'.")
+}

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package apiserver.v1;
+
+import "google/protobuf/empty.proto";
+import "apiserver/v1/role.proto";
+
+option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";
+
+// AssignRolesToUserRequest 表示给用户分配角色请求
+message AssignRolesToUserRequest {
+    // userID 表示用户 ID
+    // @gotags: uri:"userID"
+    string userID = 1;
+    // roleIDs 表示角色 ID 列表
+    repeated string roleIDs = 2;
+}
+
+// AssignRolesToUserResponse 表示给用户分配角色响应
+message AssignRolesToUserResponse {
+}
+
+// GetUserRolesRequest 表示获取用户角色请求
+message GetUserRolesRequest {
+    // userID 表示用户 ID
+    // @gotags: uri:"userID"
+    string userID = 1;
+}
+
+// GetUserRolesResponse 表示获取用户角色响应
+message GetUserRolesResponse {
+    // roles 表示角色列表
+    repeated Role roles = 1;
+    // permissions 表示扁平化权限列表
+    repeated string permissionCodes = 2;
+}
+
+// RemoveRoleFromUserRequest 表示从用户移除角色请求
+message RemoveRoleFromUserRequest {
+    // userID 表示用户 ID
+    // @gotags: uri:"userID"
+    string userID = 1;
+    // roleID 表示角色 ID
+    // @gotags: uri:"roleID"
+    string roleID = 2;
+}
+
+// RemoveRoleFromUserResponse 表示从用户移除角色响应
+message RemoveRoleFromUserResponse {
+}

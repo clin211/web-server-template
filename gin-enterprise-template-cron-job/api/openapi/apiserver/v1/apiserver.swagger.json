@@ -1,0 +1,2790 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "API Server v1",
+    "description": "基于 gin-enterprise-template 的通用后端 API 服务：\n- JWT 用户认证与权限控制\n- 用户、角色、权限、菜单管理\n- RESTful 资源接口\n- OpenTelemetry 可观测性\n- Casbin RBAC 授权",
+    "version": "1.0",
+    "contact": {
+      "name": "gin-enterprise-template 项目",
+      "url": "https://github.com/clin211/gin-enterprise-template",
+      "email": "767425412lin@gmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "APIServer"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/healthz": {
+      "get": {
+        "summary": "健康检查",
+        "description": "检查服务是否健康运行",
+        "operationId": "APIServer_Healthz",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1HealthzResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "服务治理"
+        ]
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "summary": "用户登录",
+        "description": "用户使用用户名和密码进行登录认证",
+        "operationId": "APIServer_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LoginRequest"
+            }
+          }
+        ],
+        "tags": [
+          "用户认证"
+        ]
+      }
+    },
+    "/v1/auth/refresh-token": {
+      "put": {
+        "summary": "刷新令牌",
+        "description": "使用现有令牌刷新获取新的访问令牌",
+        "operationId": "APIServer_RefreshToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RefreshTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "该请求无需额外字段，仅通过现有的认证信息（如旧的 token）进行刷新",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RefreshTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "用户认证"
+        ]
+      }
+    },
+    "/v1/menus": {
+      "get": {
+        "summary": "列表菜单",
+        "description": "获取菜单列表",
+        "operationId": "APIServer_ListMenus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListMenuResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageToken",
+            "description": "pageToken 表示分页游标\n@gotags: form:\"page_token\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "pageSize 表示每页数量\n@gotags: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "description": "status 表示状态过滤（0=启用,1=禁用，留空表示全部）\n@gotags: form:\"status\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "menuType",
+            "description": "menuType 表示菜单类型过滤（menu=目录, page=页面，留空表示全部）\n@gotags: form:\"menu_type\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "parentID",
+            "description": "parentID 表示父菜单 ID 过滤\n@gotags: form:\"parent_id\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      },
+      "post": {
+        "summary": "创建菜单",
+        "description": "创建一个新的菜单",
+        "operationId": "APIServer_CreateMenu",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateMenuResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateMenuRequest"
+            }
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
+    "/v1/menus/tree": {
+      "get": {
+        "summary": "列表菜单树",
+        "description": "获取菜单树结构",
+        "operationId": "APIServer_ListMenuTree",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListMenuTreeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "status",
+            "description": "status 表示状态过滤（0=启用,1=禁用，留空表示全部）\n@gotags: form:\"status\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
+    "/v1/menus/{menuID}": {
+      "get": {
+        "summary": "获取菜单",
+        "description": "根据菜单 ID 获取菜单信息",
+        "operationId": "APIServer_GetMenu",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMenuResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "menuID",
+            "description": "menuID 表示菜单 ID\n@gotags: uri:\"menuID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      },
+      "delete": {
+        "summary": "删除菜单",
+        "description": "根据菜单 ID 删除菜单",
+        "operationId": "APIServer_DeleteMenu",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteMenuResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "menuID",
+            "description": "menuID 表示菜单 ID\n@gotags: uri:\"menuID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      },
+      "put": {
+        "summary": "更新菜单",
+        "description": "根据菜单 ID 更新菜单信息",
+        "operationId": "APIServer_UpdateMenu",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateMenuResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "menuID",
+            "description": "menuID 表示菜单 ID\n@gotags: uri:\"menuID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerUpdateMenuBody"
+            }
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
+    "/v1/permissions": {
+      "get": {
+        "summary": "列表权限",
+        "description": "获取权限列表",
+        "operationId": "APIServer_ListPermissions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListPermissionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageToken",
+            "description": "pageToken 表示分页游标\n@gotags: form:\"page_token\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "pageSize 表示每页数量\n@gotags: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "resourceType",
+            "description": "resourceType 表示资源类型过滤（menu=菜单, button=按钮，留空表示全部）\n@gotags: form:\"resource_type\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "description": "status 表示状态过滤（0=启用,1=禁用，留空表示全部）\n@gotags: form:\"status\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "parentID",
+            "description": "parentID 表示父权限 ID 过滤\n@gotags: form:\"parent_id\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "权限管理"
+        ]
+      },
+      "post": {
+        "summary": "创建权限",
+        "description": "创建一个新的权限",
+        "operationId": "APIServer_CreatePermission",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreatePermissionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreatePermissionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "权限管理"
+        ]
+      }
+    },
+    "/v1/permissions/tree": {
+      "get": {
+        "summary": "列表权限树",
+        "description": "获取权限树结构",
+        "operationId": "APIServer_ListPermissionTree",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListPermissionTreeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "level",
+            "description": "level 表示层级深度（0=全部，1=仅根节点，2=两级，以此类推）\n@gotags: form:\"level\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "resourceType",
+            "description": "resourceType 表示资源类型过滤\n@gotags: form:\"resource_type\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "description": "status 表示状态过滤\n@gotags: form:\"status\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "权限管理"
+        ]
+      }
+    },
+    "/v1/permissions/{permissionID}": {
+      "get": {
+        "summary": "获取权限",
+        "description": "根据权限 ID 获取权限信息",
+        "operationId": "APIServer_GetPermission",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPermissionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "permissionID",
+            "description": "permissionID 表示权限 ID\n@gotags: uri:\"permissionID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "权限管理"
+        ]
+      },
+      "delete": {
+        "summary": "删除权限",
+        "description": "根据权限 ID 删除权限",
+        "operationId": "APIServer_DeletePermission",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeletePermissionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "permissionID",
+            "description": "permissionID 表示权限 ID\n@gotags: uri:\"permissionID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "权限管理"
+        ]
+      },
+      "put": {
+        "summary": "更新权限",
+        "description": "根据权限 ID 更新权限信息",
+        "operationId": "APIServer_UpdatePermission",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdatePermissionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "permissionID",
+            "description": "permissionID 表示权限 ID\n@gotags: uri:\"permissionID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerUpdatePermissionBody"
+            }
+          }
+        ],
+        "tags": [
+          "权限管理"
+        ]
+      }
+    },
+    "/v1/roles": {
+      "get": {
+        "summary": "列表角色",
+        "description": "获取角色列表",
+        "operationId": "APIServer_ListRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageToken",
+            "description": "pageToken 表示分页游标\n@gotags: form:\"pageToken\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "pageSize 表示每页数量\n@gotags: form:\"pageSize\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "description": "status 表示状态过滤（0=启用,1=禁用，留空表示全部）\n@gotags: form:\"status\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "keyword",
+            "description": "keyword 表示搜索关键字\n@gotags: form:\"keyword\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "角色管理"
+        ]
+      },
+      "post": {
+        "summary": "创建角色",
+        "description": "创建一个新的角色",
+        "operationId": "APIServer_CreateRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateRoleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "角色管理"
+        ]
+      }
+    },
+    "/v1/roles/{roleID}": {
+      "get": {
+        "summary": "获取角色",
+        "description": "根据角色 ID 获取角色信息",
+        "operationId": "APIServer_GetRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleID",
+            "description": "roleID 表示角色 ID\n@gotags: uri:\"roleID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "角色管理"
+        ]
+      },
+      "delete": {
+        "summary": "删除角色",
+        "description": "根据角色 ID 删除角色",
+        "operationId": "APIServer_DeleteRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleID",
+            "description": "roleID 表示角色 ID\n@gotags: uri:\"roleID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "角色管理"
+        ]
+      },
+      "put": {
+        "summary": "更新角色",
+        "description": "根据角色 ID 更新角色信息",
+        "operationId": "APIServer_UpdateRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleID",
+            "description": "roleID 表示角色 ID\n@gotags: uri:\"roleID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerUpdateRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "角色管理"
+        ]
+      }
+    },
+    "/v1/roles/{roleID}/permissions": {
+      "get": {
+        "summary": "获取角色权限",
+        "description": "获取角色的权限列表",
+        "operationId": "APIServer_GetRolePermissions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRolePermissionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleID",
+            "description": "roleID 表示角色 ID\n@gotags: uri:\"roleID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "角色管理"
+        ]
+      },
+      "post": {
+        "summary": "给角色分配权限",
+        "description": "为角色分配或更新权限",
+        "operationId": "APIServer_AssignPermissionsToRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AssignPermissionsToRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleID",
+            "description": "roleID 表示角色 ID\n@gotags: uri:\"roleID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerAssignPermissionsToRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "角色管理"
+        ]
+      }
+    },
+    "/v1/scheduled-tasks": {
+      "get": {
+        "summary": "列表定时任务",
+        "description": "获取定时任务列表",
+        "operationId": "APIServer_ListScheduledTasks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListScheduledTasksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageToken",
+            "description": "pageToken 表示分页游标，用于获取下一页数据。\n@gotags: form:\"page_token\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "pageSize 表示每页数量。\n@gotags: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "enabled",
+            "description": "enabled 表示可选的启用状态筛选条件。\n@gotags: form:\"enabled\"",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "taskType",
+            "description": "taskType 表示可选的任务类型筛选条件。\n@gotags: form:\"task_type\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      },
+      "post": {
+        "summary": "创建定时任务",
+        "description": "创建一个新的定时任务",
+        "operationId": "APIServer_CreateScheduledTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateScheduledTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateScheduledTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      }
+    },
+    "/v1/scheduled-tasks/{scheduledTaskID}": {
+      "get": {
+        "summary": "获取定时任务",
+        "description": "根据任务 ID 获取定时任务信息",
+        "operationId": "APIServer_GetScheduledTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetScheduledTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scheduledTaskID",
+            "description": "scheduledTaskID 表示定时任务 ID。\n@gotags: uri:\"scheduledTaskID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      },
+      "delete": {
+        "summary": "删除定时任务",
+        "description": "根据任务 ID 删除定时任务",
+        "operationId": "APIServer_DeleteScheduledTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteScheduledTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scheduledTaskID",
+            "description": "scheduledTaskID 表示定时任务 ID。\n@gotags: uri:\"scheduledTaskID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      },
+      "put": {
+        "summary": "更新定时任务",
+        "description": "根据任务 ID 更新定时任务信息",
+        "operationId": "APIServer_UpdateScheduledTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateScheduledTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scheduledTaskID",
+            "description": "scheduledTaskID 表示定时任务 ID。\n@gotags: uri:\"scheduledTaskID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerUpdateScheduledTaskBody"
+            }
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      }
+    },
+    "/v1/scheduled-tasks/{scheduledTaskID}/executions": {
+      "get": {
+        "summary": "列表任务执行记录",
+        "description": "获取定时任务的执行历史记录",
+        "operationId": "APIServer_ListScheduledTaskExecutions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListScheduledTaskExecutionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scheduledTaskID",
+            "description": "scheduledTaskID 表示定时任务 ID。\n@gotags: uri:\"scheduledTaskID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageToken",
+            "description": "pageToken 表示分页游标，用于获取下一页数据。\n@gotags: form:\"page_token\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "pageSize 表示每页数量。\n@gotags: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "dispatchStatus",
+            "description": "dispatchStatus 表示可选的入队阶段状态筛选条件。\n@gotags: form:\"dispatch_status\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "processStatus",
+            "description": "processStatus 表示可选的处理阶段状态筛选条件。\n@gotags: form:\"process_status\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      }
+    },
+    "/v1/scheduled-tasks/{scheduledTaskID}/toggle": {
+      "put": {
+        "summary": "切换定时任务状态",
+        "description": "启用或禁用定时任务",
+        "operationId": "APIServer_ToggleScheduledTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ToggleScheduledTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scheduledTaskID",
+            "description": "scheduledTaskID 表示定时任务 ID。\n@gotags: uri:\"scheduledTaskID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerToggleScheduledTaskBody"
+            }
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      }
+    },
+    "/v1/scheduled-tasks/{scheduledTaskID}/trigger": {
+      "post": {
+        "summary": "手动触发定时任务",
+        "description": "立即执行一次定时任务",
+        "operationId": "APIServer_TriggerScheduledTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TriggerScheduledTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scheduledTaskID",
+            "description": "scheduledTaskID 表示定时任务 ID。\n@gotags: uri:\"scheduledTaskID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "定时任务管理"
+        ]
+      }
+    },
+    "/v1/users": {
+      "get": {
+        "summary": "列表用户",
+        "description": "获取所有用户的列表",
+        "operationId": "APIServer_ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageToken",
+            "description": "page_token 表示分页游标，用于获取下一页数据\n首次请求时为空，后续请求使用上一页返回的 page_token\n@gotags: form:\"page_token\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "page_size 表示每页数量\n@gotags: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      },
+      "post": {
+        "summary": "创建用户",
+        "description": "创建一个新的用户",
+        "operationId": "APIServer_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      }
+    },
+    "/v1/users/menu-tree": {
+      "get": {
+        "summary": "获取用户菜单树",
+        "description": "获取当前用户的菜单树",
+        "operationId": "APIServer_GetUserMenuTree",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUserMenuTreeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
+    "/v1/users/{userID}": {
+      "get": {
+        "summary": "获取用户",
+        "description": "根据用户 ID 获取用户信息",
+        "operationId": "APIServer_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userID",
+            "description": "userID 表示用户 ID\n@gotags: uri:\"userID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      },
+      "delete": {
+        "summary": "删除用户",
+        "description": "根据用户 ID 删除用户",
+        "operationId": "APIServer_DeleteUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userID",
+            "description": "userID 表示用户 ID\n@gotags: uri:\"userID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      },
+      "put": {
+        "summary": "更新用户",
+        "description": "根据用户 ID 更新用户信息",
+        "operationId": "APIServer_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userID",
+            "description": "userID 表示用户 ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerUpdateUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      }
+    },
+    "/v1/users/{userID}/roles": {
+      "get": {
+        "summary": "获取用户角色",
+        "description": "获取用户的角色列表和权限",
+        "operationId": "APIServer_GetUserRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUserRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userID",
+            "description": "userID 表示用户 ID\n@gotags: uri:\"userID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      },
+      "post": {
+        "summary": "给用户分配角色",
+        "description": "为用户分配角色",
+        "operationId": "APIServer_AssignRolesToUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AssignRolesToUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userID",
+            "description": "userID 表示用户 ID\n@gotags: uri:\"userID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerAssignRolesToUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      }
+    },
+    "/v1/users/{userID}/roles/{roleID}": {
+      "delete": {
+        "summary": "从用户移除角色",
+        "description": "从用户移除指定角色",
+        "operationId": "APIServer_RemoveRoleFromUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RemoveRoleFromUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userID",
+            "description": "userID 表示用户 ID\n@gotags: uri:\"userID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roleID",
+            "description": "roleID 表示角色 ID\n@gotags: uri:\"roleID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "用户管理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "APIServerAssignPermissionsToRoleBody": {
+      "type": "object",
+      "properties": {
+        "permissionIDs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "permissionIDs 表示权限 ID 列表"
+        },
+        "mode": {
+          "type": "string",
+          "title": "mode 表示分配模式（override=覆盖, append=追加）\n@gotags: form:\"mode\""
+        }
+      },
+      "title": "AssignPermissionsToRoleRequest 表示给角色分配权限请求"
+    },
+    "APIServerAssignRolesToUserBody": {
+      "type": "object",
+      "properties": {
+        "roleIDs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "roleIDs 表示角色 ID 列表"
+        }
+      },
+      "title": "AssignRolesToUserRequest 表示给用户分配角色请求"
+    },
+    "APIServerToggleScheduledTaskBody": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "enabled 表示目标启用状态。"
+        }
+      },
+      "title": "ToggleScheduledTaskRequest 表示切换定时任务启用状态请求。"
+    },
+    "APIServerUpdateMenuBody": {
+      "type": "object",
+      "properties": {
+        "parentID": {
+          "type": "string",
+          "title": "parentID 表示可选的父菜单 ID"
+        },
+        "menuName": {
+          "type": "string",
+          "title": "menuName 表示可选的菜单名称"
+        },
+        "icon": {
+          "type": "string",
+          "title": "icon 表示可选的菜单图标"
+        },
+        "path": {
+          "type": "string",
+          "title": "path 表示可选的路由路径"
+        },
+        "component": {
+          "type": "string",
+          "title": "component 表示可选的前端组件路径"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示可选的排序序号"
+        },
+        "visible": {
+          "type": "integer",
+          "format": "int32",
+          "title": "visible 表示可选的是否可见（0=隐藏,1=显示）"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示可选的菜单状态（0=启用,1=禁用）"
+        }
+      },
+      "title": "UpdateMenuRequest 表示更新菜单请求"
+    },
+    "APIServerUpdatePermissionBody": {
+      "type": "object",
+      "properties": {
+        "permissionName": {
+          "type": "string",
+          "title": "permissionName 表示可选的权限名称"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示可选的权限描述"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示可选的权限状态（0=启用,1=禁用）"
+        }
+      },
+      "title": "UpdatePermissionRequest 表示更新权限请求"
+    },
+    "APIServerUpdateRoleBody": {
+      "type": "object",
+      "properties": {
+        "roleName": {
+          "type": "string",
+          "title": "roleName 表示可选的角色名称"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示可选的角色描述"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示可选的角色状态（0=启用,1=禁用）"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示可选的排序序号"
+        }
+      },
+      "title": "UpdateRoleRequest 表示更新角色请求"
+    },
+    "APIServerUpdateScheduledTaskBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name 表示可选的定时任务名称。"
+        },
+        "payload": {
+          "type": "object",
+          "title": "payload 表示可选的任务 JSON 负载。"
+        },
+        "cronExpr": {
+          "type": "string",
+          "title": "cronExpr 表示可选的五段式 Cron 表达式。"
+        },
+        "queue": {
+          "type": "string",
+          "title": "queue 表示可选的任务投递目标队列。"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "enabled 表示可选的启用状态。"
+        },
+        "timezone": {
+          "type": "string",
+          "title": "timezone 表示可选的任务时区。"
+        }
+      },
+      "title": "UpdateScheduledTaskRequest 表示更新定时任务请求。"
+    },
+    "APIServerUpdateUserBody": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username 表示可选的用户名称"
+        },
+        "nickname": {
+          "type": "string",
+          "title": "nickname 表示可选的用户昵称"
+        },
+        "email": {
+          "type": "string",
+          "title": "email 表示可选的用户电子邮箱"
+        },
+        "phone": {
+          "type": "string",
+          "title": "phone 表示可选的用户手机号"
+        }
+      },
+      "title": "UpdateUserRequest 表示更新用户请求"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AssignPermissionsToRoleResponse": {
+      "type": "object",
+      "title": "AssignPermissionsToRoleResponse 表示给角色分配权限响应"
+    },
+    "v1AssignRolesToUserResponse": {
+      "type": "object",
+      "title": "AssignRolesToUserResponse 表示给用户分配角色响应"
+    },
+    "v1CreateMenuRequest": {
+      "type": "object",
+      "properties": {
+        "parentID": {
+          "type": "string",
+          "title": "parentID 表示父菜单 ID"
+        },
+        "menuName": {
+          "type": "string",
+          "title": "menuName 表示菜单名称"
+        },
+        "menuCode": {
+          "type": "string",
+          "title": "menuCode 表示菜单编码"
+        },
+        "menuType": {
+          "type": "string",
+          "title": "menuType 表示菜单类型（menu=目录, page=页面）"
+        },
+        "icon": {
+          "type": "string",
+          "title": "icon 表示菜单图标"
+        },
+        "path": {
+          "type": "string",
+          "title": "path 表示路由路径"
+        },
+        "component": {
+          "type": "string",
+          "title": "component 表示前端组件路径"
+        },
+        "permissionID": {
+          "type": "string",
+          "title": "permissionID 表示关联权限 ID"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示排序序号"
+        }
+      },
+      "title": "CreateMenuRequest 表示创建菜单请求"
+    },
+    "v1CreateMenuResponse": {
+      "type": "object",
+      "properties": {
+        "menuID": {
+          "type": "string",
+          "title": "menuID 表示新创建的菜单 ID"
+        }
+      },
+      "title": "CreateMenuResponse 表示创建菜单响应"
+    },
+    "v1CreatePermissionRequest": {
+      "type": "object",
+      "properties": {
+        "permissionName": {
+          "type": "string",
+          "title": "permissionName 表示权限名称"
+        },
+        "permissionCode": {
+          "type": "string",
+          "title": "permissionCode 表示权限编码"
+        },
+        "resourceType": {
+          "type": "string",
+          "title": "resourceType 表示资源类型（menu=菜单, button=按钮）"
+        },
+        "resourcePath": {
+          "type": "string",
+          "title": "resourcePath 表示资源路径"
+        },
+        "action": {
+          "type": "string",
+          "title": "action 表示操作（GET/POST 等）"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示权限描述"
+        },
+        "parentID": {
+          "type": "string",
+          "title": "parentID 表示父权限 ID"
+        }
+      },
+      "title": "CreatePermissionRequest 表示创建权限请求"
+    },
+    "v1CreatePermissionResponse": {
+      "type": "object",
+      "properties": {
+        "permissionID": {
+          "type": "string",
+          "title": "permissionID 表示新创建的权限 ID"
+        }
+      },
+      "title": "CreatePermissionResponse 表示创建权限响应"
+    },
+    "v1CreateRoleRequest": {
+      "type": "object",
+      "properties": {
+        "roleName": {
+          "type": "string",
+          "title": "roleName 表示角色名称"
+        },
+        "roleCode": {
+          "type": "string",
+          "title": "roleCode 表示角色编码"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示角色描述"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示排序序号"
+        }
+      },
+      "title": "CreateRoleRequest 表示创建角色请求"
+    },
+    "v1CreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "roleID": {
+          "type": "string",
+          "title": "roleID 表示新创建的角色 ID"
+        }
+      },
+      "title": "CreateRoleResponse 表示创建角色响应"
+    },
+    "v1CreateScheduledTaskRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name 表示定时任务名称。"
+        },
+        "taskType": {
+          "type": "string",
+          "title": "taskType 表示要投递的异步任务类型。"
+        },
+        "payload": {
+          "type": "object",
+          "title": "payload 表示任务入队时携带的 JSON 负载。"
+        },
+        "cronExpr": {
+          "type": "string",
+          "title": "cronExpr 表示五段式 Cron 表达式。"
+        },
+        "queue": {
+          "type": "string",
+          "title": "queue 表示任务投递目标队列。"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "enabled 表示定时任务是否启用。"
+        },
+        "timezone": {
+          "type": "string",
+          "title": "timezone 表示该定时任务使用的时区。"
+        }
+      },
+      "title": "CreateScheduledTaskRequest 表示创建定时任务请求。"
+    },
+    "v1CreateScheduledTaskResponse": {
+      "type": "object",
+      "properties": {
+        "scheduledTaskID": {
+          "type": "string",
+          "title": "scheduledTaskID 表示新创建的定时任务 ID。"
+        }
+      },
+      "title": "CreateScheduledTaskResponse 表示创建定时任务响应。"
+    },
+    "v1CreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username 表示用户名称"
+        },
+        "password": {
+          "type": "string",
+          "title": "password 表示用户密码"
+        },
+        "nickname": {
+          "type": "string",
+          "title": "nickname 表示用户昵称"
+        },
+        "email": {
+          "type": "string",
+          "title": "email 表示用户电子邮箱"
+        },
+        "phone": {
+          "type": "string",
+          "title": "phone 表示用户手机号"
+        }
+      },
+      "title": "CreateUserRequest 表示创建用户请求"
+    },
+    "v1CreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "userID": {
+          "type": "string",
+          "title": "userID 表示新创建的用户 ID"
+        }
+      },
+      "title": "CreateUserResponse 表示创建用户响应"
+    },
+    "v1DeleteMenuResponse": {
+      "type": "object",
+      "title": "DeleteMenuResponse 表示删除菜单响应"
+    },
+    "v1DeletePermissionResponse": {
+      "type": "object",
+      "title": "DeletePermissionResponse 表示删除权限响应"
+    },
+    "v1DeleteRoleResponse": {
+      "type": "object",
+      "title": "DeleteRoleResponse 表示删除角色响应"
+    },
+    "v1DeleteScheduledTaskResponse": {
+      "type": "object",
+      "title": "DeleteScheduledTaskResponse 表示删除定时任务响应。"
+    },
+    "v1DeleteUserResponse": {
+      "type": "object",
+      "title": "DeleteUserResponse 表示删除用户响应"
+    },
+    "v1GetMenuResponse": {
+      "type": "object",
+      "properties": {
+        "menu": {
+          "$ref": "#/definitions/v1Menu",
+          "title": "menu 表示返回的菜单信息"
+        }
+      },
+      "title": "GetMenuResponse 表示获取菜单响应"
+    },
+    "v1GetPermissionResponse": {
+      "type": "object",
+      "properties": {
+        "permission": {
+          "$ref": "#/definitions/v1Permission",
+          "title": "permission 表示返回的权限信息"
+        }
+      },
+      "title": "GetPermissionResponse 表示获取权限响应"
+    },
+    "v1GetRolePermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1PermissionTree"
+          },
+          "title": "permissions 表示权限列表（树形结构）"
+        }
+      },
+      "title": "GetRolePermissionsResponse 表示获取角色权限响应"
+    },
+    "v1GetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1Role",
+          "title": "role 表示返回的角色信息"
+        }
+      },
+      "title": "GetRoleResponse 表示获取角色响应"
+    },
+    "v1GetScheduledTaskResponse": {
+      "type": "object",
+      "properties": {
+        "scheduledTask": {
+          "$ref": "#/definitions/v1ScheduledTask",
+          "title": "scheduledTask 表示返回的定时任务信息。"
+        }
+      },
+      "title": "GetScheduledTaskResponse 表示获取定时任务响应。"
+    },
+    "v1GetUserMenuTreeResponse": {
+      "type": "object",
+      "properties": {
+        "menus": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MenuTreeNode"
+          },
+          "title": "menus 表示用户可见的菜单树"
+        }
+      },
+      "title": "GetUserMenuTreeResponse 表示获取用户菜单树响应"
+    },
+    "v1GetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1User",
+          "title": "user 表示返回的用户信息"
+        }
+      },
+      "title": "GetUserResponse 表示获取用户响应"
+    },
+    "v1GetUserRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Role"
+          },
+          "title": "roles 表示角色列表"
+        },
+        "permissionCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "permissions 表示扁平化权限列表"
+        }
+      },
+      "title": "GetUserRolesResponse 表示获取用户角色响应"
+    },
+    "v1HealthzResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/v1ServiceStatus",
+          "title": "status 表示服务的健康状态。"
+        },
+        "timestamp": {
+          "type": "string",
+          "title": "timestamp 表示请求的时间戳。"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示可选的状态消息，用于提供关于服务健康状态的额外\n信息。"
+        },
+        "version": {
+          "type": "string",
+          "title": "version 表示服务版本。"
+        }
+      },
+      "title": "HealthzResponse 表示健康检查的响应结构。"
+    },
+    "v1ListMenuResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "totalCount 表示总菜单数"
+        },
+        "menus": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Menu"
+          },
+          "title": "menus 表示菜单列表"
+        },
+        "pageToken": {
+          "type": "string",
+          "title": "pageToken 表示下一页游标"
+        }
+      },
+      "title": "ListMenuResponse 表示菜单列表响应"
+    },
+    "v1ListMenuTreeResponse": {
+      "type": "object",
+      "properties": {
+        "menus": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MenuTreeNode"
+          },
+          "title": "menus 表示菜单树"
+        }
+      },
+      "title": "ListMenuTreeResponse 表示菜单树响应"
+    },
+    "v1ListPermissionResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "totalCount 表示总权限数"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Permission"
+          },
+          "title": "permissions 表示权限列表"
+        },
+        "pageToken": {
+          "type": "string",
+          "title": "pageToken 表示下一页游标"
+        }
+      },
+      "title": "ListPermissionResponse 表示权限列表响应"
+    },
+    "v1ListPermissionTreeResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1PermissionTreeNode"
+          },
+          "title": "permissions 表示权限树"
+        }
+      },
+      "title": "ListPermissionTreeResponse 表示权限树响应"
+    },
+    "v1ListRoleResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "totalCount 表示总角色数"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Role"
+          },
+          "title": "roles 表示角色列表"
+        },
+        "pageToken": {
+          "type": "string",
+          "title": "pageToken 表示下一页游标"
+        }
+      },
+      "title": "ListRoleResponse 表示角色列表响应"
+    },
+    "v1ListScheduledTaskExecutionsResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "totalCount 表示符合条件的执行记录总数。"
+        },
+        "executions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ScheduledTaskExecution"
+          },
+          "title": "executions 表示执行记录列表。"
+        },
+        "pageToken": {
+          "type": "string",
+          "title": "pageToken 表示分页游标；为空表示没有更多数据。"
+        }
+      },
+      "title": "ListScheduledTaskExecutionsResponse 表示定时任务执行记录列表响应。"
+    },
+    "v1ListScheduledTasksResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "totalCount 表示符合条件的定时任务总数。"
+        },
+        "scheduledTasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ScheduledTask"
+          },
+          "title": "scheduledTasks 表示定时任务列表。"
+        },
+        "pageToken": {
+          "type": "string",
+          "title": "pageToken 表示分页游标；为空表示没有更多数据。"
+        }
+      },
+      "title": "ListScheduledTasksResponse 表示定时任务列表响应。"
+    },
+    "v1ListUserResponse": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "totalCount 表示总用户数"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1User"
+          },
+          "title": "users 表示用户列表"
+        },
+        "pageToken": {
+          "type": "string",
+          "title": "page_token 表示分页游标，用于获取下一页数据；为空表示没有更多数据"
+        }
+      },
+      "title": "ListUserResponse 表示用户列表响应"
+    },
+    "v1LoginRequest": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username 表示用户名称"
+        },
+        "password": {
+          "type": "string",
+          "title": "password 表示用户密码"
+        }
+      },
+      "title": "LoginRequest 表示登录请求"
+    },
+    "v1LoginResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "title": "token 表示返回的访问令牌"
+        },
+        "refreshToken": {
+          "type": "string",
+          "title": "refreshToken 表示返回的刷新令牌"
+        },
+        "expireAt": {
+          "type": "string",
+          "title": "expireAt 表示该访问令牌的过期时间"
+        }
+      },
+      "title": "LoginResponse 表示登录响应"
+    },
+    "v1Menu": {
+      "type": "object",
+      "properties": {
+        "menuID": {
+          "type": "string",
+          "title": "menuID 表示菜单 ID"
+        },
+        "parentID": {
+          "type": "string",
+          "title": "parentID 表示父菜单 ID"
+        },
+        "menuName": {
+          "type": "string",
+          "title": "menuName 表示菜单名称"
+        },
+        "menuCode": {
+          "type": "string",
+          "title": "menuCode 表示菜单编码"
+        },
+        "menuType": {
+          "type": "string",
+          "title": "menuType 表示菜单类型（menu=目录, page=页面）"
+        },
+        "icon": {
+          "type": "string",
+          "title": "icon 表示菜单图标"
+        },
+        "path": {
+          "type": "string",
+          "title": "path 表示路由路径"
+        },
+        "component": {
+          "type": "string",
+          "title": "component 表示前端组件路径"
+        },
+        "permissionID": {
+          "type": "string",
+          "title": "permissionID 表示关联权限 ID"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示排序序号"
+        },
+        "visible": {
+          "type": "integer",
+          "format": "int32",
+          "title": "visible 表示是否可见（0=隐藏,1=显示）"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示菜单状态（0=启用,1=禁用）"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "createdAt 表示创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "updatedAt 表示更新时间"
+        }
+      },
+      "title": "Menu 表示菜单信息"
+    },
+    "v1MenuTreeNode": {
+      "type": "object",
+      "properties": {
+        "menu": {
+          "$ref": "#/definitions/v1Menu",
+          "title": "menu 表示菜单信息"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MenuTreeNode"
+          },
+          "title": "children 表示子菜单列表"
+        }
+      },
+      "title": "MenuTreeNode 表示菜单树节点"
+    },
+    "v1Permission": {
+      "type": "object",
+      "properties": {
+        "permissionID": {
+          "type": "string",
+          "title": "permissionID 表示权限 ID"
+        },
+        "permissionName": {
+          "type": "string",
+          "title": "permissionName 表示权限名称"
+        },
+        "permissionCode": {
+          "type": "string",
+          "title": "permissionCode 表示权限编码"
+        },
+        "resourceType": {
+          "type": "string",
+          "title": "resourceType 表示资源类型（menu=菜单, button=按钮）"
+        },
+        "resourcePath": {
+          "type": "string",
+          "title": "resourcePath 表示资源路径"
+        },
+        "action": {
+          "type": "string",
+          "title": "action 表示操作（GET/POST 等）"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示权限描述"
+        },
+        "parentID": {
+          "type": "string",
+          "title": "parentID 表示父权限 ID"
+        },
+        "path": {
+          "type": "string",
+          "title": "path 表示全路径"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示权限状态（0=启用,1=禁用）"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "createdAt 表示创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "updatedAt 表示更新时间"
+        }
+      },
+      "title": "Permission 表示权限信息"
+    },
+    "v1PermissionTree": {
+      "type": "object",
+      "properties": {
+        "permissionID": {
+          "type": "string",
+          "title": "permissionID 表示权限 ID"
+        },
+        "permissionName": {
+          "type": "string",
+          "title": "permissionName 表示权限名称"
+        },
+        "permissionCode": {
+          "type": "string",
+          "title": "permissionCode 表示权限编码"
+        },
+        "resourceType": {
+          "type": "string",
+          "title": "resourceType 表示资源类型（menu=菜单, button=按钮）"
+        },
+        "resourcePath": {
+          "type": "string",
+          "title": "resourcePath 表示资源路径"
+        },
+        "action": {
+          "type": "string",
+          "title": "action 表示操作（GET/POST 等）"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1PermissionTree"
+          },
+          "title": "children 表示子权限列表"
+        },
+        "assigned": {
+          "type": "boolean",
+          "title": "assigned 表示是否已分配"
+        }
+      },
+      "title": "PermissionTree 表示权限树节点"
+    },
+    "v1PermissionTreeNode": {
+      "type": "object",
+      "properties": {
+        "permission": {
+          "$ref": "#/definitions/v1Permission",
+          "title": "permission 表示权限信息"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1PermissionTreeNode"
+          },
+          "title": "children 表示子权限列表"
+        }
+      },
+      "title": "PermissionTreeNode 表示权限树节点"
+    },
+    "v1RefreshTokenRequest": {
+      "type": "object",
+      "description": "该请求无需额外字段，仅通过现有的认证信息（如旧的 token）进行刷新",
+      "title": "RefreshTokenRequest 表示刷新令牌的请求"
+    },
+    "v1RefreshTokenResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "title": "token 表示返回的访问令牌"
+        },
+        "expireAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "expireAt 表示该访问令牌的过期时间"
+        },
+        "refreshToken": {
+          "type": "string",
+          "title": "refreshToken 表示返回的刷新令牌"
+        },
+        "refreshExpireAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "refreshExpireAt 表示刷新令牌的过期时间"
+        }
+      },
+      "title": "RefreshTokenResponse 表示刷新令牌的响应"
+    },
+    "v1RemoveRoleFromUserResponse": {
+      "type": "object",
+      "title": "RemoveRoleFromUserResponse 表示从用户移除角色响应"
+    },
+    "v1Role": {
+      "type": "object",
+      "properties": {
+        "roleID": {
+          "type": "string",
+          "title": "roleID 表示角色 ID"
+        },
+        "roleName": {
+          "type": "string",
+          "title": "roleName 表示角色名称"
+        },
+        "roleCode": {
+          "type": "string",
+          "title": "roleCode 表示角色编码"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示角色描述"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示角色状态（0=启用,1=禁用）"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示排序序号"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "createdAt 表示创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "updatedAt 表示更新时间"
+        }
+      },
+      "title": "Role 表示角色信息"
+    },
+    "v1ScheduledTask": {
+      "type": "object",
+      "properties": {
+        "scheduledTaskID": {
+          "type": "string",
+          "title": "scheduledTaskID 表示定时任务 ID。"
+        },
+        "name": {
+          "type": "string",
+          "title": "name 表示定时任务名称。"
+        },
+        "taskType": {
+          "type": "string",
+          "title": "taskType 表示要投递的异步任务类型。"
+        },
+        "payload": {
+          "type": "object",
+          "title": "payload 表示任务入队时携带的 JSON 负载。"
+        },
+        "cronExpr": {
+          "type": "string",
+          "title": "cronExpr 表示五段式 Cron 表达式。"
+        },
+        "queue": {
+          "type": "string",
+          "title": "queue 表示任务投递目标队列。"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "enabled 表示定时任务是否启用。"
+        },
+        "timezone": {
+          "type": "string",
+          "title": "timezone 表示该定时任务使用的时区。"
+        },
+        "userID": {
+          "type": "string",
+          "title": "userID 表示定时任务所属用户 ID。"
+        },
+        "nextRunTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "nextRunTime 表示下一次预计触发时间。"
+        },
+        "lastScheduledAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "lastScheduledAt 表示最近一次调度时间。"
+        },
+        "lastExecutionID": {
+          "type": "string",
+          "title": "lastExecutionID 表示最近一次执行记录 ID。"
+        },
+        "lastError": {
+          "type": "string",
+          "title": "lastError 表示最近一次调度错误信息。"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "createdAt 表示创建时间。"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "updatedAt 表示最后更新时间。"
+        }
+      },
+      "title": "ScheduledTask 表示客户端可管理的定时任务信息。"
+    },
+    "v1ScheduledTaskExecution": {
+      "type": "object",
+      "properties": {
+        "executionID": {
+          "type": "string",
+          "title": "executionID 表示执行记录 ID。"
+        },
+        "scheduledTaskID": {
+          "type": "string",
+          "title": "scheduledTaskID 表示对应的定时任务 ID。"
+        },
+        "userID": {
+          "type": "string",
+          "title": "userID 表示定时任务所属用户 ID。"
+        },
+        "triggerType": {
+          "type": "string",
+          "title": "triggerType 表示触发执行的方式。"
+        },
+        "scheduledAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "scheduledAt 表示计划调度时间。"
+        },
+        "enqueuedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "enqueuedAt 表示任务成功入队时间。"
+        },
+        "asynqTaskID": {
+          "type": "string",
+          "title": "asynqTaskID 表示异步队列中的任务 ID。"
+        },
+        "dispatchStatus": {
+          "type": "string",
+          "title": "dispatchStatus 表示任务入队阶段状态。"
+        },
+        "processStatus": {
+          "type": "string",
+          "title": "processStatus 表示任务处理阶段状态。"
+        },
+        "attempt": {
+          "type": "integer",
+          "format": "int32",
+          "title": "attempt 表示当前处理尝试次数。"
+        },
+        "errorMsg": {
+          "type": "string",
+          "title": "errorMsg 表示执行失败时的错误信息。"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "startedAt 表示任务开始处理时间。"
+        },
+        "finishedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "finishedAt 表示任务结束处理时间。"
+        },
+        "durationMs": {
+          "type": "string",
+          "format": "int64",
+          "title": "durationMs 表示任务处理耗时，单位为毫秒。"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "createdAt 表示创建时间。"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "updatedAt 表示最后更新时间。"
+        }
+      },
+      "title": "ScheduledTaskExecution 表示定时任务的一次执行记录。"
+    },
+    "v1ServiceStatus": {
+      "type": "string",
+      "enum": [
+        "Healthy",
+        "Unhealthy"
+      ],
+      "default": "Healthy",
+      "description": "- Healthy: Healthy 表示服务处于健康状态。\n - Unhealthy: Unhealthy 表示服务处于不健康状态。",
+      "title": "ServiceStatus 表示服务的健康状态。"
+    },
+    "v1ToggleScheduledTaskResponse": {
+      "type": "object",
+      "properties": {
+        "scheduledTask": {
+          "$ref": "#/definitions/v1ScheduledTask",
+          "title": "scheduledTask 表示切换后的定时任务信息。"
+        }
+      },
+      "title": "ToggleScheduledTaskResponse 表示切换定时任务启用状态响应。"
+    },
+    "v1TriggerScheduledTaskResponse": {
+      "type": "object",
+      "properties": {
+        "executionID": {
+          "type": "string",
+          "title": "executionID 表示本次手动触发创建的执行记录 ID。"
+        }
+      },
+      "title": "TriggerScheduledTaskResponse 表示手动触发定时任务响应。"
+    },
+    "v1UpdateMenuResponse": {
+      "type": "object",
+      "title": "UpdateMenuResponse 表示更新菜单响应"
+    },
+    "v1UpdatePermissionResponse": {
+      "type": "object",
+      "title": "UpdatePermissionResponse 表示更新权限响应"
+    },
+    "v1UpdateRoleResponse": {
+      "type": "object",
+      "title": "UpdateRoleResponse 表示更新角色响应"
+    },
+    "v1UpdateScheduledTaskResponse": {
+      "type": "object",
+      "title": "UpdateScheduledTaskResponse 表示更新定时任务响应。"
+    },
+    "v1UpdateUserResponse": {
+      "type": "object",
+      "title": "UpdateUserResponse 表示更新用户响应"
+    },
+    "v1User": {
+      "type": "object",
+      "properties": {
+        "userID": {
+          "type": "string",
+          "title": "userID 表示用户 ID"
+        },
+        "username": {
+          "type": "string",
+          "title": "username 表示用户名称"
+        },
+        "nickname": {
+          "type": "string",
+          "title": "nickname 表示用户昵称"
+        },
+        "email": {
+          "type": "string",
+          "title": "email 表示用户电子邮箱"
+        },
+        "phone": {
+          "type": "string",
+          "title": "phone 表示用户手机号"
+        },
+        "postCount": {
+          "type": "string",
+          "format": "int64",
+          "title": "postCount 表示用户拥有的博客数量"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "createdAt 表示用户注册时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "updatedAt 表示用户最后更新时间"
+        }
+      },
+      "title": "User 表示用户信息"
+    }
+  }
+}

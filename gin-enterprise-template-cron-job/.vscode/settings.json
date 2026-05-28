@@ -1,0 +1,28 @@
+{
+    "protobuf.protoc.path": "protoc",
+    "[proto3]": {
+        "editor.defaultFormatter": "vscode-proto3.protoc"
+    },
+    "files.associations": {
+        "*.proto": "proto3"
+    },
+    "cSpell.words": [
+        "APIROOT",
+        "apiserver",
+        "codegen",
+        "contextx",
+        "coverprofile",
+        "errorsx",
+        "favadi",
+        "genericapiserver",
+        "genericoptions",
+        "genericvalidation",
+        "gin-enterprise-template",
+        "golangci",
+        "healthz",
+        "logtostderr",
+        "onexstack",
+        "openapiv",
+        "protoc"
+    ]
+}

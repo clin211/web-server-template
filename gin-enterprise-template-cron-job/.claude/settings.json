@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path 2>/dev/null'); if [ -z \"$FILE\" ] || [ \"$FILE\" = \"null\" ] || [ ! -f \"$FILE\" ]; then exit 0; fi; EXTENSION=\"${FILE##*.}\"; case \"$EXTENSION\" in go) if command -v gofmt >/dev/null 2>&1 && command -v goimports >/dev/null 2>&1; then gofmt -w \"$FILE\" 2>/dev/null && goimports -w \"$FILE\" 2>/dev/null && echo \"Formatted Go: $FILE\"; else echo \"Go formatter unavailable\" >&2; fi ;; ts|tsx|js|jsx) if command -v npx >/dev/null 2>&1; then npx prettier --write \"$FILE\" 2>/dev/null && echo \"Formatted TS/JS: $FILE\"; else echo \"Prettier unavailable\" >&2; fi ;; py) if command -v black >/dev/null 2>&1; then black \"$FILE\" 2>/dev/null && echo \"Formatted Python: $FILE\"; else echo \"Black unavailable\" >&2; fi ;; *) echo \"No formatter: $EXTENSION\" ;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

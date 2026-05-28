@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package apiserver.v1;
+
+import "github.com/onexstack/defaults/defaults.proto";
+
+option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";
+
+// Role 表示角色信息
+message Role {
+    // roleID 表示角色 ID
+    string roleID = 1;
+    // roleName 表示角色名称
+    string roleName = 2;
+    // roleCode 表示角色编码
+    string roleCode = 3;
+    // description 表示角色描述
+    string description = 4;
+    // status 表示角色状态（0=启用,1=禁用）
+    int32 status = 5;
+    // sortOrder 表示排序序号
+    int32 sortOrder = 6;
+    // createdAt 表示创建时间
+    int64 createdAt = 7;
+    // updatedAt 表示更新时间
+    int64 updatedAt = 8;
+}
+
+// CreateRoleRequest 表示创建角色请求
+message CreateRoleRequest {
+    // roleName 表示角色名称
+    string roleName = 1;
+    // roleCode 表示角色编码
+    string roleCode = 2;
+    // description 表示角色描述
+    optional string description = 3;
+    // sortOrder 表示排序序号
+    optional int32 sortOrder = 4 [(defaults.value).int32 = 0];
+}
+
+// CreateRoleResponse 表示创建角色响应
+message CreateRoleResponse {
+    // roleID 表示新创建的角色 ID
+    string roleID = 1;
+}
+
+// UpdateRoleRequest 表示更新角色请求
+message UpdateRoleRequest {
+    // roleID 表示角色 ID
+    // @gotags: uri:"roleID"
+    string roleID = 1;
+    // roleName 表示可选的角色名称
+    optional string roleName = 2;
+    // description 表示可选的角色描述
+    optional string description = 3;
+    // status 表示可选的角色状态（0=启用,1=禁用）
+    optional int32 status = 4;
+    // sortOrder 表示可选的排序序号
+    optional int32 sortOrder = 5;
+}
+
+// UpdateRoleResponse 表示更新角色响应
+message UpdateRoleResponse {
+}
+
+// DeleteRoleRequest 表示删除角色请求
+message DeleteRoleRequest {
+    // roleID 表示角色 ID
+    // @gotags: uri:"roleID"
+    string roleID = 1;
+}
+
+// DeleteRoleResponse 表示删除角色响应
+message DeleteRoleResponse {
+}
+
+// GetRoleRequest 表示获取角色请求
+message GetRoleRequest {
+    // roleID 表示角色 ID
+    // @gotags: uri:"roleID"
+    string roleID = 1;
+}
+
+// GetRoleResponse 表示获取角色响应
+message GetRoleResponse {
+    // role 表示返回的角色信息
+    Role role = 1;
+}
+
+// ListRoleRequest 表示角色列表请求
+message ListRoleRequest {
+    // pageToken 表示分页游标
+    // @gotags: form:"page_token"
+    string pageToken = 1;
+    // pageSize 表示每页数量
+    // @gotags: form:"page_size"
+    int64 pageSize = 2;
+    // status 表示状态过滤（0=启用,1=禁用，留空表示全部）
+    // @gotags: form:"status"
+    optional int32 status = 3;
+    // keyword 表示搜索关键字
+    // @gotags: form:"keyword"
+    optional string keyword = 4;
+}
+
+// ListRoleResponse 表示角色列表响应
+message ListRoleResponse {
+    // totalCount 表示总角色数
+    int64 totalCount = 1;
+    // roles 表示角色列表
+    repeated Role roles = 2;
+    // pageToken 表示下一页游标
+    string pageToken = 3;
+}
+
+// AssignPermissionsToRoleRequest 表示给角色分配权限请求
+message AssignPermissionsToRoleRequest {
+    // roleID 表示角色 ID
+    // @gotags: uri:"roleID"
+    string roleID = 1;
+    // permissionIDs 表示权限 ID 列表
+    repeated string permissionIDs = 2;
+    // mode 表示分配模式（override=覆盖, append=追加）
+    // @gotags: form:"mode"
+    optional string mode = 3 [(defaults.value).string = "override"];
+}
+
+// AssignPermissionsToRoleResponse 表示给角色分配权限响应
+message AssignPermissionsToRoleResponse {
+}
+
+// GetRolePermissionsRequest 表示获取角色权限请求
+message GetRolePermissionsRequest {
+    // roleID 表示角色 ID
+    // @gotags: uri:"roleID"
+    string roleID = 1;
+}
+
+// GetRolePermissionsResponse 表示获取角色权限响应
+message GetRolePermissionsResponse {
+    // permissions 表示权限列表（树形结构）
+    repeated PermissionTree permissions = 2;
+}
+
+// PermissionTree 表示权限树节点
+message PermissionTree {
+    // permissionID 表示权限 ID
+    string permissionID = 1;
+    // permissionName 表示权限名称
+    string permissionName = 2;
+    // permissionCode 表示权限编码
+    string permissionCode = 3;
+    // resourceType 表示资源类型（menu=菜单, button=按钮）
+    string resourceType = 4;
+    // resourcePath 表示资源路径
+    string resourcePath = 5;
+    // action 表示操作（GET/POST 等）
+    string action = 6;
+    // children 表示子权限列表
+    repeated PermissionTree children = 7;
+    // assigned 表示是否已分配
+    bool assigned = 8;
+}
