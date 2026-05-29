@@ -102,6 +102,17 @@ func HandleJSONRequest[T any, R any](c *gin.Context, handler Handler[T, R], vali
 	HandleRequest(c, c.ShouldBindJSON, handler, validators...)
 }
 
+// HandleUriJSONRequest 是处理同时包含 URI 参数和 JSON 请求体的快捷函数。
+func HandleUriJSONRequest[T any, R any](c *gin.Context, handler Handler[T, R], validators ...Validator[T]) {
+	var request T
+	if err := ShouldBindUriJSON(c, &request, validators...); err != nil {
+		WriteResponse(c, nil, err)
+		return
+	}
+	response, err := handler(c.Request.Context(), &request)
+	WriteResponse(c, response, err)
+}
+
 // HandleNoBodyRequest 是处理无请求体的快捷函数.
 // 用于不需要请求 body 的接口（如刷新令牌等），直接创建空的请求结构体并调用处理函数.
 func HandleNoBodyRequest[T any, R any](c *gin.Context, handler Handler[T, R], validators ...Validator[T]) {
@@ -187,6 +198,13 @@ func ShouldBindQuery[T any](c *gin.Context, rq *T, validators ...Validator[T]) e
 // ShouldBindUri 使用 URI 格式的绑定函数绑定请求参数并执行验证。
 func ShouldBindUri[T any](c *gin.Context, rq *T, validators ...Validator[T]) error {
 	return ReadRequest(c, rq, c.ShouldBindUri, validators...)
+}
+
+func ShouldBindUriJSON[T any](c *gin.Context, rq *T, validators ...Validator[T]) error {
+	if err := binding.Bind(c, rq, binding.JSON, binding.URI); err != nil {
+		return errorsx.ErrBind.WithDetails(err.Error())
+	}
+	return FinalizeRequest(c, rq, validators...)
 }
 
 func ShouldBindUriQuery[T any](c *gin.Context, rq *T, validators ...Validator[T]) error {
@@ -295,6 +313,17 @@ func WriteResponse(c *gin.Context, data any, err error) {
 
 	// 如果没有错误，返回成功响应
 	response := errorsx.Success(data, "success")
+	if message, ok := data.(proto.Message); ok {
+		payload, marshalErr := protojson.MarshalOptions{EmitUnpopulated: true}.Marshal(message)
+		if marshalErr != nil {
+			c.JSON(http.StatusOK, response)
+			return
+		}
+
+		c.Data(http.StatusOK, "application/json; charset=utf-8", []byte("{\"code\":0,\"message\":\"success\",\"data\":"+string(payload)+"}"))
+		return
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 

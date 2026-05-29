@@ -3,6 +3,7 @@ package user_role
 import (
 	"context"
 
+	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 	"log/slog"
@@ -25,8 +26,16 @@ func (b *userRoleBiz) GetUserRoles(ctx context.Context, rq *v1.GetUserRolesReque
 		permissionCodes = []string{}
 	}
 
+	// 确保 roles 是明确的空切片而非 nil，避免 JSON 序列化为 {} 而非 []
+	if roles == nil {
+		roles = []*model.RoleM{}
+	}
+	if permissionCodes == nil {
+		permissionCodes = []string{}
+	}
+
 	return &v1.GetUserRolesResponse{
-		Roles:          conversion.RoleModelListToRoleV1List(roles),
+		Roles:           conversion.RoleModelListToRoleV1List(roles),
 		PermissionCodes: permissionCodes,
 	}, nil
 }

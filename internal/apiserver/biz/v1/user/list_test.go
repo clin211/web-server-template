@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	apistore "github.com/clin211/gin-enterprise-template/internal/apiserver/store"
@@ -33,6 +34,9 @@ func (s *listUserStore) Get(context.Context, *where.Options) (*model.UserM, erro
 }
 func (s *listUserStore) List(context.Context, *where.Options) (int64, []*model.UserM, error) {
 	return s.total, s.users, nil
+}
+func (s *listUserStore) UpdateLastLoginAt(context.Context, string, time.Time) error {
+	panic("unexpected call to UpdateLastLoginAt")
 }
 
 type userBizStore struct {

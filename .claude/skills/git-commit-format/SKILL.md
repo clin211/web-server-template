@@ -67,14 +67,6 @@ BREAKING CHANGE: 使用了 Node 6 中不可用的 JavaScript 特性。
 2. Git 配置：`git config user.name` 和 `git config user.email`
 3. 如果两者都未配置，询问用户提供详细信息
 
-### Commit-Message-Assisted-by 脚注
-
-当 Claude 协助创建或生成提交消息时，**始终包含** `Commit-Message-Assisted-by: Claude (via Claude Code)`。
-
-```sh
-Commit-Message-Assisted-by: Claude (via Claude Code)
-```
-
 ## Gitlint 验证规则
 
 - 运行 `make run-gitlint` 来验证提交消息
@@ -116,8 +108,6 @@ fix: 防止请求竞态
 - [ ] 使用约定式提交格式：`<类型>(<范围>): <描述>`
 - [ ] 标题少于 120 个字符
 - [ ] 正文行少于 140 个字符
-- [ ] 不包含 `Signed-off-by` 脚注
-- [ ] 不包含 `Commit-Message-Assisted-by: Claude (via Claude Code)` 脚注
 - [ ] 使用 `make run-gitlint` 验证
 - [ ] 破坏性变更使用 "!" 或 `BREAKING CHANGE`
 

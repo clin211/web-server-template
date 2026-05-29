@@ -63,7 +63,7 @@ service APIServer {
     };
   }
   // 刷新令牌
-  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+  rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse) {
     option (google.api.http) = {
       put: "/v1/auth/refresh-token"
       body: "*"

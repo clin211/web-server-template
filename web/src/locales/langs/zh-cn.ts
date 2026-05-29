@@ -225,7 +225,9 @@ const local: App.I18n.Schema = {
     404: '页面不存在',
     500: '服务器错误',
     'iframe-page': '外链页面',
-    home: '首页'
+    home: '首页',
+    'system-manage': '系统管理',
+    'system-manage_user': '用户管理'
   },
   page: {
     login: {
@@ -302,6 +304,66 @@ const local: App.I18n.Schema = {
         desc5: 'Soybean 刚才把工作台页面随便写了一些，凑合能看了！'
       },
       creativity: '创意'
+    },
+    'system-manage': {
+      user: {
+        columns: {
+          username: '用户名',
+          nickname: '昵称',
+          email: '邮箱',
+          phone: '手机号',
+          gender: '性别',
+          status: '状态',
+          createdAt: '创建时间',
+          lastLoginAt: '最后登录'
+        },
+        gender: {
+          unknown: '未知',
+          male: '男',
+          female: '女'
+        },
+        status: {
+          normal: '正常',
+          disabled: '禁用'
+        },
+        search: {
+          keyword: '关键词'
+        },
+        form: {
+          username: '用户名',
+          password: '密码',
+          passwordConfirm: '确认密码',
+          nickname: '昵称',
+          email: '邮箱',
+          phone: '手机号'
+        },
+        drawer: {
+          addTitle: '新增用户',
+          editTitle: '编辑用户'
+        },
+        detail: {
+          title: '用户详情',
+          avatar: '头像',
+          postCount: '帖子数',
+          description: '简介'
+        },
+        roleModal: {
+          title: '分配角色',
+          button: '分配角色',
+          assigned: '已分配',
+          remove: '移除',
+          removeConfirm: '确认从当前用户移除该角色吗？'
+        },
+        actions: {
+          detail: '详情',
+          assignRole: '分配角色'
+        },
+        pagination: {
+          prev: '上一页',
+          current: '第 {page} 页',
+          next: '下一页'
+        }
+      }
     }
   },
   form: {

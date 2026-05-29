@@ -27,7 +27,7 @@ func (h *Handler) CreateRole(c *gin.Context) {
 
 // UpdateRole 更新角色信息.
 func (h *Handler) UpdateRole(c *gin.Context) {
-	core.HandleJSONRequest(c, h.biz.RoleV1().Update, h.val.ValidateUpdateRoleRequest)
+	core.HandleUriJSONRequest(c, h.biz.RoleV1().Update, h.val.ValidateUpdateRoleRequest)
 }
 
 // DeleteRole 删除角色.
@@ -47,7 +47,7 @@ func (h *Handler) ListRole(c *gin.Context) {
 
 // AssignPermissionsToRole 为角色分配权限.
 func (h *Handler) AssignPermissionsToRole(c *gin.Context) {
-	core.HandleJSONRequest(c, h.biz.RoleV1().AssignPermissionsToRole, h.val.ValidateAssignPermissionsToRoleRequest)
+	core.HandleUriJSONRequest(c, h.biz.RoleV1().AssignPermissionsToRole, h.val.ValidateAssignPermissionsToRoleRequest)
 }
 
 // GetRolePermissions 获取角色的权限列表（树形）.

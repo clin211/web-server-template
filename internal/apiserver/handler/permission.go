@@ -26,7 +26,7 @@ func (h *Handler) CreatePermission(c *gin.Context) {
 
 // UpdatePermission 更新权限信息.
 func (h *Handler) UpdatePermission(c *gin.Context) {
-	core.HandleJSONRequest(c, h.biz.PermissionV1().Update, h.val.ValidateUpdatePermissionRequest)
+	core.HandleUriJSONRequest(c, h.biz.PermissionV1().Update, h.val.ValidateUpdatePermissionRequest)
 }
 
 // DeletePermission 删除权限.

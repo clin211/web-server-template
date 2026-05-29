@@ -40,7 +40,17 @@ type User struct {
 	// createdAt 表示用户注册时间
 	CreatedAt int64 `protobuf:"varint,7,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
 	// updatedAt 表示用户最后更新时间
-	UpdatedAt     int64 `protobuf:"varint,8,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
+	UpdatedAt int64 `protobuf:"varint,8,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
+	// status 表示用户状态（0=活跃,1=禁用）
+	Status int32 `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"`
+	// gender 表示性别（0=未知,1=男,2=女）
+	Gender int32 `protobuf:"varint,10,opt,name=gender,proto3" json:"gender,omitempty"`
+	// avatar 表示头像 URL
+	Avatar string `protobuf:"bytes,11,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	// description 表示用户描述/简介
+	Description string `protobuf:"bytes,12,opt,name=description,proto3" json:"description,omitempty"`
+	// lastLoginAt 表示最后登录时间（Unix 时间戳）
+	LastLoginAt   int64 `protobuf:"varint,13,opt,name=lastLoginAt,proto3" json:"lastLoginAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -127,6 +137,41 @@ func (x *User) GetCreatedAt() int64 {
 func (x *User) GetUpdatedAt() int64 {
 	if x != nil {
 		return x.UpdatedAt
+	}
+	return 0
+}
+
+func (x *User) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *User) GetGender() int32 {
+	if x != nil {
+		return x.Gender
+	}
+	return 0
+}
+
+func (x *User) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *User) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *User) GetLastLoginAt() int64 {
+	if x != nil {
+		return x.LastLoginAt
 	}
 	return 0
 }
@@ -364,7 +409,8 @@ func (x *RefreshTokenResponse) GetRefreshExpireAt() int64 {
 type ChangePasswordRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// userID 表示用户 ID
-	UserID string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	// @gotags: uri:"userID"
+	UserID string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty" uri:"userID"`
 	// oldPassword 表示当前密码
 	OldPassword string `protobuf:"bytes,2,opt,name=oldPassword,proto3" json:"oldPassword,omitempty"`
 	// newPassword 表示准备修改的新密码
@@ -593,7 +639,8 @@ func (x *CreateUserResponse) GetUserID() string {
 type UpdateUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// userID 表示用户 ID
-	UserID string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	// @gotags: uri:"userID"
+	UserID string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty" uri:"userID"`
 	// username 表示可选的用户名称
 	Username *string `protobuf:"bytes,2,opt,name=username,proto3,oneof" json:"username,omitempty"`
 	// nickname 表示可选的用户昵称
@@ -1011,7 +1058,7 @@ var File_apiserver_v1_user_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x17apiserver/v1/user.proto\x12\fapiserver.v1\x1a,github.com/onexstack/defaults/defaults.proto\"\xdc\x01\n" +
+	"\x17apiserver/v1/user.proto\x12\fapiserver.v1\x1a,github.com/onexstack/defaults/defaults.proto\"\xe8\x02\n" +
 	"\x04User\x12\x16\n" +
 	"\x06userID\x18\x01 \x01(\tR\x06userID\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
@@ -1020,7 +1067,13 @@ const file_apiserver_v1_user_proto_rawDesc = "" +
 	"\x05phone\x18\x05 \x01(\tR\x05phone\x12\x1c\n" +
 	"\tpostCount\x18\x06 \x01(\x03R\tpostCount\x12\x1c\n" +
 	"\tcreatedAt\x18\a \x01(\x03R\tcreatedAt\x12\x1c\n" +
-	"\tupdatedAt\x18\b \x01(\x03R\tupdatedAt\"F\n" +
+	"\tupdatedAt\x18\b \x01(\x03R\tupdatedAt\x12\x16\n" +
+	"\x06status\x18\t \x01(\x05R\x06status\x12\x16\n" +
+	"\x06gender\x18\n" +
+	" \x01(\x05R\x06gender\x12\x16\n" +
+	"\x06avatar\x18\v \x01(\tR\x06avatar\x12 \n" +
+	"\vdescription\x18\f \x01(\tR\vdescription\x12 \n" +
+	"\vlastLoginAt\x18\r \x01(\x03R\vlastLoginAt\"F\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"q\n" +

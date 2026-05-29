@@ -26,7 +26,7 @@ func (h *Handler) CreateMenu(c *gin.Context) {
 
 // UpdateMenu 更新菜单信息.
 func (h *Handler) UpdateMenu(c *gin.Context) {
-	core.HandleJSONRequest(c, h.biz.MenuV1().Update, h.val.ValidateUpdateMenuRequest)
+	core.HandleUriJSONRequest(c, h.biz.MenuV1().Update, h.val.ValidateUpdateMenuRequest)
 }
 
 // DeleteMenu 删除菜单.

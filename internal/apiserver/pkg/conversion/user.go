@@ -1,6 +1,8 @@
 package conversion
 
 import (
+	"time"
+
 	"github.com/clin211/gin-enterprise-template/pkg/core"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
@@ -14,13 +16,18 @@ func UserModelToUserV1(userModel *model.UserM) *v1.User {
 	}
 
 	return &v1.User{
-		UserID:    userModel.UserID,
-		Username:  userModel.Username,
-		Nickname:  userModel.Nickname,
-		Email:     derefString(userModel.Email),
-		Phone:     derefString(userModel.Phone),
-		CreatedAt: userModel.CreatedAt.Unix(),
-		UpdatedAt: userModel.UpdatedAt.Unix(),
+		UserID:      userModel.UserID,
+		Username:    userModel.Username,
+		Nickname:    userModel.Nickname,
+		Email:       derefString(userModel.Email),
+		Phone:       derefString(userModel.Phone),
+		CreatedAt:   userModel.CreatedAt.Unix(),
+		UpdatedAt:   userModel.UpdatedAt.Unix(),
+		Status:      int32(userModel.Status),
+		Gender:      int32(userModel.Gender),
+		Avatar:      derefString(userModel.Avatar),
+		Description: derefString(userModel.Description),
+		LastLoginAt: derefTime(userModel.LastLoginAt),
 	}
 }
 
@@ -29,6 +36,13 @@ func derefString(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func derefTime(t *time.Time) int64 {
+	if t == nil {
+		return 0
+	}
+	return t.Unix()
 }
 
 // UserV1ToUserModel 将 Protobuf 层的 User（v1 用户对象）转换为模型层的 UserM（用户模型对象）.

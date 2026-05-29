@@ -93,7 +93,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1RefreshTokenResponse"
+              "$ref": "#/definitions/v1LoginResponse"
             }
           },
           "default": {
@@ -1368,7 +1368,7 @@
         "parameters": [
           {
             "name": "userID",
-            "description": "userID 表示用户 ID",
+            "description": "userID 表示用户 ID\n@gotags: uri:\"userID\"",
             "in": "path",
             "required": true,
             "type": "string"
@@ -2477,30 +2477,6 @@
       "description": "该请求无需额外字段，仅通过现有的认证信息（如旧的 token）进行刷新",
       "title": "RefreshTokenRequest 表示刷新令牌的请求"
     },
-    "v1RefreshTokenResponse": {
-      "type": "object",
-      "properties": {
-        "token": {
-          "type": "string",
-          "title": "token 表示返回的访问令牌"
-        },
-        "expireAt": {
-          "type": "string",
-          "format": "int64",
-          "title": "expireAt 表示该访问令牌的过期时间"
-        },
-        "refreshToken": {
-          "type": "string",
-          "title": "refreshToken 表示返回的刷新令牌"
-        },
-        "refreshExpireAt": {
-          "type": "string",
-          "format": "int64",
-          "title": "refreshExpireAt 表示刷新令牌的过期时间"
-        }
-      },
-      "title": "RefreshTokenResponse 表示刷新令牌的响应"
-    },
     "v1RemoveRoleFromUserResponse": {
       "type": "object",
       "title": "RemoveRoleFromUserResponse 表示从用户移除角色响应"
@@ -2782,6 +2758,29 @@
           "type": "string",
           "format": "int64",
           "title": "updatedAt 表示用户最后更新时间"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示用户状态（0=活跃,1=禁用）"
+        },
+        "gender": {
+          "type": "integer",
+          "format": "int32",
+          "title": "gender 表示性别（0=未知,1=男,2=女）"
+        },
+        "avatar": {
+          "type": "string",
+          "title": "avatar 表示头像 URL"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示用户描述/简介"
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "lastLoginAt 表示最后登录时间（Unix 时间戳）"
         }
       },
       "title": "User 表示用户信息"

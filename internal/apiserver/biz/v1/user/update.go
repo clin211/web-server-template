@@ -12,7 +12,7 @@ import (
 
 // Update 实现 UserBiz 接口中的 Update 方法.
 func (b *userBiz) Update(ctx context.Context, rq *v1.UpdateUserRequest) (*v1.UpdateUserResponse, error) {
-	userM, err := b.store.User().Get(ctx, where.T(ctx))
+	userM, err := b.store.User().Get(ctx, where.F("user_id", rq.GetUserID()))
 	if err != nil {
 		return nil, err
 	}

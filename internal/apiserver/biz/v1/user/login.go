@@ -35,6 +35,10 @@ func (b *userBiz) Login(ctx context.Context, rq *v1.LoginRequest) (*v1.LoginResp
 		return nil, errno.ErrSignToken
 	}
 
+	if err := b.store.User().UpdateLastLoginAt(ctx, userM.UserID, time.Now()); err != nil {
+		slog.WarnContext(ctx, "Failed to update last login time", "userID", userM.UserID, "error", err)
+	}
+
 	return &v1.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

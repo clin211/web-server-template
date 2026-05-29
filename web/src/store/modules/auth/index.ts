@@ -2,7 +2,7 @@ import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { defineStore } from 'pinia';
 import { useLoading } from '@sa/hooks';
-import { fetchGetMenuTree, fetchGetUser, fetchLogin } from '@/service/api';
+import { fetchGetMenuTree, fetchGetUser, fetchGetUserRoles, fetchLogin } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { localStg } from '@/utils/storage';
 import { SetupStoreId } from '@/enum';
@@ -59,6 +59,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     recordUserId();
 
     clearAuthStorage();
+    localStg.remove('userId');
+    localStg.remove('tokenExpireAt');
 
     // Reset user info
     Object.assign(userInfo, {
@@ -122,48 +124,57 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   async function login(userName: string, password: string, redirect = true) {
     startLoading();
 
-    const { data, error } = await fetchLogin(userName, password);
+    try {
+      const { data, error } = await fetchLogin(userName, password);
 
-    if (!error && data) {
-      // Store tokens
-      localStg.set('token', data.accessToken);
-      localStg.set('refreshToken', data.refreshToken);
-      localStg.set('tokenExpireAt', data.expireAt);
+      if (!error && data) {
+        // Store tokens
+        localStg.set('token', data.accessToken);
+        localStg.set('refreshToken', data.refreshToken);
+        localStg.set('tokenExpireAt', data.expireAt);
 
-      token.value = data.accessToken;
+        token.value = data.accessToken;
 
-      // Extract userID from token and fetch user info
-      const userId = extractUserIdFromToken(data.accessToken);
-      if (userId) {
-        localStg.set('userId', userId);
-        await fetchUserInfoById(userId);
+        // Extract userID from token and fetch user info and roles
+        const userId = extractUserIdFromToken(data.accessToken);
+        if (userId) {
+          await syncUserProfile(userId);
+        }
+
+        // Menu tree failure should not break login state
+        try {
+          await fetchMenuTree();
+        } catch {
+          // ignore - menu tree is optional for basic functionality
+        }
+
+        const isClear = checkTabClear();
+        let needRedirect = redirect;
+
+        if (isClear) {
+          needRedirect = false;
+        }
+        await redirectFromLogin(needRedirect);
+
+        window.$notification?.success({
+          title: $t('page.login.common.loginSuccess'),
+          content: $t('page.login.common.welcomeBack', { userName: userInfo.userName }),
+          duration: 4500
+        });
+
+        return;
       }
 
-      // Fetch menu tree (may fail gracefully, menu-tree endpoint may not be available)
-      try {
-        await fetchMenuTree();
-      } catch {
-        // ignore - menu tree is optional for basic functionality
-      }
-
-      const isClear = checkTabClear();
-      let needRedirect = redirect;
-
-      if (isClear) {
-        needRedirect = false;
-      }
-      await redirectFromLogin(needRedirect);
-
-      window.$notification?.success({
-        title: $t('page.login.common.loginSuccess'),
-        content: $t('page.login.common.welcomeBack', { userName: userInfo.userName }),
-        duration: 4500
-      });
-    } else {
-      resetStore();
+      await resetStore();
+    } finally {
+      endLoading();
     }
+  }
 
-    endLoading();
+  async function syncUserProfile(userId: string) {
+    localStg.set('userId', userId);
+    await fetchUserInfoById(userId);
+    await fetchUserRolesById(userId);
   }
 
   /** Fetch user info by user ID */
@@ -174,8 +185,20 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
       Object.assign(userInfo, {
         userId: data.user.userID,
         userName: data.user.nickname || data.user.username,
-        roles: [],
-        buttons: []
+        roles: userInfo.roles,
+        buttons: userInfo.buttons
+      });
+    }
+  }
+
+  /** Fetch user roles and permission codes by user ID */
+  async function fetchUserRolesById(userId: string) {
+    const { data, error } = await fetchGetUserRoles(userId);
+
+    if (!error && data) {
+      Object.assign(userInfo, {
+        roles: data.roles.map(role => role.code),
+        buttons: data.permissionCodes || []
       });
     }
   }
@@ -199,20 +222,27 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   async function initUserInfo() {
     const maybeToken = getToken();
 
-    if (maybeToken) {
-      token.value = maybeToken;
+    if (!maybeToken) {
+      return;
+    }
 
-      // Extract user ID from token
-      const userId = localStg.get('userId') || extractUserIdFromToken(maybeToken);
+    token.value = maybeToken;
 
-      if (userId) {
-        await fetchUserInfoById(userId);
+    // Extract user ID from token
+    const userId = localStg.get('userId') || extractUserIdFromToken(maybeToken);
+
+    if (userId) {
+      await syncUserProfile(userId);
+
+      try {
         await fetchMenuTree();
+      } catch {
+        // ignore - menu tree is optional for basic functionality
       }
+    }
 
-      if (!userInfo.userId) {
-        resetStore();
-      }
+    if (!userInfo.userId) {
+      await resetStore();
     }
   }
 

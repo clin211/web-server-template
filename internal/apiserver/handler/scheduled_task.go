@@ -48,7 +48,7 @@ func (h *Handler) ListScheduledTasks(c *gin.Context) {
 
 // ToggleScheduledTask handles the toggle scheduled task API.
 func (h *Handler) ToggleScheduledTask(c *gin.Context) {
-	core.HandleAllRequest(c, h.biz.ScheduledTaskV1().Toggle, h.val.ValidateToggleScheduledTaskRequest)
+	core.HandleUriJSONRequest(c, h.biz.ScheduledTaskV1().Toggle, h.val.ValidateToggleScheduledTaskRequest)
 }
 
 // TriggerScheduledTask handles the manual trigger API.

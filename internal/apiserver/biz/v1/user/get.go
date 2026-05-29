@@ -11,7 +11,7 @@ import (
 
 // Get 实现 UserBiz 接口中的 Get 方法.
 func (b *userBiz) Get(ctx context.Context, rq *v1.GetUserRequest) (*v1.GetUserResponse, error) {
-	userM, err := b.store.User().Get(ctx, where.T(ctx))
+	userM, err := b.store.User().Get(ctx, where.F("user_id", rq.GetUserID()))
 	if err != nil {
 		return nil, err
 	}

@@ -26,7 +26,7 @@ export function fetchGetUserInfo() {
  * Refresh token
  */
 export function fetchRefreshToken() {
-  return request<Api.User.RefreshTokenResponse>({
+  return request<Api.User.LoginResponse>({
     url: '/v1/auth/refresh-token',
     method: 'put'
   });

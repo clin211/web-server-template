@@ -14,7 +14,7 @@ func init() {
 
 // AssignRolesToUser 为用户分配角色（覆盖模式）.
 func (h *Handler) AssignRolesToUser(c *gin.Context) {
-	core.HandleJSONRequest(c, h.biz.UserRoleV1().AssignRolesToUser, h.val.ValidateAssignRolesToUserRequest)
+	core.HandleUriJSONRequest(c, h.biz.UserRoleV1().AssignRolesToUser, h.val.ValidateAssignRolesToUserRequest)
 }
 
 // GetUserRoles 获取用户的角色和权限.

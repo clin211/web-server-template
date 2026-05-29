@@ -14,6 +14,11 @@ declare namespace Api {
       postCount: number;
       createdAt: number;
       updatedAt: number;
+      status: number;
+      gender: number;
+      avatar: string;
+      description: string;
+      lastLoginAt: number;
     }
 
     interface LoginRequest {
@@ -25,13 +30,6 @@ declare namespace Api {
       accessToken: string;
       refreshToken: string;
       expireAt: string;
-    }
-
-    interface RefreshTokenResponse {
-      token: string;
-      expireAt: number;
-      refreshToken: string;
-      refreshExpireAt: number;
     }
 
     interface CreateUserRequest {
@@ -65,14 +63,10 @@ declare namespace Api {
     interface ListUserResponse {
       totalCount: number;
       users: User[];
-      pageToken: string;
+      nextPageToken: string;
     }
 
-    interface Role {
-      id: string;
-      code: string;
-      name: string;
-    }
+    type Role = Api.Role.Role;
 
     interface GetUserRolesResponse {
       roles: Role[];
@@ -83,15 +77,26 @@ declare namespace Api {
       roleIDs: string[];
     }
 
-    interface MenuTreeNode {
-      id: string;
-      name: string;
-      parentId: string;
+    interface Menu {
+      menuID: string;
+      parentID: string;
+      menuName: string;
+      menuCode: string;
+      menuType: string;
+      icon: string;
       path: string;
-      icon?: string;
-      order: number;
-      menuType: number;
-      children?: MenuTreeNode[];
+      component: string;
+      permissionID: string;
+      sortOrder: number;
+      visible: number;
+      status: number;
+      createdAt: number;
+      updatedAt: number;
+    }
+
+    interface MenuTreeNode {
+      menu: Menu;
+      children: MenuTreeNode[];
     }
 
     interface GetMenuTreeResponse {

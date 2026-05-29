@@ -8,6 +8,8 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
+
+	"github.com/clin211/gin-enterprise-template/internal/pkg/known"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 )
 
@@ -80,8 +82,8 @@ func (v *Validator) ValidateCreateUserRequest(ctx context.Context, rq *v1.Create
 
 // ValidateUpdateUserRequest 校验更新用户请求.
 func (v *Validator) ValidateUpdateUserRequest(ctx context.Context, rq *v1.UpdateUserRequest) error {
-	if rq.GetUserID() != contextx.UserID(ctx) {
-		return errno.ErrPermissionDenied.WithMessage(fmt.Sprintf("The logged-in user `%s` does not match request user `%s`", contextx.UserID(ctx), rq.GetUserID()))
+	if err := validateUserOperationPermission(ctx, rq.GetUserID()); err != nil {
+		return err
 	}
 	return genericvalidation.ValidateSelectedFields(rq, v.ValidateUserRules(), "UserID")
 }
@@ -93,10 +95,20 @@ func (v *Validator) ValidateDeleteUserRequest(ctx context.Context, rq *v1.Delete
 
 // ValidateGetUserRequest 校验 GetUserRequest 结构体的有效性.
 func (v *Validator) ValidateGetUserRequest(ctx context.Context, rq *v1.GetUserRequest) error {
-	if rq.GetUserID() != contextx.UserID(ctx) {
-		return errno.ErrPermissionDenied.WithMessage(fmt.Sprintf("The logged-in user `%s` does not match request user `%s`", contextx.UserID(ctx), rq.GetUserID()))
+	if err := validateUserOperationPermission(ctx, rq.GetUserID()); err != nil {
+		return err
 	}
 	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
+}
+
+func validateUserOperationPermission(ctx context.Context, requestUserID string) error {
+	if contextx.Username(ctx) == known.AdminUsername {
+		return nil
+	}
+	if requestUserID != contextx.UserID(ctx) {
+		return errno.ErrPermissionDenied.WithMessage(fmt.Sprintf("The logged-in user `%s` does not match request user `%s`", contextx.UserID(ctx), requestUserID))
+	}
+	return nil
 }
 
 // ValidateListUserRequest 校验 ListUserRequest 结构体的有效性.

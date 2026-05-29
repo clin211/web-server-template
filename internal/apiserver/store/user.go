@@ -3,6 +3,7 @@ package store
 
 import (
 	"context"
+	"time"
 
 	storelogger "github.com/clin211/gin-enterprise-template/pkg/logger/slog/store"
 	genericstore "github.com/clin211/gin-enterprise-template/pkg/store"
@@ -24,11 +25,14 @@ type UserStore interface {
 
 // UserExpansion 定义了用户操作的附加方法.
 // nolint: iface
-type UserExpansion interface{}
+type UserExpansion interface {
+	UpdateLastLoginAt(ctx context.Context, userID string, t time.Time) error
+}
 
 // userStore 是 UserStore 接口的实现。
 type userStore struct {
 	*genericstore.Store[model.UserM]
+	core *datastore
 }
 
 // 确保 userStore 实现了 UserStore 接口。
@@ -38,5 +42,10 @@ var _ UserStore = (*userStore)(nil)
 func newUserStore(store *datastore) *userStore {
 	return &userStore{
 		Store: genericstore.NewStore[model.UserM](store, storelogger.NewLogger()),
+		core:  store,
 	}
+}
+
+func (s *userStore) UpdateLastLoginAt(ctx context.Context, userID string, t time.Time) error {
+	return s.core.DB(ctx).Model(&model.UserM{}).Where("user_id = ?", userID).Update("last_login_at", t).Error
 }

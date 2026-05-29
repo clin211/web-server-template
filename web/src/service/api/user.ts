@@ -1,5 +1,24 @@
 import { request } from '../request';
 
+type BackendListUserRequest = {
+  page_token?: string;
+  page_size?: number;
+};
+
+type BackendListUserResponse = {
+  totalCount: number;
+  users: Api.User.User[];
+  page_token?: string;
+  pageToken?: string;
+};
+
+type BackendRole = Omit<Api.Role.Role, 'id' | 'name' | 'code' | 'label' | 'value'>;
+
+type BackendGetUserRolesResponse = {
+  roles: BackendRole[];
+  permissionCodes: string[];
+};
+
 /**
  * Get current user's menu tree
  */
@@ -21,8 +40,27 @@ export function fetchGetUser(userId: string) {
  *
  * @param params pageToken and pageSize
  */
-export function fetchGetUserList(params?: Api.User.ListUserRequest) {
-  return request<Api.User.ListUserResponse>({ url: '/v1/users', params });
+export async function fetchGetUserList(params?: Api.User.ListUserRequest) {
+  const result = await request<BackendListUserResponse>({
+    url: '/v1/users',
+    params: {
+      page_token: params?.pageToken,
+      page_size: params?.pageSize
+    } satisfies BackendListUserRequest
+  });
+
+  if (result.error || !result.data) {
+    return result;
+  }
+
+  return {
+    ...result,
+    data: {
+      totalCount: result.data.totalCount,
+      users: result.data.users,
+      nextPageToken: result.data.page_token ?? result.data.pageToken ?? ''
+    } satisfies Api.User.ListUserResponse
+  };
 }
 
 /**
@@ -69,8 +107,29 @@ export function fetchDeleteUser(userId: string) {
  *
  * @param userId User ID
  */
-export function fetchGetUserRoles(userId: string) {
-  return request<Api.User.GetUserRolesResponse>({ url: `/v1/users/${userId}/roles` });
+export async function fetchGetUserRoles(userId: string) {
+  const result = await request<BackendGetUserRolesResponse>({
+    url: `/v1/users/${userId}/roles`
+  });
+
+  if (result.error || !result.data) {
+    return result;
+  }
+
+  return {
+    ...result,
+    data: {
+      roles: result.data.roles.map(role => ({
+        ...role,
+        id: role.roleID,
+        name: role.roleName,
+        code: role.roleCode,
+        label: role.roleName,
+        value: role.roleID
+      })),
+      permissionCodes: result.data.permissionCodes || []
+    } satisfies Api.User.GetUserRolesResponse
+  };
 }
 
 /**

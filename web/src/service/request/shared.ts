@@ -3,8 +3,8 @@ import { localStg } from '@/utils/storage';
 import { fetchRefreshToken } from '../api';
 import type { RequestInstanceState } from './type';
 
-export function getAuthorization() {
-  const token = localStg.get('token');
+export function getAuthorization(useRefreshToken = false) {
+  const token = useRefreshToken ? localStg.get('refreshToken') : localStg.get('token');
   const Authorization = token ? `Bearer ${token}` : null;
 
   return Authorization;
@@ -12,16 +12,24 @@ export function getAuthorization() {
 
 /** refresh token */
 async function handleRefreshToken() {
-  const { resetStore } = useAuthStore();
+  const authStore = useAuthStore();
+  const refreshToken = localStg.get('refreshToken');
+
+  if (!refreshToken) {
+    await authStore.resetStore();
+    return false;
+  }
 
   const { error, data } = await fetchRefreshToken();
   if (!error && data) {
-    localStg.set('token', data.token);
+    localStg.set('token', data.accessToken);
     localStg.set('refreshToken', data.refreshToken);
+    localStg.set('tokenExpireAt', data.expireAt);
+    authStore.token = data.accessToken;
     return true;
   }
 
-  resetStore();
+  await authStore.resetStore();
 
   return false;
 }

@@ -7,25 +7,25 @@ option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserve
 
 // ServiceStatus 表示服务的健康状态。
 enum ServiceStatus {
-    // Healthy 表示服务处于健康状态。
-    Healthy = 0;
+  // Healthy 表示服务处于健康状态。
+  Healthy = 0;
 
-    // Unhealthy 表示服务处于不健康状态。
-    Unhealthy = 1;
+  // Unhealthy 表示服务处于不健康状态。
+  Unhealthy = 1;
 }
 
 // HealthzResponse 表示健康检查的响应结构。
 message HealthzResponse {
-    // status 表示服务的健康状态。
-    ServiceStatus status = 1;
+  // status 表示服务的健康状态。
+  ServiceStatus status = 1;
 
-    // timestamp 表示请求的时间戳。
-    string timestamp = 2;
+  // timestamp 表示请求的时间戳。
+  string timestamp = 2;
 
-    // message 表示可选的状态消息，用于提供关于服务健康状态的额外
-    // 信息。
-    string message = 3;
+  // message 表示可选的状态消息，用于提供关于服务健康状态的额外
+  // 信息。
+  string message = 3;
 
-    // version 表示服务版本。
-    string version = 4;
+  // version 表示服务版本。
+  string version = 4;
 }

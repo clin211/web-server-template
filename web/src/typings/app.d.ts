@@ -555,6 +555,42 @@ declare namespace App {
           };
           creativity: string;
         };
+        'system-manage': {
+          user: {
+            columns: {
+              username: string;
+              nickname: string;
+              email: string;
+              phone: string;
+              gender: string;
+              status: string;
+              createdAt: string;
+              lastLoginAt: string;
+            };
+            gender: { unknown: string; male: string; female: string };
+            status: { normal: string; disabled: string };
+            search: { keyword: string };
+            form: {
+              username: string;
+              password: string;
+              passwordConfirm: string;
+              nickname: string;
+              email: string;
+              phone: string;
+            };
+            drawer: { addTitle: string; editTitle: string };
+            detail: { title: string; avatar: string; postCount: string; description: string };
+            roleModal: {
+              title: string;
+              button: string;
+              assigned: string;
+              remove: string;
+              removeConfirm: string;
+            };
+            actions: { detail: string; assignRole: string };
+            pagination: { prev: string; next: string; current: string };
+          };
+        };
       };
       form: {
         required: string;
@@ -642,7 +678,9 @@ declare namespace App {
       /** The backend service response code */
       code: string;
       /** The backend service response message */
-      msg: string;
+      message: string;
+      /** Compatible field for legacy backends */
+      msg?: string;
       /** The backend service response data */
       data: T;
     };

@@ -229,7 +229,9 @@ const local: App.I18n.Schema = {
     404: 'Page Not Found',
     500: 'Server Error',
     'iframe-page': 'Iframe',
-    home: 'Home'
+    home: 'Home',
+    'system-manage': 'System Management',
+    'system-manage_user': 'User Management'
   },
   page: {
     login: {
@@ -306,6 +308,66 @@ const local: App.I18n.Schema = {
         desc5: 'Soybean just wrote some of the workbench pages casually, and it was enough to see!'
       },
       creativity: 'Creativity'
+    },
+    'system-manage': {
+      user: {
+        columns: {
+          username: 'Username',
+          nickname: 'Nickname',
+          email: 'Email',
+          phone: 'Phone',
+          gender: 'Gender',
+          status: 'Status',
+          createdAt: 'Created At',
+          lastLoginAt: 'Last Login'
+        },
+        gender: {
+          unknown: 'Unknown',
+          male: 'Male',
+          female: 'Female'
+        },
+        status: {
+          normal: 'Normal',
+          disabled: 'Disabled'
+        },
+        search: {
+          keyword: 'Keyword'
+        },
+        form: {
+          username: 'Username',
+          password: 'Password',
+          passwordConfirm: 'Confirm Password',
+          nickname: 'Nickname',
+          email: 'Email',
+          phone: 'Phone'
+        },
+        drawer: {
+          addTitle: 'Add User',
+          editTitle: 'Edit User'
+        },
+        detail: {
+          title: 'User Detail',
+          avatar: 'Avatar',
+          postCount: 'Post Count',
+          description: 'Description'
+        },
+        roleModal: {
+          title: 'Assign Roles',
+          button: 'Assign Roles',
+          assigned: 'Assigned',
+          remove: 'Remove',
+          removeConfirm: 'Remove this role from the current user?'
+        },
+        actions: {
+          detail: 'Detail',
+          assignRole: 'Assign Role'
+        },
+        pagination: {
+          prev: 'Previous',
+          current: 'Page {page}',
+          next: 'Next'
+        }
+      }
     }
   },
   form: {
