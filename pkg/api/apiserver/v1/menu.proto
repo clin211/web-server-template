@@ -18,24 +18,40 @@ message Menu {
   string menuCode = 4;
   // menuType 表示菜单类型（menu=目录, page=页面）
   string menuType = 5;
+  // i18nKey 表示国际化 key
+  optional string i18nKey = 6;
   // icon 表示菜单图标
-  string icon = 6;
+  optional string icon = 7;
+  // localIcon 表示本地图标
+  optional string localIcon = 8;
+  // iconFontSize 表示图标大小
+  optional int32 iconFontSize = 9;
   // path 表示路由路径
-  string path = 7;
+  optional string path = 10;
   // component 表示前端组件路径
-  string component = 8;
+  optional string component = 11;
   // permissionID 表示关联权限 ID
-  string permissionID = 9;
+  optional string permissionID = 12;
   // sortOrder 表示排序序号
-  int32 sortOrder = 10;
+  int32 sortOrder = 13;
   // visible 表示是否可见（0=隐藏,1=显示）
-  int32 visible = 11;
+  int32 visible = 14;
   // status 表示菜单状态（0=启用,1=禁用）
-  int32 status = 12;
+  int32 status = 15;
+  // constant 表示常量路由（0=否,1=是，不参与权限过滤）
+  int32 constant = 16;
+  // activeMenu 表示当前激活的菜单（用于面包屑）
+  optional string activeMenu = 17;
+  // hideInMenu 表示在菜单中隐藏（0=否,1=是）
+  int32 hideInMenu = 18;
+  // keepAlive 表示页面缓存（0=否,1=是）
+  int32 keepAlive = 19;
+  // href 表示外链地址
+  optional string href = 20;
   // createdAt 表示创建时间
-  int64 createdAt = 13;
+  int64 createdAt = 21;
   // updatedAt 表示更新时间
-  int64 updatedAt = 14;
+  int64 updatedAt = 22;
 }
 
 // CreateMenuRequest 表示创建菜单请求
@@ -48,16 +64,34 @@ message CreateMenuRequest {
   string menuCode = 3;
   // menuType 表示菜单类型（menu=目录, page=页面）
   string menuType = 4;
+  // i18nKey 表示国际化 key
+  optional string i18nKey = 5;
   // icon 表示菜单图标
-  optional string icon = 5;
+  optional string icon = 6;
+  // localIcon 表示本地图标
+  optional string localIcon = 7;
+  // iconFontSize 表示图标大小
+  optional int32 iconFontSize = 8;
   // path 表示路由路径
-  optional string path = 6;
+  optional string path = 9;
   // component 表示前端组件路径
-  optional string component = 7;
+  optional string component = 10;
   // permissionID 表示关联权限 ID
-  optional string permissionID = 8;
+  optional string permissionID = 11;
   // sortOrder 表示排序序号
-  optional int32 sortOrder = 9 [(defaults.value).int32 = 0];
+  optional int32 sortOrder = 12 [(defaults.value).int32 = 0];
+  // visible 表示是否可见（0=隐藏,1=显示）
+  optional int32 visible = 13 [(defaults.value).int32 = 1];
+  // constant 表示常量路由（0=否,1=是）
+  optional int32 constant = 14 [(defaults.value).int32 = 0];
+  // activeMenu 表示当前激活的菜单
+  optional string activeMenu = 15;
+  // hideInMenu 表示在菜单中隐藏（0=否,1=是）
+  optional int32 hideInMenu = 16 [(defaults.value).int32 = 0];
+  // keepAlive 表示页面缓存（0=否,1=是）
+  optional int32 keepAlive = 17 [(defaults.value).int32 = 0];
+  // href 表示外链地址
+  optional string href = 18;
 }
 
 // CreateMenuResponse 表示创建菜单响应
@@ -75,18 +109,34 @@ message UpdateMenuRequest {
   optional string parentID = 2;
   // menuName 表示可选的菜单名称
   optional string menuName = 3;
+  // i18nKey 表示可选的国际化 key
+  optional string i18nKey = 4;
   // icon 表示可选的菜单图标
-  optional string icon = 4;
+  optional string icon = 5;
+  // localIcon 表示可选的本地图标
+  optional string localIcon = 6;
+  // iconFontSize 表示可选的图标大小
+  optional int32 iconFontSize = 7;
   // path 表示可选的路由路径
-  optional string path = 5;
+  optional string path = 8;
   // component 表示可选的前端组件路径
-  optional string component = 6;
+  optional string component = 9;
   // sortOrder 表示可选的排序序号
-  optional int32 sortOrder = 7;
+  optional int32 sortOrder = 10;
   // visible 表示可选的是否可见（0=隐藏,1=显示）
-  optional int32 visible = 8 [(defaults.value).int32 = 1];
+  optional int32 visible = 11 [(defaults.value).int32 = 1];
   // status 表示可选的菜单状态（0=启用,1=禁用）
-  optional int32 status = 9;
+  optional int32 status = 12;
+  // constant 表示可选的常量路由（0=否,1=是）
+  optional int32 constant = 13;
+  // activeMenu 表示可选的当前激活的菜单
+  optional string activeMenu = 14;
+  // hideInMenu 表示可选的在菜单中隐藏（0=否,1=是）
+  optional int32 hideInMenu = 15;
+  // keepAlive 表示可选的页面缓存（0=否,1=是）
+  optional int32 keepAlive = 16;
+  // href 表示可选的外链地址
+  optional string href = 17;
 }
 
 // UpdateMenuResponse 表示更新菜单响应
@@ -138,8 +188,8 @@ message ListMenuRequest {
 message ListMenuResponse {
   // totalCount 表示总菜单数
   int64 totalCount = 1;
-  // menus 表示菜单列表
-  repeated Menu menus = 2;
+  // menus 表示菜单树（按 parent_id 和 sort_order 排序）
+  repeated MenuTreeNode menus = 2;
   // pageToken 表示下一页游标
   string pageToken = 3;
 }
@@ -157,12 +207,54 @@ message ListMenuTreeResponse {
   repeated MenuTreeNode menus = 1;
 }
 
-// MenuTreeNode 表示菜单树节点
+// MenuTreeNode 表示菜单树节点（平铺 Menu 所有字段 + children）
 message MenuTreeNode {
-  // menu 表示菜单信息
-  Menu menu = 1;
+  // menuID 表示菜单 ID
+  string menuID = 1;
+  // parentID 表示父菜单 ID
+  string parentID = 2;
+  // menuName 表示菜单名称
+  string menuName = 3;
+  // menuCode 表示菜单编码
+  string menuCode = 4;
+  // menuType 表示菜单类型（menu=目录, page=页面）
+  string menuType = 5;
+  // i18nKey 表示国际化 key
+  optional string i18nKey = 6;
+  // icon 表示菜单图标
+  optional string icon = 7;
+  // localIcon 表示本地图标
+  optional string localIcon = 8;
+  // iconFontSize 表示图标大小
+  optional int32 iconFontSize = 9;
+  // path 表示路由路径
+  optional string path = 10;
+  // component 表示前端组件路径
+  optional string component = 11;
+  // permissionID 表示关联权限 ID
+  optional string permissionID = 12;
+  // sortOrder 表示排序序号
+  int32 sortOrder = 13;
+  // visible 表示是否可见（0=隐藏,1=显示）
+  int32 visible = 14;
+  // status 表示菜单状态（0=启用,1=禁用）
+  int32 status = 15;
+  // constant 表示常量路由（0=否,1=是，不参与权限过滤）
+  int32 constant = 16;
+  // activeMenu 表示当前激活的菜单（用于面包屑）
+  optional string activeMenu = 17;
+  // hideInMenu 表示在菜单中隐藏（0=否,1=是）
+  int32 hideInMenu = 18;
+  // keepAlive 表示页面缓存（0=否,1=是）
+  int32 keepAlive = 19;
+  // href 表示外链地址
+  optional string href = 20;
+  // createdAt 表示创建时间
+  int64 createdAt = 21;
+  // updatedAt 表示更新时间
+  int64 updatedAt = 22;
   // children 表示子菜单列表
-  repeated MenuTreeNode children = 2;
+  repeated MenuTreeNode children = 23;
 }
 
 // GetUserMenuTreeRequest 表示获取用户菜单树请求
@@ -174,4 +266,146 @@ message GetUserMenuTreeRequest {
 message GetUserMenuTreeResponse {
   // menus 表示用户可见的菜单树
   repeated MenuTreeNode menus = 1;
+}
+
+// =============================================================================
+// 菜单角色管理 API
+// =============================================================================
+
+// MenuRole 表示菜单角色关联信息
+message MenuRole {
+  // menuID 表示菜单 ID
+  string menuID = 1;
+  // roleID 表示角色 ID
+  string roleID = 2;
+}
+
+// GetMenuRolesRequest 表示获取菜单允许的角色列表请求
+message GetMenuRolesRequest {
+  // menuID 表示菜单 ID
+  // @gotags: uri:"menuID"
+  string menuID = 1;
+}
+
+// GetMenuRolesResponse 表示获取菜单允许的角色列表响应
+message GetMenuRolesResponse {
+  // roleIds 表示菜单允许访问的角色 ID 列表
+  repeated string roleIds = 1;
+  // roleCodes 表示菜单允许访问的角色代码列表（用于前端 meta.roles）
+  repeated string roleCodes = 2;
+}
+
+// SetMenuRolesRequest 表示批量设置菜单允许的角色请求（覆盖模式）
+message SetMenuRolesRequest {
+  // menuID 表示菜单 ID
+  // @gotags: uri:"menuID"
+  string menuID = 1;
+  // roleIds 表示菜单允许访问的角色 ID 列表
+  repeated string roleIds = 2;
+}
+
+// SetMenuRolesResponse 表示批量设置菜单允许的角色响应
+message SetMenuRolesResponse {
+  // menuId 表示菜单 ID
+  string menuId = 1;
+  // roleIds 表示菜单允许访问的角色 ID 列表
+  repeated string roleIds = 2;
+  // count 表示角色数量
+  int32 count = 3;
+}
+
+// AddMenuRoleRequest 表示追加菜单允许的角色请求
+message AddMenuRoleRequest {
+  // menuID 表示菜单 ID
+  // @gotags: uri:"menuID"
+  string menuID = 1;
+  // roleId 表示角色 ID
+  // @gotags: form:"role_id"
+  string roleId = 2;
+}
+
+// AddMenuRoleResponse 表示追加菜单允许的角色响应
+message AddMenuRoleResponse {}
+
+// RemoveMenuRoleRequest 表示移除菜单允许的角色请求
+message RemoveMenuRoleRequest {
+  // menuID 表示菜单 ID
+  // @gotags: uri:"menuID"
+  string menuID = 1;
+  // roleId 表示角色 ID
+  // @gotags: uri:"roleId"
+  string roleId = 2;
+}
+
+// RemoveMenuRoleResponse 表示移除菜单允许的角色响应
+message RemoveMenuRoleResponse {}
+
+// =============================================================================
+// 路由 API（用于前端动态路由模式）
+// =============================================================================
+
+// MenuRouteMeta 表示路由元数据
+message MenuRouteMeta {
+  // title 表示菜单标题
+  optional string title = 1;
+  // i18nKey 表示国际化 key
+  optional string i18nKey = 2;
+  // icon 表示图标名称
+  optional string icon = 3;
+  // localIcon 表示本地图标
+  optional string localIcon = 4;
+  // iconFontSize 表示图标大小
+  optional int32 iconFontSize = 5;
+  // order 表示排序序号
+  optional int32 order = 6;
+  // activeMenu 表示当前激活的菜单
+  optional string activeMenu = 7;
+  // hideInMenu 表示在菜单中隐藏
+  bool hideInMenu = 8;
+  // keepAlive 表示页面缓存
+  bool keepAlive = 9;
+  // constant 表示常量路由
+  bool constant = 10;
+  // href 表示外链地址
+  optional string href = 11;
+  // roles 表示允许访问的角色列表
+  repeated string roles = 12;
+}
+
+// MenuRoute 表示菜单路由
+message MenuRoute {
+  // id 表示路由 ID（菜单 ID）
+  string id = 1;
+  // name 表示路由名称（菜单编码）
+  string name = 2;
+  // path 表示路由路径
+  optional string path = 3;
+  // component 表示前端组件路径
+  optional string component = 4;
+  // redirect 表示重定向路径
+  optional string redirect = 5;
+  // meta 表示路由元数据
+  optional MenuRouteMeta meta = 6;
+  // children 表示子路由列表
+  repeated MenuRoute children = 7;
+}
+
+// GetConstantRoutesRequest 表示获取常量路由请求
+message GetConstantRoutesRequest {}
+
+// GetConstantRoutesResponse 表示获取常量路由响应
+message GetConstantRoutesResponse {
+  // routes 表示常量路由列表
+  repeated MenuRoute routes = 1;
+}
+
+// GetUserRoutesRequest 表示获取用户可访问路由请求
+message GetUserRoutesRequest {}
+
+// GetUserRoutesResponse 表示获取用户可访问路由响应
+message GetUserRoutesResponse {
+  // routes 表示用户可访问的路由树
+  repeated MenuRoute routes = 1;
+  // home 表示首页 routeKey
+  string home = 2;
 }

@@ -3,21 +3,23 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/clin211/gin-enterprise-template/pkg/db"
 	"github.com/samber/lo"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
 // 帮助信息文本.
-const helpText = `Usage: main [flags] arg [arg...]
+const helpText = `Usage: main [flags] [component...]
 
-This is a pflag example.
+This is a code generator for GORM models.
 
 Flags:
 `
@@ -31,7 +33,7 @@ type Querier interface {
 // GenerateConfig 保存代码生成的配置.
 type GenerateConfig struct {
 	ModelPackagePath string
-	GenerateFunc     func(g *gen.Generator)
+	GenerateFunc    func(g *gen.Generator)
 }
 
 // 预定义的生成配置.
@@ -41,13 +43,10 @@ var generateConfigs = map[string]GenerateConfig{
 
 // 命令行参数.
 var (
-	addr       = "127.0.0.1:5432"
-	username   = "postgres"
-	password   = "postgres"
-	database   = "template"
+	configFile = pflag.StringP("config", "c", "", "Config file path (default: ./configs/gin-enterprise-template-apiserver.yaml)")
 	modelPath  = ""
 	components = pflag.StringSlice("component", []string{"gin-enterprise-template"}, "Generated model code's for specified component.")
-	help       = pflag.BoolP("help", "h", false, "Show this help message.")
+	help      = pflag.BoolP("help", "h", false, "Show this help message.")
 )
 
 func main() {
@@ -76,13 +75,77 @@ func main() {
 	}
 }
 
+// Config 数据库配置结构
+type Config struct {
+	PostgreSQL PostgreSQLConfig `mapstructure:"postgresql"`
+}
+
+// PostgreSQLConfig PostgreSQL 配置
+type PostgreSQLConfig struct {
+	Addr     string `mapstructure:"addr"`
+	Database string `mapstructure:"database"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+}
+
+// loadConfig 从配置文件加载配置
+func loadConfig(path string) (*Config, error) {
+	// 获取配置文件的绝对路径
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get absolute path: %w", err)
+	}
+
+	// 检查文件是否存在
+	if _, err := os.Stat(absPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("config file not found: %s", absPath)
+	}
+
+	v := viper.New()
+	v.SetConfigFile(absPath)
+	v.SetConfigType("yaml")
+
+	if err := v.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	var cfg Config
+	if err := v.Unmarshal(&cfg); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
+	}
+
+	return &cfg, nil
+}
+
 // initializeDatabase 创建并返回一个数据库连接.
 func initializeDatabase() (*gorm.DB, error) {
+	// 确定配置文件路径
+	configPath := *configFile
+	if configPath == "" {
+		// 默认从项目根目录的 configs 目录查找
+		// 获取当前工作目录的父目录的父目录（即项目根目录）
+		cwd, err := os.Getwd()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get current directory: %w", err)
+		}
+		// 从 cmd/gen-gorm-model 目录回退到项目根目录
+		configPath = filepath.Join(cwd, "..", "..", "configs", "gin-enterprise-template-apiserver.yaml")
+	}
+
+	// 加载配置
+	cfg, err := loadConfig(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load config from %s: %w", configPath, err)
+	}
+
+	log.Printf("Using database config from: %s", configPath)
+	log.Printf("Database: %s@%s/%s", cfg.PostgreSQL.Username, cfg.PostgreSQL.Addr, cfg.PostgreSQL.Database)
+
 	dbOptions := &db.PostgreSQLOptions{
-		Addr:     addr,
-		Username: username,
-		Password: password,
-		Database: database,
+		Addr:     cfg.PostgreSQL.Addr,
+		Username: cfg.PostgreSQL.Username,
+		Password: cfg.PostgreSQL.Password,
+		Database: cfg.PostgreSQL.Database,
 	}
 
 	// 创建并返回数据库连接
@@ -177,7 +240,12 @@ func GenerateTemplateModels(g *gen.Generator) {
 	g.GenerateModelAs("permission", "PermissionM")
 	g.GenerateModelAs("role_permission", "RolePermissionM")
 	g.GenerateModelAs("menu", "MenuM")
+	g.GenerateModelAs("menu_role", "MenuRoleM")
 	g.GenerateModelAs("audit_log", "AuditLogM")
+
+	// 定时任务表
+	g.GenerateModelAs("scheduled_task", "ScheduledTaskM")
+	g.GenerateModelAs("scheduled_task_execution", "ScheduledTaskExecutionM")
 
 	// 权限控制表
 	g.GenerateModelAs("casbin_rule", "CasbinRuleM")

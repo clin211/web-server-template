@@ -196,6 +196,48 @@ service APIServer {
       tags: "菜单管理"
     };
   }
+  // 获取菜单允许的角色列表
+  rpc GetMenuRoles(GetMenuRolesRequest) returns (GetMenuRolesResponse) {
+    option (google.api.http) = {get: "/v1/menus/{menuID}/roles"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "获取菜单允许的角色列表"
+      description: "获取菜单允许访问的角色列表"
+      tags: "菜单管理"
+    };
+  }
+  // 批量设置菜单允许的角色（覆盖模式）
+  rpc SetMenuRoles(SetMenuRolesRequest) returns (SetMenuRolesResponse) {
+    option (google.api.http) = {
+      put: "/v1/menus/{menuID}/roles"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "批量设置菜单允许的角色"
+      description: "覆盖模式设置菜单允许访问的角色"
+      tags: "菜单管理"
+    };
+  }
+  // 追加菜单允许的角色
+  rpc AddMenuRole(AddMenuRoleRequest) returns (AddMenuRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/menus/{menuID}/roles"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "追加菜单允许的角色"
+      description: "追加菜单允许访问的角色"
+      tags: "菜单管理"
+    };
+  }
+  // 移除菜单允许的角色
+  rpc RemoveMenuRole(RemoveMenuRoleRequest) returns (RemoveMenuRoleResponse) {
+    option (google.api.http) = {delete: "/v1/menus/{menuID}/roles/{roleId}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "移除菜单允许的角色"
+      description: "从菜单移除允许访问的角色"
+      tags: "菜单管理"
+    };
+  }
 
   // ========== 权限管理 ==========
   // 创建权限

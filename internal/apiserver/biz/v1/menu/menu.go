@@ -24,6 +24,14 @@ type MenuExpansion interface {
 	ListMenuTree(ctx context.Context, rq *v1.ListMenuTreeRequest) (*v1.ListMenuTreeResponse, error)
 	// GetUserMenuTree 获取用户可见的菜单树
 	GetUserMenuTree(ctx context.Context, rq *v1.GetUserMenuTreeRequest) (*v1.GetUserMenuTreeResponse, error)
+	// GetMenuRoles 获取菜单允许的角色列表
+	GetMenuRoles(ctx context.Context, rq *v1.GetMenuRolesRequest) (*v1.GetMenuRolesResponse, error)
+	// SetMenuRoles 批量设置菜单允许的角色（覆盖模式）
+	SetMenuRoles(ctx context.Context, rq *v1.SetMenuRolesRequest) (*v1.SetMenuRolesResponse, error)
+	// AddMenuRole 追加菜单允许的角色
+	AddMenuRole(ctx context.Context, rq *v1.AddMenuRoleRequest) (*v1.AddMenuRoleResponse, error)
+	// RemoveMenuRole 移除菜单允许的角色
+	RemoveMenuRole(ctx context.Context, rq *v1.RemoveMenuRoleRequest) (*v1.RemoveMenuRoleResponse, error)
 }
 
 // menuBiz 是 MenuBiz 接口的实现.

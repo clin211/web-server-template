@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
-	"gorm.io/datatypes"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
@@ -87,7 +86,7 @@ func newScheduledTaskModel(ctx context.Context, name string, taskType string, pa
 		ScheduledTaskID: uuid.New().String(),
 		Name:            name,
 		TaskType:        taskType,
-		Payload:         datatypes.JSON(payload),
+		Payload:         string(payload),
 		CronExpr:        cronExpr,
 		Queue:           queue,
 		Enabled:         enabled,
@@ -111,7 +110,7 @@ func registerSchedulerTask(ctx context.Context, scheduler ClientTaskScheduler, t
 		return nil
 	}
 	var payload map[string]any
-	if err := json.Unmarshal(task.Payload, &payload); err != nil {
+	if err := json.Unmarshal([]byte(task.Payload), &payload); err != nil {
 		return fmt.Errorf("unmarshal scheduled task payload: %w", err)
 	}
 	return scheduler.RegisterClientTask(ctx, genericjob.SystemTask{

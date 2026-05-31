@@ -2017,6 +2017,22 @@ func (b *stubMenuBiz) GetUserMenuTree(context.Context, *v1.GetUserMenuTreeReques
 	panic("unexpected call to GetUserMenuTree")
 }
 
+func (b *stubMenuBiz) GetMenuRoles(context.Context, *v1.GetMenuRolesRequest) (*v1.GetMenuRolesResponse, error) {
+	panic("unexpected call to GetMenuRoles")
+}
+
+func (b *stubMenuBiz) SetMenuRoles(context.Context, *v1.SetMenuRolesRequest) (*v1.SetMenuRolesResponse, error) {
+	panic("unexpected call to SetMenuRoles")
+}
+
+func (b *stubMenuBiz) AddMenuRole(context.Context, *v1.AddMenuRoleRequest) (*v1.AddMenuRoleResponse, error) {
+	panic("unexpected call to AddMenuRole")
+}
+
+func (b *stubMenuBiz) RemoveMenuRole(context.Context, *v1.RemoveMenuRoleRequest) (*v1.RemoveMenuRoleResponse, error) {
+	panic("unexpected call to RemoveMenuRole")
+}
+
 type stubPermissionBiz struct {
 	lastUpdateRequest *v1.UpdatePermissionRequest
 }

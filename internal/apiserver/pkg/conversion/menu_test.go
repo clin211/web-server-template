@@ -92,17 +92,17 @@ func TestMenuModelToMenuV1(t *testing.T) {
 			if got.MenuType != tt.wantMenuType {
 				t.Fatalf("MenuType = %q, want %q", got.MenuType, tt.wantMenuType)
 			}
-			if got.Icon != tt.wantIcon {
-				t.Fatalf("Icon = %q, want %q", got.Icon, tt.wantIcon)
+			if derefString(got.Icon) != tt.wantIcon {
+				t.Fatalf("Icon = %q, want %q", derefString(got.Icon), tt.wantIcon)
 			}
-			if got.Path != tt.wantPath {
-				t.Fatalf("Path = %q, want %q", got.Path, tt.wantPath)
+			if derefString(got.Path) != tt.wantPath {
+				t.Fatalf("Path = %q, want %q", derefString(got.Path), tt.wantPath)
 			}
-			if got.Component != tt.wantComponent {
-				t.Fatalf("Component = %q, want %q", got.Component, tt.wantComponent)
+			if derefString(got.Component) != tt.wantComponent {
+				t.Fatalf("Component = %q, want %q", derefString(got.Component), tt.wantComponent)
 			}
-			if got.PermissionID != tt.wantPermissionID {
-				t.Fatalf("PermissionID = %q, want %q", got.PermissionID, tt.wantPermissionID)
+			if derefString(got.PermissionID) != tt.wantPermissionID {
+				t.Fatalf("PermissionID = %q, want %q", derefString(got.PermissionID), tt.wantPermissionID)
 			}
 			if got.SortOrder != tt.wantSortOrder {
 				t.Fatalf("SortOrder = %d, want %d", got.SortOrder, tt.wantSortOrder)

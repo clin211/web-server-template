@@ -170,6 +170,7 @@ curl -i http://localhost:5555/debug/pprof/
 | `make deps` | 安装构建、Protobuf、代码生成等开发工具 |
 | `make tidy` | 执行 `go mod tidy` |
 | `make protoc` | 编译 Protobuf，并生成 OpenAPI 产物到 `api/openapi/` |
+| `make models` | 根据数据库表结构生成 GORM Model 代码 |
 | `make generate` | 执行 `go generate ./...` |
 | `make build` | 构建当前平台所有二进制 |
 | `make build BINS=gin-enterprise-template-apiserver` | 构建 apiserver |
@@ -180,6 +181,20 @@ curl -i http://localhost:5555/debug/pprof/
 | `make format` | 执行 `gofmt -s -w ./` |
 | `make clean` | 删除 `_output/` 构建产物 |
 | `make help` | 查看 Makefile 帮助 |
+
+### make models 详细说明
+
+`make models` 命令会根据数据库表结构自动生成 GORM Model 代码。默认从 `configs/gin-enterprise-template-apiserver.yaml` 读取数据库配置。
+
+```bash
+# 默认使用 configs/gin-enterprise-template-apiserver.yaml 配置
+make models
+
+# 或手动指定配置文件路径
+go run ./cmd/gen-gorm-model/ -c ./configs/gin-enterprise-template-apiserver.yaml
+```
+
+生成的代码位于 `internal/apiserver/model/` 目录。数据库表配置在 `cmd/gen-gorm-model/gen_gorm_model.go` 中定义。
 
 构建产物默认输出到：
 

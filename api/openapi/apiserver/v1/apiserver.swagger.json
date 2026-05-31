@@ -351,6 +351,157 @@
         ]
       }
     },
+    "/v1/menus/{menuID}/roles": {
+      "get": {
+        "summary": "获取菜单允许的角色列表",
+        "description": "获取菜单允许访问的角色列表",
+        "operationId": "APIServer_GetMenuRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMenuRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "menuID",
+            "description": "menuID 表示菜单 ID\n@gotags: uri:\"menuID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      },
+      "post": {
+        "summary": "追加菜单允许的角色",
+        "description": "追加菜单允许访问的角色",
+        "operationId": "APIServer_AddMenuRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddMenuRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "menuID",
+            "description": "menuID 表示菜单 ID\n@gotags: uri:\"menuID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerAddMenuRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      },
+      "put": {
+        "summary": "批量设置菜单允许的角色",
+        "description": "覆盖模式设置菜单允许访问的角色",
+        "operationId": "APIServer_SetMenuRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SetMenuRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "menuID",
+            "description": "menuID 表示菜单 ID\n@gotags: uri:\"menuID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/APIServerSetMenuRolesBody"
+            }
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
+    "/v1/menus/{menuID}/roles/{roleId}": {
+      "delete": {
+        "summary": "移除菜单允许的角色",
+        "description": "从菜单移除允许访问的角色",
+        "operationId": "APIServer_RemoveMenuRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RemoveMenuRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "menuID",
+            "description": "menuID 表示菜单 ID\n@gotags: uri:\"menuID\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "roleId",
+            "description": "roleId 表示角色 ID\n@gotags: uri:\"roleId\"",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
     "/v1/permissions": {
       "get": {
         "summary": "列表权限",
@@ -1501,6 +1652,16 @@
     }
   },
   "definitions": {
+    "APIServerAddMenuRoleBody": {
+      "type": "object",
+      "properties": {
+        "roleId": {
+          "type": "string",
+          "title": "roleId 表示角色 ID\n@gotags: form:\"role_id\""
+        }
+      },
+      "title": "AddMenuRoleRequest 表示追加菜单允许的角色请求"
+    },
     "APIServerAssignPermissionsToRoleBody": {
       "type": "object",
       "properties": {
@@ -1531,6 +1692,19 @@
       },
       "title": "AssignRolesToUserRequest 表示给用户分配角色请求"
     },
+    "APIServerSetMenuRolesBody": {
+      "type": "object",
+      "properties": {
+        "roleIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "roleIds 表示菜单允许访问的角色 ID 列表"
+        }
+      },
+      "title": "SetMenuRolesRequest 表示批量设置菜单允许的角色请求（覆盖模式）"
+    },
     "APIServerToggleScheduledTaskBody": {
       "type": "object",
       "properties": {
@@ -1552,9 +1726,22 @@
           "type": "string",
           "title": "menuName 表示可选的菜单名称"
         },
+        "i18nKey": {
+          "type": "string",
+          "title": "i18nKey 表示可选的国际化 key"
+        },
         "icon": {
           "type": "string",
           "title": "icon 表示可选的菜单图标"
+        },
+        "localIcon": {
+          "type": "string",
+          "title": "localIcon 表示可选的本地图标"
+        },
+        "iconFontSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "iconFontSize 表示可选的图标大小"
         },
         "path": {
           "type": "string",
@@ -1578,6 +1765,29 @@
           "type": "integer",
           "format": "int32",
           "title": "status 表示可选的菜单状态（0=启用,1=禁用）"
+        },
+        "constant": {
+          "type": "integer",
+          "format": "int32",
+          "title": "constant 表示可选的常量路由（0=否,1=是）"
+        },
+        "activeMenu": {
+          "type": "string",
+          "title": "activeMenu 表示可选的当前激活的菜单"
+        },
+        "hideInMenu": {
+          "type": "integer",
+          "format": "int32",
+          "title": "hideInMenu 表示可选的在菜单中隐藏（0=否,1=是）"
+        },
+        "keepAlive": {
+          "type": "integer",
+          "format": "int32",
+          "title": "keepAlive 表示可选的页面缓存（0=否,1=是）"
+        },
+        "href": {
+          "type": "string",
+          "title": "href 表示可选的外链地址"
         }
       },
       "title": "UpdateMenuRequest 表示更新菜单请求"
@@ -1713,6 +1923,10 @@
         }
       }
     },
+    "v1AddMenuRoleResponse": {
+      "type": "object",
+      "title": "AddMenuRoleResponse 表示追加菜单允许的角色响应"
+    },
     "v1AssignPermissionsToRoleResponse": {
       "type": "object",
       "title": "AssignPermissionsToRoleResponse 表示给角色分配权限响应"
@@ -1740,9 +1954,22 @@
           "type": "string",
           "title": "menuType 表示菜单类型（menu=目录, page=页面）"
         },
+        "i18nKey": {
+          "type": "string",
+          "title": "i18nKey 表示国际化 key"
+        },
         "icon": {
           "type": "string",
           "title": "icon 表示菜单图标"
+        },
+        "localIcon": {
+          "type": "string",
+          "title": "localIcon 表示本地图标"
+        },
+        "iconFontSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "iconFontSize 表示图标大小"
         },
         "path": {
           "type": "string",
@@ -1760,6 +1987,34 @@
           "type": "integer",
           "format": "int32",
           "title": "sortOrder 表示排序序号"
+        },
+        "visible": {
+          "type": "integer",
+          "format": "int32",
+          "title": "visible 表示是否可见（0=隐藏,1=显示）"
+        },
+        "constant": {
+          "type": "integer",
+          "format": "int32",
+          "title": "constant 表示常量路由（0=否,1=是）"
+        },
+        "activeMenu": {
+          "type": "string",
+          "title": "activeMenu 表示当前激活的菜单"
+        },
+        "hideInMenu": {
+          "type": "integer",
+          "format": "int32",
+          "title": "hideInMenu 表示在菜单中隐藏（0=否,1=是）"
+        },
+        "keepAlive": {
+          "type": "integer",
+          "format": "int32",
+          "title": "keepAlive 表示页面缓存（0=否,1=是）"
+        },
+        "href": {
+          "type": "string",
+          "title": "href 表示外链地址"
         }
       },
       "title": "CreateMenuRequest 表示创建菜单请求"
@@ -1961,6 +2216,26 @@
       },
       "title": "GetMenuResponse 表示获取菜单响应"
     },
+    "v1GetMenuRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roleIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "roleIds 表示菜单允许访问的角色 ID 列表"
+        },
+        "roleCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "roleCodes 表示菜单允许访问的角色代码列表（用于前端 meta.roles）"
+        }
+      },
+      "title": "GetMenuRolesResponse 表示获取菜单允许的角色列表响应"
+    },
     "v1GetPermissionResponse": {
       "type": "object",
       "properties": {
@@ -2084,9 +2359,9 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1Menu"
+            "$ref": "#/definitions/v1MenuTreeNode"
           },
-          "title": "menus 表示菜单列表"
+          "title": "menus 表示菜单树（按 parent_id 和 sort_order 排序）"
         },
         "pageToken": {
           "type": "string",
@@ -2293,9 +2568,22 @@
           "type": "string",
           "title": "menuType 表示菜单类型（menu=目录, page=页面）"
         },
+        "i18nKey": {
+          "type": "string",
+          "title": "i18nKey 表示国际化 key"
+        },
         "icon": {
           "type": "string",
           "title": "icon 表示菜单图标"
+        },
+        "localIcon": {
+          "type": "string",
+          "title": "localIcon 表示本地图标"
+        },
+        "iconFontSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "iconFontSize 表示图标大小"
         },
         "path": {
           "type": "string",
@@ -2324,6 +2612,29 @@
           "format": "int32",
           "title": "status 表示菜单状态（0=启用,1=禁用）"
         },
+        "constant": {
+          "type": "integer",
+          "format": "int32",
+          "title": "constant 表示常量路由（0=否,1=是，不参与权限过滤）"
+        },
+        "activeMenu": {
+          "type": "string",
+          "title": "activeMenu 表示当前激活的菜单（用于面包屑）"
+        },
+        "hideInMenu": {
+          "type": "integer",
+          "format": "int32",
+          "title": "hideInMenu 表示在菜单中隐藏（0=否,1=是）"
+        },
+        "keepAlive": {
+          "type": "integer",
+          "format": "int32",
+          "title": "keepAlive 表示页面缓存（0=否,1=是）"
+        },
+        "href": {
+          "type": "string",
+          "title": "href 表示外链地址"
+        },
         "createdAt": {
           "type": "string",
           "format": "int64",
@@ -2340,9 +2651,102 @@
     "v1MenuTreeNode": {
       "type": "object",
       "properties": {
-        "menu": {
-          "$ref": "#/definitions/v1Menu",
-          "title": "menu 表示菜单信息"
+        "menuID": {
+          "type": "string",
+          "title": "menuID 表示菜单 ID"
+        },
+        "parentID": {
+          "type": "string",
+          "title": "parentID 表示父菜单 ID"
+        },
+        "menuName": {
+          "type": "string",
+          "title": "menuName 表示菜单名称"
+        },
+        "menuCode": {
+          "type": "string",
+          "title": "menuCode 表示菜单编码"
+        },
+        "menuType": {
+          "type": "string",
+          "title": "menuType 表示菜单类型（menu=目录, page=页面）"
+        },
+        "i18nKey": {
+          "type": "string",
+          "title": "i18nKey 表示国际化 key"
+        },
+        "icon": {
+          "type": "string",
+          "title": "icon 表示菜单图标"
+        },
+        "localIcon": {
+          "type": "string",
+          "title": "localIcon 表示本地图标"
+        },
+        "iconFontSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "iconFontSize 表示图标大小"
+        },
+        "path": {
+          "type": "string",
+          "title": "path 表示路由路径"
+        },
+        "component": {
+          "type": "string",
+          "title": "component 表示前端组件路径"
+        },
+        "permissionID": {
+          "type": "string",
+          "title": "permissionID 表示关联权限 ID"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示排序序号"
+        },
+        "visible": {
+          "type": "integer",
+          "format": "int32",
+          "title": "visible 表示是否可见（0=隐藏,1=显示）"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "status 表示菜单状态（0=启用,1=禁用）"
+        },
+        "constant": {
+          "type": "integer",
+          "format": "int32",
+          "title": "constant 表示常量路由（0=否,1=是，不参与权限过滤）"
+        },
+        "activeMenu": {
+          "type": "string",
+          "title": "activeMenu 表示当前激活的菜单（用于面包屑）"
+        },
+        "hideInMenu": {
+          "type": "integer",
+          "format": "int32",
+          "title": "hideInMenu 表示在菜单中隐藏（0=否,1=是）"
+        },
+        "keepAlive": {
+          "type": "integer",
+          "format": "int32",
+          "title": "keepAlive 表示页面缓存（0=否,1=是）"
+        },
+        "href": {
+          "type": "string",
+          "title": "href 表示外链地址"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "createdAt 表示创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "updatedAt 表示更新时间"
         },
         "children": {
           "type": "array",
@@ -2353,7 +2757,7 @@
           "title": "children 表示子菜单列表"
         }
       },
-      "title": "MenuTreeNode 表示菜单树节点"
+      "title": "MenuTreeNode 表示菜单树节点（平铺 Menu 所有字段 + children）"
     },
     "v1Permission": {
       "type": "object",
@@ -2476,6 +2880,10 @@
       "type": "object",
       "description": "该请求无需额外字段，仅通过现有的认证信息（如旧的 token）进行刷新",
       "title": "RefreshTokenRequest 表示刷新令牌的请求"
+    },
+    "v1RemoveMenuRoleResponse": {
+      "type": "object",
+      "title": "RemoveMenuRoleResponse 表示移除菜单允许的角色响应"
     },
     "v1RemoveRoleFromUserResponse": {
       "type": "object",
@@ -2680,6 +3088,28 @@
       "default": "Healthy",
       "description": "- Healthy: Healthy 表示服务处于健康状态。\n - Unhealthy: Unhealthy 表示服务处于不健康状态。",
       "title": "ServiceStatus 表示服务的健康状态。"
+    },
+    "v1SetMenuRolesResponse": {
+      "type": "object",
+      "properties": {
+        "menuId": {
+          "type": "string",
+          "title": "menuId 表示菜单 ID"
+        },
+        "roleIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "roleIds 表示菜单允许访问的角色 ID 列表"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "count 表示角色数量"
+        }
+      },
+      "title": "SetMenuRolesResponse 表示批量设置菜单允许的角色响应"
     },
     "v1ToggleScheduledTaskResponse": {
       "type": "object",

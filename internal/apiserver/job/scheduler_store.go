@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/datatypes"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
@@ -153,12 +152,12 @@ func modelToSystemTask(task *model.ScheduledTaskM) (genericjob.SystemTask, error
 }
 
 // jsonPayload converts database JSON column to map.
-func jsonPayload(payload datatypes.JSON) (map[string]any, error) {
+func jsonPayload(payload string) (map[string]any, error) {
 	if len(payload) == 0 {
 		return map[string]any{}, nil
 	}
 	var value map[string]any
-	if err := json.Unmarshal(payload, &value); err != nil {
+	if err := json.Unmarshal([]byte(payload), &value); err != nil {
 		return nil, err
 	}
 	if value == nil {

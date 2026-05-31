@@ -50,8 +50,9 @@ func (s *userBizStore) TX(ctx context.Context, fn func(context.Context) error) e
 func (s *userBizStore) User() apistore.UserStore                                     { return s.user }
 func (s *userBizStore) Role() apistore.RoleStore                                     { return nil }
 func (s *userBizStore) Permission() apistore.PermissionStore                         { return nil }
-func (s *userBizStore) Menu() apistore.MenuStore                                     { return nil }
-func (s *userBizStore) UserRole() apistore.UserRoleStore                             { return nil }
+func (s *userBizStore) Menu() apistore.MenuStore                                      { return nil }
+func (s *userBizStore) MenuRole() apistore.MenuRoleStore                              { return nil }
+func (s *userBizStore) UserRole() apistore.UserRoleStore                              { return nil }
 func (s *userBizStore) ScheduledTask() apistore.ScheduledTaskStore                   { return nil }
 func (s *userBizStore) ScheduledTaskExecution() apistore.ScheduledTaskExecutionStore { return nil }
 

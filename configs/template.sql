@@ -14,6 +14,9 @@
  
  Date: 10/01/2026 16:47:03
  */
+
+BEGIN;
+
 -- ----------------------------
 -- Type structure for menu_type
 -- ----------------------------
@@ -693,42 +696,36 @@ WITH upsert_user AS (
       0,
       0,
       '系统管理员'
-    ) ON CONFLICT (username) DO
-  UPDATE
+    )
+  ON CONFLICT (username) DO UPDATE
   SET password = EXCLUDED.password,
     nickname = EXCLUDED.nickname,
     status = EXCLUDED.status,
     updated_at = CURRENT_TIMESTAMP
   RETURNING user_id
+),
+admin_role AS (
+  SELECT role_id FROM public.role WHERE role_code = 'admin'
 )
 INSERT INTO public.casbin_rule (ptype, v0, v1)
-SELECT 'g',
-  user_id::text,
-  'role::admin'
-FROM upsert_user
+SELECT 'g', u.user_id::text, 'role::admin'
+FROM upsert_user u
 WHERE NOT EXISTS (
-    SELECT 1
-    FROM public.casbin_rule
-    WHERE ptype = 'g'
-      AND v0 = (
-        SELECT user_id::text
-        FROM upsert_user
-      )
-      AND v1 = 'role::admin'
+    SELECT 1 FROM public.casbin_rule
+    WHERE ptype = 'g' AND v0 = u.user_id::text AND v1 = 'role::admin'
   );
--- 同时写入 user_role 表（供 GetUserRoles 等接口使用）
+
 INSERT INTO public.user_role (user_id, role_id, assigned_at)
-SELECT upsert_user.user_id,
-  r.role_id,
-  CURRENT_TIMESTAMP
-FROM upsert_user,
-  public.role r
-WHERE r.role_code = 'admin'
-  AND NOT EXISTS (
-    SELECT 1
-    FROM public.user_role ur
-    WHERE ur.user_id = upsert_user.user_id
-      AND ur.role_id = r.role_id
+SELECT u.user_id, r.role_id, CURRENT_TIMESTAMP
+FROM (
+    SELECT user_id FROM public."user" WHERE username = 'root'
+  ) u,
+  (
+    SELECT role_id FROM public.role WHERE role_code = 'admin'
+  ) r
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.user_role ur
+    WHERE ur.user_id = u.user_id AND ur.role_id = r.role_id
   );
 -- ----------------------------
 -- Indexes structure for table user_config
@@ -977,3 +974,5 @@ ADD CONSTRAINT "idx_execution_id" UNIQUE ("execution_id");
 -- ----------------------------
 ALTER TABLE "public"."scheduled_task_execution"
 ADD CONSTRAINT "scheduled_task_execution_pkey" PRIMARY KEY ("id");
+
+COMMIT;

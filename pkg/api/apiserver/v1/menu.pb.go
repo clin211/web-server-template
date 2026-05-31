@@ -35,24 +35,40 @@ type Menu struct {
 	MenuCode string `protobuf:"bytes,4,opt,name=menuCode,proto3" json:"menuCode,omitempty"`
 	// menuType 表示菜单类型（menu=目录, page=页面）
 	MenuType string `protobuf:"bytes,5,opt,name=menuType,proto3" json:"menuType,omitempty"`
+	// i18nKey 表示国际化 key
+	I18NKey *string `protobuf:"bytes,6,opt,name=i18nKey,proto3,oneof" json:"i18nKey,omitempty"`
 	// icon 表示菜单图标
-	Icon string `protobuf:"bytes,6,opt,name=icon,proto3" json:"icon,omitempty"`
+	Icon *string `protobuf:"bytes,7,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	// localIcon 表示本地图标
+	LocalIcon *string `protobuf:"bytes,8,opt,name=localIcon,proto3,oneof" json:"localIcon,omitempty"`
+	// iconFontSize 表示图标大小
+	IconFontSize *int32 `protobuf:"varint,9,opt,name=iconFontSize,proto3,oneof" json:"iconFontSize,omitempty"`
 	// path 表示路由路径
-	Path string `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`
+	Path *string `protobuf:"bytes,10,opt,name=path,proto3,oneof" json:"path,omitempty"`
 	// component 表示前端组件路径
-	Component string `protobuf:"bytes,8,opt,name=component,proto3" json:"component,omitempty"`
+	Component *string `protobuf:"bytes,11,opt,name=component,proto3,oneof" json:"component,omitempty"`
 	// permissionID 表示关联权限 ID
-	PermissionID string `protobuf:"bytes,9,opt,name=permissionID,proto3" json:"permissionID,omitempty"`
+	PermissionID *string `protobuf:"bytes,12,opt,name=permissionID,proto3,oneof" json:"permissionID,omitempty"`
 	// sortOrder 表示排序序号
-	SortOrder int32 `protobuf:"varint,10,opt,name=sortOrder,proto3" json:"sortOrder,omitempty"`
+	SortOrder int32 `protobuf:"varint,13,opt,name=sortOrder,proto3" json:"sortOrder,omitempty"`
 	// visible 表示是否可见（0=隐藏,1=显示）
-	Visible int32 `protobuf:"varint,11,opt,name=visible,proto3" json:"visible,omitempty"`
+	Visible int32 `protobuf:"varint,14,opt,name=visible,proto3" json:"visible,omitempty"`
 	// status 表示菜单状态（0=启用,1=禁用）
-	Status int32 `protobuf:"varint,12,opt,name=status,proto3" json:"status,omitempty"`
+	Status int32 `protobuf:"varint,15,opt,name=status,proto3" json:"status,omitempty"`
+	// constant 表示常量路由（0=否,1=是，不参与权限过滤）
+	Constant int32 `protobuf:"varint,16,opt,name=constant,proto3" json:"constant,omitempty"`
+	// activeMenu 表示当前激活的菜单（用于面包屑）
+	ActiveMenu *string `protobuf:"bytes,17,opt,name=activeMenu,proto3,oneof" json:"activeMenu,omitempty"`
+	// hideInMenu 表示在菜单中隐藏（0=否,1=是）
+	HideInMenu int32 `protobuf:"varint,18,opt,name=hideInMenu,proto3" json:"hideInMenu,omitempty"`
+	// keepAlive 表示页面缓存（0=否,1=是）
+	KeepAlive int32 `protobuf:"varint,19,opt,name=keepAlive,proto3" json:"keepAlive,omitempty"`
+	// href 表示外链地址
+	Href *string `protobuf:"bytes,20,opt,name=href,proto3,oneof" json:"href,omitempty"`
 	// createdAt 表示创建时间
-	CreatedAt int64 `protobuf:"varint,13,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
+	CreatedAt int64 `protobuf:"varint,21,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
 	// updatedAt 表示更新时间
-	UpdatedAt     int64 `protobuf:"varint,14,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
+	UpdatedAt     int64 `protobuf:"varint,22,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -122,30 +138,51 @@ func (x *Menu) GetMenuType() string {
 	return ""
 }
 
-func (x *Menu) GetIcon() string {
-	if x != nil {
-		return x.Icon
+func (x *Menu) GetI18NKey() string {
+	if x != nil && x.I18NKey != nil {
+		return *x.I18NKey
 	}
 	return ""
 }
 
+func (x *Menu) GetIcon() string {
+	if x != nil && x.Icon != nil {
+		return *x.Icon
+	}
+	return ""
+}
+
+func (x *Menu) GetLocalIcon() string {
+	if x != nil && x.LocalIcon != nil {
+		return *x.LocalIcon
+	}
+	return ""
+}
+
+func (x *Menu) GetIconFontSize() int32 {
+	if x != nil && x.IconFontSize != nil {
+		return *x.IconFontSize
+	}
+	return 0
+}
+
 func (x *Menu) GetPath() string {
-	if x != nil {
-		return x.Path
+	if x != nil && x.Path != nil {
+		return *x.Path
 	}
 	return ""
 }
 
 func (x *Menu) GetComponent() string {
-	if x != nil {
-		return x.Component
+	if x != nil && x.Component != nil {
+		return *x.Component
 	}
 	return ""
 }
 
 func (x *Menu) GetPermissionID() string {
-	if x != nil {
-		return x.PermissionID
+	if x != nil && x.PermissionID != nil {
+		return *x.PermissionID
 	}
 	return ""
 }
@@ -169,6 +206,41 @@ func (x *Menu) GetStatus() int32 {
 		return x.Status
 	}
 	return 0
+}
+
+func (x *Menu) GetConstant() int32 {
+	if x != nil {
+		return x.Constant
+	}
+	return 0
+}
+
+func (x *Menu) GetActiveMenu() string {
+	if x != nil && x.ActiveMenu != nil {
+		return *x.ActiveMenu
+	}
+	return ""
+}
+
+func (x *Menu) GetHideInMenu() int32 {
+	if x != nil {
+		return x.HideInMenu
+	}
+	return 0
+}
+
+func (x *Menu) GetKeepAlive() int32 {
+	if x != nil {
+		return x.KeepAlive
+	}
+	return 0
+}
+
+func (x *Menu) GetHref() string {
+	if x != nil && x.Href != nil {
+		return *x.Href
+	}
+	return ""
 }
 
 func (x *Menu) GetCreatedAt() int64 {
@@ -196,16 +268,34 @@ type CreateMenuRequest struct {
 	MenuCode string `protobuf:"bytes,3,opt,name=menuCode,proto3" json:"menuCode,omitempty"`
 	// menuType 表示菜单类型（menu=目录, page=页面）
 	MenuType string `protobuf:"bytes,4,opt,name=menuType,proto3" json:"menuType,omitempty"`
+	// i18nKey 表示国际化 key
+	I18NKey *string `protobuf:"bytes,5,opt,name=i18nKey,proto3,oneof" json:"i18nKey,omitempty"`
 	// icon 表示菜单图标
-	Icon *string `protobuf:"bytes,5,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	Icon *string `protobuf:"bytes,6,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	// localIcon 表示本地图标
+	LocalIcon *string `protobuf:"bytes,7,opt,name=localIcon,proto3,oneof" json:"localIcon,omitempty"`
+	// iconFontSize 表示图标大小
+	IconFontSize *int32 `protobuf:"varint,8,opt,name=iconFontSize,proto3,oneof" json:"iconFontSize,omitempty"`
 	// path 表示路由路径
-	Path *string `protobuf:"bytes,6,opt,name=path,proto3,oneof" json:"path,omitempty"`
+	Path *string `protobuf:"bytes,9,opt,name=path,proto3,oneof" json:"path,omitempty"`
 	// component 表示前端组件路径
-	Component *string `protobuf:"bytes,7,opt,name=component,proto3,oneof" json:"component,omitempty"`
+	Component *string `protobuf:"bytes,10,opt,name=component,proto3,oneof" json:"component,omitempty"`
 	// permissionID 表示关联权限 ID
-	PermissionID *string `protobuf:"bytes,8,opt,name=permissionID,proto3,oneof" json:"permissionID,omitempty"`
+	PermissionID *string `protobuf:"bytes,11,opt,name=permissionID,proto3,oneof" json:"permissionID,omitempty"`
 	// sortOrder 表示排序序号
-	SortOrder     *int32 `protobuf:"varint,9,opt,name=sortOrder,proto3,oneof" json:"sortOrder,omitempty"`
+	SortOrder *int32 `protobuf:"varint,12,opt,name=sortOrder,proto3,oneof" json:"sortOrder,omitempty"`
+	// visible 表示是否可见（0=隐藏,1=显示）
+	Visible *int32 `protobuf:"varint,13,opt,name=visible,proto3,oneof" json:"visible,omitempty"`
+	// constant 表示常量路由（0=否,1=是）
+	Constant *int32 `protobuf:"varint,14,opt,name=constant,proto3,oneof" json:"constant,omitempty"`
+	// activeMenu 表示当前激活的菜单
+	ActiveMenu *string `protobuf:"bytes,15,opt,name=activeMenu,proto3,oneof" json:"activeMenu,omitempty"`
+	// hideInMenu 表示在菜单中隐藏（0=否,1=是）
+	HideInMenu *int32 `protobuf:"varint,16,opt,name=hideInMenu,proto3,oneof" json:"hideInMenu,omitempty"`
+	// keepAlive 表示页面缓存（0=否,1=是）
+	KeepAlive *int32 `protobuf:"varint,17,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`
+	// href 表示外链地址
+	Href          *string `protobuf:"bytes,18,opt,name=href,proto3,oneof" json:"href,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -268,11 +358,32 @@ func (x *CreateMenuRequest) GetMenuType() string {
 	return ""
 }
 
+func (x *CreateMenuRequest) GetI18NKey() string {
+	if x != nil && x.I18NKey != nil {
+		return *x.I18NKey
+	}
+	return ""
+}
+
 func (x *CreateMenuRequest) GetIcon() string {
 	if x != nil && x.Icon != nil {
 		return *x.Icon
 	}
 	return ""
+}
+
+func (x *CreateMenuRequest) GetLocalIcon() string {
+	if x != nil && x.LocalIcon != nil {
+		return *x.LocalIcon
+	}
+	return ""
+}
+
+func (x *CreateMenuRequest) GetIconFontSize() int32 {
+	if x != nil && x.IconFontSize != nil {
+		return *x.IconFontSize
+	}
+	return 0
 }
 
 func (x *CreateMenuRequest) GetPath() string {
@@ -301,6 +412,48 @@ func (x *CreateMenuRequest) GetSortOrder() int32 {
 		return *x.SortOrder
 	}
 	return 0
+}
+
+func (x *CreateMenuRequest) GetVisible() int32 {
+	if x != nil && x.Visible != nil {
+		return *x.Visible
+	}
+	return 0
+}
+
+func (x *CreateMenuRequest) GetConstant() int32 {
+	if x != nil && x.Constant != nil {
+		return *x.Constant
+	}
+	return 0
+}
+
+func (x *CreateMenuRequest) GetActiveMenu() string {
+	if x != nil && x.ActiveMenu != nil {
+		return *x.ActiveMenu
+	}
+	return ""
+}
+
+func (x *CreateMenuRequest) GetHideInMenu() int32 {
+	if x != nil && x.HideInMenu != nil {
+		return *x.HideInMenu
+	}
+	return 0
+}
+
+func (x *CreateMenuRequest) GetKeepAlive() int32 {
+	if x != nil && x.KeepAlive != nil {
+		return *x.KeepAlive
+	}
+	return 0
+}
+
+func (x *CreateMenuRequest) GetHref() string {
+	if x != nil && x.Href != nil {
+		return *x.Href
+	}
+	return ""
 }
 
 // CreateMenuResponse 表示创建菜单响应
@@ -359,18 +512,34 @@ type UpdateMenuRequest struct {
 	ParentID *string `protobuf:"bytes,2,opt,name=parentID,proto3,oneof" json:"parentID,omitempty"`
 	// menuName 表示可选的菜单名称
 	MenuName *string `protobuf:"bytes,3,opt,name=menuName,proto3,oneof" json:"menuName,omitempty"`
+	// i18nKey 表示可选的国际化 key
+	I18NKey *string `protobuf:"bytes,4,opt,name=i18nKey,proto3,oneof" json:"i18nKey,omitempty"`
 	// icon 表示可选的菜单图标
-	Icon *string `protobuf:"bytes,4,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	Icon *string `protobuf:"bytes,5,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	// localIcon 表示可选的本地图标
+	LocalIcon *string `protobuf:"bytes,6,opt,name=localIcon,proto3,oneof" json:"localIcon,omitempty"`
+	// iconFontSize 表示可选的图标大小
+	IconFontSize *int32 `protobuf:"varint,7,opt,name=iconFontSize,proto3,oneof" json:"iconFontSize,omitempty"`
 	// path 表示可选的路由路径
-	Path *string `protobuf:"bytes,5,opt,name=path,proto3,oneof" json:"path,omitempty"`
+	Path *string `protobuf:"bytes,8,opt,name=path,proto3,oneof" json:"path,omitempty"`
 	// component 表示可选的前端组件路径
-	Component *string `protobuf:"bytes,6,opt,name=component,proto3,oneof" json:"component,omitempty"`
+	Component *string `protobuf:"bytes,9,opt,name=component,proto3,oneof" json:"component,omitempty"`
 	// sortOrder 表示可选的排序序号
-	SortOrder *int32 `protobuf:"varint,7,opt,name=sortOrder,proto3,oneof" json:"sortOrder,omitempty"`
+	SortOrder *int32 `protobuf:"varint,10,opt,name=sortOrder,proto3,oneof" json:"sortOrder,omitempty"`
 	// visible 表示可选的是否可见（0=隐藏,1=显示）
-	Visible *int32 `protobuf:"varint,8,opt,name=visible,proto3,oneof" json:"visible,omitempty"`
+	Visible *int32 `protobuf:"varint,11,opt,name=visible,proto3,oneof" json:"visible,omitempty"`
 	// status 表示可选的菜单状态（0=启用,1=禁用）
-	Status        *int32 `protobuf:"varint,9,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	Status *int32 `protobuf:"varint,12,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	// constant 表示可选的常量路由（0=否,1=是）
+	Constant *int32 `protobuf:"varint,13,opt,name=constant,proto3,oneof" json:"constant,omitempty"`
+	// activeMenu 表示可选的当前激活的菜单
+	ActiveMenu *string `protobuf:"bytes,14,opt,name=activeMenu,proto3,oneof" json:"activeMenu,omitempty"`
+	// hideInMenu 表示可选的在菜单中隐藏（0=否,1=是）
+	HideInMenu *int32 `protobuf:"varint,15,opt,name=hideInMenu,proto3,oneof" json:"hideInMenu,omitempty"`
+	// keepAlive 表示可选的页面缓存（0=否,1=是）
+	KeepAlive *int32 `protobuf:"varint,16,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`
+	// href 表示可选的外链地址
+	Href          *string `protobuf:"bytes,17,opt,name=href,proto3,oneof" json:"href,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -426,11 +595,32 @@ func (x *UpdateMenuRequest) GetMenuName() string {
 	return ""
 }
 
+func (x *UpdateMenuRequest) GetI18NKey() string {
+	if x != nil && x.I18NKey != nil {
+		return *x.I18NKey
+	}
+	return ""
+}
+
 func (x *UpdateMenuRequest) GetIcon() string {
 	if x != nil && x.Icon != nil {
 		return *x.Icon
 	}
 	return ""
+}
+
+func (x *UpdateMenuRequest) GetLocalIcon() string {
+	if x != nil && x.LocalIcon != nil {
+		return *x.LocalIcon
+	}
+	return ""
+}
+
+func (x *UpdateMenuRequest) GetIconFontSize() int32 {
+	if x != nil && x.IconFontSize != nil {
+		return *x.IconFontSize
+	}
+	return 0
 }
 
 func (x *UpdateMenuRequest) GetPath() string {
@@ -466,6 +656,41 @@ func (x *UpdateMenuRequest) GetStatus() int32 {
 		return *x.Status
 	}
 	return 0
+}
+
+func (x *UpdateMenuRequest) GetConstant() int32 {
+	if x != nil && x.Constant != nil {
+		return *x.Constant
+	}
+	return 0
+}
+
+func (x *UpdateMenuRequest) GetActiveMenu() string {
+	if x != nil && x.ActiveMenu != nil {
+		return *x.ActiveMenu
+	}
+	return ""
+}
+
+func (x *UpdateMenuRequest) GetHideInMenu() int32 {
+	if x != nil && x.HideInMenu != nil {
+		return *x.HideInMenu
+	}
+	return 0
+}
+
+func (x *UpdateMenuRequest) GetKeepAlive() int32 {
+	if x != nil && x.KeepAlive != nil {
+		return *x.KeepAlive
+	}
+	return 0
+}
+
+func (x *UpdateMenuRequest) GetHref() string {
+	if x != nil && x.Href != nil {
+		return *x.Href
+	}
+	return ""
 }
 
 // UpdateMenuResponse 表示更新菜单响应
@@ -774,8 +999,8 @@ type ListMenuResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// totalCount 表示总菜单数
 	TotalCount int64 `protobuf:"varint,1,opt,name=totalCount,proto3" json:"totalCount,omitempty"`
-	// menus 表示菜单列表
-	Menus []*Menu `protobuf:"bytes,2,rep,name=menus,proto3" json:"menus,omitempty"`
+	// menus 表示菜单树（按 parent_id 和 sort_order 排序）
+	Menus []*MenuTreeNode `protobuf:"bytes,2,rep,name=menus,proto3" json:"menus,omitempty"`
 	// pageToken 表示下一页游标
 	PageToken     string `protobuf:"bytes,3,opt,name=pageToken,proto3" json:"pageToken,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -819,7 +1044,7 @@ func (x *ListMenuResponse) GetTotalCount() int64 {
 	return 0
 }
 
-func (x *ListMenuResponse) GetMenus() []*Menu {
+func (x *ListMenuResponse) GetMenus() []*MenuTreeNode {
 	if x != nil {
 		return x.Menus
 	}
@@ -926,13 +1151,55 @@ func (x *ListMenuTreeResponse) GetMenus() []*MenuTreeNode {
 	return nil
 }
 
-// MenuTreeNode 表示菜单树节点
+// MenuTreeNode 表示菜单树节点（平铺 Menu 所有字段 + children）
 type MenuTreeNode struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// menu 表示菜单信息
-	Menu *Menu `protobuf:"bytes,1,opt,name=menu,proto3" json:"menu,omitempty"`
+	// menuID 表示菜单 ID
+	MenuID string `protobuf:"bytes,1,opt,name=menuID,proto3" json:"menuID,omitempty"`
+	// parentID 表示父菜单 ID
+	ParentID string `protobuf:"bytes,2,opt,name=parentID,proto3" json:"parentID,omitempty"`
+	// menuName 表示菜单名称
+	MenuName string `protobuf:"bytes,3,opt,name=menuName,proto3" json:"menuName,omitempty"`
+	// menuCode 表示菜单编码
+	MenuCode string `protobuf:"bytes,4,opt,name=menuCode,proto3" json:"menuCode,omitempty"`
+	// menuType 表示菜单类型（menu=目录, page=页面）
+	MenuType string `protobuf:"bytes,5,opt,name=menuType,proto3" json:"menuType,omitempty"`
+	// i18nKey 表示国际化 key
+	I18NKey *string `protobuf:"bytes,6,opt,name=i18nKey,proto3,oneof" json:"i18nKey,omitempty"`
+	// icon 表示菜单图标
+	Icon *string `protobuf:"bytes,7,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	// localIcon 表示本地图标
+	LocalIcon *string `protobuf:"bytes,8,opt,name=localIcon,proto3,oneof" json:"localIcon,omitempty"`
+	// iconFontSize 表示图标大小
+	IconFontSize *int32 `protobuf:"varint,9,opt,name=iconFontSize,proto3,oneof" json:"iconFontSize,omitempty"`
+	// path 表示路由路径
+	Path *string `protobuf:"bytes,10,opt,name=path,proto3,oneof" json:"path,omitempty"`
+	// component 表示前端组件路径
+	Component *string `protobuf:"bytes,11,opt,name=component,proto3,oneof" json:"component,omitempty"`
+	// permissionID 表示关联权限 ID
+	PermissionID *string `protobuf:"bytes,12,opt,name=permissionID,proto3,oneof" json:"permissionID,omitempty"`
+	// sortOrder 表示排序序号
+	SortOrder int32 `protobuf:"varint,13,opt,name=sortOrder,proto3" json:"sortOrder,omitempty"`
+	// visible 表示是否可见（0=隐藏,1=显示）
+	Visible int32 `protobuf:"varint,14,opt,name=visible,proto3" json:"visible,omitempty"`
+	// status 表示菜单状态（0=启用,1=禁用）
+	Status int32 `protobuf:"varint,15,opt,name=status,proto3" json:"status,omitempty"`
+	// constant 表示常量路由（0=否,1=是，不参与权限过滤）
+	Constant int32 `protobuf:"varint,16,opt,name=constant,proto3" json:"constant,omitempty"`
+	// activeMenu 表示当前激活的菜单（用于面包屑）
+	ActiveMenu *string `protobuf:"bytes,17,opt,name=activeMenu,proto3,oneof" json:"activeMenu,omitempty"`
+	// hideInMenu 表示在菜单中隐藏（0=否,1=是）
+	HideInMenu int32 `protobuf:"varint,18,opt,name=hideInMenu,proto3" json:"hideInMenu,omitempty"`
+	// keepAlive 表示页面缓存（0=否,1=是）
+	KeepAlive int32 `protobuf:"varint,19,opt,name=keepAlive,proto3" json:"keepAlive,omitempty"`
+	// href 表示外链地址
+	Href *string `protobuf:"bytes,20,opt,name=href,proto3,oneof" json:"href,omitempty"`
+	// createdAt 表示创建时间
+	CreatedAt int64 `protobuf:"varint,21,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
+	// updatedAt 表示更新时间
+	UpdatedAt int64 `protobuf:"varint,22,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
 	// children 表示子菜单列表
-	Children      []*MenuTreeNode `protobuf:"bytes,2,rep,name=children,proto3" json:"children,omitempty"`
+	Children      []*MenuTreeNode `protobuf:"bytes,23,rep,name=children,proto3" json:"children,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -967,11 +1234,158 @@ func (*MenuTreeNode) Descriptor() ([]byte, []int) {
 	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *MenuTreeNode) GetMenu() *Menu {
+func (x *MenuTreeNode) GetMenuID() string {
 	if x != nil {
-		return x.Menu
+		return x.MenuID
 	}
-	return nil
+	return ""
+}
+
+func (x *MenuTreeNode) GetParentID() string {
+	if x != nil {
+		return x.ParentID
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetMenuName() string {
+	if x != nil {
+		return x.MenuName
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetMenuCode() string {
+	if x != nil {
+		return x.MenuCode
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetMenuType() string {
+	if x != nil {
+		return x.MenuType
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetI18NKey() string {
+	if x != nil && x.I18NKey != nil {
+		return *x.I18NKey
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetIcon() string {
+	if x != nil && x.Icon != nil {
+		return *x.Icon
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetLocalIcon() string {
+	if x != nil && x.LocalIcon != nil {
+		return *x.LocalIcon
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetIconFontSize() int32 {
+	if x != nil && x.IconFontSize != nil {
+		return *x.IconFontSize
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetPath() string {
+	if x != nil && x.Path != nil {
+		return *x.Path
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetComponent() string {
+	if x != nil && x.Component != nil {
+		return *x.Component
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetPermissionID() string {
+	if x != nil && x.PermissionID != nil {
+		return *x.PermissionID
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetSortOrder() int32 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetVisible() int32 {
+	if x != nil {
+		return x.Visible
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetConstant() int32 {
+	if x != nil {
+		return x.Constant
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetActiveMenu() string {
+	if x != nil && x.ActiveMenu != nil {
+		return *x.ActiveMenu
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetHideInMenu() int32 {
+	if x != nil {
+		return x.HideInMenu
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetKeepAlive() int32 {
+	if x != nil {
+		return x.KeepAlive
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetHref() string {
+	if x != nil && x.Href != nil {
+		return *x.Href
+	}
+	return ""
+}
+
+func (x *MenuTreeNode) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *MenuTreeNode) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
 }
 
 func (x *MenuTreeNode) GetChildren() []*MenuTreeNode {
@@ -1064,60 +1478,1016 @@ func (x *GetUserMenuTreeResponse) GetMenus() []*MenuTreeNode {
 	return nil
 }
 
+// MenuRole 表示菜单角色关联信息
+type MenuRole struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// menuID 表示菜单 ID
+	MenuID string `protobuf:"bytes,1,opt,name=menuID,proto3" json:"menuID,omitempty"`
+	// roleID 表示角色 ID
+	RoleID        string `protobuf:"bytes,2,opt,name=roleID,proto3" json:"roleID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MenuRole) Reset() {
+	*x = MenuRole{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MenuRole) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MenuRole) ProtoMessage() {}
+
+func (x *MenuRole) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MenuRole.ProtoReflect.Descriptor instead.
+func (*MenuRole) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *MenuRole) GetMenuID() string {
+	if x != nil {
+		return x.MenuID
+	}
+	return ""
+}
+
+func (x *MenuRole) GetRoleID() string {
+	if x != nil {
+		return x.RoleID
+	}
+	return ""
+}
+
+// GetMenuRolesRequest 表示获取菜单允许的角色列表请求
+type GetMenuRolesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// menuID 表示菜单 ID
+	// @gotags: uri:"menuID"
+	MenuID        string `protobuf:"bytes,1,opt,name=menuID,proto3" json:"menuID,omitempty" uri:"menuID"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMenuRolesRequest) Reset() {
+	*x = GetMenuRolesRequest{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMenuRolesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMenuRolesRequest) ProtoMessage() {}
+
+func (x *GetMenuRolesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMenuRolesRequest.ProtoReflect.Descriptor instead.
+func (*GetMenuRolesRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetMenuRolesRequest) GetMenuID() string {
+	if x != nil {
+		return x.MenuID
+	}
+	return ""
+}
+
+// GetMenuRolesResponse 表示获取菜单允许的角色列表响应
+type GetMenuRolesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// roleIds 表示菜单允许访问的角色 ID 列表
+	RoleIds []string `protobuf:"bytes,1,rep,name=roleIds,proto3" json:"roleIds,omitempty"`
+	// roleCodes 表示菜单允许访问的角色代码列表（用于前端 meta.roles）
+	RoleCodes     []string `protobuf:"bytes,2,rep,name=roleCodes,proto3" json:"roleCodes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMenuRolesResponse) Reset() {
+	*x = GetMenuRolesResponse{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMenuRolesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMenuRolesResponse) ProtoMessage() {}
+
+func (x *GetMenuRolesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMenuRolesResponse.ProtoReflect.Descriptor instead.
+func (*GetMenuRolesResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetMenuRolesResponse) GetRoleIds() []string {
+	if x != nil {
+		return x.RoleIds
+	}
+	return nil
+}
+
+func (x *GetMenuRolesResponse) GetRoleCodes() []string {
+	if x != nil {
+		return x.RoleCodes
+	}
+	return nil
+}
+
+// SetMenuRolesRequest 表示批量设置菜单允许的角色请求（覆盖模式）
+type SetMenuRolesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// menuID 表示菜单 ID
+	// @gotags: uri:"menuID"
+	MenuID string `protobuf:"bytes,1,opt,name=menuID,proto3" json:"menuID,omitempty" uri:"menuID"`
+	// roleIds 表示菜单允许访问的角色 ID 列表
+	RoleIds       []string `protobuf:"bytes,2,rep,name=roleIds,proto3" json:"roleIds,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetMenuRolesRequest) Reset() {
+	*x = SetMenuRolesRequest{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetMenuRolesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetMenuRolesRequest) ProtoMessage() {}
+
+func (x *SetMenuRolesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetMenuRolesRequest.ProtoReflect.Descriptor instead.
+func (*SetMenuRolesRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *SetMenuRolesRequest) GetMenuID() string {
+	if x != nil {
+		return x.MenuID
+	}
+	return ""
+}
+
+func (x *SetMenuRolesRequest) GetRoleIds() []string {
+	if x != nil {
+		return x.RoleIds
+	}
+	return nil
+}
+
+// SetMenuRolesResponse 表示批量设置菜单允许的角色响应
+type SetMenuRolesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// menuId 表示菜单 ID
+	MenuId string `protobuf:"bytes,1,opt,name=menuId,proto3" json:"menuId,omitempty"`
+	// roleIds 表示菜单允许访问的角色 ID 列表
+	RoleIds []string `protobuf:"bytes,2,rep,name=roleIds,proto3" json:"roleIds,omitempty"`
+	// count 表示角色数量
+	Count         int32 `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetMenuRolesResponse) Reset() {
+	*x = SetMenuRolesResponse{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetMenuRolesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetMenuRolesResponse) ProtoMessage() {}
+
+func (x *SetMenuRolesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetMenuRolesResponse.ProtoReflect.Descriptor instead.
+func (*SetMenuRolesResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *SetMenuRolesResponse) GetMenuId() string {
+	if x != nil {
+		return x.MenuId
+	}
+	return ""
+}
+
+func (x *SetMenuRolesResponse) GetRoleIds() []string {
+	if x != nil {
+		return x.RoleIds
+	}
+	return nil
+}
+
+func (x *SetMenuRolesResponse) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+// AddMenuRoleRequest 表示追加菜单允许的角色请求
+type AddMenuRoleRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// menuID 表示菜单 ID
+	// @gotags: uri:"menuID"
+	MenuID string `protobuf:"bytes,1,opt,name=menuID,proto3" json:"menuID,omitempty" uri:"menuID"`
+	// roleId 表示角色 ID
+	// @gotags: form:"role_id"
+	RoleId        string `protobuf:"bytes,2,opt,name=roleId,proto3" json:"roleId,omitempty" form:"role_id"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddMenuRoleRequest) Reset() {
+	*x = AddMenuRoleRequest{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddMenuRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddMenuRoleRequest) ProtoMessage() {}
+
+func (x *AddMenuRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddMenuRoleRequest.ProtoReflect.Descriptor instead.
+func (*AddMenuRoleRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *AddMenuRoleRequest) GetMenuID() string {
+	if x != nil {
+		return x.MenuID
+	}
+	return ""
+}
+
+func (x *AddMenuRoleRequest) GetRoleId() string {
+	if x != nil {
+		return x.RoleId
+	}
+	return ""
+}
+
+// AddMenuRoleResponse 表示追加菜单允许的角色响应
+type AddMenuRoleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddMenuRoleResponse) Reset() {
+	*x = AddMenuRoleResponse{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddMenuRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddMenuRoleResponse) ProtoMessage() {}
+
+func (x *AddMenuRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddMenuRoleResponse.ProtoReflect.Descriptor instead.
+func (*AddMenuRoleResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{22}
+}
+
+// RemoveMenuRoleRequest 表示移除菜单允许的角色请求
+type RemoveMenuRoleRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// menuID 表示菜单 ID
+	// @gotags: uri:"menuID"
+	MenuID string `protobuf:"bytes,1,opt,name=menuID,proto3" json:"menuID,omitempty" uri:"menuID"`
+	// roleId 表示角色 ID
+	// @gotags: uri:"roleId"
+	RoleId        string `protobuf:"bytes,2,opt,name=roleId,proto3" json:"roleId,omitempty" uri:"roleId"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveMenuRoleRequest) Reset() {
+	*x = RemoveMenuRoleRequest{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveMenuRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveMenuRoleRequest) ProtoMessage() {}
+
+func (x *RemoveMenuRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveMenuRoleRequest.ProtoReflect.Descriptor instead.
+func (*RemoveMenuRoleRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *RemoveMenuRoleRequest) GetMenuID() string {
+	if x != nil {
+		return x.MenuID
+	}
+	return ""
+}
+
+func (x *RemoveMenuRoleRequest) GetRoleId() string {
+	if x != nil {
+		return x.RoleId
+	}
+	return ""
+}
+
+// RemoveMenuRoleResponse 表示移除菜单允许的角色响应
+type RemoveMenuRoleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveMenuRoleResponse) Reset() {
+	*x = RemoveMenuRoleResponse{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveMenuRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveMenuRoleResponse) ProtoMessage() {}
+
+func (x *RemoveMenuRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveMenuRoleResponse.ProtoReflect.Descriptor instead.
+func (*RemoveMenuRoleResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{24}
+}
+
+// MenuRouteMeta 表示路由元数据
+type MenuRouteMeta struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// title 表示菜单标题
+	Title *string `protobuf:"bytes,1,opt,name=title,proto3,oneof" json:"title,omitempty"`
+	// i18nKey 表示国际化 key
+	I18NKey *string `protobuf:"bytes,2,opt,name=i18nKey,proto3,oneof" json:"i18nKey,omitempty"`
+	// icon 表示图标名称
+	Icon *string `protobuf:"bytes,3,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	// localIcon 表示本地图标
+	LocalIcon *string `protobuf:"bytes,4,opt,name=localIcon,proto3,oneof" json:"localIcon,omitempty"`
+	// iconFontSize 表示图标大小
+	IconFontSize *int32 `protobuf:"varint,5,opt,name=iconFontSize,proto3,oneof" json:"iconFontSize,omitempty"`
+	// order 表示排序序号
+	Order *int32 `protobuf:"varint,6,opt,name=order,proto3,oneof" json:"order,omitempty"`
+	// activeMenu 表示当前激活的菜单
+	ActiveMenu *string `protobuf:"bytes,7,opt,name=activeMenu,proto3,oneof" json:"activeMenu,omitempty"`
+	// hideInMenu 表示在菜单中隐藏
+	HideInMenu bool `protobuf:"varint,8,opt,name=hideInMenu,proto3" json:"hideInMenu,omitempty"`
+	// keepAlive 表示页面缓存
+	KeepAlive bool `protobuf:"varint,9,opt,name=keepAlive,proto3" json:"keepAlive,omitempty"`
+	// constant 表示常量路由
+	Constant bool `protobuf:"varint,10,opt,name=constant,proto3" json:"constant,omitempty"`
+	// href 表示外链地址
+	Href *string `protobuf:"bytes,11,opt,name=href,proto3,oneof" json:"href,omitempty"`
+	// roles 表示允许访问的角色列表
+	Roles         []string `protobuf:"bytes,12,rep,name=roles,proto3" json:"roles,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MenuRouteMeta) Reset() {
+	*x = MenuRouteMeta{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MenuRouteMeta) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MenuRouteMeta) ProtoMessage() {}
+
+func (x *MenuRouteMeta) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MenuRouteMeta.ProtoReflect.Descriptor instead.
+func (*MenuRouteMeta) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *MenuRouteMeta) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *MenuRouteMeta) GetI18NKey() string {
+	if x != nil && x.I18NKey != nil {
+		return *x.I18NKey
+	}
+	return ""
+}
+
+func (x *MenuRouteMeta) GetIcon() string {
+	if x != nil && x.Icon != nil {
+		return *x.Icon
+	}
+	return ""
+}
+
+func (x *MenuRouteMeta) GetLocalIcon() string {
+	if x != nil && x.LocalIcon != nil {
+		return *x.LocalIcon
+	}
+	return ""
+}
+
+func (x *MenuRouteMeta) GetIconFontSize() int32 {
+	if x != nil && x.IconFontSize != nil {
+		return *x.IconFontSize
+	}
+	return 0
+}
+
+func (x *MenuRouteMeta) GetOrder() int32 {
+	if x != nil && x.Order != nil {
+		return *x.Order
+	}
+	return 0
+}
+
+func (x *MenuRouteMeta) GetActiveMenu() string {
+	if x != nil && x.ActiveMenu != nil {
+		return *x.ActiveMenu
+	}
+	return ""
+}
+
+func (x *MenuRouteMeta) GetHideInMenu() bool {
+	if x != nil {
+		return x.HideInMenu
+	}
+	return false
+}
+
+func (x *MenuRouteMeta) GetKeepAlive() bool {
+	if x != nil {
+		return x.KeepAlive
+	}
+	return false
+}
+
+func (x *MenuRouteMeta) GetConstant() bool {
+	if x != nil {
+		return x.Constant
+	}
+	return false
+}
+
+func (x *MenuRouteMeta) GetHref() string {
+	if x != nil && x.Href != nil {
+		return *x.Href
+	}
+	return ""
+}
+
+func (x *MenuRouteMeta) GetRoles() []string {
+	if x != nil {
+		return x.Roles
+	}
+	return nil
+}
+
+// MenuRoute 表示菜单路由
+type MenuRoute struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 表示路由 ID（菜单 ID）
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name 表示路由名称（菜单编码）
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// path 表示路由路径
+	Path *string `protobuf:"bytes,3,opt,name=path,proto3,oneof" json:"path,omitempty"`
+	// component 表示前端组件路径
+	Component *string `protobuf:"bytes,4,opt,name=component,proto3,oneof" json:"component,omitempty"`
+	// redirect 表示重定向路径
+	Redirect *string `protobuf:"bytes,5,opt,name=redirect,proto3,oneof" json:"redirect,omitempty"`
+	// meta 表示路由元数据
+	Meta *MenuRouteMeta `protobuf:"bytes,6,opt,name=meta,proto3,oneof" json:"meta,omitempty"`
+	// children 表示子路由列表
+	Children      []*MenuRoute `protobuf:"bytes,7,rep,name=children,proto3" json:"children,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MenuRoute) Reset() {
+	*x = MenuRoute{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MenuRoute) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MenuRoute) ProtoMessage() {}
+
+func (x *MenuRoute) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MenuRoute.ProtoReflect.Descriptor instead.
+func (*MenuRoute) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *MenuRoute) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *MenuRoute) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *MenuRoute) GetPath() string {
+	if x != nil && x.Path != nil {
+		return *x.Path
+	}
+	return ""
+}
+
+func (x *MenuRoute) GetComponent() string {
+	if x != nil && x.Component != nil {
+		return *x.Component
+	}
+	return ""
+}
+
+func (x *MenuRoute) GetRedirect() string {
+	if x != nil && x.Redirect != nil {
+		return *x.Redirect
+	}
+	return ""
+}
+
+func (x *MenuRoute) GetMeta() *MenuRouteMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
+func (x *MenuRoute) GetChildren() []*MenuRoute {
+	if x != nil {
+		return x.Children
+	}
+	return nil
+}
+
+// GetConstantRoutesRequest 表示获取常量路由请求
+type GetConstantRoutesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetConstantRoutesRequest) Reset() {
+	*x = GetConstantRoutesRequest{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetConstantRoutesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetConstantRoutesRequest) ProtoMessage() {}
+
+func (x *GetConstantRoutesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetConstantRoutesRequest.ProtoReflect.Descriptor instead.
+func (*GetConstantRoutesRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{27}
+}
+
+// GetConstantRoutesResponse 表示获取常量路由响应
+type GetConstantRoutesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// routes 表示常量路由列表
+	Routes        []*MenuRoute `protobuf:"bytes,1,rep,name=routes,proto3" json:"routes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetConstantRoutesResponse) Reset() {
+	*x = GetConstantRoutesResponse{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetConstantRoutesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetConstantRoutesResponse) ProtoMessage() {}
+
+func (x *GetConstantRoutesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetConstantRoutesResponse.ProtoReflect.Descriptor instead.
+func (*GetConstantRoutesResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *GetConstantRoutesResponse) GetRoutes() []*MenuRoute {
+	if x != nil {
+		return x.Routes
+	}
+	return nil
+}
+
+// GetUserRoutesRequest 表示获取用户可访问路由请求
+type GetUserRoutesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserRoutesRequest) Reset() {
+	*x = GetUserRoutesRequest{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserRoutesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserRoutesRequest) ProtoMessage() {}
+
+func (x *GetUserRoutesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserRoutesRequest.ProtoReflect.Descriptor instead.
+func (*GetUserRoutesRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{29}
+}
+
+// GetUserRoutesResponse 表示获取用户可访问路由响应
+type GetUserRoutesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// routes 表示用户可访问的路由树
+	Routes []*MenuRoute `protobuf:"bytes,1,rep,name=routes,proto3" json:"routes,omitempty"`
+	// home 表示首页 routeKey
+	Home          string `protobuf:"bytes,2,opt,name=home,proto3" json:"home,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserRoutesResponse) Reset() {
+	*x = GetUserRoutesResponse{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserRoutesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserRoutesResponse) ProtoMessage() {}
+
+func (x *GetUserRoutesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserRoutesResponse.ProtoReflect.Descriptor instead.
+func (*GetUserRoutesResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GetUserRoutesResponse) GetRoutes() []*MenuRoute {
+	if x != nil {
+		return x.Routes
+	}
+	return nil
+}
+
+func (x *GetUserRoutesResponse) GetHome() string {
+	if x != nil {
+		return x.Home
+	}
+	return ""
+}
+
 var File_apiserver_v1_menu_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x17apiserver/v1/menu.proto\x12\fapiserver.v1\x1a,github.com/onexstack/defaults/defaults.proto\"\x84\x03\n" +
+	"\x17apiserver/v1/menu.proto\x12\fapiserver.v1\x1a,github.com/onexstack/defaults/defaults.proto\"\x8f\x06\n" +
 	"\x04Menu\x12\x16\n" +
 	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x1a\n" +
 	"\bparentID\x18\x02 \x01(\tR\bparentID\x12\x1a\n" +
 	"\bmenuName\x18\x03 \x01(\tR\bmenuName\x12\x1a\n" +
 	"\bmenuCode\x18\x04 \x01(\tR\bmenuCode\x12\x1a\n" +
-	"\bmenuType\x18\x05 \x01(\tR\bmenuType\x12\x12\n" +
-	"\x04icon\x18\x06 \x01(\tR\x04icon\x12\x12\n" +
-	"\x04path\x18\a \x01(\tR\x04path\x12\x1c\n" +
-	"\tcomponent\x18\b \x01(\tR\tcomponent\x12\"\n" +
-	"\fpermissionID\x18\t \x01(\tR\fpermissionID\x12\x1c\n" +
-	"\tsortOrder\x18\n" +
-	" \x01(\x05R\tsortOrder\x12\x18\n" +
-	"\avisible\x18\v \x01(\x05R\avisible\x12\x16\n" +
-	"\x06status\x18\f \x01(\x05R\x06status\x12\x1c\n" +
-	"\tcreatedAt\x18\r \x01(\x03R\tcreatedAt\x12\x1c\n" +
-	"\tupdatedAt\x18\x0e \x01(\x03R\tupdatedAt\"\xfc\x02\n" +
+	"\bmenuType\x18\x05 \x01(\tR\bmenuType\x12\x1d\n" +
+	"\ai18nKey\x18\x06 \x01(\tH\x00R\ai18nKey\x88\x01\x01\x12\x17\n" +
+	"\x04icon\x18\a \x01(\tH\x01R\x04icon\x88\x01\x01\x12!\n" +
+	"\tlocalIcon\x18\b \x01(\tH\x02R\tlocalIcon\x88\x01\x01\x12'\n" +
+	"\ficonFontSize\x18\t \x01(\x05H\x03R\ficonFontSize\x88\x01\x01\x12\x17\n" +
+	"\x04path\x18\n" +
+	" \x01(\tH\x04R\x04path\x88\x01\x01\x12!\n" +
+	"\tcomponent\x18\v \x01(\tH\x05R\tcomponent\x88\x01\x01\x12'\n" +
+	"\fpermissionID\x18\f \x01(\tH\x06R\fpermissionID\x88\x01\x01\x12\x1c\n" +
+	"\tsortOrder\x18\r \x01(\x05R\tsortOrder\x12\x18\n" +
+	"\avisible\x18\x0e \x01(\x05R\avisible\x12\x16\n" +
+	"\x06status\x18\x0f \x01(\x05R\x06status\x12\x1a\n" +
+	"\bconstant\x18\x10 \x01(\x05R\bconstant\x12#\n" +
+	"\n" +
+	"activeMenu\x18\x11 \x01(\tH\aR\n" +
+	"activeMenu\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"hideInMenu\x18\x12 \x01(\x05R\n" +
+	"hideInMenu\x12\x1c\n" +
+	"\tkeepAlive\x18\x13 \x01(\x05R\tkeepAlive\x12\x17\n" +
+	"\x04href\x18\x14 \x01(\tH\bR\x04href\x88\x01\x01\x12\x1c\n" +
+	"\tcreatedAt\x18\x15 \x01(\x03R\tcreatedAt\x12\x1c\n" +
+	"\tupdatedAt\x18\x16 \x01(\x03R\tupdatedAtB\n" +
+	"\n" +
+	"\b_i18nKeyB\a\n" +
+	"\x05_iconB\f\n" +
+	"\n" +
+	"_localIconB\x0f\n" +
+	"\r_iconFontSizeB\a\n" +
+	"\x05_pathB\f\n" +
+	"\n" +
+	"_componentB\x0f\n" +
+	"\r_permissionIDB\r\n" +
+	"\v_activeMenuB\a\n" +
+	"\x05_href\"\xc2\x06\n" +
 	"\x11CreateMenuRequest\x12\x1f\n" +
 	"\bparentID\x18\x01 \x01(\tH\x00R\bparentID\x88\x01\x01\x12\x1a\n" +
 	"\bmenuName\x18\x02 \x01(\tR\bmenuName\x12\x1a\n" +
 	"\bmenuCode\x18\x03 \x01(\tR\bmenuCode\x12\x1a\n" +
-	"\bmenuType\x18\x04 \x01(\tR\bmenuType\x12\x17\n" +
-	"\x04icon\x18\x05 \x01(\tH\x01R\x04icon\x88\x01\x01\x12\x17\n" +
-	"\x04path\x18\x06 \x01(\tH\x02R\x04path\x88\x01\x01\x12!\n" +
-	"\tcomponent\x18\a \x01(\tH\x03R\tcomponent\x88\x01\x01\x12'\n" +
-	"\fpermissionID\x18\b \x01(\tH\x04R\fpermissionID\x88\x01\x01\x12(\n" +
-	"\tsortOrder\x18\t \x01(\x05B\x05\x9aI\x02\x18\x00H\x05R\tsortOrder\x88\x01\x01B\v\n" +
-	"\t_parentIDB\a\n" +
-	"\x05_iconB\a\n" +
+	"\bmenuType\x18\x04 \x01(\tR\bmenuType\x12\x1d\n" +
+	"\ai18nKey\x18\x05 \x01(\tH\x01R\ai18nKey\x88\x01\x01\x12\x17\n" +
+	"\x04icon\x18\x06 \x01(\tH\x02R\x04icon\x88\x01\x01\x12!\n" +
+	"\tlocalIcon\x18\a \x01(\tH\x03R\tlocalIcon\x88\x01\x01\x12'\n" +
+	"\ficonFontSize\x18\b \x01(\x05H\x04R\ficonFontSize\x88\x01\x01\x12\x17\n" +
+	"\x04path\x18\t \x01(\tH\x05R\x04path\x88\x01\x01\x12!\n" +
+	"\tcomponent\x18\n" +
+	" \x01(\tH\x06R\tcomponent\x88\x01\x01\x12'\n" +
+	"\fpermissionID\x18\v \x01(\tH\aR\fpermissionID\x88\x01\x01\x12(\n" +
+	"\tsortOrder\x18\f \x01(\x05B\x05\x9aI\x02\x18\x00H\bR\tsortOrder\x88\x01\x01\x12$\n" +
+	"\avisible\x18\r \x01(\x05B\x05\x9aI\x02\x18\x01H\tR\avisible\x88\x01\x01\x12&\n" +
+	"\bconstant\x18\x0e \x01(\x05B\x05\x9aI\x02\x18\x00H\n" +
+	"R\bconstant\x88\x01\x01\x12#\n" +
+	"\n" +
+	"activeMenu\x18\x0f \x01(\tH\vR\n" +
+	"activeMenu\x88\x01\x01\x12*\n" +
+	"\n" +
+	"hideInMenu\x18\x10 \x01(\x05B\x05\x9aI\x02\x18\x00H\fR\n" +
+	"hideInMenu\x88\x01\x01\x12(\n" +
+	"\tkeepAlive\x18\x11 \x01(\x05B\x05\x9aI\x02\x18\x00H\rR\tkeepAlive\x88\x01\x01\x12\x17\n" +
+	"\x04href\x18\x12 \x01(\tH\x0eR\x04href\x88\x01\x01B\v\n" +
+	"\t_parentIDB\n" +
+	"\n" +
+	"\b_i18nKeyB\a\n" +
+	"\x05_iconB\f\n" +
+	"\n" +
+	"_localIconB\x0f\n" +
+	"\r_iconFontSizeB\a\n" +
 	"\x05_pathB\f\n" +
 	"\n" +
 	"_componentB\x0f\n" +
 	"\r_permissionIDB\f\n" +
 	"\n" +
-	"_sortOrder\",\n" +
+	"_sortOrderB\n" +
+	"\n" +
+	"\b_visibleB\v\n" +
+	"\t_constantB\r\n" +
+	"\v_activeMenuB\r\n" +
+	"\v_hideInMenuB\f\n" +
+	"\n" +
+	"_keepAliveB\a\n" +
+	"\x05_href\",\n" +
 	"\x12CreateMenuResponse\x12\x16\n" +
-	"\x06menuID\x18\x01 \x01(\tR\x06menuID\"\x87\x03\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\"\x86\x06\n" +
 	"\x11UpdateMenuRequest\x12\x16\n" +
 	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x1f\n" +
 	"\bparentID\x18\x02 \x01(\tH\x00R\bparentID\x88\x01\x01\x12\x1f\n" +
-	"\bmenuName\x18\x03 \x01(\tH\x01R\bmenuName\x88\x01\x01\x12\x17\n" +
-	"\x04icon\x18\x04 \x01(\tH\x02R\x04icon\x88\x01\x01\x12\x17\n" +
-	"\x04path\x18\x05 \x01(\tH\x03R\x04path\x88\x01\x01\x12!\n" +
-	"\tcomponent\x18\x06 \x01(\tH\x04R\tcomponent\x88\x01\x01\x12!\n" +
-	"\tsortOrder\x18\a \x01(\x05H\x05R\tsortOrder\x88\x01\x01\x12$\n" +
-	"\avisible\x18\b \x01(\x05B\x05\x9aI\x02\x18\x01H\x06R\avisible\x88\x01\x01\x12\x1b\n" +
-	"\x06status\x18\t \x01(\x05H\aR\x06status\x88\x01\x01B\v\n" +
+	"\bmenuName\x18\x03 \x01(\tH\x01R\bmenuName\x88\x01\x01\x12\x1d\n" +
+	"\ai18nKey\x18\x04 \x01(\tH\x02R\ai18nKey\x88\x01\x01\x12\x17\n" +
+	"\x04icon\x18\x05 \x01(\tH\x03R\x04icon\x88\x01\x01\x12!\n" +
+	"\tlocalIcon\x18\x06 \x01(\tH\x04R\tlocalIcon\x88\x01\x01\x12'\n" +
+	"\ficonFontSize\x18\a \x01(\x05H\x05R\ficonFontSize\x88\x01\x01\x12\x17\n" +
+	"\x04path\x18\b \x01(\tH\x06R\x04path\x88\x01\x01\x12!\n" +
+	"\tcomponent\x18\t \x01(\tH\aR\tcomponent\x88\x01\x01\x12!\n" +
+	"\tsortOrder\x18\n" +
+	" \x01(\x05H\bR\tsortOrder\x88\x01\x01\x12$\n" +
+	"\avisible\x18\v \x01(\x05B\x05\x9aI\x02\x18\x01H\tR\avisible\x88\x01\x01\x12\x1b\n" +
+	"\x06status\x18\f \x01(\x05H\n" +
+	"R\x06status\x88\x01\x01\x12\x1f\n" +
+	"\bconstant\x18\r \x01(\x05H\vR\bconstant\x88\x01\x01\x12#\n" +
+	"\n" +
+	"activeMenu\x18\x0e \x01(\tH\fR\n" +
+	"activeMenu\x88\x01\x01\x12#\n" +
+	"\n" +
+	"hideInMenu\x18\x0f \x01(\x05H\rR\n" +
+	"hideInMenu\x88\x01\x01\x12!\n" +
+	"\tkeepAlive\x18\x10 \x01(\x05H\x0eR\tkeepAlive\x88\x01\x01\x12\x17\n" +
+	"\x04href\x18\x11 \x01(\tH\x0fR\x04href\x88\x01\x01B\v\n" +
 	"\t_parentIDB\v\n" +
-	"\t_menuNameB\a\n" +
-	"\x05_iconB\a\n" +
+	"\t_menuNameB\n" +
+	"\n" +
+	"\b_i18nKeyB\a\n" +
+	"\x05_iconB\f\n" +
+	"\n" +
+	"_localIconB\x0f\n" +
+	"\r_iconFontSizeB\a\n" +
 	"\x05_pathB\f\n" +
 	"\n" +
 	"_componentB\f\n" +
@@ -1125,7 +2495,13 @@ const file_apiserver_v1_menu_proto_rawDesc = "" +
 	"_sortOrderB\n" +
 	"\n" +
 	"\b_visibleB\t\n" +
-	"\a_status\"\x14\n" +
+	"\a_statusB\v\n" +
+	"\t_constantB\r\n" +
+	"\v_activeMenuB\r\n" +
+	"\v_hideInMenuB\f\n" +
+	"\n" +
+	"_keepAliveB\a\n" +
+	"\x05_href\"\x14\n" +
 	"\x12UpdateMenuResponse\"+\n" +
 	"\x11DeleteMenuRequest\x12\x16\n" +
 	"\x06menuID\x18\x01 \x01(\tR\x06menuID\"\x14\n" +
@@ -1142,24 +2518,133 @@ const file_apiserver_v1_menu_proto_rawDesc = "" +
 	"\bparentID\x18\x05 \x01(\tH\x02R\bparentID\x88\x01\x01B\t\n" +
 	"\a_statusB\v\n" +
 	"\t_menuTypeB\v\n" +
-	"\t_parentID\"z\n" +
+	"\t_parentID\"\x82\x01\n" +
 	"\x10ListMenuResponse\x12\x1e\n" +
 	"\n" +
 	"totalCount\x18\x01 \x01(\x03R\n" +
-	"totalCount\x12(\n" +
-	"\x05menus\x18\x02 \x03(\v2\x12.apiserver.v1.MenuR\x05menus\x12\x1c\n" +
+	"totalCount\x120\n" +
+	"\x05menus\x18\x02 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\x05menus\x12\x1c\n" +
 	"\tpageToken\x18\x03 \x01(\tR\tpageToken\"=\n" +
 	"\x13ListMenuTreeRequest\x12\x1b\n" +
 	"\x06status\x18\x01 \x01(\x05H\x00R\x06status\x88\x01\x01B\t\n" +
 	"\a_status\"H\n" +
 	"\x14ListMenuTreeResponse\x120\n" +
-	"\x05menus\x18\x01 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\x05menus\"n\n" +
-	"\fMenuTreeNode\x12&\n" +
-	"\x04menu\x18\x01 \x01(\v2\x12.apiserver.v1.MenuR\x04menu\x126\n" +
-	"\bchildren\x18\x02 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\bchildren\"\x18\n" +
+	"\x05menus\x18\x01 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\x05menus\"\xcf\x06\n" +
+	"\fMenuTreeNode\x12\x16\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x1a\n" +
+	"\bparentID\x18\x02 \x01(\tR\bparentID\x12\x1a\n" +
+	"\bmenuName\x18\x03 \x01(\tR\bmenuName\x12\x1a\n" +
+	"\bmenuCode\x18\x04 \x01(\tR\bmenuCode\x12\x1a\n" +
+	"\bmenuType\x18\x05 \x01(\tR\bmenuType\x12\x1d\n" +
+	"\ai18nKey\x18\x06 \x01(\tH\x00R\ai18nKey\x88\x01\x01\x12\x17\n" +
+	"\x04icon\x18\a \x01(\tH\x01R\x04icon\x88\x01\x01\x12!\n" +
+	"\tlocalIcon\x18\b \x01(\tH\x02R\tlocalIcon\x88\x01\x01\x12'\n" +
+	"\ficonFontSize\x18\t \x01(\x05H\x03R\ficonFontSize\x88\x01\x01\x12\x17\n" +
+	"\x04path\x18\n" +
+	" \x01(\tH\x04R\x04path\x88\x01\x01\x12!\n" +
+	"\tcomponent\x18\v \x01(\tH\x05R\tcomponent\x88\x01\x01\x12'\n" +
+	"\fpermissionID\x18\f \x01(\tH\x06R\fpermissionID\x88\x01\x01\x12\x1c\n" +
+	"\tsortOrder\x18\r \x01(\x05R\tsortOrder\x12\x18\n" +
+	"\avisible\x18\x0e \x01(\x05R\avisible\x12\x16\n" +
+	"\x06status\x18\x0f \x01(\x05R\x06status\x12\x1a\n" +
+	"\bconstant\x18\x10 \x01(\x05R\bconstant\x12#\n" +
+	"\n" +
+	"activeMenu\x18\x11 \x01(\tH\aR\n" +
+	"activeMenu\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"hideInMenu\x18\x12 \x01(\x05R\n" +
+	"hideInMenu\x12\x1c\n" +
+	"\tkeepAlive\x18\x13 \x01(\x05R\tkeepAlive\x12\x17\n" +
+	"\x04href\x18\x14 \x01(\tH\bR\x04href\x88\x01\x01\x12\x1c\n" +
+	"\tcreatedAt\x18\x15 \x01(\x03R\tcreatedAt\x12\x1c\n" +
+	"\tupdatedAt\x18\x16 \x01(\x03R\tupdatedAt\x126\n" +
+	"\bchildren\x18\x17 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\bchildrenB\n" +
+	"\n" +
+	"\b_i18nKeyB\a\n" +
+	"\x05_iconB\f\n" +
+	"\n" +
+	"_localIconB\x0f\n" +
+	"\r_iconFontSizeB\a\n" +
+	"\x05_pathB\f\n" +
+	"\n" +
+	"_componentB\x0f\n" +
+	"\r_permissionIDB\r\n" +
+	"\v_activeMenuB\a\n" +
+	"\x05_href\"\x18\n" +
 	"\x16GetUserMenuTreeRequest\"K\n" +
 	"\x17GetUserMenuTreeResponse\x120\n" +
-	"\x05menus\x18\x01 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\x05menusBDZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
+	"\x05menus\x18\x01 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\x05menus\":\n" +
+	"\bMenuRole\x12\x16\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x16\n" +
+	"\x06roleID\x18\x02 \x01(\tR\x06roleID\"-\n" +
+	"\x13GetMenuRolesRequest\x12\x16\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\"N\n" +
+	"\x14GetMenuRolesResponse\x12\x18\n" +
+	"\aroleIds\x18\x01 \x03(\tR\aroleIds\x12\x1c\n" +
+	"\troleCodes\x18\x02 \x03(\tR\troleCodes\"G\n" +
+	"\x13SetMenuRolesRequest\x12\x16\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x18\n" +
+	"\aroleIds\x18\x02 \x03(\tR\aroleIds\"^\n" +
+	"\x14SetMenuRolesResponse\x12\x16\n" +
+	"\x06menuId\x18\x01 \x01(\tR\x06menuId\x12\x18\n" +
+	"\aroleIds\x18\x02 \x03(\tR\aroleIds\x12\x14\n" +
+	"\x05count\x18\x03 \x01(\x05R\x05count\"D\n" +
+	"\x12AddMenuRoleRequest\x12\x16\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x16\n" +
+	"\x06roleId\x18\x02 \x01(\tR\x06roleId\"\x15\n" +
+	"\x13AddMenuRoleResponse\"G\n" +
+	"\x15RemoveMenuRoleRequest\x12\x16\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x16\n" +
+	"\x06roleId\x18\x02 \x01(\tR\x06roleId\"\x18\n" +
+	"\x16RemoveMenuRoleResponse\"\xd7\x03\n" +
+	"\rMenuRouteMeta\x12\x19\n" +
+	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x1d\n" +
+	"\ai18nKey\x18\x02 \x01(\tH\x01R\ai18nKey\x88\x01\x01\x12\x17\n" +
+	"\x04icon\x18\x03 \x01(\tH\x02R\x04icon\x88\x01\x01\x12!\n" +
+	"\tlocalIcon\x18\x04 \x01(\tH\x03R\tlocalIcon\x88\x01\x01\x12'\n" +
+	"\ficonFontSize\x18\x05 \x01(\x05H\x04R\ficonFontSize\x88\x01\x01\x12\x19\n" +
+	"\x05order\x18\x06 \x01(\x05H\x05R\x05order\x88\x01\x01\x12#\n" +
+	"\n" +
+	"activeMenu\x18\a \x01(\tH\x06R\n" +
+	"activeMenu\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"hideInMenu\x18\b \x01(\bR\n" +
+	"hideInMenu\x12\x1c\n" +
+	"\tkeepAlive\x18\t \x01(\bR\tkeepAlive\x12\x1a\n" +
+	"\bconstant\x18\n" +
+	" \x01(\bR\bconstant\x12\x17\n" +
+	"\x04href\x18\v \x01(\tH\aR\x04href\x88\x01\x01\x12\x14\n" +
+	"\x05roles\x18\f \x03(\tR\x05rolesB\b\n" +
+	"\x06_titleB\n" +
+	"\n" +
+	"\b_i18nKeyB\a\n" +
+	"\x05_iconB\f\n" +
+	"\n" +
+	"_localIconB\x0f\n" +
+	"\r_iconFontSizeB\b\n" +
+	"\x06_orderB\r\n" +
+	"\v_activeMenuB\a\n" +
+	"\x05_href\"\xa4\x02\n" +
+	"\tMenuRoute\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x17\n" +
+	"\x04path\x18\x03 \x01(\tH\x00R\x04path\x88\x01\x01\x12!\n" +
+	"\tcomponent\x18\x04 \x01(\tH\x01R\tcomponent\x88\x01\x01\x12\x1f\n" +
+	"\bredirect\x18\x05 \x01(\tH\x02R\bredirect\x88\x01\x01\x124\n" +
+	"\x04meta\x18\x06 \x01(\v2\x1b.apiserver.v1.MenuRouteMetaH\x03R\x04meta\x88\x01\x01\x123\n" +
+	"\bchildren\x18\a \x03(\v2\x17.apiserver.v1.MenuRouteR\bchildrenB\a\n" +
+	"\x05_pathB\f\n" +
+	"\n" +
+	"_componentB\v\n" +
+	"\t_redirectB\a\n" +
+	"\x05_meta\"\x1a\n" +
+	"\x18GetConstantRoutesRequest\"L\n" +
+	"\x19GetConstantRoutesResponse\x12/\n" +
+	"\x06routes\x18\x01 \x03(\v2\x17.apiserver.v1.MenuRouteR\x06routes\"\x16\n" +
+	"\x14GetUserRoutesRequest\"\\\n" +
+	"\x15GetUserRoutesResponse\x12/\n" +
+	"\x06routes\x18\x01 \x03(\v2\x17.apiserver.v1.MenuRouteR\x06routes\x12\x12\n" +
+	"\x04home\x18\x02 \x01(\tR\x04homeBDZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
 
 var (
 	file_apiserver_v1_menu_proto_rawDescOnce sync.Once
@@ -1173,37 +2658,55 @@ func file_apiserver_v1_menu_proto_rawDescGZIP() []byte {
 	return file_apiserver_v1_menu_proto_rawDescData
 }
 
-var file_apiserver_v1_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_apiserver_v1_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_apiserver_v1_menu_proto_goTypes = []any{
-	(*Menu)(nil),                    // 0: apiserver.v1.Menu
-	(*CreateMenuRequest)(nil),       // 1: apiserver.v1.CreateMenuRequest
-	(*CreateMenuResponse)(nil),      // 2: apiserver.v1.CreateMenuResponse
-	(*UpdateMenuRequest)(nil),       // 3: apiserver.v1.UpdateMenuRequest
-	(*UpdateMenuResponse)(nil),      // 4: apiserver.v1.UpdateMenuResponse
-	(*DeleteMenuRequest)(nil),       // 5: apiserver.v1.DeleteMenuRequest
-	(*DeleteMenuResponse)(nil),      // 6: apiserver.v1.DeleteMenuResponse
-	(*GetMenuRequest)(nil),          // 7: apiserver.v1.GetMenuRequest
-	(*GetMenuResponse)(nil),         // 8: apiserver.v1.GetMenuResponse
-	(*ListMenuRequest)(nil),         // 9: apiserver.v1.ListMenuRequest
-	(*ListMenuResponse)(nil),        // 10: apiserver.v1.ListMenuResponse
-	(*ListMenuTreeRequest)(nil),     // 11: apiserver.v1.ListMenuTreeRequest
-	(*ListMenuTreeResponse)(nil),    // 12: apiserver.v1.ListMenuTreeResponse
-	(*MenuTreeNode)(nil),            // 13: apiserver.v1.MenuTreeNode
-	(*GetUserMenuTreeRequest)(nil),  // 14: apiserver.v1.GetUserMenuTreeRequest
-	(*GetUserMenuTreeResponse)(nil), // 15: apiserver.v1.GetUserMenuTreeResponse
+	(*Menu)(nil),                      // 0: apiserver.v1.Menu
+	(*CreateMenuRequest)(nil),         // 1: apiserver.v1.CreateMenuRequest
+	(*CreateMenuResponse)(nil),        // 2: apiserver.v1.CreateMenuResponse
+	(*UpdateMenuRequest)(nil),         // 3: apiserver.v1.UpdateMenuRequest
+	(*UpdateMenuResponse)(nil),        // 4: apiserver.v1.UpdateMenuResponse
+	(*DeleteMenuRequest)(nil),         // 5: apiserver.v1.DeleteMenuRequest
+	(*DeleteMenuResponse)(nil),        // 6: apiserver.v1.DeleteMenuResponse
+	(*GetMenuRequest)(nil),            // 7: apiserver.v1.GetMenuRequest
+	(*GetMenuResponse)(nil),           // 8: apiserver.v1.GetMenuResponse
+	(*ListMenuRequest)(nil),           // 9: apiserver.v1.ListMenuRequest
+	(*ListMenuResponse)(nil),          // 10: apiserver.v1.ListMenuResponse
+	(*ListMenuTreeRequest)(nil),       // 11: apiserver.v1.ListMenuTreeRequest
+	(*ListMenuTreeResponse)(nil),      // 12: apiserver.v1.ListMenuTreeResponse
+	(*MenuTreeNode)(nil),              // 13: apiserver.v1.MenuTreeNode
+	(*GetUserMenuTreeRequest)(nil),    // 14: apiserver.v1.GetUserMenuTreeRequest
+	(*GetUserMenuTreeResponse)(nil),   // 15: apiserver.v1.GetUserMenuTreeResponse
+	(*MenuRole)(nil),                  // 16: apiserver.v1.MenuRole
+	(*GetMenuRolesRequest)(nil),       // 17: apiserver.v1.GetMenuRolesRequest
+	(*GetMenuRolesResponse)(nil),      // 18: apiserver.v1.GetMenuRolesResponse
+	(*SetMenuRolesRequest)(nil),       // 19: apiserver.v1.SetMenuRolesRequest
+	(*SetMenuRolesResponse)(nil),      // 20: apiserver.v1.SetMenuRolesResponse
+	(*AddMenuRoleRequest)(nil),        // 21: apiserver.v1.AddMenuRoleRequest
+	(*AddMenuRoleResponse)(nil),       // 22: apiserver.v1.AddMenuRoleResponse
+	(*RemoveMenuRoleRequest)(nil),     // 23: apiserver.v1.RemoveMenuRoleRequest
+	(*RemoveMenuRoleResponse)(nil),    // 24: apiserver.v1.RemoveMenuRoleResponse
+	(*MenuRouteMeta)(nil),             // 25: apiserver.v1.MenuRouteMeta
+	(*MenuRoute)(nil),                 // 26: apiserver.v1.MenuRoute
+	(*GetConstantRoutesRequest)(nil),  // 27: apiserver.v1.GetConstantRoutesRequest
+	(*GetConstantRoutesResponse)(nil), // 28: apiserver.v1.GetConstantRoutesResponse
+	(*GetUserRoutesRequest)(nil),      // 29: apiserver.v1.GetUserRoutesRequest
+	(*GetUserRoutesResponse)(nil),     // 30: apiserver.v1.GetUserRoutesResponse
 }
 var file_apiserver_v1_menu_proto_depIdxs = []int32{
 	0,  // 0: apiserver.v1.GetMenuResponse.menu:type_name -> apiserver.v1.Menu
-	0,  // 1: apiserver.v1.ListMenuResponse.menus:type_name -> apiserver.v1.Menu
+	13, // 1: apiserver.v1.ListMenuResponse.menus:type_name -> apiserver.v1.MenuTreeNode
 	13, // 2: apiserver.v1.ListMenuTreeResponse.menus:type_name -> apiserver.v1.MenuTreeNode
-	0,  // 3: apiserver.v1.MenuTreeNode.menu:type_name -> apiserver.v1.Menu
-	13, // 4: apiserver.v1.MenuTreeNode.children:type_name -> apiserver.v1.MenuTreeNode
-	13, // 5: apiserver.v1.GetUserMenuTreeResponse.menus:type_name -> apiserver.v1.MenuTreeNode
-	6,  // [6:6] is the sub-list for method output_type
-	6,  // [6:6] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	13, // 3: apiserver.v1.MenuTreeNode.children:type_name -> apiserver.v1.MenuTreeNode
+	13, // 4: apiserver.v1.GetUserMenuTreeResponse.menus:type_name -> apiserver.v1.MenuTreeNode
+	25, // 5: apiserver.v1.MenuRoute.meta:type_name -> apiserver.v1.MenuRouteMeta
+	26, // 6: apiserver.v1.MenuRoute.children:type_name -> apiserver.v1.MenuRoute
+	26, // 7: apiserver.v1.GetConstantRoutesResponse.routes:type_name -> apiserver.v1.MenuRoute
+	26, // 8: apiserver.v1.GetUserRoutesResponse.routes:type_name -> apiserver.v1.MenuRoute
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_apiserver_v1_menu_proto_init() }
@@ -1211,17 +2714,21 @@ func file_apiserver_v1_menu_proto_init() {
 	if File_apiserver_v1_menu_proto != nil {
 		return
 	}
+	file_apiserver_v1_menu_proto_msgTypes[0].OneofWrappers = []any{}
 	file_apiserver_v1_menu_proto_msgTypes[1].OneofWrappers = []any{}
 	file_apiserver_v1_menu_proto_msgTypes[3].OneofWrappers = []any{}
 	file_apiserver_v1_menu_proto_msgTypes[9].OneofWrappers = []any{}
 	file_apiserver_v1_menu_proto_msgTypes[11].OneofWrappers = []any{}
+	file_apiserver_v1_menu_proto_msgTypes[13].OneofWrappers = []any{}
+	file_apiserver_v1_menu_proto_msgTypes[25].OneofWrappers = []any{}
+	file_apiserver_v1_menu_proto_msgTypes[26].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_apiserver_v1_menu_proto_rawDesc), len(file_apiserver_v1_menu_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

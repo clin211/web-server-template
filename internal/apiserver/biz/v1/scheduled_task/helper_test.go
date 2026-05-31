@@ -8,7 +8,6 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	genericjob "github.com/clin211/gin-enterprise-template/pkg/job"
-	"gorm.io/datatypes"
 )
 
 type stubClientTaskScheduler struct {
@@ -29,7 +28,7 @@ func TestRegisterSchedulerTask(t *testing.T) {
 	baseTask := &model.ScheduledTaskM{
 		ScheduledTaskID: "task-1",
 		TaskType:        "demo.task",
-		Payload:         datatypes.JSON([]byte(`{"count":1,"name":"demo"}`)),
+		Payload:         `{"count":1,"name":"demo"}`,
 		CronExpr:        "*/5 * * * *",
 		Queue:           "critical",
 		Enabled:         true,

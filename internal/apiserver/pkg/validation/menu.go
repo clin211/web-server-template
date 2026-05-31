@@ -26,11 +26,8 @@ func (v *Validator) ValidateMenuRules() genericvalidation.Rules {
 		},
 		"MenuCode": func(value any) error {
 			code := value.(string)
-			if len(code) == 0 || len(code) > 50 {
-				return errno.ErrInvalidArgument.WithMessage("menuCode must be between 1 and 50 characters")
-			}
-			if !isValidUsername(code) {
-				return errno.ErrInvalidArgument.WithMessage("menuCode can only contain letters, numbers and underscores")
+			if !isValidMenuCode(code) {
+				return errno.ErrInvalidArgument.WithMessage("menuCode must be 1-50 characters, containing only letters, numbers, underscores and hyphens")
 			}
 			return nil
 		},
@@ -133,4 +130,24 @@ func (v *Validator) ValidateListMenuTreeRequest(ctx context.Context, rq *v1.List
 // ValidateGetUserMenuTreeRequest 校验获取用户菜单树请求.
 func (v *Validator) ValidateGetUserMenuTreeRequest(ctx context.Context, rq *v1.GetUserMenuTreeRequest) error {
 	return nil // 该请求从 JWT 获取用户 ID，无需额外验证
+}
+
+// ValidateGetMenuRolesRequest 校验获取菜单角色请求.
+func (v *Validator) ValidateGetMenuRolesRequest(ctx context.Context, rq *v1.GetMenuRolesRequest) error {
+	return genericvalidation.ValidateSelectedFields(rq, v.ValidateMenuRules(), "MenuID")
+}
+
+// ValidateSetMenuRolesRequest 校验设置菜单角色请求.
+func (v *Validator) ValidateSetMenuRolesRequest(ctx context.Context, rq *v1.SetMenuRolesRequest) error {
+	return genericvalidation.ValidateSelectedFields(rq, v.ValidateMenuRules(), "MenuID")
+}
+
+// ValidateAddMenuRoleRequest 校验添加菜单角色请求.
+func (v *Validator) ValidateAddMenuRoleRequest(ctx context.Context, rq *v1.AddMenuRoleRequest) error {
+	return genericvalidation.ValidateSelectedFields(rq, v.ValidateMenuRules(), "MenuID")
+}
+
+// ValidateRemoveMenuRoleRequest 校验移除菜单角色请求.
+func (v *Validator) ValidateRemoveMenuRoleRequest(ctx context.Context, rq *v1.RemoveMenuRoleRequest) error {
+	return genericvalidation.ValidateSelectedFields(rq, v.ValidateMenuRules(), "MenuID")
 }

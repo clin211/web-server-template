@@ -57,6 +57,7 @@ func (s *roleBizStore) User() apistore.UserStore                                
 func (s *roleBizStore) Role() apistore.RoleStore                                     { return s.role }
 func (s *roleBizStore) Permission() apistore.PermissionStore                         { return nil }
 func (s *roleBizStore) Menu() apistore.MenuStore                                     { return nil }
+func (s *roleBizStore) MenuRole() apistore.MenuRoleStore                             { return nil }
 func (s *roleBizStore) UserRole() apistore.UserRoleStore                             { return nil }
 func (s *roleBizStore) ScheduledTask() apistore.ScheduledTaskStore                   { return nil }
 func (s *roleBizStore) ScheduledTaskExecution() apistore.ScheduledTaskExecutionStore { return nil }

@@ -28,7 +28,7 @@ func (b *scheduledTaskBiz) Update(ctx context.Context, rq *v1.UpdateScheduledTas
 		if len(payload) > b.maxPayloadBytes() {
 			return nil, errno.ErrScheduledTaskInvalidPayload.WithMessage("payload is too large")
 		}
-		task.Payload = payload
+		task.Payload = string(payload)
 	}
 	if rq.CronExpr != nil {
 		if err := ensureMinInterval(rq.GetCronExpr(), task.Timezone, b.minInterval()); err != nil {

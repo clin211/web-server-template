@@ -18,7 +18,7 @@ func ScheduledTaskModelToScheduledTaskV1(task *model.ScheduledTaskM) *v1.Schedul
 		ScheduledTaskID: task.ScheduledTaskID,
 		Name:            task.Name,
 		TaskType:        task.TaskType,
-		Payload:         jsonToStruct(task.Payload),
+		Payload:         jsonToStructString(task.Payload),
 		CronExpr:        task.CronExpr,
 		Queue:           task.Queue,
 		Enabled:         task.Enabled,
@@ -102,6 +102,11 @@ func jsonToStruct(data []byte) *structpb.Struct {
 		return &structpb.Struct{Fields: map[string]*structpb.Value{}}
 	}
 	return value
+}
+
+// jsonToStructString converts a JSON string to a protobuf Struct.
+func jsonToStructString(data string) *structpb.Struct {
+	return jsonToStruct([]byte(data))
 }
 
 // unixPtr converts a time pointer to Unix timestamp.

@@ -22,6 +22,22 @@ func (x *CreateMenuRequest) Default() {
 		v := int32(0)
 		x.SortOrder = &v
 	}
+	if x.Visible == nil {
+		v := int32(1)
+		x.Visible = &v
+	}
+	if x.Constant == nil {
+		v := int32(0)
+		x.Constant = &v
+	}
+	if x.HideInMenu == nil {
+		v := int32(0)
+		x.HideInMenu = &v
+	}
+	if x.KeepAlive == nil {
+		v := int32(0)
+		x.KeepAlive = &v
+	}
 }
 
 func (x *CreateMenuResponse) Default() {
@@ -68,4 +84,49 @@ func (x *GetUserMenuTreeRequest) Default() {
 }
 
 func (x *GetUserMenuTreeResponse) Default() {
+}
+
+func (x *MenuRole) Default() {
+}
+
+func (x *GetMenuRolesRequest) Default() {
+}
+
+func (x *GetMenuRolesResponse) Default() {
+}
+
+func (x *SetMenuRolesRequest) Default() {
+}
+
+func (x *SetMenuRolesResponse) Default() {
+}
+
+func (x *AddMenuRoleRequest) Default() {
+}
+
+func (x *AddMenuRoleResponse) Default() {
+}
+
+func (x *RemoveMenuRoleRequest) Default() {
+}
+
+func (x *RemoveMenuRoleResponse) Default() {
+}
+
+func (x *MenuRouteMeta) Default() {
+}
+
+func (x *MenuRoute) Default() {
+}
+
+func (x *GetConstantRoutesRequest) Default() {
+}
+
+func (x *GetConstantRoutesResponse) Default() {
+}
+
+func (x *GetUserRoutesRequest) Default() {
+}
+
+func (x *GetUserRoutesResponse) Default() {
 }

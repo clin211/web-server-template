@@ -6,28 +6,37 @@ package model
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const TableNameMenuM = "menu"
 
 // MenuM mapped from table <menu>
 type MenuM struct {
-	ID           int64      `gorm:"column:id;primaryKey;autoIncrement:true;comment:内部主键ID（自增序列）" json:"id"`                          // 内部主键ID（自增序列）
-	MenuID       string     `gorm:"column:menu_id;not null;default:gen_random_uuid();comment:菜单业务唯一UUID" json:"menuId"`             // 菜单业务唯一UUID
-	ParentID     *string    `gorm:"column:parent_id;comment:父菜单UUID（用于构建菜单树）" json:"parentId"`                                     // 父菜单UUID（用于构建菜单树）
-	MenuName     string     `gorm:"column:menu_name;not null;comment:菜单名称" json:"menuName"`                                            // 菜单名称
-	MenuCode     string     `gorm:"column:menu_code;not null;comment:菜单编码（唯一标识）" json:"menuCode"`                                // 菜单编码（唯一标识）
-	MenuType     string     `gorm:"column:menu_type;not null;comment:菜单类型（menu=目录, page=页面）" json:"menuType"`                  // 菜单类型（menu=目录, page=页面）
-	Icon         *string    `gorm:"column:icon;comment:菜单图标" json:"icon"`                                                             // 菜单图标
-	Path         *string    `gorm:"column:path;comment:路由路径" json:"path"`                                                             // 路由路径
-	Component    *string    `gorm:"column:component;comment:前端组件路径（兼容vue-pure-admin）" json:"component"`                        // 前端组件路径（兼容vue-pure-admin）
-	PermissionID *string    `gorm:"column:permission_id;comment:关联权限UUID（外键）" json:"permissionId"`                                 // 关联权限UUID（外键）
-	SortOrder    int32      `gorm:"column:sort_order;not null;default:0;comment:排序序号（支持拖拽排序）" json:"sortOrder"`              // 排序序号（支持拖拽排序）
-	Visible      int16      `gorm:"column:visible;not null;default:1;comment:是否可见（0=隐藏,1=显示）" json:"visible"`                  // 是否可见（0=隐藏,1=显示）
-	Status       int16      `gorm:"column:status;not null;default:0;comment:菜单状态（0=启用,1=禁用）" json:"status"`                  // 菜单状态（0=启用,1=禁用）
-	CreatedAt    time.Time  `gorm:"column:created_at;not null;default:current_timestamp;comment:创建时间" json:"createdAt"`             // 创建时间
-	UpdatedAt    time.Time  `gorm:"column:updated_at;not null;default:current_timestamp;comment:更新时间" json:"updatedAt"`             // 更新时间
-	DeletedAt    *time.Time `gorm:"column:deleted_at;comment:软删除时间（NULL=未删除）" json:"deletedAt"`                                  // 软删除时间（NULL=未删除）
+	ID           int64          `gorm:"column:id;primaryKey;autoIncrement:true;comment:内部主键ID（自增序列）" json:"id"`             // 内部主键ID（自增序列）
+	MenuID       string         `gorm:"column:menu_id;not null;default:gen_random_uuid();comment:菜单业务唯一UUID" json:"menuId"` // 菜单业务唯一UUID
+	ParentID     *string        `gorm:"column:parent_id;comment:父菜单UUID（用于构建菜单树）" json:"parentId"`                          // 父菜单UUID（用于构建菜单树）
+	MenuName     string         `gorm:"column:menu_name;not null;comment:菜单名称" json:"menuName"`                             // 菜单名称
+	MenuCode     string         `gorm:"column:menu_code;not null;comment:菜单编码（唯一标识）" json:"menuCode"`                       // 菜单编码（唯一标识）
+	MenuType     string         `gorm:"column:menu_type;not null;comment:菜单类型（menu=目录, page=页面）" json:"menuType"`           // 菜单类型（menu=目录, page=页面）
+	Icon         *string        `gorm:"column:icon;comment:菜单图标" json:"icon"`                                               // 菜单图标
+	LocalIcon    *string        `gorm:"column:local_icon;comment:本地图标" json:"localIcon"`                                      // 本地图标
+	IconFontSize *int           `gorm:"column:icon_font_size;comment:图标大小" json:"iconFontSize"`                               // 图标大小
+	Path         *string        `gorm:"column:path;comment:路由路径" json:"path"`                                               // 路由路径
+	Component    *string        `gorm:"column:component;comment:前端组件路径（兼容vue-pure-admin）" json:"component"`                 // 前端组件路径（兼容vue-pure-admin）
+	PermissionID *string        `gorm:"column:permission_id;comment:关联权限UUID（外键）" json:"permissionId"`                      // 关联权限UUID（外键）
+	SortOrder    int32          `gorm:"column:sort_order;not null;comment:排序序号（支持拖拽排序）" json:"sortOrder"`                   // 排序序号（支持拖拽排序）
+	Visible      int16          `gorm:"column:visible;not null;default:1;comment:是否可见（0=隐藏,1=显示）" json:"visible"`           // 是否可见（0=隐藏,1=显示）
+	Status       int16          `gorm:"column:status;not null;comment:菜单状态（0=启用,1=禁用）" json:"status"`                       // 菜单状态（0=启用,1=禁用）
+	Constant     int16          `gorm:"column:constant;not null;default:0;comment:常量路由（0=否,1=是）" json:"constant"`           // 常量路由（0=否,1=是）
+	ActiveMenu   *string        `gorm:"column:active_menu;comment:当前激活的菜单" json:"activeMenu"`                                // 当前激活的菜单
+	HideInMenu   int16          `gorm:"column:hide_in_menu;not null;default:0;comment:在菜单中隐藏（0=否,1=是）" json:"hideInMenu"` // 在菜单中隐藏（0=否,1=是）
+	KeepAlive    int16          `gorm:"column:keep_alive;not null;default:0;comment:页面缓存（0=否,1=是）" json:"keepAlive"`        // 页面缓存（0=否,1=是）
+	Href         *string        `gorm:"column:href;comment:外链地址" json:"href"`                                                 // 外链地址
+	CreatedAt    time.Time      `gorm:"column:created_at;not null;default:current_timestamp;comment:创建时间" json:"createdAt"` // 创建时间
+	UpdatedAt    time.Time      `gorm:"column:updated_at;not null;default:current_timestamp;comment:更新时间" json:"updatedAt"` // 更新时间
+	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;comment:软删除时间（NULL=未删除）" json:"deletedAt"`                         // 软删除时间（NULL=未删除）
 }
 
 // TableName MenuM's table name

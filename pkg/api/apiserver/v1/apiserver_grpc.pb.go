@@ -35,6 +35,10 @@ const (
 	APIServer_ListMenus_FullMethodName                   = "/apiserver.v1.APIServer/ListMenus"
 	APIServer_ListMenuTree_FullMethodName                = "/apiserver.v1.APIServer/ListMenuTree"
 	APIServer_GetUserMenuTree_FullMethodName             = "/apiserver.v1.APIServer/GetUserMenuTree"
+	APIServer_GetMenuRoles_FullMethodName                = "/apiserver.v1.APIServer/GetMenuRoles"
+	APIServer_SetMenuRoles_FullMethodName                = "/apiserver.v1.APIServer/SetMenuRoles"
+	APIServer_AddMenuRole_FullMethodName                 = "/apiserver.v1.APIServer/AddMenuRole"
+	APIServer_RemoveMenuRole_FullMethodName              = "/apiserver.v1.APIServer/RemoveMenuRole"
 	APIServer_CreatePermission_FullMethodName            = "/apiserver.v1.APIServer/CreatePermission"
 	APIServer_GetPermission_FullMethodName               = "/apiserver.v1.APIServer/GetPermission"
 	APIServer_UpdatePermission_FullMethodName            = "/apiserver.v1.APIServer/UpdatePermission"
@@ -96,6 +100,14 @@ type APIServerClient interface {
 	ListMenuTree(ctx context.Context, in *ListMenuTreeRequest, opts ...grpc.CallOption) (*ListMenuTreeResponse, error)
 	// 获取用户菜单树
 	GetUserMenuTree(ctx context.Context, in *GetUserMenuTreeRequest, opts ...grpc.CallOption) (*GetUserMenuTreeResponse, error)
+	// 获取菜单允许的角色列表
+	GetMenuRoles(ctx context.Context, in *GetMenuRolesRequest, opts ...grpc.CallOption) (*GetMenuRolesResponse, error)
+	// 批量设置菜单允许的角色（覆盖模式）
+	SetMenuRoles(ctx context.Context, in *SetMenuRolesRequest, opts ...grpc.CallOption) (*SetMenuRolesResponse, error)
+	// 追加菜单允许的角色
+	AddMenuRole(ctx context.Context, in *AddMenuRoleRequest, opts ...grpc.CallOption) (*AddMenuRoleResponse, error)
+	// 移除菜单允许的角色
+	RemoveMenuRole(ctx context.Context, in *RemoveMenuRoleRequest, opts ...grpc.CallOption) (*RemoveMenuRoleResponse, error)
 	// ========== 权限管理 ==========
 	// 创建权限
 	CreatePermission(ctx context.Context, in *CreatePermissionRequest, opts ...grpc.CallOption) (*CreatePermissionResponse, error)
@@ -294,6 +306,46 @@ func (c *aPIServerClient) GetUserMenuTree(ctx context.Context, in *GetUserMenuTr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetUserMenuTreeResponse)
 	err := c.cc.Invoke(ctx, APIServer_GetUserMenuTree_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) GetMenuRoles(ctx context.Context, in *GetMenuRolesRequest, opts ...grpc.CallOption) (*GetMenuRolesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMenuRolesResponse)
+	err := c.cc.Invoke(ctx, APIServer_GetMenuRoles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) SetMenuRoles(ctx context.Context, in *SetMenuRolesRequest, opts ...grpc.CallOption) (*SetMenuRolesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetMenuRolesResponse)
+	err := c.cc.Invoke(ctx, APIServer_SetMenuRoles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) AddMenuRole(ctx context.Context, in *AddMenuRoleRequest, opts ...grpc.CallOption) (*AddMenuRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddMenuRoleResponse)
+	err := c.cc.Invoke(ctx, APIServer_AddMenuRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) RemoveMenuRole(ctx context.Context, in *RemoveMenuRoleRequest, opts ...grpc.CallOption) (*RemoveMenuRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveMenuRoleResponse)
+	err := c.cc.Invoke(ctx, APIServer_RemoveMenuRole_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -575,6 +627,14 @@ type APIServerServer interface {
 	ListMenuTree(context.Context, *ListMenuTreeRequest) (*ListMenuTreeResponse, error)
 	// 获取用户菜单树
 	GetUserMenuTree(context.Context, *GetUserMenuTreeRequest) (*GetUserMenuTreeResponse, error)
+	// 获取菜单允许的角色列表
+	GetMenuRoles(context.Context, *GetMenuRolesRequest) (*GetMenuRolesResponse, error)
+	// 批量设置菜单允许的角色（覆盖模式）
+	SetMenuRoles(context.Context, *SetMenuRolesRequest) (*SetMenuRolesResponse, error)
+	// 追加菜单允许的角色
+	AddMenuRole(context.Context, *AddMenuRoleRequest) (*AddMenuRoleResponse, error)
+	// 移除菜单允许的角色
+	RemoveMenuRole(context.Context, *RemoveMenuRoleRequest) (*RemoveMenuRoleResponse, error)
 	// ========== 权限管理 ==========
 	// 创建权限
 	CreatePermission(context.Context, *CreatePermissionRequest) (*CreatePermissionResponse, error)
@@ -673,6 +733,18 @@ func (UnimplementedAPIServerServer) ListMenuTree(context.Context, *ListMenuTreeR
 }
 func (UnimplementedAPIServerServer) GetUserMenuTree(context.Context, *GetUserMenuTreeRequest) (*GetUserMenuTreeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserMenuTree not implemented")
+}
+func (UnimplementedAPIServerServer) GetMenuRoles(context.Context, *GetMenuRolesRequest) (*GetMenuRolesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMenuRoles not implemented")
+}
+func (UnimplementedAPIServerServer) SetMenuRoles(context.Context, *SetMenuRolesRequest) (*SetMenuRolesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetMenuRoles not implemented")
+}
+func (UnimplementedAPIServerServer) AddMenuRole(context.Context, *AddMenuRoleRequest) (*AddMenuRoleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddMenuRole not implemented")
+}
+func (UnimplementedAPIServerServer) RemoveMenuRole(context.Context, *RemoveMenuRoleRequest) (*RemoveMenuRoleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveMenuRole not implemented")
 }
 func (UnimplementedAPIServerServer) CreatePermission(context.Context, *CreatePermissionRequest) (*CreatePermissionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreatePermission not implemented")
@@ -1033,6 +1105,78 @@ func _APIServer_GetUserMenuTree_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServerServer).GetUserMenuTree(ctx, req.(*GetUserMenuTreeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_GetMenuRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMenuRolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).GetMenuRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_GetMenuRoles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).GetMenuRoles(ctx, req.(*GetMenuRolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_SetMenuRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetMenuRolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).SetMenuRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_SetMenuRoles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).SetMenuRoles(ctx, req.(*SetMenuRolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_AddMenuRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMenuRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).AddMenuRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_AddMenuRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).AddMenuRole(ctx, req.(*AddMenuRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_RemoveMenuRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveMenuRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).RemoveMenuRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_RemoveMenuRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).RemoveMenuRole(ctx, req.(*RemoveMenuRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1535,6 +1679,22 @@ var APIServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserMenuTree",
 			Handler:    _APIServer_GetUserMenuTree_Handler,
+		},
+		{
+			MethodName: "GetMenuRoles",
+			Handler:    _APIServer_GetMenuRoles_Handler,
+		},
+		{
+			MethodName: "SetMenuRoles",
+			Handler:    _APIServer_SetMenuRoles_Handler,
+		},
+		{
+			MethodName: "AddMenuRole",
+			Handler:    _APIServer_AddMenuRole_Handler,
+		},
+		{
+			MethodName: "RemoveMenuRole",
+			Handler:    _APIServer_RemoveMenuRole_Handler,
 		},
 		{
 			MethodName: "CreatePermission",

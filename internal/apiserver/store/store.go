@@ -33,6 +33,7 @@ type IStore interface {
 	Role() RoleStore
 	Permission() PermissionStore
 	Menu() MenuStore
+	MenuRole() MenuRoleStore
 	UserRole() UserRoleStore
 	// ScheduledTask 获取定时任务存储接口.
 	ScheduledTask() ScheduledTaskStore
@@ -115,6 +116,11 @@ func (store *datastore) Permission() PermissionStore {
 // Menu 返回一个实现了 MenuStore 接口的实例.
 func (store *datastore) Menu() MenuStore {
 	return newMenuStore(store)
+}
+
+// MenuRole 返回一个实现了 MenuRoleStore 接口的实例.
+func (store *datastore) MenuRole() MenuRoleStore {
+	return newMenuRoleStore(store)
 }
 
 // UserRole 返回一个实现了 UserRoleStore 接口的实例.

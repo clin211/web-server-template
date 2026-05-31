@@ -7,7 +7,7 @@ import (
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/validation"
 )
 
-// Handler 实现 gRPC 服务。
+// Handler 实现 HTTP 服务。
 type Handler struct {
 	biz biz.IBiz
 	val *validation.Validator
