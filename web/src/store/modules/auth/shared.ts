@@ -13,13 +13,18 @@ export function getRefreshToken() {
   return localStg.get('refreshToken') || '';
 }
 
-/** Get token expiration time */
+/** Get token expiration time (as Unix timestamp in ms) */
 export function getTokenExpireAt(): number | undefined {
   const expireAt = localStg.get('tokenExpireAt');
   if (!expireAt) {
     return undefined;
   }
-  return Number(expireAt);
+  // Handle ISO 8601 format: "2026-06-01T09:43:11+08:00"
+  const date = new Date(expireAt);
+  if (isNaN(date.getTime())) {
+    return undefined;
+  }
+  return date.getTime();
 }
 
 /** Check if token is about to expire or already expired */
