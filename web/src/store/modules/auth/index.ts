@@ -2,14 +2,14 @@ import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { defineStore } from 'pinia';
 import { useLoading } from '@sa/hooks';
-import { fetchGetMenuTree, fetchGetUser, fetchGetUserRoles, fetchLogin } from '@/service/api';
+import { fetchGetMenuTree, fetchGetUser, fetchGetUserRoles, fetchLogin, fetchRefreshToken } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { localStg } from '@/utils/storage';
 import { SetupStoreId } from '@/enum';
 import { $t } from '@/locales';
 import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
-import { clearAuthStorage, getToken } from './shared';
+import { clearAuthStorage, getToken, isTokenExpiredOrExpiring, getTokenExpireAt } from './shared';
 
 export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   const route = useRoute();
@@ -57,6 +57,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   /** Reset auth store */
   async function resetStore() {
     recordUserId();
+
+    stopTokenRefreshTimer();
 
     clearAuthStorage();
     localStg.remove('userId');
@@ -156,6 +158,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
         }
         await redirectFromLogin(needRedirect);
 
+        startTokenRefreshTimer();
+
         window.$notification?.success({
           title: $t('page.login.common.loginSuccess'),
           content: $t('page.login.common.welcomeBack', { userName: userInfo.userName }),
@@ -219,6 +223,60 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     resetStore();
   }
 
+  /** Token refresh interval ID for cleanup */
+  let tokenRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
+  /** Stop periodic token refresh check */
+  function stopTokenRefreshTimer() {
+    if (tokenRefreshTimer) {
+      clearInterval(tokenRefreshTimer);
+      tokenRefreshTimer = null;
+    }
+  }
+
+  /** Refresh token in background */
+  async function refreshTokenInBackground(): Promise<boolean> {
+    const refreshToken = localStg.get('refreshToken');
+
+    if (!refreshToken) {
+      return false;
+    }
+
+    const { error, data } = await fetchRefreshToken();
+    if (!error && data) {
+      localStg.set('token', data.accessToken);
+      localStg.set('refreshToken', data.refreshToken);
+      localStg.set('tokenExpireAt', data.expireAt);
+      token.value = data.accessToken;
+      return true;
+    }
+
+    stopTokenRefreshTimer();
+    await resetStore();
+    return false;
+  }
+
+  /** Start periodic token refresh check */
+  function startTokenRefreshTimer() {
+    stopTokenRefreshTimer();
+
+    const CHECK_INTERVAL_MS = 30 * 1000;
+
+    const checkAndRefresh = async () => {
+      if (!token.value) {
+        return;
+      }
+
+      const expireAt = getTokenExpireAt();
+      if (isTokenExpiredOrExpiring(expireAt)) {
+        await refreshTokenInBackground();
+      }
+    };
+
+    setTimeout(checkAndRefresh, 5000);
+    tokenRefreshTimer = setInterval(checkAndRefresh, CHECK_INTERVAL_MS);
+  }
+
   async function initUserInfo() {
     const maybeToken = getToken();
 
@@ -228,7 +286,6 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
     token.value = maybeToken;
 
-    // Extract user ID from token
     const userId = localStg.get('userId') || extractUserIdFromToken(maybeToken);
 
     if (userId) {
@@ -243,6 +300,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
     if (!userInfo.userId) {
       await resetStore();
+    } else {
+      startTokenRefreshTimer();
     }
   }
 
@@ -256,6 +315,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     resetStore,
     login,
     logout,
-    initUserInfo
+    initUserInfo,
+    startTokenRefreshTimer,
+    stopTokenRefreshTimer
   };
 });
