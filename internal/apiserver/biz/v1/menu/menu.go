@@ -14,6 +14,7 @@ type MenuBiz interface {
 	Delete(ctx context.Context, rq *v1.DeleteMenuRequest) (*v1.DeleteMenuResponse, error)
 	Get(ctx context.Context, rq *v1.GetMenuRequest) (*v1.GetMenuResponse, error)
 	List(ctx context.Context, rq *v1.ListMenuRequest) (*v1.ListMenuResponse, error)
+	SortMenu(ctx context.Context, rq *v1.SortMenuRequest) (*v1.SortMenuResponse, error)
 
 	MenuExpansion
 }
@@ -32,6 +33,10 @@ type MenuExpansion interface {
 	AddMenuRole(ctx context.Context, rq *v1.AddMenuRoleRequest) (*v1.AddMenuRoleResponse, error)
 	// RemoveMenuRole 移除菜单允许的角色
 	RemoveMenuRole(ctx context.Context, rq *v1.RemoveMenuRoleRequest) (*v1.RemoveMenuRoleResponse, error)
+	// GetUserRoutes 获取用户可访问的路由树
+	GetUserRoutes(ctx context.Context, rq *v1.GetUserRoutesRequest) (*v1.GetUserRoutesResponse, error)
+	// GetConstantRoutes 获取常量路由
+	GetConstantRoutes(ctx context.Context, rq *v1.GetConstantRoutesRequest) (*v1.GetConstantRoutesResponse, error)
 }
 
 // menuBiz 是 MenuBiz 接口的实现.

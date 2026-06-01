@@ -178,6 +178,18 @@ service APIServer {
       tags: "菜单管理"
     };
   }
+  // 批量更新菜单排序
+  rpc SortMenu(SortMenuRequest) returns (SortMenuResponse) {
+    option (google.api.http) = {
+      put: "/v1/menus/sort"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "批量更新菜单排序"
+      description: "批量更新菜单的排序顺序"
+      tags: "菜单管理"
+    };
+  }
   // 列表菜单树
   rpc ListMenuTree(ListMenuTreeRequest) returns (ListMenuTreeResponse) {
     option (google.api.http) = {get: "/v1/menus/tree"};
@@ -193,6 +205,24 @@ service APIServer {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "获取用户菜单树"
       description: "获取当前用户的菜单树"
+      tags: "菜单管理"
+    };
+  }
+  // 获取用户路由树
+  rpc GetUserRoutes(GetUserRoutesRequest) returns (GetUserRoutesResponse) {
+    option (google.api.http) = {get: "/v1/users/routes"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "获取用户路由树"
+      description: "获取当前用户可访问的路由树"
+      tags: "菜单管理"
+    };
+  }
+  // 获取常量路由
+  rpc GetConstantRoutes(GetConstantRoutesRequest) returns (GetConstantRoutesResponse) {
+    option (google.api.http) = {get: "/v1/menus/constant-routes"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "获取常量路由"
+      description: "获取不参与权限过滤的常量路由"
       tags: "菜单管理"
     };
   }

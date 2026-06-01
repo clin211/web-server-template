@@ -2,8 +2,8 @@ package menu
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
 )
@@ -13,12 +13,12 @@ func (b *menuBiz) RemoveMenuRole(ctx context.Context, rq *v1.RemoveMenuRoleReque
 	// 先验证菜单是否存在
 	_, err := b.store.Menu().Get(ctx, where.F("menu_id", rq.GetMenuID()).L(1))
 	if err != nil {
-		return nil, errno.ErrMenuNotFound
+		return nil, fmt.Errorf("get menu for remove role: %w", err)
 	}
 
 	// 删除菜单角色关联
 	if err := b.store.MenuRole().Delete(ctx, where.F("menu_id", rq.GetMenuID()).F("role_id", rq.GetRoleId())); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("remove menu role: %w", err)
 	}
 
 	return &v1.RemoveMenuRoleResponse{}, nil

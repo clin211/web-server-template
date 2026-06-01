@@ -130,3 +130,12 @@ func (x *GetUserRoutesRequest) Default() {
 
 func (x *GetUserRoutesResponse) Default() {
 }
+
+func (x *SortMenuItem) Default() {
+}
+
+func (x *SortMenuRequest) Default() {
+}
+
+func (x *SortMenuResponse) Default() {
+}

@@ -135,17 +135,17 @@ func TestMenuModelListToMenuTreeV1(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len(MenuModelListToMenuTreeV1()) = %d, want 1", len(got))
 	}
-	if got[0].Menu.MenuID != rootID {
-		t.Fatalf("root MenuID = %q, want %q", got[0].Menu.MenuID, rootID)
+	if got[0].MenuID != rootID {
+		t.Fatalf("root MenuID = %q, want %q", got[0].MenuID, rootID)
 	}
 	if len(got[0].Children) != 1 {
 		t.Fatalf("len(root.Children) = %d, want 1", len(got[0].Children))
 	}
 	child := got[0].Children[0]
-	if child.Menu.MenuID != "menu-child" {
-		t.Fatalf("child MenuID = %q, want %q", child.Menu.MenuID, "menu-child")
+	if child.MenuID != "menu-child" {
+		t.Fatalf("child MenuID = %q, want %q", child.MenuID, "menu-child")
 	}
-	if child.Menu.ParentID != rootID {
-		t.Fatalf("child ParentID = %q, want %q", child.Menu.ParentID, rootID)
+	if child.ParentID != rootID {
+		t.Fatalf("child ParentID = %q, want %q", child.ParentID, rootID)
 	}
 }

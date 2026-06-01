@@ -2,6 +2,7 @@ package menu
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
@@ -14,7 +15,7 @@ import (
 func (b *menuBiz) List(ctx context.Context, rq *v1.ListMenuRequest) (*v1.ListMenuResponse, error) {
 	total, menus, err := b.store.Menu().List(ctx, buildListMenuOptions(rq))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list menus: %w", err)
 	}
 
 	return &v1.ListMenuResponse{
@@ -47,6 +48,7 @@ func buildMenuTree(menus []*model.MenuM) []*v1.MenuTreeNode {
 		} else if parent, ok := treeMap[*menu.ParentID]; ok {
 			parent.Children = append(parent.Children, node)
 		} else {
+			// 孤儿节点（父节点不存在），作为根节点处理
 			roots = append(roots, node)
 		}
 	}

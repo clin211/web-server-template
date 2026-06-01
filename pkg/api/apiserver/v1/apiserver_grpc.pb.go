@@ -33,8 +33,11 @@ const (
 	APIServer_UpdateMenu_FullMethodName                  = "/apiserver.v1.APIServer/UpdateMenu"
 	APIServer_DeleteMenu_FullMethodName                  = "/apiserver.v1.APIServer/DeleteMenu"
 	APIServer_ListMenus_FullMethodName                   = "/apiserver.v1.APIServer/ListMenus"
+	APIServer_SortMenu_FullMethodName                    = "/apiserver.v1.APIServer/SortMenu"
 	APIServer_ListMenuTree_FullMethodName                = "/apiserver.v1.APIServer/ListMenuTree"
 	APIServer_GetUserMenuTree_FullMethodName             = "/apiserver.v1.APIServer/GetUserMenuTree"
+	APIServer_GetUserRoutes_FullMethodName               = "/apiserver.v1.APIServer/GetUserRoutes"
+	APIServer_GetConstantRoutes_FullMethodName           = "/apiserver.v1.APIServer/GetConstantRoutes"
 	APIServer_GetMenuRoles_FullMethodName                = "/apiserver.v1.APIServer/GetMenuRoles"
 	APIServer_SetMenuRoles_FullMethodName                = "/apiserver.v1.APIServer/SetMenuRoles"
 	APIServer_AddMenuRole_FullMethodName                 = "/apiserver.v1.APIServer/AddMenuRole"
@@ -96,10 +99,16 @@ type APIServerClient interface {
 	DeleteMenu(ctx context.Context, in *DeleteMenuRequest, opts ...grpc.CallOption) (*DeleteMenuResponse, error)
 	// 列表菜单
 	ListMenus(ctx context.Context, in *ListMenuRequest, opts ...grpc.CallOption) (*ListMenuResponse, error)
+	// 批量更新菜单排序
+	SortMenu(ctx context.Context, in *SortMenuRequest, opts ...grpc.CallOption) (*SortMenuResponse, error)
 	// 列表菜单树
 	ListMenuTree(ctx context.Context, in *ListMenuTreeRequest, opts ...grpc.CallOption) (*ListMenuTreeResponse, error)
 	// 获取用户菜单树
 	GetUserMenuTree(ctx context.Context, in *GetUserMenuTreeRequest, opts ...grpc.CallOption) (*GetUserMenuTreeResponse, error)
+	// 获取用户路由树
+	GetUserRoutes(ctx context.Context, in *GetUserRoutesRequest, opts ...grpc.CallOption) (*GetUserRoutesResponse, error)
+	// 获取常量路由
+	GetConstantRoutes(ctx context.Context, in *GetConstantRoutesRequest, opts ...grpc.CallOption) (*GetConstantRoutesResponse, error)
 	// 获取菜单允许的角色列表
 	GetMenuRoles(ctx context.Context, in *GetMenuRolesRequest, opts ...grpc.CallOption) (*GetMenuRolesResponse, error)
 	// 批量设置菜单允许的角色（覆盖模式）
@@ -292,6 +301,16 @@ func (c *aPIServerClient) ListMenus(ctx context.Context, in *ListMenuRequest, op
 	return out, nil
 }
 
+func (c *aPIServerClient) SortMenu(ctx context.Context, in *SortMenuRequest, opts ...grpc.CallOption) (*SortMenuResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SortMenuResponse)
+	err := c.cc.Invoke(ctx, APIServer_SortMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aPIServerClient) ListMenuTree(ctx context.Context, in *ListMenuTreeRequest, opts ...grpc.CallOption) (*ListMenuTreeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListMenuTreeResponse)
@@ -306,6 +325,26 @@ func (c *aPIServerClient) GetUserMenuTree(ctx context.Context, in *GetUserMenuTr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetUserMenuTreeResponse)
 	err := c.cc.Invoke(ctx, APIServer_GetUserMenuTree_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) GetUserRoutes(ctx context.Context, in *GetUserRoutesRequest, opts ...grpc.CallOption) (*GetUserRoutesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserRoutesResponse)
+	err := c.cc.Invoke(ctx, APIServer_GetUserRoutes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) GetConstantRoutes(ctx context.Context, in *GetConstantRoutesRequest, opts ...grpc.CallOption) (*GetConstantRoutesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetConstantRoutesResponse)
+	err := c.cc.Invoke(ctx, APIServer_GetConstantRoutes_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -623,10 +662,16 @@ type APIServerServer interface {
 	DeleteMenu(context.Context, *DeleteMenuRequest) (*DeleteMenuResponse, error)
 	// 列表菜单
 	ListMenus(context.Context, *ListMenuRequest) (*ListMenuResponse, error)
+	// 批量更新菜单排序
+	SortMenu(context.Context, *SortMenuRequest) (*SortMenuResponse, error)
 	// 列表菜单树
 	ListMenuTree(context.Context, *ListMenuTreeRequest) (*ListMenuTreeResponse, error)
 	// 获取用户菜单树
 	GetUserMenuTree(context.Context, *GetUserMenuTreeRequest) (*GetUserMenuTreeResponse, error)
+	// 获取用户路由树
+	GetUserRoutes(context.Context, *GetUserRoutesRequest) (*GetUserRoutesResponse, error)
+	// 获取常量路由
+	GetConstantRoutes(context.Context, *GetConstantRoutesRequest) (*GetConstantRoutesResponse, error)
 	// 获取菜单允许的角色列表
 	GetMenuRoles(context.Context, *GetMenuRolesRequest) (*GetMenuRolesResponse, error)
 	// 批量设置菜单允许的角色（覆盖模式）
@@ -728,11 +773,20 @@ func (UnimplementedAPIServerServer) DeleteMenu(context.Context, *DeleteMenuReque
 func (UnimplementedAPIServerServer) ListMenus(context.Context, *ListMenuRequest) (*ListMenuResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListMenus not implemented")
 }
+func (UnimplementedAPIServerServer) SortMenu(context.Context, *SortMenuRequest) (*SortMenuResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SortMenu not implemented")
+}
 func (UnimplementedAPIServerServer) ListMenuTree(context.Context, *ListMenuTreeRequest) (*ListMenuTreeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListMenuTree not implemented")
 }
 func (UnimplementedAPIServerServer) GetUserMenuTree(context.Context, *GetUserMenuTreeRequest) (*GetUserMenuTreeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserMenuTree not implemented")
+}
+func (UnimplementedAPIServerServer) GetUserRoutes(context.Context, *GetUserRoutesRequest) (*GetUserRoutesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserRoutes not implemented")
+}
+func (UnimplementedAPIServerServer) GetConstantRoutes(context.Context, *GetConstantRoutesRequest) (*GetConstantRoutesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetConstantRoutes not implemented")
 }
 func (UnimplementedAPIServerServer) GetMenuRoles(context.Context, *GetMenuRolesRequest) (*GetMenuRolesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMenuRoles not implemented")
@@ -1073,6 +1127,24 @@ func _APIServer_ListMenus_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _APIServer_SortMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SortMenuRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).SortMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_SortMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).SortMenu(ctx, req.(*SortMenuRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _APIServer_ListMenuTree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListMenuTreeRequest)
 	if err := dec(in); err != nil {
@@ -1105,6 +1177,42 @@ func _APIServer_GetUserMenuTree_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServerServer).GetUserMenuTree(ctx, req.(*GetUserMenuTreeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_GetUserRoutes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRoutesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).GetUserRoutes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_GetUserRoutes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).GetUserRoutes(ctx, req.(*GetUserRoutesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_GetConstantRoutes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConstantRoutesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).GetConstantRoutes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_GetConstantRoutes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).GetConstantRoutes(ctx, req.(*GetConstantRoutesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1673,12 +1781,24 @@ var APIServer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _APIServer_ListMenus_Handler,
 		},
 		{
+			MethodName: "SortMenu",
+			Handler:    _APIServer_SortMenu_Handler,
+		},
+		{
 			MethodName: "ListMenuTree",
 			Handler:    _APIServer_ListMenuTree_Handler,
 		},
 		{
 			MethodName: "GetUserMenuTree",
 			Handler:    _APIServer_GetUserMenuTree_Handler,
+		},
+		{
+			MethodName: "GetUserRoutes",
+			Handler:    _APIServer_GetUserRoutes_Handler,
+		},
+		{
+			MethodName: "GetConstantRoutes",
+			Handler:    _APIServer_GetConstantRoutes_Handler,
 		},
 		{
 			MethodName: "GetMenuRoles",

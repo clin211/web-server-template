@@ -214,6 +214,64 @@
         ]
       }
     },
+    "/v1/menus/constant-routes": {
+      "get": {
+        "summary": "获取常量路由",
+        "description": "获取不参与权限过滤的常量路由",
+        "operationId": "APIServer_GetConstantRoutes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetConstantRoutesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
+    "/v1/menus/sort": {
+      "put": {
+        "summary": "批量更新菜单排序",
+        "description": "批量更新菜单的排序顺序",
+        "operationId": "APIServer_SortMenu",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SortMenuResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SortMenuRequest"
+            }
+          }
+        ],
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
     "/v1/menus/tree": {
       "get": {
         "summary": "列表菜单树",
@@ -1435,6 +1493,30 @@
         ]
       }
     },
+    "/v1/users/routes": {
+      "get": {
+        "summary": "获取用户路由树",
+        "description": "获取当前用户可访问的路由树",
+        "operationId": "APIServer_GetUserRoutes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUserRoutesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "菜单管理"
+        ]
+      }
+    },
     "/v1/users/{userID}": {
       "get": {
         "summary": "获取用户",
@@ -2206,6 +2288,20 @@
       "type": "object",
       "title": "DeleteUserResponse 表示删除用户响应"
     },
+    "v1GetConstantRoutesResponse": {
+      "type": "object",
+      "properties": {
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MenuRoute"
+          },
+          "title": "routes 表示常量路由列表"
+        }
+      },
+      "title": "GetConstantRoutesResponse 表示获取常量路由响应"
+    },
     "v1GetMenuResponse": {
       "type": "object",
       "properties": {
@@ -2287,7 +2383,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1MenuTreeNode"
+            "$ref": "#/definitions/v1MenuRoute"
           },
           "title": "menus 表示用户可见的菜单树"
         }
@@ -2324,6 +2420,24 @@
         }
       },
       "title": "GetUserRolesResponse 表示获取用户角色响应"
+    },
+    "v1GetUserRoutesResponse": {
+      "type": "object",
+      "properties": {
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MenuRoute"
+          },
+          "title": "routes 表示用户可访问的路由树"
+        },
+        "home": {
+          "type": "string",
+          "title": "home 表示首页 routeKey"
+        }
+      },
+      "title": "GetUserRoutesResponse 表示获取用户可访问路由响应"
     },
     "v1HealthzResponse": {
       "type": "object",
@@ -2647,6 +2761,103 @@
         }
       },
       "title": "Menu 表示菜单信息"
+    },
+    "v1MenuRoute": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "id 表示路由 ID（菜单 ID）"
+        },
+        "name": {
+          "type": "string",
+          "title": "name 表示路由名称（菜单编码）"
+        },
+        "path": {
+          "type": "string",
+          "title": "path 表示路由路径"
+        },
+        "component": {
+          "type": "string",
+          "title": "component 表示前端组件路径"
+        },
+        "redirect": {
+          "type": "string",
+          "title": "redirect 表示重定向路径"
+        },
+        "meta": {
+          "$ref": "#/definitions/v1MenuRouteMeta",
+          "title": "meta 表示路由元数据"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MenuRoute"
+          },
+          "title": "children 表示子路由列表"
+        }
+      },
+      "title": "MenuRoute 表示菜单路由"
+    },
+    "v1MenuRouteMeta": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "title 表示菜单标题"
+        },
+        "i18nKey": {
+          "type": "string",
+          "title": "i18nKey 表示国际化 key"
+        },
+        "icon": {
+          "type": "string",
+          "title": "icon 表示图标名称"
+        },
+        "localIcon": {
+          "type": "string",
+          "title": "localIcon 表示本地图标"
+        },
+        "iconFontSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "iconFontSize 表示图标大小"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int32",
+          "title": "order 表示排序序号"
+        },
+        "activeMenu": {
+          "type": "string",
+          "title": "activeMenu 表示当前激活的菜单"
+        },
+        "hideInMenu": {
+          "type": "boolean",
+          "title": "hideInMenu 表示在菜单中隐藏"
+        },
+        "keepAlive": {
+          "type": "boolean",
+          "title": "keepAlive 表示页面缓存"
+        },
+        "constant": {
+          "type": "boolean",
+          "title": "constant 表示常量路由"
+        },
+        "href": {
+          "type": "string",
+          "title": "href 表示外链地址"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "roles 表示允许访问的角色列表"
+        }
+      },
+      "title": "MenuRouteMeta 表示路由元数据"
     },
     "v1MenuTreeNode": {
       "type": "object",
@@ -3110,6 +3321,39 @@
         }
       },
       "title": "SetMenuRolesResponse 表示批量设置菜单允许的角色响应"
+    },
+    "v1SortMenuItem": {
+      "type": "object",
+      "properties": {
+        "menuID": {
+          "type": "string",
+          "title": "menuID 表示菜单 ID"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "format": "int32",
+          "title": "sortOrder 表示新的排序序号"
+        }
+      },
+      "title": "SortMenuItem 表示菜单排序项"
+    },
+    "v1SortMenuRequest": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SortMenuItem"
+          },
+          "title": "items 表示排序项列表"
+        }
+      },
+      "title": "SortMenuRequest 表示批量更新菜单排序请求"
+    },
+    "v1SortMenuResponse": {
+      "type": "object",
+      "title": "SortMenuResponse 表示批量更新菜单排序响应"
     },
     "v1ToggleScheduledTaskResponse": {
       "type": "object",

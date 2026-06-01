@@ -11,17 +11,18 @@ func init() {
 		rg := v1.Group("/menus")
 		rg.Use(handler.mws...)
 		rg.POST("", handler.CreateMenu)                  // 创建菜单
-		rg.PUT(":menuID", handler.UpdateMenu)           // 更新菜单
-		rg.DELETE(":menuID", handler.DeleteMenu)        // 删除菜单
-		rg.GET(":menuID", handler.GetMenu)               // 查询菜单详情
+		rg.PATCH(":id", handler.UpdateMenu)             // 更新菜单
+		rg.DELETE(":id", handler.DeleteMenu)           // 删除菜单
+		rg.GET(":id", handler.GetMenu)                  // 查询菜单详情
 		rg.GET("", handler.ListMenu)                    // 查询菜单列表
 		rg.GET("/tree", handler.ListMenuTree)           // 获取菜单树
+		rg.PUT(":id/sort", handler.SortMenu)            // 排序菜单
 
 		// 菜单角色相关路由
-		rg.GET(":menuID/roles", handler.GetMenuRoles)            // 获取菜单允许的角色
-		rg.PUT(":menuID/roles", handler.SetMenuRoles)            // 批量设置菜单允许的角色（覆盖模式）
-		rg.POST(":menuID/roles", handler.AddMenuRole)           // 追加菜单允许的角色
-		rg.DELETE(":menuID/roles/:roleId", handler.RemoveMenuRole) // 移除菜单允许的角色
+		rg.GET(":id/roles", handler.GetMenuRoles)            // 获取菜单允许的角色
+		rg.PUT(":id/roles", handler.SetMenuRoles)           // 批量设置菜单允许的角色（覆盖模式）
+		rg.POST(":id/roles", handler.AddMenuRole)           // 追加菜单允许的角色
+		rg.DELETE(":id/roles/:roleId", handler.RemoveMenuRole) // 移除菜单允许的角色
 	})
 }
 
@@ -73,4 +74,9 @@ func (h *Handler) AddMenuRole(c *gin.Context) {
 // RemoveMenuRole 移除菜单允许的角色.
 func (h *Handler) RemoveMenuRole(c *gin.Context) {
 	core.HandleUriRequest(c, h.biz.MenuV1().RemoveMenuRole, h.val.ValidateRemoveMenuRoleRequest)
+}
+
+// SortMenu 排序菜单.
+func (h *Handler) SortMenu(c *gin.Context) {
+	core.HandleUriJSONRequest(c, h.biz.MenuV1().SortMenu, h.val.ValidateSortMenuRequest)
 }

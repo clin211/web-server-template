@@ -2,9 +2,15 @@ package options
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/spf13/pflag"
+)
+
+// watch 相关的静态错误定义
+var (
+	errWatchDuplicateWatcher = errors.New("disable-watchers contains duplicate entries")
 )
 
 // 确保接口实现
@@ -119,7 +125,7 @@ func (o *WatchOptions) Validate() []error {
 			continue
 		}
 		if watcherSet[watcher] {
-			errs = append(errs, errors.New("disable-watchers contains duplicate entries: "+watcher))
+			errs = append(errs, fmt.Errorf("%w: %s", errWatchDuplicateWatcher, watcher))
 		}
 		watcherSet[watcher] = true
 	}

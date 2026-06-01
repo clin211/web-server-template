@@ -2,8 +2,11 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
+	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
+	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
 
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
@@ -27,23 +30,13 @@ func (b *userBiz) Update(ctx context.Context, rq *v1.UpdateUserRequest) (*v1.Upd
 	}
 
 	// 检查邮箱是否已被其他用户占用
-	if rq.Email != nil && rq.GetEmail() != "" && (userM.Email == nil || rq.GetEmail() != *userM.Email) {
-		if existingUser, err := b.store.User().Get(ctx, where.F("email", rq.GetEmail()).L(1)); err == nil && existingUser != nil && existingUser.UserID != userM.UserID {
-			slog.WarnContext(ctx, "Email already exists", "email", rq.GetEmail())
-			return nil, errno.ErrUserAlreadyExists
-		}
-		email := rq.GetEmail()
-		userM.Email = &email
+	if err := checkUniqueField(ctx, b.store, userM, rq.Email, "email", rq.GetEmail); err != nil {
+		return nil, err
 	}
 
 	// 检查手机号是否已被其他用户占用
-	if rq.Phone != nil && rq.GetPhone() != "" && (userM.Phone == nil || rq.GetPhone() != *userM.Phone) {
-		if existingUser, err := b.store.User().Get(ctx, where.F("phone", rq.GetPhone()).L(1)); err == nil && existingUser != nil && existingUser.UserID != userM.UserID {
-			slog.WarnContext(ctx, "Phone already exists", "phone", rq.GetPhone())
-			return nil, errno.ErrUserAlreadyExists
-		}
-		phone := rq.GetPhone()
-		userM.Phone = &phone
+	if err := checkUniqueField(ctx, b.store, userM, rq.Phone, "phone", rq.GetPhone); err != nil {
+		return nil, err
 	}
 
 	if rq.Nickname != nil {
@@ -55,4 +48,55 @@ func (b *userBiz) Update(ctx context.Context, rq *v1.UpdateUserRequest) (*v1.Upd
 	}
 
 	return &v1.UpdateUserResponse{}, nil
+}
+
+// checkUniqueField 检查唯一字段（如 email、phone）是否已被其他用户占用.
+func checkUniqueField[T any](
+	ctx context.Context,
+	store store.IStore,
+	userM *model.UserM,
+	fieldPtr *T,
+	fieldName string,
+	getValue func() string,
+) error {
+	value := getValue()
+	if value == "" {
+		return nil
+	}
+
+	// 获取当前值
+	var currentValue *string
+	switch fieldName {
+	case "email":
+		currentValue = userM.Email
+	case "phone":
+		currentValue = userM.Phone
+	}
+
+	// 如果值没有变化，跳过检查
+	if currentValue != nil && value == *currentValue {
+		return nil
+	}
+
+	// 检查是否已被其他用户占用
+	existingUser, err := store.User().Get(ctx, where.F(fieldName, value).L(1))
+	if err != nil {
+		return fmt.Errorf("check %s uniqueness: %w", fieldName, err)
+	}
+	if existingUser != nil && existingUser.UserID != userM.UserID {
+		slog.WarnContext(ctx, fmt.Sprintf("%s already exists", fieldName), fieldName, value)
+		return errno.ErrUserAlreadyExists
+	}
+
+	// 更新字段值
+	switch fieldName {
+	case "email":
+		email := value
+		userM.Email = &email
+	case "phone":
+		phone := value
+		userM.Phone = &phone
+	}
+
+	return nil
 }

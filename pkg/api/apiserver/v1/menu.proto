@@ -265,7 +265,7 @@ message GetUserMenuTreeRequest {
 // GetUserMenuTreeResponse 表示获取用户菜单树响应
 message GetUserMenuTreeResponse {
   // menus 表示用户可见的菜单树
-  repeated MenuTreeNode menus = 1;
+  repeated MenuRoute menus = 1;
 }
 
 // =============================================================================
@@ -409,3 +409,20 @@ message GetUserRoutesResponse {
   // home 表示首页 routeKey
   string home = 2;
 }
+
+// SortMenuItem 表示菜单排序项
+message SortMenuItem {
+  // menuID 表示菜单 ID
+  string menuID = 1;
+  // sortOrder 表示新的排序序号
+  int32 sortOrder = 2;
+}
+
+// SortMenuRequest 表示批量更新菜单排序请求
+message SortMenuRequest {
+  // items 表示排序项列表
+  repeated SortMenuItem items = 1;
+}
+
+// SortMenuResponse 表示批量更新菜单排序响应
+message SortMenuResponse {}

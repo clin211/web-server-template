@@ -2009,6 +2009,10 @@ func (b *stubMenuBiz) List(context.Context, *v1.ListMenuRequest) (*v1.ListMenuRe
 	panic("unexpected call to List")
 }
 
+func (b *stubMenuBiz) SortMenu(context.Context, *v1.SortMenuRequest) (*v1.SortMenuResponse, error) {
+	panic("unexpected call to SortMenu")
+}
+
 func (b *stubMenuBiz) ListMenuTree(context.Context, *v1.ListMenuTreeRequest) (*v1.ListMenuTreeResponse, error) {
 	panic("unexpected call to ListMenuTree")
 }
@@ -2031,6 +2035,14 @@ func (b *stubMenuBiz) AddMenuRole(context.Context, *v1.AddMenuRoleRequest) (*v1.
 
 func (b *stubMenuBiz) RemoveMenuRole(context.Context, *v1.RemoveMenuRoleRequest) (*v1.RemoveMenuRoleResponse, error) {
 	panic("unexpected call to RemoveMenuRole")
+}
+
+func (b *stubMenuBiz) GetUserRoutes(context.Context, *v1.GetUserRoutesRequest) (*v1.GetUserRoutesResponse, error) {
+	panic("unexpected call to GetUserRoutes")
+}
+
+func (b *stubMenuBiz) GetConstantRoutes(context.Context, *v1.GetConstantRoutesRequest) (*v1.GetConstantRoutesResponse, error) {
+	panic("unexpected call to GetConstantRoutes")
 }
 
 type stubPermissionBiz struct {

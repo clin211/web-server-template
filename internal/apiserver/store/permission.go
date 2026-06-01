@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 
 	storelogger "github.com/clin211/gin-enterprise-template/pkg/logger/slog/store"
 	genericstore "github.com/clin211/gin-enterprise-template/pkg/store"
@@ -23,8 +24,6 @@ type PermissionStore interface {
 
 // PermissionExpansion 定义了权限操作的附加方法.
 type PermissionExpansion interface {
-	// GetByPermissionCode 根据权限编码获取权限
-	GetByPermissionCode(ctx context.Context, permissionCode string) (*model.PermissionM, error)
 	// ListTree 获取权限树
 	ListTree(ctx context.Context, opts *where.Options) ([]*model.PermissionM, error)
 	// GetChildren 获取子权限列表
@@ -48,22 +47,12 @@ func newPermissionStore(store *datastore) *permissionStore {
 	}
 }
 
-// GetByPermissionCode 根据权限编码获取权限
-func (s *permissionStore) GetByPermissionCode(ctx context.Context, permissionCode string) (*model.PermissionM, error) {
-	var obj model.PermissionM
-	if err := s.core.DB(ctx, where.F("permission_code", permissionCode).L(1)).First(&obj).Error; err != nil {
-		return nil, err
-	}
-	return &obj, nil
-}
-
 // ListTree 获取权限树
 func (s *permissionStore) ListTree(ctx context.Context, opts *where.Options) ([]*model.PermissionM, error) {
 	var permissions []*model.PermissionM
 
-	// 首先获取所有权限
 	if err := s.core.DB(ctx, opts).Find(&permissions).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list permission tree: %w", err)
 	}
 
 	return permissions, nil
@@ -73,15 +62,15 @@ func (s *permissionStore) ListTree(ctx context.Context, opts *where.Options) ([]
 func (s *permissionStore) GetChildren(ctx context.Context, parentID string) ([]*model.PermissionM, error) {
 	var permissions []*model.PermissionM
 
-	query := s.core.DB(ctx)
+	opts := where.NewWhere().F("deleted_at", nil)
 	if parentID == "" {
-		query = query.Where("parent_id IS NULL OR parent_id = ''")
+		opts.Q("parent_id IS NULL OR parent_id = ''")
 	} else {
-		query = query.Where("parent_id = ?", parentID)
+		opts.F("parent_id", parentID)
 	}
 
-	if err := query.Find(&permissions).Error; err != nil {
-		return nil, err
+	if err := s.core.DB(ctx, opts).Find(&permissions).Error; err != nil {
+		return nil, fmt.Errorf("get permission children: %w", err)
 	}
 
 	return permissions, nil

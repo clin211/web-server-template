@@ -19,6 +19,7 @@ const (
 	processStatusSucceeded = "succeeded"
 	processStatusFailed    = "failed"
 	processStatusDead      = "dead"
+	maxErrorMsgLength      = 1024
 )
 
 // executionRecorder tracks job execution state in the database.
@@ -54,7 +55,7 @@ func (r *executionRecorder) MarkSucceeded(ctx context.Context, task *genericjob.
 	return r.update(ctx, task.ExecutionID, map[string]any{
 		"process_status": processStatusSucceeded,
 		"finished_at":    now,
-		"duration_ms":    duration.Milliseconds(),
+		"duration_ms":   duration.Milliseconds(),
 		"error_msg":      nil,
 	})
 }
@@ -65,20 +66,12 @@ func (r *executionRecorder) MarkFailed(ctx context.Context, task *genericjob.Tas
 		return nil
 	}
 
-	errorMsg := "unknown job task error"
-	if err != nil {
-		errorMsg = err.Error()
-	}
-	if len(errorMsg) > 1024 {
-		errorMsg = errorMsg[:1024]
-	}
-
 	now := time.Now().UTC()
 	return r.update(ctx, task.ExecutionID, map[string]any{
 		"process_status": processStatusFailed,
 		"finished_at":    now,
-		"duration_ms":    duration.Milliseconds(),
-		"error_msg":      errorMsg,
+		"duration_ms":   duration.Milliseconds(),
+		"error_msg":      truncateErrorMsg(err),
 		"attempt":        gorm.Expr("attempt + ?", 1),
 	})
 }
@@ -89,17 +82,9 @@ func (r *executionRecorder) MarkRetrying(ctx context.Context, task *genericjob.T
 		return nil
 	}
 
-	errorMsg := ""
-	if err != nil {
-		errorMsg = err.Error()
-	}
-	if len(errorMsg) > 1024 {
-		errorMsg = errorMsg[:1024]
-	}
-
 	return r.update(ctx, task.ExecutionID, map[string]any{
 		"process_status": processStatusRetrying,
-		"error_msg":      errorMsg,
+		"error_msg":      truncateErrorMsg(err),
 		"attempt":        gorm.Expr("attempt + ?", 1),
 	})
 }
@@ -110,27 +95,31 @@ func (r *executionRecorder) MarkDead(ctx context.Context, task *genericjob.Task,
 		return nil
 	}
 
-	errorMsg := "unknown job task error"
-	if err != nil {
-		errorMsg = err.Error()
-	}
-	if len(errorMsg) > 1024 {
-		errorMsg = errorMsg[:1024]
-	}
-
 	now := time.Now().UTC()
 	return r.update(ctx, task.ExecutionID, map[string]any{
 		"process_status": processStatusDead,
-		"finished_at":    now,
+		"finished_at":     now,
 		"duration_ms":    duration.Milliseconds(),
-		"error_msg":      errorMsg,
-		"attempt":        gorm.Expr("attempt + ?", 1),
+		"error_msg":       truncateErrorMsg(err),
+		"attempt":         gorm.Expr("attempt + ?", 1),
 	})
 }
 
 // skip returns true if recording should be skipped for this task.
 func (r *executionRecorder) skip(task *genericjob.Task) bool {
 	return r == nil || r.store == nil || task == nil || task.ExecutionID == ""
+}
+
+// truncateErrorMsg truncates error message to max length.
+func truncateErrorMsg(err error) string {
+	errorMsg := "unknown job task error"
+	if err != nil {
+		errorMsg = err.Error()
+	}
+	if len(errorMsg) > maxErrorMsgLength {
+		return errorMsg[:maxErrorMsgLength]
+	}
+	return errorMsg
 }
 
 // update persists the given values to the execution record.

@@ -1436,7 +1436,7 @@ func (*GetUserMenuTreeRequest) Descriptor() ([]byte, []int) {
 type GetUserMenuTreeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// menus 表示用户可见的菜单树
-	Menus         []*MenuTreeNode `protobuf:"bytes,1,rep,name=menus,proto3" json:"menus,omitempty"`
+	Menus         []*MenuRoute `protobuf:"bytes,1,rep,name=menus,proto3" json:"menus,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1471,7 +1471,7 @@ func (*GetUserMenuTreeResponse) Descriptor() ([]byte, []int) {
 	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *GetUserMenuTreeResponse) GetMenus() []*MenuTreeNode {
+func (x *GetUserMenuTreeResponse) GetMenus() []*MenuRoute {
 	if x != nil {
 		return x.Menus
 	}
@@ -2363,6 +2363,144 @@ func (x *GetUserRoutesResponse) GetHome() string {
 	return ""
 }
 
+// SortMenuItem 表示菜单排序项
+type SortMenuItem struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// menuID 表示菜单 ID
+	MenuID string `protobuf:"bytes,1,opt,name=menuID,proto3" json:"menuID,omitempty"`
+	// sortOrder 表示新的排序序号
+	SortOrder     int32 `protobuf:"varint,2,opt,name=sortOrder,proto3" json:"sortOrder,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SortMenuItem) Reset() {
+	*x = SortMenuItem{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SortMenuItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SortMenuItem) ProtoMessage() {}
+
+func (x *SortMenuItem) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SortMenuItem.ProtoReflect.Descriptor instead.
+func (*SortMenuItem) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *SortMenuItem) GetMenuID() string {
+	if x != nil {
+		return x.MenuID
+	}
+	return ""
+}
+
+func (x *SortMenuItem) GetSortOrder() int32 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+// SortMenuRequest 表示批量更新菜单排序请求
+type SortMenuRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// items 表示排序项列表
+	Items         []*SortMenuItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SortMenuRequest) Reset() {
+	*x = SortMenuRequest{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SortMenuRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SortMenuRequest) ProtoMessage() {}
+
+func (x *SortMenuRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SortMenuRequest.ProtoReflect.Descriptor instead.
+func (*SortMenuRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *SortMenuRequest) GetItems() []*SortMenuItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+// SortMenuResponse 表示批量更新菜单排序响应
+type SortMenuResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SortMenuResponse) Reset() {
+	*x = SortMenuResponse{}
+	mi := &file_apiserver_v1_menu_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SortMenuResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SortMenuResponse) ProtoMessage() {}
+
+func (x *SortMenuResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_menu_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SortMenuResponse.ProtoReflect.Descriptor instead.
+func (*SortMenuResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_menu_proto_rawDescGZIP(), []int{33}
+}
+
 var File_apiserver_v1_menu_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_menu_proto_rawDesc = "" +
@@ -2571,9 +2709,9 @@ const file_apiserver_v1_menu_proto_rawDesc = "" +
 	"\r_permissionIDB\r\n" +
 	"\v_activeMenuB\a\n" +
 	"\x05_href\"\x18\n" +
-	"\x16GetUserMenuTreeRequest\"K\n" +
-	"\x17GetUserMenuTreeResponse\x120\n" +
-	"\x05menus\x18\x01 \x03(\v2\x1a.apiserver.v1.MenuTreeNodeR\x05menus\":\n" +
+	"\x16GetUserMenuTreeRequest\"H\n" +
+	"\x17GetUserMenuTreeResponse\x12-\n" +
+	"\x05menus\x18\x01 \x03(\v2\x17.apiserver.v1.MenuRouteR\x05menus\":\n" +
 	"\bMenuRole\x12\x16\n" +
 	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x16\n" +
 	"\x06roleID\x18\x02 \x01(\tR\x06roleID\"-\n" +
@@ -2644,7 +2782,13 @@ const file_apiserver_v1_menu_proto_rawDesc = "" +
 	"\x14GetUserRoutesRequest\"\\\n" +
 	"\x15GetUserRoutesResponse\x12/\n" +
 	"\x06routes\x18\x01 \x03(\v2\x17.apiserver.v1.MenuRouteR\x06routes\x12\x12\n" +
-	"\x04home\x18\x02 \x01(\tR\x04homeBDZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
+	"\x04home\x18\x02 \x01(\tR\x04home\"D\n" +
+	"\fSortMenuItem\x12\x16\n" +
+	"\x06menuID\x18\x01 \x01(\tR\x06menuID\x12\x1c\n" +
+	"\tsortOrder\x18\x02 \x01(\x05R\tsortOrder\"C\n" +
+	"\x0fSortMenuRequest\x120\n" +
+	"\x05items\x18\x01 \x03(\v2\x1a.apiserver.v1.SortMenuItemR\x05items\"\x12\n" +
+	"\x10SortMenuResponseBDZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
 
 var (
 	file_apiserver_v1_menu_proto_rawDescOnce sync.Once
@@ -2658,7 +2802,7 @@ func file_apiserver_v1_menu_proto_rawDescGZIP() []byte {
 	return file_apiserver_v1_menu_proto_rawDescData
 }
 
-var file_apiserver_v1_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_apiserver_v1_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_apiserver_v1_menu_proto_goTypes = []any{
 	(*Menu)(nil),                      // 0: apiserver.v1.Menu
 	(*CreateMenuRequest)(nil),         // 1: apiserver.v1.CreateMenuRequest
@@ -2691,22 +2835,26 @@ var file_apiserver_v1_menu_proto_goTypes = []any{
 	(*GetConstantRoutesResponse)(nil), // 28: apiserver.v1.GetConstantRoutesResponse
 	(*GetUserRoutesRequest)(nil),      // 29: apiserver.v1.GetUserRoutesRequest
 	(*GetUserRoutesResponse)(nil),     // 30: apiserver.v1.GetUserRoutesResponse
+	(*SortMenuItem)(nil),              // 31: apiserver.v1.SortMenuItem
+	(*SortMenuRequest)(nil),           // 32: apiserver.v1.SortMenuRequest
+	(*SortMenuResponse)(nil),          // 33: apiserver.v1.SortMenuResponse
 }
 var file_apiserver_v1_menu_proto_depIdxs = []int32{
 	0,  // 0: apiserver.v1.GetMenuResponse.menu:type_name -> apiserver.v1.Menu
 	13, // 1: apiserver.v1.ListMenuResponse.menus:type_name -> apiserver.v1.MenuTreeNode
 	13, // 2: apiserver.v1.ListMenuTreeResponse.menus:type_name -> apiserver.v1.MenuTreeNode
 	13, // 3: apiserver.v1.MenuTreeNode.children:type_name -> apiserver.v1.MenuTreeNode
-	13, // 4: apiserver.v1.GetUserMenuTreeResponse.menus:type_name -> apiserver.v1.MenuTreeNode
+	26, // 4: apiserver.v1.GetUserMenuTreeResponse.menus:type_name -> apiserver.v1.MenuRoute
 	25, // 5: apiserver.v1.MenuRoute.meta:type_name -> apiserver.v1.MenuRouteMeta
 	26, // 6: apiserver.v1.MenuRoute.children:type_name -> apiserver.v1.MenuRoute
 	26, // 7: apiserver.v1.GetConstantRoutesResponse.routes:type_name -> apiserver.v1.MenuRoute
 	26, // 8: apiserver.v1.GetUserRoutesResponse.routes:type_name -> apiserver.v1.MenuRoute
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	31, // 9: apiserver.v1.SortMenuRequest.items:type_name -> apiserver.v1.SortMenuItem
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_apiserver_v1_menu_proto_init() }
@@ -2728,7 +2876,7 @@ func file_apiserver_v1_menu_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_apiserver_v1_menu_proto_rawDesc), len(file_apiserver_v1_menu_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   31,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

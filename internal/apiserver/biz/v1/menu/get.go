@@ -2,6 +2,7 @@ package menu
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
@@ -13,6 +14,9 @@ import (
 func (b *menuBiz) Get(ctx context.Context, rq *v1.GetMenuRequest) (*v1.GetMenuResponse, error) {
 	menuM, err := b.store.Menu().Get(ctx, where.F("menu_id", rq.GetMenuID()).L(1))
 	if err != nil {
+		return nil, fmt.Errorf("get menu: %w", err)
+	}
+	if menuM == nil {
 		return nil, errno.ErrMenuNotFound
 	}
 

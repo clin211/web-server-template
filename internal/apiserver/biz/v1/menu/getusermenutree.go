@@ -2,6 +2,7 @@ package menu
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
 
@@ -11,12 +12,16 @@ import (
 
 // GetUserMenuTree 获取用户可见的菜单树.
 func (b *menuBiz) GetUserMenuTree(ctx context.Context, _ *v1.GetUserMenuTreeRequest) (*v1.GetUserMenuTreeResponse, error) {
-	menus, err := b.store.Menu().GetUserMenus(ctx, contextx.UserID(ctx))
+	userID := contextx.UserID(ctx)
+
+	// 获取用户可见的菜单及角色映射
+	menus, rolesMap, err := b.store.Menu().GetUserMenusWithRoles(ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get user menus for menu tree: %w", err)
 	}
 
-	tree := conversion.MenuModelListToMenuTreeV1(menus)
+	// 使用 BuildMenuTreeWithRoles 构建树，避免 N+1 查询
+	routes := conversion.BuildMenuTreeWithRoles(menus, rolesMap)
 
-	return &v1.GetUserMenuTreeResponse{Menus: tree}, nil
+	return &v1.GetUserMenuTreeResponse{Menus: routes}, nil
 }
