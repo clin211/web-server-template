@@ -22,6 +22,7 @@ func MenuModelToMenuV1(menuModel *model.MenuM) *v1.Menu {
 		MenuName:     menuModel.MenuName,
 		MenuCode:     menuModel.MenuCode,
 		MenuType:     menuModel.MenuType,
+		I18NKey:     menuModel.I18nKey,
 		Icon:         menuModel.Icon,
 		LocalIcon:    menuModel.LocalIcon,
 		IconFontSize: int32PtrValue(menuModel.IconFontSize),
@@ -59,12 +60,18 @@ func MenuModelListToMenuV1List(menus []*model.MenuM) []*v1.Menu {
 
 // MenuModelToMenuTreeNodeV1 将模型层的 MenuM 转换为 Protobuf 层的 MenuTreeNode.
 func MenuModelToMenuTreeNodeV1(menuModel *model.MenuM) *v1.MenuTreeNode {
+	// 空字符串的 parentID 替换为 "0"，确保 protojson 序列化时字段被包含
+	parentID := "0"
+	if menuModel.ParentID != nil && *menuModel.ParentID != "" {
+		parentID = *menuModel.ParentID
+	}
 	return &v1.MenuTreeNode{
 		MenuID:       menuModel.MenuID,
-		ParentID:     derefString(menuModel.ParentID),
+		ParentID:     parentID,
 		MenuName:     menuModel.MenuName,
 		MenuCode:     menuModel.MenuCode,
 		MenuType:     menuModel.MenuType,
+		I18NKey:      menuModel.I18nKey,
 		Icon:         menuModel.Icon,
 		LocalIcon:    menuModel.LocalIcon,
 		IconFontSize: int32PtrValue(menuModel.IconFontSize),
@@ -90,12 +97,18 @@ func MenuModelListToMenuTreeV1(menus []*model.MenuM) []*v1.MenuTreeNode {
 	roots := make([]*v1.MenuTreeNode, 0, len(menus))
 
 	for _, menu := range menus {
+		// 空字符串的 parentID 替换为 "0"，确保 protojson 序列化时字段被包含
+		parentID := "0"
+		if menu.ParentID != nil && *menu.ParentID != "" {
+			parentID = *menu.ParentID
+		}
 		node := &v1.MenuTreeNode{
 			MenuID:       menu.MenuID,
-			ParentID:     derefString(menu.ParentID),
+			ParentID:     parentID,
 			MenuName:     menu.MenuName,
 			MenuCode:     menu.MenuCode,
 			MenuType:     menu.MenuType,
+			I18NKey:      menu.I18nKey,
 			Icon:         menu.Icon,
 			LocalIcon:    menu.LocalIcon,
 			IconFontSize: int32PtrValue(menu.IconFontSize),

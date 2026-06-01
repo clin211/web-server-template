@@ -361,6 +361,8 @@ declare namespace App {
           yes: string;
           no: string;
         };
+        yes: string;
+        no: string;
       };
       request: {
         logout: string;
@@ -589,6 +591,55 @@ declare namespace App {
             };
             actions: { detail: string; assignRole: string };
             pagination: { prev: string; next: string; current: string };
+          };
+          menu: {
+            columns: {
+              menuName: string;
+              menuCode: string;
+              menuType: string;
+              icon: string;
+              path: string;
+              component: string;
+              visible: string;
+              status: string;
+              constant: string;
+              hideInMenu: string;
+              sortOrder: string;
+              createdAt: string;
+            };
+            menuType: { menu: string; page: string };
+            type: { directory: string; page: string };
+            status: { normal: string; disabled: string };
+            search: { keyword: string };
+            form: {
+              menuName: string;
+              menuCode: string;
+              menuType: string;
+              i18nKey: string;
+              parentID: string;
+              path: string;
+              component: string;
+              icon: string;
+              localIcon: string;
+              sortOrder: string;
+              visible: string;
+              status: string;
+              constant: string;
+              hideInMenu: string;
+              keepAlive: string;
+              href: string;
+              menuNameRequired: string;
+              menuCodeRequired: string;
+              menuTypeRequired: string;
+            };
+            drawer: { addTitle: string; editTitle: string };
+            detail: { title: string; updatedAt: string };
+            roleDrawer: {
+              title: string;
+              assigned: string;
+              remove: string;
+              removeConfirm: string;
+            };
           };
         };
       };

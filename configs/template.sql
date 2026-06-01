@@ -156,6 +156,7 @@ CREATE TABLE "public"."menu" (
   "menu_name" varchar(50) COLLATE "pg_catalog"."default" NOT NULL,
   "menu_code" varchar(50) COLLATE "pg_catalog"."default" NOT NULL,
   "menu_type" "public"."menu_type" NOT NULL,
+  "i18n_key" varchar(100) COLLATE "pg_catalog"."default",
   "icon" varchar(50) COLLATE "pg_catalog"."default",
   "path" varchar(200) COLLATE "pg_catalog"."default",
   "component" varchar(200) COLLATE "pg_catalog"."default",
@@ -174,6 +175,7 @@ COMMENT ON COLUMN "public"."menu"."parent_id" IS '父菜单UUID（用于构建�
 COMMENT ON COLUMN "public"."menu"."menu_name" IS '菜单名称';
 COMMENT ON COLUMN "public"."menu"."menu_code" IS '菜单编码（唯一标识）';
 COMMENT ON COLUMN "public"."menu"."menu_type" IS '菜单类型（menu=目录, page=页面）';
+COMMENT ON COLUMN "public"."menu"."i18n_key" IS '国际化key（用于前端翻译）';
 COMMENT ON COLUMN "public"."menu"."icon" IS '菜单图标';
 COMMENT ON COLUMN "public"."menu"."path" IS '路由路径';
 COMMENT ON COLUMN "public"."menu"."component" IS '前端组件路径（兼容vue-pure-admin）';

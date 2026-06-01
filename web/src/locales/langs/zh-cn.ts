@@ -48,7 +48,9 @@ const local: App.I18n.Schema = {
     yesOrNo: {
       yes: '是',
       no: '否'
-    }
+    },
+    yes: '是',
+    no: '否'
   },
   request: {
     logout: '请求失败后登出用户',
@@ -227,7 +229,8 @@ const local: App.I18n.Schema = {
     'iframe-page': '外链页面',
     home: '首页',
     'system-manage': '系统管理',
-    'system-manage_user': '用户管理'
+    'system-manage_user': '用户管理',
+    'system-manage_menu': '菜单管理'
   },
   page: {
     login: {
@@ -362,6 +365,72 @@ const local: App.I18n.Schema = {
           prev: '上一页',
           current: '第 {page} 页',
           next: '下一页'
+        }
+      },
+      menu: {
+        columns: {
+          menuName: '菜单名称',
+          menuCode: '菜单编码',
+          menuType: '菜单类型',
+          icon: '图标',
+          path: '路由路径',
+          component: '组件路径',
+          visible: '显示',
+          status: '状态',
+          constant: '常量路由',
+          hideInMenu: '隐藏',
+          sortOrder: '排序',
+          createdAt: '创建时间'
+        },
+        menuType: {
+          menu: '目录',
+          page: '页面'
+        },
+        type: {
+          directory: '目录',
+          page: '页面'
+        },
+        status: {
+          normal: '正常',
+          disabled: '禁用'
+        },
+        search: {
+          keyword: '关键词'
+        },
+        form: {
+          menuName: '菜单名称',
+          menuCode: '菜单编码',
+          menuType: '菜单类型',
+          i18nKey: '国际化Key',
+          parentID: '父菜单',
+          path: '路由路径',
+          component: '组件路径',
+          icon: '图标',
+          localIcon: '本地图标',
+          sortOrder: '排序',
+          visible: '显示',
+          status: '状态',
+          constant: '常量路由',
+          hideInMenu: '菜单中隐藏',
+          keepAlive: '页面缓存',
+          href: '外链地址',
+          menuNameRequired: '请输入菜单名称',
+          menuCodeRequired: '请输入菜单编码',
+          menuTypeRequired: '请选择菜单类型'
+        },
+        drawer: {
+          addTitle: '新增菜单',
+          editTitle: '编辑菜单'
+        },
+        roleDrawer: {
+          title: '菜单角色管理',
+          assigned: '已分配',
+          remove: '移除',
+          removeConfirm: '确认移除该角色吗？'
+        },
+        detail: {
+          title: '菜单详情',
+          updatedAt: '更新时间'
         }
       }
     }

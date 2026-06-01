@@ -48,7 +48,9 @@ const local: App.I18n.Schema = {
     yesOrNo: {
       yes: 'Yes',
       no: 'No'
-    }
+    },
+    yes: 'Yes',
+    no: 'No'
   },
   request: {
     logout: 'Logout user after request failed',
@@ -231,7 +233,8 @@ const local: App.I18n.Schema = {
     'iframe-page': 'Iframe',
     home: 'Home',
     'system-manage': 'System Management',
-    'system-manage_user': 'User Management'
+    'system-manage_user': 'User Management',
+    'system-manage_menu': 'Menu Management'
   },
   page: {
     login: {
@@ -366,6 +369,72 @@ const local: App.I18n.Schema = {
           prev: 'Previous',
           current: 'Page {page}',
           next: 'Next'
+        }
+      },
+      menu: {
+        columns: {
+          menuName: 'Menu Name',
+          menuCode: 'Menu Code',
+          menuType: 'Menu Type',
+          icon: 'Icon',
+          path: 'Route Path',
+          component: 'Component',
+          visible: 'Visible',
+          status: 'Status',
+          constant: 'Constant',
+          hideInMenu: 'Hide',
+          sortOrder: 'Sort Order',
+          createdAt: 'Created At'
+        },
+        menuType: {
+          menu: 'Directory',
+          page: 'Page'
+        },
+        type: {
+          directory: 'Directory',
+          page: 'Page'
+        },
+        status: {
+          normal: 'Normal',
+          disabled: 'Disabled'
+        },
+        search: {
+          keyword: 'Keyword'
+        },
+        form: {
+          menuName: 'Menu Name',
+          menuCode: 'Menu Code',
+          menuType: 'Menu Type',
+          i18nKey: 'I18n Key',
+          parentID: 'Parent Menu',
+          path: 'Route Path',
+          component: 'Component',
+          icon: 'Icon',
+          localIcon: 'Local Icon',
+          sortOrder: 'Sort Order',
+          visible: 'Visible',
+          status: 'Status',
+          constant: 'Constant Route',
+          hideInMenu: 'Hide In Menu',
+          keepAlive: 'Keep Alive',
+          href: 'External Link',
+          menuNameRequired: 'Please enter menu name',
+          menuCodeRequired: 'Please enter menu code',
+          menuTypeRequired: 'Please select menu type'
+        },
+        drawer: {
+          addTitle: 'Add Menu',
+          editTitle: 'Edit Menu'
+        },
+        roleDrawer: {
+          title: 'Menu Role Management',
+          assigned: 'Assigned',
+          remove: 'Remove',
+          removeConfirm: 'Remove this role?'
+        },
+        detail: {
+          title: 'Menu Detail',
+          updatedAt: 'Updated At'
         }
       }
     }

@@ -20,6 +20,7 @@ type MenuM struct {
 	MenuName     string         `gorm:"column:menu_name;not null;comment:菜单名称" json:"menuName"`                             // 菜单名称
 	MenuCode     string         `gorm:"column:menu_code;not null;comment:菜单编码（唯一标识）" json:"menuCode"`                       // 菜单编码（唯一标识）
 	MenuType     string         `gorm:"column:menu_type;not null;comment:菜单类型（menu=目录, page=页面）" json:"menuType"`           // 菜单类型（menu=目录, page=页面）
+	I18nKey      *string        `gorm:"column:i18n_key;comment:国际化key（用于前端翻译）" json:"i18nKey"`                           // 国际化key（用于前端翻译）
 	Icon         *string        `gorm:"column:icon;comment:菜单图标" json:"icon"`                                               // 菜单图标
 	LocalIcon    *string        `gorm:"column:local_icon;comment:本地图标" json:"localIcon"`                                      // 本地图标
 	IconFontSize *int           `gorm:"column:icon_font_size;comment:图标大小" json:"iconFontSize"`                               // 图标大小
@@ -30,7 +31,7 @@ type MenuM struct {
 	Visible      int16          `gorm:"column:visible;not null;default:1;comment:是否可见（0=隐藏,1=显示）" json:"visible"`           // 是否可见（0=隐藏,1=显示）
 	Status       int16          `gorm:"column:status;not null;comment:菜单状态（0=启用,1=禁用）" json:"status"`                       // 菜单状态（0=启用,1=禁用）
 	Constant     int16          `gorm:"column:constant;not null;default:0;comment:常量路由（0=否,1=是）" json:"constant"`           // 常量路由（0=否,1=是）
-	ActiveMenu   *string        `gorm:"column:active_menu;comment:当前激活的菜单" json:"activeMenu"`                                // 当前激活的菜单
+	ActiveMenu   *string        `gorm:"column:active_menu;comment:当前激活的菜单" json:"activeMenu"`                                // 当前激活的菜单（用于面包屑）
 	HideInMenu   int16          `gorm:"column:hide_in_menu;not null;default:0;comment:在菜单中隐藏（0=否,1=是）" json:"hideInMenu"` // 在菜单中隐藏（0=否,1=是）
 	KeepAlive    int16          `gorm:"column:keep_alive;not null;default:0;comment:页面缓存（0=否,1=是）" json:"keepAlive"`        // 页面缓存（0=否,1=是）
 	Href         *string        `gorm:"column:href;comment:外链地址" json:"href"`                                                 // 外链地址

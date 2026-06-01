@@ -31,6 +31,7 @@ interface MenuPayload {
   menuCode: string;
   menuName: string;
   menuType: 'menu' | 'page';
+  i18nKey?: string;
   icon?: string;
   path?: string;
   component?: string;
@@ -40,31 +41,38 @@ interface MenuPayload {
   parentID?: string;
 }
 
+// 扩展菜单数据（用于关联父子关系）
+interface MenuWithParent extends MenuPayload {
+  _parentCode?: string;
+}
+
 // API 配置
 const API_BASE_URL = process.env.VITE_SERVICE_BASE_URL || 'http://localhost:5558';
-const token = process.env.API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODAxMzYyMDQsImlhdCI6MTc4MDEyOTAwNCwibmJmIjoxNzgwMTI5MDA0LCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwieC11c2VyLWlkIjoiYjA3MzgyZDItZWNlNy00MDI2LTliNDYtMmRhMjY4ZGUxMDA0In0.XSwqBrWjTdmgQbMTd_jBpq88r5cHDWgsNz72dYnVgLw';
+const token = process.env.API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODAyODQ2MTQsImlhdCI6MTc4MDI3NzQxNCwibmJmIjoxNzgwMjc3NDE0LCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwieC11c2VyLWlkIjoiYjA3MzgyZDItZWNlNy00MDI2LTliNDYtMmRhMjY4ZGUxMDA0In0.94u5CjjX9Aw8VRFNHmu6hDKy6KbEkVxyukfpXOrheNc';
 
 // 内置常量路由（不同步到数据库）
 const CONSTANT_ROUTES = new Set(['403', '404', '500', 'login', 'home', 'iframe-page']);
 
 // 扁平化路由为菜单数组
-function flattenRoutes(routes: RouteNode[]): MenuPayload[] {
-  const menus: MenuPayload[] = [];
-  const rootMenus: MenuPayload[] = [];
+function flattenRoutes(routes: RouteNode[]): MenuWithParent[] {
+  const menus: MenuWithParent[] = [];
 
   for (const route of routes) {
     if (CONSTANT_ROUTES.has(route.name)) continue;
 
-    const menu: MenuPayload = {
+    const i18nKey = route.meta?.i18nKey || `route.${route.name}`;
+
+    const menu: MenuWithParent = {
       menuCode: route.name,
       menuName: route.meta?.title || route.name,
       menuType: route.children && route.children.length > 0 ? 'menu' : 'page',
+      i18nKey,
       icon: route.meta?.icon,
       path: route.path,
       component: route.component,
       sortOrder: route.meta?.order || 0,
       visible: route.meta?.hideInMenu ? 0 : 1,
-      status: 0,
+      status: 0
     };
 
     menus.push(menu);
@@ -74,17 +82,20 @@ function flattenRoutes(routes: RouteNode[]): MenuPayload[] {
       for (const child of route.children) {
         if (CONSTANT_ROUTES.has(child.name)) continue;
 
-        const childMenu: MenuPayload = {
+        const childI18nKey = child.meta?.i18nKey || `route.${child.name}`;
+
+        const childMenu: MenuWithParent = {
           menuCode: child.name,
           menuName: child.meta?.title || child.name,
           menuType: 'page',
+          i18nKey: childI18nKey,
           icon: child.meta?.icon,
           path: child.path,
           component: child.component,
           sortOrder: child.meta?.order || 0,
           visible: child.meta?.hideInMenu ? 0 : 1,
           status: 0,
-          parentCode: route.name, // 标记父菜单的 menuCode
+          _parentCode: route.name
         };
         menus.push(childMenu);
       }
@@ -221,16 +232,16 @@ async function main() {
   // 重新获取菜单来获取最新的 menuID
   const updatedMenus = await fetchExistingMenus();
   for (const menu of menus) {
-    if ('parentCode' in menu && menu.parentCode) {
-      const parentMenu = updatedMenus.get(menu.parentCode as string);
+    if (menu._parentCode) {
+      const parentMenu = updatedMenus.get(menu._parentCode);
       const childMenu = updatedMenus.get(menu.menuCode);
-      if (parentMenu && childMenu && parentMenu.menuID !== childMenu.parentId) {
+      if (parentMenu && childMenu && parentMenu.menuID !== childMenu.parentID) {
         await axios.put(
           `${API_BASE_URL}/v1/menus/${childMenu.menuID}`,
           { parentID: parentMenu.menuID },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        console.log(`  → 关联: ${menu.menuCode} -> ${menu.parentCode}`);
+        console.log(`  → 关联: ${menu.menuCode} -> ${menu._parentCode}`);
       }
     }
   }

@@ -6,6 +6,7 @@ import (
 	storelogger "github.com/clin211/gin-enterprise-template/pkg/logger/slog/store"
 	genericstore "github.com/clin211/gin-enterprise-template/pkg/store"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
+	"gorm.io/gorm"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 )
@@ -69,9 +70,14 @@ func (s *menuStore) ListTree(ctx context.Context, opts *where.Options) ([]*model
 
 	// 按照父菜单和排序顺序获取所有菜单
 	// 使用 NULLS FIRST 确保 NULL 值的 parent_id 排在最前面
-	if err := s.core.DB(ctx, opts).
-		Order("parent_id NULLS FIRST, sort_order ASC").
-		Find(&menus).Error; err != nil {
+	var db *gorm.DB
+	if opts != nil {
+		db = s.core.DB(ctx, opts)
+	} else {
+		db = s.core.DB(ctx)
+	}
+
+	if err := db.Order("parent_id NULLS FIRST, sort_order ASC").Find(&menus).Error; err != nil {
 		return nil, err
 	}
 

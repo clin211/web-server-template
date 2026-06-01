@@ -87,6 +87,16 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'system-manage_menu',
+        path: '/system-manage/menu',
+        component: 'view.system-manage_menu',
+        meta: {
+          title: 'system-manage_menu',
+          i18nKey: 'route.system-manage_menu',
+          icon: 'ph:list'
+        }
+      },
+      {
         name: 'system-manage_user',
         path: '/system-manage/user',
         component: 'view.system-manage_user',
