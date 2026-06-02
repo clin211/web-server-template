@@ -14,11 +14,6 @@ declare namespace Api {
       sortOrder: number;
       createdAt: number;
       updatedAt: number;
-      id: string;
-      name: string;
-      code: string;
-      label: string;
-      value: string;
     }
 
     interface ListRoleRequest {
@@ -40,6 +35,37 @@ declare namespace Api {
       roleCode: string;
       roleName: string;
       status: number;
+    }
+
+    // ============= Role Permission Management =============
+
+    /**
+     * 权限树节点
+     */
+    interface PermissionTreeNode {
+      permissionID: string;
+      permissionName: string;
+      permissionCode: string;
+      resourceType: string; // menu=菜单, button=按钮
+      resourcePath: string;
+      action: string; // GET/POST/PUT/DELETE
+      assigned: boolean;
+      children: PermissionTreeNode[];
+    }
+
+    /**
+     * 获取角色权限响应
+     */
+    interface GetRolePermissionsResponse {
+      permissions: PermissionTreeNode[];
+    }
+
+    /**
+     * 分配角色权限请求
+     */
+    interface AssignPermissionsToRoleRequest {
+      permissionIDs: string[];
+      mode: 'override' | 'append'; // override=覆盖模式, append=追加模式
     }
   }
 }

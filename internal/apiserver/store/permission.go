@@ -47,11 +47,26 @@ func newPermissionStore(store *datastore) *permissionStore {
 	}
 }
 
-// ListTree 获取权限树
+// ListTree 获取权限树.
+// 一次性获取所有权限数据，在应用层构建树形结构，避免 N+1 查询问题.
+// opts 可指定 resource_type、status 等过滤条件.
 func (s *permissionStore) ListTree(ctx context.Context, opts *where.Options) ([]*model.PermissionM, error) {
 	var permissions []*model.PermissionM
 
-	if err := s.core.DB(ctx, opts).Find(&permissions).Error; err != nil {
+	whereOpts := where.NewWhere().F("deleted_at", nil)
+	if opts != nil {
+		// 合并过滤条件
+		for k, v := range opts.Filters {
+			whereOpts.F(k, v)
+		}
+		for _, q := range opts.Queries {
+			whereOpts.Q(q.Query, q.Args...)
+		}
+	}
+
+	if err := s.core.DB(ctx, whereOpts).
+		Order("parent_id NULLS FIRST, created_at ASC").
+		Find(&permissions).Error; err != nil {
 		return nil, fmt.Errorf("list permission tree: %w", err)
 	}
 

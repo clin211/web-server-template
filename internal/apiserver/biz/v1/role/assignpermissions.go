@@ -13,6 +13,7 @@ import (
 )
 
 // AssignPermissionsToRole 为角色分配权限.
+// 支持覆盖模式(override)和追加模式(append).
 // 使用事务确保数据库操作和 Casbin 同步的原子性.
 func (b *roleBiz) AssignPermissionsToRole(ctx context.Context, rq *v1.AssignPermissionsToRoleRequest) (*v1.AssignPermissionsToRoleResponse, error) {
 	// 获取角色信息
@@ -24,16 +25,58 @@ func (b *roleBiz) AssignPermissionsToRole(ctx context.Context, rq *v1.AssignPerm
 		return nil, fmt.Errorf("failed to get role: %w", err)
 	}
 
+	// 获取模式，默认覆盖模式
+	mode := rq.GetMode()
+	if mode == "" {
+		mode = "override"
+	}
+
 	// 使用事务确保数据库操作和 Casbin 同步的原子性
 	err = b.store.TX(ctx, func(txCtx context.Context) error {
-		// 分配权限到数据库
-		if err := b.store.Role().AssignPermissions(txCtx, roleM.RoleID, rq.GetPermissionIDs()); err != nil {
-			return fmt.Errorf("failed to assign permissions in database: %w", err)
-		}
+		// 根据模式执行不同的分配策略
+		if mode == "append" {
+			// 追加模式：获取现有权限，合并新权限后写入
+			existingPerms, err := b.store.Role().GetPermissions(txCtx, roleM.RoleID)
+			if err != nil {
+				return fmt.Errorf("failed to get existing permissions: %w", err)
+			}
 
-		// 同步到 Casbin
-		if err := b.syncRolePermissionsToCasbin(txCtx, roleM.RoleCode, rq.GetPermissionIDs()); err != nil {
-			return fmt.Errorf("failed to sync permissions to casbin: %w", err)
+			// 构建现有权限ID集合
+			existingIDs := make(map[string]bool)
+			for _, p := range existingPerms {
+				existingIDs[p.PermissionID] = true
+			}
+
+			// 合并新权限（去重）
+			for _, pid := range rq.GetPermissionIDs() {
+				existingIDs[pid] = true
+			}
+
+			// 转换为切片
+			var mergedIDs []string
+			for id := range existingIDs {
+				mergedIDs = append(mergedIDs, id)
+			}
+
+			// 分配合并后的权限到数据库
+			if err := b.store.Role().AssignPermissions(txCtx, roleM.RoleID, mergedIDs); err != nil {
+				return fmt.Errorf("failed to assign permissions in database: %w", err)
+			}
+
+			// 同步到 Casbin（使用合并后的权限）
+			if err := b.syncRolePermissionsToCasbin(txCtx, roleM.RoleCode, mergedIDs); err != nil {
+				return fmt.Errorf("failed to sync permissions to casbin: %w", err)
+			}
+		} else {
+			// 覆盖模式：直接替换权限
+			if err := b.store.Role().AssignPermissions(txCtx, roleM.RoleID, rq.GetPermissionIDs()); err != nil {
+				return fmt.Errorf("failed to assign permissions in database: %w", err)
+			}
+
+			// 同步到 Casbin
+			if err := b.syncRolePermissionsToCasbin(txCtx, roleM.RoleCode, rq.GetPermissionIDs()); err != nil {
+				return fmt.Errorf("failed to sync permissions to casbin: %w", err)
+			}
 		}
 
 		return nil

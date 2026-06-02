@@ -322,6 +322,7 @@ declare namespace App {
         action: string;
         add: string;
         addSuccess: string;
+        assign: string;
         backToHome: string;
         batchDelete: string;
         cancel: string;
@@ -639,6 +640,53 @@ declare namespace App {
               assigned: string;
               remove: string;
               removeConfirm: string;
+            };
+          };
+          permission: {
+            columns: {
+              permissionName: string;
+              permissionCode: string;
+              resourceType: string;
+              icon: string;
+              resourcePath: string;
+              action: string;
+              status: string;
+              description: string;
+              createdAt: string;
+            };
+            resourceType: { menu: string; button: string };
+            action: { GET: string; POST: string; PUT: string; DELETE: string; PATCH: string; export: string; import: string; query: string };
+            status: { normal: string; disabled: string };
+            form: {
+              permissionName: string;
+              permissionCode: string;
+              resourceType: string;
+              resourcePath: string;
+              action: string;
+              parentID: string;
+              description: string;
+              status: string;
+              permissionNameRequired: string;
+              permissionCodeRequired: string;
+              resourceTypeRequired: string;
+              actionRequired: string;
+            };
+            drawer: { addTitle: string; editTitle: string };
+            detail: { title: string; updatedAt: string };
+          };
+          role: {
+            columns: {
+              roleName: string;
+              roleCode: string;
+              description: string;
+              status: string;
+              createdAt: string;
+            };
+            status: { normal: string; disabled: string };
+            permissionDrawer: {
+              title: string;
+              selectedCount: string;
+              appendMode: string;
             };
           };
         };

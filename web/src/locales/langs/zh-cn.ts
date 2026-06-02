@@ -10,6 +10,8 @@ const local: App.I18n.Schema = {
     action: '操作',
     add: '新增',
     addSuccess: '添加成功',
+    pleaseSelect: '请选择',
+    assign: '分配权限',
     backToHome: '返回首页',
     batchDelete: '批量删除',
     cancel: '取消',
@@ -230,7 +232,9 @@ const local: App.I18n.Schema = {
     home: '首页',
     'system-manage': '系统管理',
     'system-manage_user': '用户管理',
-    'system-manage_menu': '菜单管理'
+    'system-manage_menu': '菜单管理',
+    'system-manage_permission': '权限管理',
+    'system-manage_role': '角色管理'
   },
   page: {
     login: {
@@ -401,6 +405,7 @@ const local: App.I18n.Schema = {
           menuName: '菜单名称',
           menuCode: '菜单编码',
           menuType: '菜单类型',
+          status: '状态',
           i18nKey: '国际化Key',
           parentID: '父菜单',
           path: '路由路径',
@@ -431,6 +436,77 @@ const local: App.I18n.Schema = {
         detail: {
           title: '菜单详情',
           updatedAt: '更新时间'
+        }
+      },
+      permission: {
+        columns: {
+          permissionName: '权限名称',
+          permissionCode: '权限编码',
+          resourceType: '资源类型',
+          icon: '图标',
+          resourcePath: '资源路径',
+          action: '操作方式',
+          status: '状态',
+          description: '描述',
+          createdAt: '创建时间'
+        },
+        resourceType: {
+          menu: '菜单权限',
+          button: '按钮权限'
+        },
+        action: {
+          GET: '查询',
+          POST: '创建',
+          PUT: '更新',
+          DELETE: '删除',
+          PATCH: '部分更新',
+          export: '导出',
+          import: '导入',
+          query: '查询'
+        },
+        status: {
+          normal: '正常',
+          disabled: '禁用'
+        },
+        form: {
+          permissionName: '权限名称',
+          permissionCode: '权限编码',
+          resourceType: '资源类型',
+          resourcePath: '资源路径',
+          action: '操作方式',
+          parentID: '父权限',
+          description: '描述',
+          status: '状态',
+          permissionNameRequired: '请输入权限名称',
+          permissionCodeRequired: '请输入权限编码',
+          resourceTypeRequired: '请选择资源类型',
+          actionRequired: '请选择操作方式'
+        },
+        drawer: {
+          addTitle: '新增权限',
+          editTitle: '编辑权限'
+        },
+        detail: {
+          title: '权限详情',
+          updatedAt: '更新时间'
+        }
+      },
+      role: {
+        columns: {
+          roleName: '角色名称',
+          roleCode: '角色编码',
+          description: '描述',
+          status: '状态',
+          createdAt: '创建时间'
+        },
+        status: {
+          normal: '正常',
+          disabled: '禁用'
+        },
+        permissionDrawer: {
+          title: '分配权限',
+          selectedCount: '已选 {count} 项',
+          appendMode: '追加模式'
         }
       }
     }

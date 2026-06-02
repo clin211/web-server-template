@@ -89,3 +89,19 @@ func PermissionModelListToPermissionTreeV1(permissions []*model.PermissionM, ass
 
 	return roots
 }
+
+// PermissionTreeNodeFields 将权限模型转换为 PermissionTreeNode 的字段映射.
+func PermissionTreeNodeFields(perm *model.PermissionM) v1.PermissionTreeNode {
+	return v1.PermissionTreeNode{
+		Permission: PermissionModelToPermissionV1(perm),
+	}
+}
+
+// PermissionModelToPermissionTreeNodeV1 将模型层的 PermissionM 转换为 Protobuf 层的 PermissionTreeNode.
+func PermissionModelToPermissionTreeNodeV1(permModel *model.PermissionM) *v1.PermissionTreeNode {
+	if permModel == nil {
+		return &v1.PermissionTreeNode{}
+	}
+	node := PermissionTreeNodeFields(permModel)
+	return &node
+}

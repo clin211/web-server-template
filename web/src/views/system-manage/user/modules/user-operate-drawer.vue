@@ -24,7 +24,9 @@ const operateType = defineModel<'add' | 'edit'>('operateType', { default: 'add' 
 const editingUser = defineModel<Api.User.User | null>('editingUser', { default: null });
 
 const title = computed(() =>
-  operateType.value === 'add' ? $t('page.system-manage.user.drawer.addTitle') : $t('page.system-manage.user.drawer.editTitle')
+  operateType.value === 'add'
+    ? $t('page.system-manage.user.drawer.addTitle')
+    : $t('page.system-manage.user.drawer.editTitle')
 );
 
 const formRef = ref<FormInst | null>(null);

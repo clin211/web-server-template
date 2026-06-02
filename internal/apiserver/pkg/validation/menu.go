@@ -302,7 +302,19 @@ func (v *Validator) ValidateSetMenuRolesRequest(ctx context.Context, rq *v1.SetM
 
 // ValidateAddMenuRoleRequest 校验添加菜单角色请求.
 func (v *Validator) ValidateAddMenuRoleRequest(ctx context.Context, rq *v1.AddMenuRoleRequest) error {
-	return genericvalidation.ValidateSelectedFields(rq, v.ValidateMenuRules(), "MenuID")
+	return genericvalidation.ValidateAllFields(rq, genericvalidation.Rules{
+		"MenuID": v.ValidateMenuRules()["MenuID"],
+		"RoleId": func(value any) error {
+			id, err := safeStringValue(value)
+			if err != nil {
+				return err
+			}
+			if id == "" {
+				return errno.ErrInvalidArgument.WithMessage("roleId cannot be empty")
+			}
+			return nil
+		},
+	})
 }
 
 // ValidateRemoveMenuRoleRequest 校验移除菜单角色请求.
@@ -316,4 +328,14 @@ func (v *Validator) ValidateSortMenuRequest(ctx context.Context, rq *v1.SortMenu
 		return errno.ErrInvalidArgument.WithMessage("sort items cannot be empty")
 	}
 	return nil
+}
+
+// ValidateGetUserRoutesRequest 校验获取用户路由请求.
+func (v *Validator) ValidateGetUserRoutesRequest(ctx context.Context, rq *v1.GetUserRoutesRequest) error {
+	return nil // 该请求从 JWT 获取用户 ID，无需额外验证
+}
+
+// ValidateGetConstantRoutesRequest 校验获取常量路由请求.
+func (v *Validator) ValidateGetConstantRoutesRequest(ctx context.Context, rq *v1.GetConstantRoutesRequest) error {
+	return nil // 该请求无需参数，无需额外验证
 }

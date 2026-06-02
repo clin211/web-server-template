@@ -93,7 +93,27 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'system-manage_menu',
           i18nKey: 'route.system-manage_menu',
-          icon: 'ph:list'
+          icon: 'tabler:menu-4'
+        }
+      },
+      {
+        name: 'system-manage_permission',
+        path: '/system-manage/permission',
+        component: 'view.system-manage_permission',
+        meta: {
+          title: 'system-manage_permission',
+          i18nKey: 'route.system-manage_permission',
+          icon: 'mdi:shield-account-outline'
+        }
+      },
+      {
+        name: 'system-manage_role',
+        path: '/system-manage/role',
+        component: 'view.system-manage_role',
+        meta: {
+          title: 'system-manage_role',
+          i18nKey: 'route.system-manage_role',
+          icon: 'oui:app-users-roles'
         }
       },
       {

@@ -1,72 +1,74 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue';
-import { NButton, NPopconfirm, NSpace } from 'naive-ui';
-import type { DataTableBaseColumn } from 'naive-ui';
+import { h, onMounted, ref } from 'vue';
+import { NButton, NPopconfirm, NSelect, NSpace } from 'naive-ui';
+import type { DataTableBaseColumn, SelectOption } from 'naive-ui';
 import { $t } from '@/locales';
-import { fetchCreateUser, fetchDeleteUser, fetchGetUserList, fetchUpdateUser } from '@/service/api/user';
+import { fetchDeletePermission, fetchGetPermissionList } from '@/service/api/permission';
 import { useTableOperate } from '@/hooks/common/table';
 import { useColumnSetting } from '@/hooks/common/use-column-setting';
-import UserSearch from './modules/user-search.vue';
-import UserOperateDrawer from './modules/user-operate-drawer.vue';
-import UserDetailDrawer from './modules/user-detail-drawer.vue';
-import UserRoleDrawer from './modules/user-role-drawer.vue';
-import { createColumns, type UserTableRow } from './modules/user-table-columns';
+import PermissionSearch from './modules/permission-search.vue';
+import PermissionOperateDrawer from './modules/permission-operate-drawer.vue';
+import { createColumns, type PermissionTableRow } from './modules/permission-table-columns';
 
 defineOptions({
-  name: 'SystemManageUser'
+  name: 'SystemManagePermission'
 });
 
-const tableData = ref<UserTableRow[]>([]);
-const searchModel = ref({ keyword: '' });
+// 每页条数选项
+const PAGE_SIZE_OPTIONS: SelectOption[] = [
+  { label: '10条', value: 10 },
+  { label: '20条', value: 20 },
+  { label: '50条', value: 50 },
+  { label: '100条', value: 100 }
+];
+
+const tableData = ref<PermissionTableRow[]>([]);
+const searchModel = ref<{ status: string | null; resourceType: string | null }>({
+  status: null,
+  resourceType: null
+});
 const tableLoading = ref(false);
 const operateLoading = ref(false);
 
-const pageSize = ref(10);
+// 分页相关
+const pageSize = ref(PAGE_SIZE_OPTIONS[1].value);
 const nextPageToken = ref('');
 const prevPageTokens = ref<string[]>([]);
 const totalCount = ref(0);
 const currentPage = ref(1);
 
-const detailDrawerVisible = ref(false);
-const detailUserId = ref<string | null>(null);
-const roleDrawerVisible = ref(false);
-const roleUserId = ref<string | null>(null);
-const editingUserId = ref<string | null>(null);
+const editingPermissionId = ref<string | null>(null);
 
 // 使用列设置 hook
-const { columnChecks, finalColumns } = useColumnSetting<UserTableRow>({
-  key: 'system-manage-user',
+const { columnChecks, finalColumns } = useColumnSetting<PermissionTableRow>({
+  key: 'system-manage-permission',
   columnsFactory: createColumns
 });
 
-const { drawerVisible, closeDrawer, operateType, editingData, handleAdd, handleEdit, onDeleted } = useTableOperate(
-  tableData,
-  'userID',
-  getData
-);
-
-const filteredTableData = computed(() => {
-  const keyword = searchModel.value.keyword.trim().toLowerCase();
-  if (!keyword) return tableData.value;
-
-  return tableData.value.filter(item => {
-    const fields = [item.username, item.nickname, item.email, item.phone];
-    return fields.some(field => field?.toLowerCase().includes(keyword));
-  });
-});
+const {
+  drawerVisible,
+  closeDrawer,
+  operateType,
+  editingData,
+  handleAdd,
+  handleEdit,
+  onDeleted
+} = useTableOperate(tableData, 'permissionId', getData);
 
 async function getData(pageToken = prevPageTokens.value.at(-1) ?? '') {
   tableLoading.value = true;
   try {
-    const res = await fetchGetUserList({
+    const res = await fetchGetPermissionList({
       pageToken: pageToken || undefined,
-      pageSize: pageSize.value
+      pageSize: Number(pageSize.value),
+      status: searchModel.value.status ? Number(searchModel.value.status) : undefined,
+      resourceType: searchModel.value.resourceType || undefined
     });
 
     if (!res.error && res.data) {
-      tableData.value = res.data.users;
+      tableData.value = res.data.permissions;
       totalCount.value = res.data.totalCount;
-      nextPageToken.value = res.data.nextPageToken;
+      nextPageToken.value = res.data.pageToken;
     }
   } finally {
     tableLoading.value = false;
@@ -78,20 +80,34 @@ async function handleRefresh() {
 }
 
 async function handleSearch() {
+  prevPageTokens.value = [];
+  currentPage.value = 1;
   await getData();
 }
 
 async function handleReset() {
-  searchModel.value.keyword = '';
+  searchModel.value = { status: null, resourceType: null };
+  prevPageTokens.value = [];
+  currentPage.value = 1;
   await getData();
 }
 
-async function handleOperateSubmit(data: Api.User.CreateUserRequest) {
+async function handlePageSizeChange(val: number) {
+  pageSize.value = val;
+  prevPageTokens.value = [];
+  currentPage.value = 1;
+  await getData();
+}
+
+async function handleOperateSubmit(
+  data: Api.Permission.CreatePermissionRequest | Api.Permission.UpdatePermissionRequest
+) {
   operateLoading.value = true;
 
   try {
     if (operateType.value === 'add') {
-      const res = await fetchCreateUser(data);
+      const { fetchCreatePermission } = await import('@/service/api/permission');
+      const res = await fetchCreatePermission(data as Api.Permission.CreatePermissionRequest);
       if (!res.error) {
         window.$message?.success($t('common.addSuccess'));
         closeDrawer();
@@ -100,10 +116,13 @@ async function handleOperateSubmit(data: Api.User.CreateUserRequest) {
       return;
     }
 
-    if (!editingUserId.value) return;
+    if (!editingPermissionId.value) return;
 
-    const { password: _password, ...updatePayload } = data;
-    const res = await fetchUpdateUser(editingUserId.value, updatePayload);
+    const { fetchUpdatePermission } = await import('@/service/api/permission');
+    const res = await fetchUpdatePermission(
+      editingPermissionId.value,
+      data as Api.Permission.UpdatePermissionRequest
+    );
 
     if (!res.error) {
       window.$message?.success($t('common.updateSuccess'));
@@ -115,23 +134,13 @@ async function handleOperateSubmit(data: Api.User.CreateUserRequest) {
   }
 }
 
-function handleViewDetail(user: UserTableRow) {
-  detailUserId.value = user.userID;
-  detailDrawerVisible.value = true;
+function handleEditPermission(permission: PermissionTableRow) {
+  editingPermissionId.value = permission.permissionId;
+  handleEdit(permission.permissionId);
 }
 
-function handleEditUser(user: UserTableRow) {
-  editingUserId.value = user.userID;
-  handleEdit(user.userID);
-}
-
-function handleAssignRole(user: UserTableRow) {
-  roleUserId.value = user.userID;
-  roleDrawerVisible.value = true;
-}
-
-async function handleDeleteUser(user: UserTableRow) {
-  const res = await fetchDeleteUser(user.userID);
+async function handleDeletePermission(permission: PermissionTableRow) {
+  const res = await fetchDeletePermission(permission.permissionId);
   if (!res.error) {
     await onDeleted();
   }
@@ -163,7 +172,7 @@ function getTableColumns() {
     return cols;
   }
 
-  (actionsCol as DataTableBaseColumn<UserTableRow>).render = (row: UserTableRow) =>
+  (actionsCol as DataTableBaseColumn<PermissionTableRow>).render = (row: PermissionTableRow) =>
     h(
       NSpace,
       { justify: 'center' },
@@ -175,34 +184,14 @@ function getTableColumns() {
               size: 'small',
               text: true,
               type: 'primary',
-              onClick: () => handleViewDetail(row)
-            },
-            { default: () => $t('page.system-manage.user.actions.detail') }
-          ),
-          h(
-            NButton,
-            {
-              size: 'small',
-              text: true,
-              type: 'primary',
-              onClick: () => handleEditUser(row)
+              onClick: () => handleEditPermission(row)
             },
             { default: () => $t('common.edit') }
           ),
           h(
-            NButton,
-            {
-              size: 'small',
-              text: true,
-              type: 'primary',
-              onClick: () => handleAssignRole(row)
-            },
-            { default: () => $t('page.system-manage.user.roleModal.button') }
-          ),
-          h(
             NPopconfirm,
             {
-              onPositiveClick: () => handleDeleteUser(row)
+              onPositiveClick: () => handleDeletePermission(row)
             },
             {
               trigger: () =>
@@ -233,7 +222,12 @@ onMounted(() => {
 <template>
   <div>
     <NSpace vertical :size="16">
-      <UserSearch v-model="searchModel" :loading="tableLoading" @search="handleSearch" @reset="handleReset" />
+      <PermissionSearch
+        v-model="searchModel"
+        :loading="tableLoading"
+        @search="handleSearch"
+        @reset="handleReset"
+      />
 
       <NCard :bordered="false" size="small" class="card-wrapper">
         <NSpace vertical :size="12">
@@ -247,7 +241,7 @@ onMounted(() => {
 
           <NDataTable
             :columns="getTableColumns()"
-            :data="filteredTableData"
+            :data="tableData"
             :loading="tableLoading"
             :scroll-x="1280"
             :pagination="false"
@@ -259,7 +253,15 @@ onMounted(() => {
           <div class="flex flex-wrap items-center justify-between gap-12px">
             <span class="text-14px text-gray-500">{{ $t('datatable.itemCount', { total: totalCount }) }}</span>
 
-            <NSpace>
+            <NSpace align="center" :size="12">
+              <NSelect
+                v-model:value="pageSize"
+                :options="PAGE_SIZE_OPTIONS"
+                size="small"
+                style="width: 100px"
+                @update:value="handlePageSizeChange"
+              />
+
               <NButton size="small" :disabled="currentPage <= 1 || tableLoading" @click="handlePrevPage">
                 {{ $t('page.system-manage.user.pagination.prev') }}
               </NButton>
@@ -275,15 +277,12 @@ onMounted(() => {
       </NCard>
     </NSpace>
 
-    <UserOperateDrawer
+    <PermissionOperateDrawer
       v-model:visible="drawerVisible"
       v-model:operate-type="operateType"
-      v-model:editing-user="editingData"
+      v-model:editing-permission="editingData"
       :loading="operateLoading"
       @submit="handleOperateSubmit"
     />
-
-    <UserDetailDrawer v-model:visible="detailDrawerVisible" :user-id="detailUserId" />
-    <UserRoleDrawer v-model:visible="roleDrawerVisible" :user-id="roleUserId" />
   </div>
 </template>

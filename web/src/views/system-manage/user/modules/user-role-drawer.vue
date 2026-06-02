@@ -29,10 +29,6 @@ const allRoles = ref<Api.Role.Role[]>([]);
 const checkedRoleIds = ref<string[]>([]);
 const assignedRoleIds = ref<string[]>([]);
 
-function getRoleId(role: Api.Role.Role) {
-  return role.id || role.roleID;
-}
-
 function isAssignedRole(roleId: string) {
   return assignedRoleIds.value.includes(roleId);
 }
@@ -50,7 +46,7 @@ async function fetchUserRoles() {
 
   const res = await import('@/service/api/user').then(m => m.fetchGetUserRoles(userId));
   if (!res.error && res.data) {
-    const roleIds = res.data.roles.map(role => role.id || role.roleID);
+    const roleIds = res.data.roles.map(role => role.roleID);
     assignedRoleIds.value = roleIds;
     checkedRoleIds.value = roleIds;
   }
@@ -114,32 +110,28 @@ watch(
 
 <template>
   <NDrawer v-model:show="visible" :width="500">
-    <NDrawerContent
-      :title="$t('page.system-manage.user.roleModal.title')"
-      closable
-      :native-scrollbar="false"
-    >
+    <NDrawerContent :title="$t('page.system-manage.user.roleModal.title')" closable :native-scrollbar="false">
       <NSpin :show="loading">
         <div v-if="allRoles.length" class="max-h-400px overflow-y-auto">
           <NCheckboxGroup v-model:value="checkedRoleIds">
             <NSpace vertical>
-              <div v-for="role in allRoles" :key="getRoleId(role)" class="flex items-center justify-between gap-12px">
-                <NCheckbox :value="getRoleId(role)" size="large">
-                  {{ role.name || role.roleName }}
+              <div v-for="role in allRoles" :key="role.roleID" class="flex items-center justify-between gap-12px">
+                <NCheckbox :value="role.roleID" size="large">
+                  {{ role.roleName }}
                 </NCheckbox>
 
-                <NSpace v-if="isAssignedRole(getRoleId(role))" size="small" align="center">
+                <NSpace v-if="isAssignedRole(role.roleID)" size="small" align="center">
                   <NTag size="small" type="success">
                     {{ $t('page.system-manage.user.roleModal.assigned') }}
                   </NTag>
 
-                  <NPopconfirm @positive-click="handleRemoveRole(getRoleId(role))">
+                  <NPopconfirm @positive-click="handleRemoveRole(role.roleID)">
                     <template #trigger>
                       <NButton
                         size="small"
                         text
                         type="error"
-                        :loading="removingRoleId === getRoleId(role)"
+                        :loading="removingRoleId === role.roleID"
                         :disabled="submitting"
                       >
                         {{ $t('page.system-manage.user.roleModal.remove') }}
@@ -159,7 +151,9 @@ watch(
 
       <template #footer>
         <NSpace justify="end">
-          <NButton :disabled="submitting || !!removingRoleId" @click="visible = false">{{ $t('common.cancel') }}</NButton>
+          <NButton :disabled="submitting || !!removingRoleId" @click="visible = false">
+            {{ $t('common.cancel') }}
+          </NButton>
           <NButton type="primary" :loading="submitting" :disabled="!!removingRoleId" @click="handleSubmit">
             {{ $t('common.confirm') }}
           </NButton>

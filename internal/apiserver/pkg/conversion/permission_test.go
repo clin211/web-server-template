@@ -138,3 +138,71 @@ func TestPermissionModelListToPermissionTreeV1(t *testing.T) {
 		t.Fatal("child.Assigned = false, want true")
 	}
 }
+
+func TestPermissionModelToPermissionTreeNodeV1(t *testing.T) {
+	createdAt := time.Unix(1700000000, 0)
+	updatedAt := time.Unix(1700003600, 0)
+
+	tests := []struct {
+		name    string
+		perm    *model.PermissionM
+		wantID  string
+		wantNil bool
+	}{
+		{
+			name:    "maps populated fields",
+			perm:    &model.PermissionM{PermissionID: "perm-1", PermissionName: "测试权限", PermissionCode: "test:read", ResourceType: "button", Action: "GET", Status: 0, CreatedAt: createdAt, UpdatedAt: updatedAt},
+			wantID:  "perm-1",
+			wantNil: false,
+		},
+		{
+			name:    "returns empty node for nil input",
+			perm:    nil,
+			wantNil: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := PermissionModelToPermissionTreeNodeV1(tt.perm)
+			if tt.wantNil {
+				if got.Permission != nil {
+					t.Fatalf("Permission = %v, want nil", got.Permission)
+				}
+				return
+			}
+			if got.Permission == nil {
+				t.Fatal("Permission = nil, want non-nil")
+			}
+			if got.Permission.PermissionID != tt.wantID {
+				t.Fatalf("Permission.PermissionID = %q, want %q", got.Permission.PermissionID, tt.wantID)
+			}
+			if got.Permission.PermissionName != tt.perm.PermissionName {
+				t.Fatalf("Permission.PermissionName = %q, want %q", got.Permission.PermissionName, tt.perm.PermissionName)
+			}
+		})
+	}
+}
+
+func TestBuildPermissionTree(t *testing.T) {
+	// 这个测试验证树形结构的构建逻辑
+	// 注意：实际的 buildPermissionTree 函数在 biz 层，这里只测试转换层逻辑
+
+	rootID := "perm-root"
+	childParent := rootID
+
+	permissions := []*model.PermissionM{
+		{PermissionID: rootID, PermissionName: "根权限", PermissionCode: "root", ResourceType: "menu", Action: "MENU"},
+		{PermissionID: "perm-child-1", PermissionName: "子权限1", PermissionCode: "child:1", ResourceType: "button", Action: "GET", ParentID: &childParent},
+		{PermissionID: "perm-child-2", PermissionName: "子权限2", PermissionCode: "child:2", ResourceType: "button", Action: "POST", ParentID: &childParent},
+	}
+
+	// 验证 PermissionTreeNodeFields 能正确处理树节点
+	for _, perm := range permissions {
+		node := PermissionTreeNodeFields(perm)
+		if node.Permission.PermissionID != perm.PermissionID {
+			t.Errorf("PermissionID mismatch for %s: got %s, want %s",
+				perm.PermissionName, node.Permission.PermissionID, perm.PermissionID)
+		}
+	}
+}

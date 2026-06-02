@@ -48,7 +48,9 @@ interface MenuWithParent extends MenuPayload {
 
 // API 配置
 const API_BASE_URL = process.env.VITE_SERVICE_BASE_URL || 'http://localhost:5558';
-const token = process.env.API_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODAyODQ2MTQsImlhdCI6MTc4MDI3NzQxNCwibmJmIjoxNzgwMjc3NDE0LCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwieC11c2VyLWlkIjoiYjA3MzgyZDItZWNlNy00MDI2LTliNDYtMmRhMjY4ZGUxMDA0In0.94u5CjjX9Aw8VRFNHmu6hDKy6KbEkVxyukfpXOrheNc';
+const token =
+  process.env.API_TOKEN ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODAyODQ2MTQsImlhdCI6MTc4MDI3NzQxNCwibmJmIjoxNzgwMjc3NDE0LCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwieC11c2VyLWlkIjoiYjA3MzgyZDItZWNlNy00MDI2LTliNDYtMmRhMjY4ZGUxMDA0In0.94u5CjjX9Aw8VRFNHmu6hDKy6KbEkVxyukfpXOrheNc';
 
 // 内置常量路由（不同步到数据库）
 const CONSTANT_ROUTES = new Set(['403', '404', '500', 'login', 'home', 'iframe-page']);
@@ -109,7 +111,7 @@ function flattenRoutes(routes: RouteNode[]): MenuWithParent[] {
 async function fetchExistingMenus(): Promise<Map<string, any>> {
   const response = await axios.get(`${API_BASE_URL}/v1/menus`, {
     params: { page_size: 1000 },
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}` }
   });
 
   const map = new Map<string, any>();
@@ -151,8 +153,8 @@ async function upsertMenu(
     method,
     url,
     data,
-    headers: { Authorization: `Bearer ${token}` },
-  }).catch((err) => {
+    headers: { Authorization: `Bearer ${token}` }
+  }).catch(err => {
     const message = err.response?.data?.message || err.message;
     console.error(`  API 错误 [${menu.menuCode}]:`, message);
     throw new Error(message);
@@ -209,7 +211,8 @@ async function main() {
   // 3. 批量 upsert
   console.log('\n[3/4] 同步菜单...');
   const menuIDMap = new Map<string, string>();
-  let created = 0, updated = 0;
+  let created = 0,
+    updated = 0;
 
   for (const menu of menus) {
     try {
@@ -254,7 +257,7 @@ async function main() {
   console.log('='.repeat(50));
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(`\n同步失败: ${err.message}`);
   process.exit(1);
 });

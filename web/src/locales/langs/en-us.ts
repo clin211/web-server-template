@@ -10,6 +10,8 @@ const local: App.I18n.Schema = {
     action: 'Action',
     add: 'Add',
     addSuccess: 'Add Success',
+    pleaseSelect: 'Please select',
+    assign: 'Assign Permission',
     backToHome: 'Back to home',
     batchDelete: 'Batch Delete',
     cancel: 'Cancel',
@@ -234,7 +236,9 @@ const local: App.I18n.Schema = {
     home: 'Home',
     'system-manage': 'System Management',
     'system-manage_user': 'User Management',
-    'system-manage_menu': 'Menu Management'
+    'system-manage_menu': 'Menu Management',
+    'system-manage_permission': 'Permission Management',
+    'system-manage_role': 'Role Management'
   },
   page: {
     login: {
@@ -405,6 +409,7 @@ const local: App.I18n.Schema = {
           menuName: 'Menu Name',
           menuCode: 'Menu Code',
           menuType: 'Menu Type',
+          status: 'Status',
           i18nKey: 'I18n Key',
           parentID: 'Parent Menu',
           path: 'Route Path',
@@ -435,6 +440,77 @@ const local: App.I18n.Schema = {
         detail: {
           title: 'Menu Detail',
           updatedAt: 'Updated At'
+        }
+      },
+      permission: {
+        columns: {
+          permissionName: 'Permission Name',
+          permissionCode: 'Permission Code',
+          resourceType: 'Resource Type',
+          icon: 'Icon',
+          resourcePath: 'Resource Path',
+          action: 'Action',
+          status: 'Status',
+          description: 'Description',
+          createdAt: 'Created At'
+        },
+        resourceType: {
+          menu: 'Menu Permission',
+          button: 'Button Permission'
+        },
+        action: {
+          GET: 'Query',
+          POST: 'Create',
+          PUT: 'Update',
+          DELETE: 'Delete',
+          PATCH: 'Patch',
+          export: 'Export',
+          import: 'Import',
+          query: 'Query'
+        },
+        status: {
+          normal: 'Normal',
+          disabled: 'Disabled'
+        },
+        form: {
+          permissionName: 'Permission Name',
+          permissionCode: 'Permission Code',
+          resourceType: 'Resource Type',
+          resourcePath: 'Resource Path',
+          action: 'Action',
+          parentID: 'Parent Permission',
+          description: 'Description',
+          status: 'Status',
+          permissionNameRequired: 'Please enter permission name',
+          permissionCodeRequired: 'Please enter permission code',
+          resourceTypeRequired: 'Please select resource type',
+          actionRequired: 'Please select action'
+        },
+        drawer: {
+          addTitle: 'Add Permission',
+          editTitle: 'Edit Permission'
+        },
+        detail: {
+          title: 'Permission Detail',
+          updatedAt: 'Updated At'
+        }
+      },
+      role: {
+        columns: {
+          roleName: 'Role Name',
+          roleCode: 'Role Code',
+          description: 'Description',
+          status: 'Status',
+          createdAt: 'Created At'
+        },
+        status: {
+          normal: 'Normal',
+          disabled: 'Disabled'
+        },
+        permissionDrawer: {
+          title: 'Assign Permissions',
+          selectedCount: '{count} selected',
+          appendMode: 'Append Mode'
         }
       }
     }

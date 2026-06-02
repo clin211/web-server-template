@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue';
 import { NButton, NPopconfirm, NSpace } from 'naive-ui';
+import type { DataTableBaseColumn } from 'naive-ui';
 import { $t } from '@/locales';
 import { fetchDeleteMenu, fetchGetAllMenuTree, fetchGetMenuList } from '@/service/api/menu';
 import { useTableOperate } from '@/hooks/common/table';
+import { useColumnSetting } from '@/hooks/common/use-column-setting';
 import MenuSearch from './modules/menu-search.vue';
 import MenuOperateDrawer from './modules/menu-operate-drawer.vue';
 import MenuDetailDrawer from './modules/menu-detail-drawer.vue';
@@ -14,7 +16,6 @@ defineOptions({
   name: 'SystemManageMenu'
 });
 
-const columns = ref<NaiveUI.TableColumnCheck[]>([]);
 const tableData = ref<MenuTableRow[]>([]);
 const searchModel = ref<{ status: string | null; menuType: string | null }>({ status: null, menuType: null });
 const tableLoading = ref(false);
@@ -28,6 +29,12 @@ const detailMenuId = ref<string | null>(null);
 const roleDrawerVisible = ref(false);
 const roleMenuId = ref<string | null>(null);
 const editingMenuId = ref<string | null>(null);
+
+// 使用列设置 hook
+const { columnChecks, finalColumns } = useColumnSetting<MenuTableRow>({
+  key: 'system-manage-menu',
+  columnsFactory: createColumns
+});
 
 const { drawerVisible, closeDrawer, operateType, editingData, handleAdd, handleEdit, onDeleted } = useTableOperate(
   menuTreeData,
@@ -136,15 +143,16 @@ async function handleDeleteMenu(menu: MenuTableRow) {
   }
 }
 
-const tableColumns = computed(() => {
-  const cols = createColumns();
+// 构建带操作列的最终列配置
+function getTableColumns() {
+  const cols = [...finalColumns.value];
   const actionsCol = cols.find(column => 'key' in column && column.key === 'actions');
 
   if (!actionsCol) {
     return cols;
   }
 
-  (actionsCol as NaiveUI.DataTableBaseColumn<MenuTableRow>).render = (row: MenuTableRow) =>
+  (actionsCol as DataTableBaseColumn<MenuTableRow>).render = (row: MenuTableRow) =>
     h(
       NSpace,
       { justify: 'center' },
@@ -204,7 +212,7 @@ const tableColumns = computed(() => {
     );
 
   return cols;
-});
+}
 
 onMounted(() => {
   getData();
@@ -220,7 +228,7 @@ onMounted(() => {
       <NCard :bordered="false" size="small" class="card-wrapper">
         <NSpace vertical :size="12">
           <TableHeaderOperation
-            v-model:columns="columns"
+            v-model:columns="columnChecks"
             :loading="tableLoading"
             :disabled-delete="true"
             @add="handleAdd"
@@ -228,7 +236,7 @@ onMounted(() => {
           />
 
           <NDataTable
-            :columns="tableColumns"
+            :columns="getTableColumns()"
             :data="menuTreeData"
             :loading="tableLoading"
             :scroll-x="1280"

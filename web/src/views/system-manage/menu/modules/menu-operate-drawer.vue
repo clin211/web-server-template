@@ -117,7 +117,10 @@ async function fetchMenuTree() {
         model.value.parentID = parentId;
       }
 
-      console.log('[fetchMenuTree] menuTree:', menuTree.value.map(m => ({ name: m.menuName, id: m.menuID })));
+      console.log(
+        '[fetchMenuTree] menuTree:',
+        menuTree.value.map(m => ({ name: m.menuName, id: m.menuID }))
+      );
     }
   } finally {
     menuTreeLoading.value = false;

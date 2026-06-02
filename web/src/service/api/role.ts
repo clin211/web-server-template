@@ -58,3 +58,31 @@ export async function fetchGetRoleList(params?: Api.Role.ListRoleRequest) {
     } satisfies Api.Role.ListRoleResponse
   };
 }
+
+/**
+ * Get role permissions (tree structure)
+ *
+ * @param roleId Role ID
+ */
+export async function fetchGetRolePermissions(roleId: string) {
+  const result = await request<Api.Role.GetRolePermissionsResponse>({
+    url: `/v1/roles/${roleId}/permissions`,
+    method: 'get'
+  });
+
+  return result;
+}
+
+/**
+ * Assign permissions to role
+ *
+ * @param roleId Role ID
+ * @param data Permission assignment data
+ */
+export function fetchAssignPermissionsToRole(roleId: string, data: Api.Role.AssignPermissionsToRoleRequest) {
+  return request({
+    url: `/v1/roles/${roleId}/permissions`,
+    method: 'post',
+    data
+  });
+}

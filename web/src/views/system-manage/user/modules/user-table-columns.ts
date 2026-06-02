@@ -56,7 +56,10 @@ export function createColumns(): DataTableColumns<UserTableRow> {
       width: 100,
       render: row => {
         const tagType = row.status === 0 ? 'success' : 'error';
-        const label = row.status === 0 ? $t('page.system-manage.user.status.normal') : $t('page.system-manage.user.status.disabled');
+        const label =
+          row.status === 0
+            ? $t('page.system-manage.user.status.normal')
+            : $t('page.system-manage.user.status.disabled');
         return h(NTag, { type: tagType }, { default: () => label });
       }
     },

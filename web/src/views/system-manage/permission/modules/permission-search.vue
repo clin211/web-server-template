@@ -2,12 +2,12 @@
 import { computed } from 'vue';
 
 defineOptions({
-  name: 'MenuSearch'
+  name: 'PermissionSearch'
 });
 
 interface SearchModel {
   status: string | null;
-  menuType: string | null;
+  resourceType: string | null;
 }
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: () => ({ status: null, menuType: null })
+  modelValue: () => ({ status: null, resourceType: null })
 });
 
 const emit = defineEmits<{
@@ -35,9 +35,9 @@ const statusOptions = [
   { label: '禁用', value: '1' }
 ];
 
-const menuTypeOptions = [
-  { label: '目录', value: 'menu' },
-  { label: '页面', value: 'page' }
+const resourceTypeOptions = [
+  { label: '菜单权限', value: 'menu' },
+  { label: '按钮权限', value: 'button' }
 ];
 
 async function handleSearch() {
@@ -45,7 +45,7 @@ async function handleSearch() {
 }
 
 async function handleReset() {
-  emit('update:modelValue', { status: null, menuType: null });
+  emit('update:modelValue', { status: null, resourceType: null });
   emit('reset');
 }
 </script>
@@ -57,16 +57,16 @@ async function handleReset() {
         <NSelect
           v-model:value="model.status"
           :options="statusOptions"
-          :placeholder="$t('common.pleaseSelect') + $t('page.system-manage.menu.form.status')"
+          :placeholder="$t('common.pleaseSelect') + $t('page.system-manage.permission.form.status')"
           clearable
           class="w-full"
         />
       </NGi>
       <NGi span="24 s:6 m:3">
         <NSelect
-          v-model:value="model.menuType"
-          :options="menuTypeOptions"
-          :placeholder="$t('common.pleaseSelect') + $t('page.system-manage.menu.form.menuType')"
+          v-model:value="model.resourceType"
+          :options="resourceTypeOptions"
+          :placeholder="$t('common.pleaseSelect') + $t('page.system-manage.permission.form.resourceType')"
           clearable
           class="w-full"
         />
@@ -87,6 +87,6 @@ async function handleReset() {
           </NButton>
         </NSpace>
       </NGi>
-  </NGrid>
-</NCard>
+    </NGrid>
+  </NCard>
 </template>

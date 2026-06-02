@@ -22,6 +22,7 @@
 - 支持菜单/页面级和操作/按钮级的两级权限控制
 - 提供可视化的权限管理后台（集成 vue-pure-admin 的树形组件和拖拽功能）
 - 前后端双重权限验证（前端动态渲染，后端 Casbin 中间件）
+- 支持与 SoybeanAdmin 前端的 Elegant Router 机制集成
 
 ### 3.2 预设角色
 
@@ -30,6 +31,8 @@
 | `super_admin` | 超级管理员 | 系统最高权限     |
 | `admin`       | 管理员     | 常规管理权限     |
 | `operations`  | 运营人员   | 运营相关操作权限 |
+
+> **说明**：系统当前预设 **3 个角色**。`super_admin` 拥有全权限，`admin` 管理核心模块，`operations` 处理运营业务。
 
 **权限分配草图**（基于系统模块初步规划，后续可迭代）：
 
@@ -60,7 +63,7 @@ g, 用户ID, role::角色编码
 | 角色 | 策略数量 | 权限范围 | 说明 |
 |------|---------|---------|------|
 | `super_admin` | 5 条 | `/*` 全路径 | 系统最高权限，可访问所有接口 |
-| `admin` | 28 条 | 用户/角色/权限/菜单管理 | 常规管理权限，不含权限管理模块 |
+| `admin` | 30 条 | 用户/角色/权限/菜单管理 | 常规管理权限，含菜单角色管理 |
 | `operations` | 37 条 | 文章/任务/证据块/项目管理 | 运营相关操作权限 |
 
 **super_admin 权限策略**：
@@ -84,8 +87,12 @@ p, role::admin, /v1/users/*, GET, allow
 p, role::admin, /v1/users/*, PUT, allow
 p, role::admin, /v1/users/*, DELETE, allow
 p, role::admin, /v1/users/*/roles, GET, allow
+p, role::admin, /v1/users/*/roles, PUT, allow
 p, role::admin, /v1/users/*/roles, POST, allow
 p, role::admin, /v1/users/*/roles/*, DELETE, allow
+
+-- 用户菜单
+p, role::admin, /v1/users/menu-tree, GET, allow
 
 -- 角色管理
 p, role::admin, /v1/roles, GET, allow
@@ -108,60 +115,27 @@ p, role::admin, /v1/menus/*, GET, allow
 p, role::admin, /v1/menus/*, PATCH, allow
 p, role::admin, /v1/menus/*, DELETE, allow
 p, role::admin, /v1/menus/tree, GET, allow
-p, role::admin, /v1/menus/user, GET, allow
+p, role::admin, /v1/menus/*/roles, GET, allow
+p, role::admin, /v1/menus/*/roles, PUT, allow
+p, role::admin, /v1/menus/*/roles, POST, allow
+p, role::admin, /v1/menus/*/roles/*, DELETE, allow
 ```
 
 **operations 权限策略**：
 
 ```sql
--- 文章管理
-p, role::operations, /v1/articles, GET, allow
-p, role::operations, /v1/articles/*, GET, allow
-p, role::operations, /v1/articles/*, PATCH, allow
-p, role::operations, /v1/articles/*, DELETE, allow
-p, role::operations, /v1/articles/events, GET, allow
+-- 定时任务管理
+p, role::operations, /v1/scheduled-tasks, GET, allow
+p, role::operations, /v1/scheduled-tasks, POST, allow
+p, role::operations, /v1/scheduled-tasks/:scheduledTaskID, GET, allow
+p, role::operations, /v1/scheduled-tasks/:scheduledTaskID, PUT, allow
+p, role::operations, /v1/scheduled-tasks/:scheduledTaskID, DELETE, allow
+p, role::operations, /v1/scheduled-tasks/:scheduledTaskID/toggle, PUT, allow
+p, role::operations, /v1/scheduled-tasks/:scheduledTaskID/trigger, POST, allow
+p, role::operations, /v1/scheduled-tasks/:scheduledTaskID/executions, GET, allow
 
--- 文章任务管理
-p, role::operations, /v1/article-tasks/*, GET, allow
-p, role::operations, /v1/article-tasks/*, DELETE, allow
-p, role::operations, /v1/article-tasks/*/retry, POST, allow
-p, role::operations, /v1/article-tasks/*/events, GET, allow
-
--- 证据块管理
-p, role::operations, /v1/evidence-blocks, GET, allow
-p, role::operations, /v1/evidence-blocks, POST, allow
-p, role::operations, /v1/evidence-blocks/*, GET, allow
-p, role::operations, /v1/evidence-blocks/*, PATCH, allow
-p, role::operations, /v1/evidence-blocks/*, DELETE, allow
-p, role::operations, /v1/evidence-blocks/*/prompts, GET, allow
-p, role::operations, /v1/evidence-blocks/*/prompts/current, GET, allow
-p, role::operations, /v1/evidence-blocks/*/prompts/*/enable, POST, allow
-p, role::operations, /v1/evidence-blocks/*/prompts/clone, POST, allow
-p, role::operations, /v1/evidence-blocks/*/prompts/*, DELETE, allow
-
--- 项目管理
-p, role::operations, /v1/projects, GET, allow
-p, role::operations, /v1/projects, POST, allow
-p, role::operations, /v1/projects/*, GET, allow
-p, role::operations, /v1/projects/*, PATCH, allow
-p, role::operations, /v1/projects/*/brands, GET, allow
-p, role::operations, /v1/projects/*/brands, POST, allow
-p, role::operations, /v1/projects/*/brands/*, GET, allow
-p, role::operations, /v1/projects/*/brands/*, PATCH, allow
-p, role::operations, /v1/projects/*/brands/*, DELETE, allow
-p, role::operations, /v1/projects/*/tasks, GET, allow
-p, role::operations, /v1/projects/*/tasks, POST, allow
-
--- 任务管理
-p, role::operations, /v1/tasks/*, GET, allow
-p, role::operations, /v1/tasks/*, PATCH, allow
-p, role::operations, /v1/tasks/*, DELETE, allow
-
--- 问题管理
-p, role::operations, /v1/questions, POST, allow
-p, role::operations, /v1/questions/*, GET, allow
-p, role::operations, /v1/questions/*, DELETE, allow
-p, role::operations, /v1/tasks/*/questions, GET, allow
+-- 用户菜单（运营人员可查看菜单）
+p, role::operations, /v1/users/menu-tree, GET, allow
 ```
 
 #### 3.2.2 角色数据库配置
@@ -250,7 +224,7 @@ INSERT INTO casbin_rule (ptype, v0, v1) VALUES
 
 ```bash
 # 方式一：直接执行 SQL
-docker exec infra_postgres psql -U postgres -d template -c "
+docker exec infra_postgres psql -U postgres -d enterprise_template -c "
 INSERT INTO casbin_rule (ptype, v0, v1, v2, v3) VALUES
 ('p', 'role::admin', '/v1/new-endpoint', 'GET', 'allow'),
 ('p', 'role::admin', '/v1/new-endpoint', 'POST', 'allow');
@@ -272,7 +246,7 @@ docker exec infra_postgres psql -U postgres -d template -f configs/permissions_i
 | 方式 | 命令 | 适用场景 |
 |------|------|---------|
 | 直接 SQL | `docker exec infra_postgres psql ...` | 快速添加、开发测试 |
-| 初始化脚本 | `psql -f configs/permissions_init.sql` | 批量添加、版本控制 |
+| 初始化脚本 | `psql -U postgres -d enterprise_template -f scripts/init_roles_permissions.sql` | 批量添加、版本控制 |
 | 管理 API | `POST /v1/permissions` | 生产环境、可视化操作 |
 
 ## 四、需求详情
@@ -299,7 +273,9 @@ docker exec infra_postgres psql -U postgres -d template -f configs/permissions_i
 - 支持菜单树形展示（多级目录）
 - 支持拖拽排序（前端 vue-pure-admin 集成）
 - 支持菜单关联权限
-- 支持菜单图标、路由、组件配置（兼容 vue-pure-admin 路由规范）
+- 支持菜单图标、路由、组件配置（兼容 SoybeanAdmin 路由规范）
+- 支持国际化（i18nKey）
+- 支持菜单级角色控制（menu_role 关联表）
 
 #### 4.1.4 用户角色管理
 
@@ -334,11 +310,97 @@ docker exec infra_postgres psql -U postgres -d template -f configs/permissions_i
 - **权限框架**：Casbin v2（现有基础设施，直接扩展）
 - **模型扩展**：支持角色继承 (g) 和权限继承 (g2)，使用 SyncedPolicyAdapter 实时同步
 - **数据库**：PostgreSQL (GORM v2)
-- **API 协议**：RESTful (Gin) + gRPC (Protobuf，可选扩展)
+- **API 协议**：RESTful (Gin) + gRPC (Protobuf，可选扩展）
 - **缓存**：Redis (用户角色缓存，TTL 5min)
 - **日志**：slog (权限拒绝审计)
+- **前端集成**：支持 SoybeanAdmin 的 Elegant Router 机制
 
-### 5.2 Casbin 模型设计
+### 5.2 错误码规范
+
+错误码遵循统一规范，格式为 `LLMMMNNN`（8位数字），参考 `@./01 user.md`：
+
+| 级别 (LL) | 含义 | HTTP状态码 |
+|-----------|------|-----------|
+| 1 | 系统级错误 | 500 |
+| 2 | 用户操作错误 | 200 |
+| 3 | 业务逻辑错误 | 200 |
+| 4 | 上游服务错误 | 502 |
+| 5 | 下游服务错误 | 502 |
+
+**模块代码 (MMM)**：
+
+| 模块 | 代码 |
+|------|------|
+| 用户模块 | 001 |
+| 角色模块 | 002 |
+| 权限模块 | 003 |
+| 菜单模块 | 004 |
+| 认证模块 | 010 |
+
+**当前已实现错误码**（`pkg/errorsx/errorsx.go`）：
+
+| 错误码 | 说明 | 使用场景 |
+|--------|------|----------|
+| `CodeOK = 0` | 成功 | 成功响应 |
+| `10101` | 内部服务器错误 | 系统异常 |
+| `20101` | 用户不存在 | 用户登录/查询时 |
+| `20102` | 用户已存在 | 用户创建时冲突 |
+| `20107` | 权限不足 | 权限验证失败 |
+| `50101` | 未认证 | Token 无效或过期 |
+| `50102` | Token 无效 | Token 格式错误 |
+| `50103` | Token 过期 | Token 已过期 |
+
+**规划中错误码**（尚未实现，需后续补充）：
+
+| 错误码 | 说明 | 使用场景 |
+|--------|------|----------|
+| `20201` | 角色不存在 | 角色操作时 |
+| `20202` | 角色已存在 | 角色创建时冲突 |
+| `20301` | 权限不存在 | 权限操作时 |
+| `20401` | 菜单不存在 | 菜单操作时 |
+
+**错误响应格式**：
+
+```json
+// 错误响应
+{
+  "code": 20107,
+  "message": "permission denied",
+  "reason": "PermissionDenied"
+}
+
+// 成功响应
+{
+  "code": 0,
+  "message": "success",
+  "data": { ... }
+}
+```
+
+**错误包装规范**：
+
+```go
+// 必须使用 %w 包装底层错误
+return nil, fmt.Errorf("failed to copy request: %w", err)
+```
+
+**日志记录规范**：
+
+```go
+// 错误日志
+slog.ErrorContext(ctx, "Failed to copy request to model", "error", err)
+
+// 警告日志
+slog.WarnContext(ctx, "Username already exists", "username", userM.Username)
+
+// 信息日志
+slog.InfoContext(ctx, "Get users from backend storage", "count", len(users))
+
+// 权限拒绝审计
+slog.Info("permission_denied", slog.String("user_id", userID), slog.String("resource", resource), slog.String("action", action))
+```
+
+### 5.3 Casbin 模型设计
 
 修正字段不匹配，优化 matcher 支持路径匹配。模型文件（`model.conf`）：
 
@@ -369,9 +431,9 @@ m = g(r.sub, p.sub, r.dom) && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act)
 - `eft`：allow/deny，支持 deny 优先
 - 策略同步：角色/权限变更时，调用 `Enforcer.LoadFilteredPolicy` 实时更新
 
-### 5.3 权限控制流程
+### 5.4 权限控制流程
 
-```sh
+```
 用户请求 → JWT 认证 (Gin middleware) → 从 Redis/数据库获取用户角色 → Casbin 授权检查 (Enforce(user_id, "", resource_path, action)) → 允许/拒绝 (日志拒绝)
                 ↓
         前端：登录后调用 /auth/permissions 获取扁平权限列表 → vue-pure-admin 动态路由/按钮渲染
@@ -379,6 +441,57 @@ m = g(r.sub, p.sub, r.dom) && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act)
 ```
 
 **错误处理**：拒绝时返回 403 {code: "PERMISSION_DENIED", message: "无权限访问"}，记录 slog.Info("permission_denied", slog.String("user_id", user_id), slog.String("resource", resource), slog.String("action", action))。
+
+### 5.5 双层权限控制机制
+
+本系统实现前后端双重权限控制：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 1. 后端菜单级权限过滤（menu_role 表）                          │
+│    - 根据用户角色获取对应的菜单                               │
+│    - constant=1 的菜单跳过权限过滤（常量路由）                  │
+│    - API: /v1/users/menu-tree                                │
+├─────────────────────────────────────────────────────────────┤
+│ 2. 前端路由级权限过滤（meta.roles）                           │
+│    - 根据用户角色过滤前端路由                                 │
+│    - 匹配逻辑：routeRoles.some(role => userRoles.includes())  │
+│    - 配合 meta.constant 实现灵活控制                          │
+│    - API: /route/getUserRoutes                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**权限控制规则**：
+
+| 条件 | 结果 |
+|------|------|
+| `menu_role` 无记录 | 该菜单对所有登录用户可见 |
+| `menu_role` 有记录 | 只有记录中包含的角色可以访问 |
+| `menu.constant = 1` | 该菜单为常量路由，不参与权限过滤 |
+
+**菜单过滤 SQL 示例**：
+
+```sql
+-- 获取用户可见菜单的查询逻辑
+SELECT m.* FROM menu m
+WHERE m.status = 0                    -- 启用状态
+  AND m.visible = 1                   -- 可见
+  AND m.deleted_at IS NULL            -- 未删除
+  AND (
+    -- 条件1：无 menu_role 记录，对所有角色可见
+    m.menu_id NOT IN (SELECT menu_id FROM menu_role)
+    -- 条件2：有 menu_role 记录且用户拥有对应角色
+    OR m.menu_id IN (
+        SELECT menu_id FROM menu_role
+        WHERE role_id IN (
+            SELECT role_id FROM user_role WHERE user_id = ?
+        )
+    )
+    -- 条件3：常量路由，不参与权限过滤
+    OR m.constant = 1
+  )
+ORDER BY m.parent_id NULLS LAST, m.sort_order ASC;
+```
 
 ## 六、数据库设计
 
@@ -455,33 +568,100 @@ CREATE TABLE role_permission (
 
 #### 6.1.5 菜单表 (menu)
 
+> **注意**：与 SoybeanAdmin 前端集成的完整菜单表结构，包含国际化、本地图标、面包屑等字段。
+
 ```sql
 CREATE TABLE menu (
-    id             BIGSERIAL PRIMARY KEY,
-    menu_id        VARCHAR(64)  UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-    parent_id      VARCHAR(64),
-    menu_name      VARCHAR(50)  NOT NULL,
-    menu_code      VARCHAR(50)  NOT NULL,
-    menu_type      VARCHAR(10)  NOT NULL,  -- menu=目录, page=页面
-    icon           VARCHAR(50),
-    path           VARCHAR(200),
-    component      VARCHAR(200),  -- vue-pure-admin 组件路径
-    permission_id  VARCHAR(64),
-    sort_order     INT          DEFAULT 0,
-    visible        SMALLINT     NOT NULL DEFAULT 1,
-    status         SMALLINT     NOT NULL DEFAULT 0,
-    created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (permission_id) REFERENCES permission(permission_id) ON DELETE SET NULL,
-    FOREIGN KEY (parent_id) REFERENCES menu(menu_id) ON DELETE CASCADE
+    id              BIGSERIAL PRIMARY KEY,
+    menu_id         VARCHAR(64)  UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    parent_id       VARCHAR(64),                          -- 父菜单 UUID
+    menu_name       VARCHAR(50)  NOT NULL,                -- 菜单名称
+    menu_code       VARCHAR(50)  UNIQUE NOT NULL,         -- 菜单编码（唯一标识，作为路由 name）
+    menu_type       VARCHAR(10)  NOT NULL,                -- 菜单类型: menu=目录, page=页面
+    i18n_key        VARCHAR(100),                         -- 国际化 key（对应前端 meta.i18nKey）
+    icon            VARCHAR(100),                         -- 图标名称（iconify 格式，如 ph:user-circle）
+    local_icon      VARCHAR(100),                         -- 本地图标（可选，对应 meta.localIcon）
+    icon_font_size  INT,                                  -- 图标大小（可选，对应 meta.iconFontSize）
+    path            VARCHAR(200),                         -- 路由路径
+    component       VARCHAR(200),                         -- 前端组件标识（如 view.system-manage_user）
+    permission_id   VARCHAR(64),                          -- 关联权限 UUID
+    sort_order      INT          DEFAULT 0,               -- 排序序号（对应 meta.order）
+    visible         SMALLINT     NOT NULL DEFAULT 1,      -- 是否可见: 0=隐藏, 1=显示
+    status          SMALLINT     NOT NULL DEFAULT 0,      -- 状态: 0=启用, 1=禁用
+    constant        SMALLINT     NOT NULL DEFAULT 0,      -- 常量路由: 0=否, 1=是（不参与权限过滤）
+    active_menu     VARCHAR(100),                         -- 当前激活的菜单（用于面包屑，对应 meta.activeMenu）
+    hide_in_menu    SMALLINT     NOT NULL DEFAULT 0,      -- 菜单中隐藏: 0=否, 1=是（对应 meta.hideInMenu）
+    keep_alive      SMALLINT     NOT NULL DEFAULT 0,      -- 页面缓存: 0=否, 1=是（对应 meta.keepAlive）
+    href            VARCHAR(500),                         -- 外链地址（对应 meta.href）
+    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at      TIMESTAMP,                             -- 软删除
+
+    CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES menu(menu_id) ON DELETE CASCADE,
+    CONSTRAINT fk_menu_permission FOREIGN KEY (permission_id) REFERENCES permission(permission_id) ON DELETE SET NULL
 );
+
+-- 索引
+CREATE INDEX idx_menu_parent_id ON menu(parent_id);
+CREATE INDEX idx_menu_permission_id ON menu(permission_id);
+CREATE INDEX idx_menu_path ON menu(path);
+CREATE INDEX idx_menu_constant ON menu(constant);
+CREATE INDEX idx_menu_hide_in_menu ON menu(hide_in_menu);
+CREATE INDEX idx_menu_i18n_key ON menu(i18n_key);
 
 COMMENT ON COLUMN menu.menu_type IS 'menu=目录, page=页面';
 COMMENT ON COLUMN menu.visible IS '0=隐藏,1=显示';
 COMMENT ON COLUMN menu.status IS '0=启用,1=禁用';
+COMMENT ON COLUMN menu.constant IS '0=否,1=是（常量路由不参与权限过滤）';
+COMMENT ON COLUMN menu.hide_in_menu IS '0=否,1=是';
+COMMENT ON COLUMN menu.keep_alive IS '0=否,1=是';
 ```
 
-#### 6.1.6 审计日志表 (audit_log) 新增
+#### 6.1.6 菜单角色关联表 (menu_role)
+
+> **重要**：此表用于定义菜单允许访问的角色列表。配合 `constant` 字段，实现灵活的权限控制。
+
+```sql
+CREATE TABLE menu_role (
+    id          BIGSERIAL PRIMARY KEY,
+    menu_id     VARCHAR(64) NOT NULL,
+    role_id     VARCHAR(64) NOT NULL,
+    created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(menu_id, role_id),
+    FOREIGN KEY (menu_id) REFERENCES menu(menu_id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_menu_role_menu_id ON menu_role(menu_id);
+CREATE INDEX idx_menu_role_role_id ON menu_role(role_id);
+```
+
+**menu_role 表使用说明**：
+
+| 场景 | menu_role 状态 | 结果 |
+|------|----------------|------|
+| 首页、对所有用户开放 | 无记录 | 所有登录用户可见 |
+| 系统管理、仅管理员可访问 | 有记录 (admin, super_admin) | 仅指定角色可见 |
+| 常量路由、登录页等 | 任意状态 + constant=1 | 所有用户可见，跳过权限过滤 |
+
+**菜单角色设置示例**：
+
+```sql
+-- 设置用户管理菜单只有 admin 和 super_admin 可访问
+INSERT INTO menu_role (menu_id, role_id) VALUES
+('user-menu-id', 'admin-role-id'),
+('user-menu-id', 'super-admin-role-id');
+
+-- 移除某个角色的访问权限
+DELETE FROM menu_role WHERE menu_id = 'user-menu-id' AND role_id = 'operations-role-id';
+
+-- 查看菜单允许的角色
+SELECT r.role_code, r.role_name FROM menu_role mr
+JOIN role r ON mr.role_id = r.role_id
+WHERE mr.menu_id = 'user-menu-id';
+```
+
+#### 6.1.7 审计日志表 (audit_log)
 
 ```sql
 CREATE TABLE audit_log (
@@ -521,78 +701,594 @@ CREATE INDEX idx_permission_path ON permission(path);
 CREATE INDEX idx_menu_parent_id ON menu(parent_id);
 CREATE INDEX idx_menu_permission_id ON menu(permission_id);
 CREATE INDEX idx_menu_path ON menu(path);
+CREATE INDEX idx_menu_constant ON menu(constant);
+CREATE INDEX idx_menu_hide_in_menu ON menu(hide_in_menu);
+CREATE INDEX idx_menu_i18n_key ON menu(i18n_key);
 ```
+
+### 6.3 字段映射说明
+
+**菜单表字段与前端映射**：
+
+| 后端字段 | 前端对应 | 说明 |
+|---------|---------|------|
+| `menu_id` | `menuID` | 业务唯一标识 |
+| `parent_id` | `parentID` | 树形结构父节点 |
+| `menu_name` | `menuName` | 菜单显示名称 |
+| `menu_code` | `name` | 路由名称（唯一标识） |
+| `menu_type` | - | menu=目录, page=页面 |
+| `i18n_key` | `i18nKey` | 国际化 key（用于菜单翻译） |
+| `icon` | `meta.icon` | 图标名称（iconify 格式） |
+| `local_icon` | `meta.localIcon` | 本地图标（可选） |
+| `icon_font_size` | `meta.iconFontSize` | 图标大小（可选） |
+| `path` | `path` | 路由路径 |
+| `component` | `component` | 组件标识 |
+| `permission_id` | - | 权限关联 |
+| `sort_order` | `meta.order` | 排序序号 |
+| `visible` | - | 控制显示/隐藏 |
+| `status` | - | 启用/禁用 |
+| `constant` | `meta.constant` | 常量路由不参与权限过滤 |
+| `active_menu` | `meta.activeMenu` | 当前激活的菜单（用于面包屑） |
+| `hide_in_menu` | `meta.hideInMenu` | 在菜单中隐藏 |
+| `keep_alive` | `meta.keepAlive` | 页面缓存 |
+| `href` | `meta.href` | 外链地址 |
 
 ## 七、API 设计
 
-统一错误响应：`{code: int, message: string, data: any}`。使用 Gin 路由组 `/api/v1`。
+### 7.1 设计规范
 
-### 7.1 角色管理 API
+**路由组织**：
 
-```protobuf
-// 示例 REST 端点 (Gin)
-POST /roles          // CreateRole {role_name, role_code, description}
-GET  /roles          // ListRole ?page=1&page_size=10&status=0&keyword=admin
-GET  /roles/:id      // GetRole
-PUT  /roles/:id      // UpdateRole
-DELETE /roles/:id    // DeleteRole
+```go
+// internal/apiserver/handler/handler.go
+type Registrar func(v1 *gin.RouterGroup, h *Handler)
+var registrars []Registrar
 
-POST /roles/:id/permissions  // AssignPermissionsToRole {permission_ids: [], mode: "override|append"}
-GET  /roles/:id/permissions  // GetRolePermissions (树形)
+func Register(r Registrar) { registrars = append(registrars, r) }
+
+func (h *Handler) InstallAll(v1 *gin.RouterGroup) {
+    for _, r := range registrars { r(v1, h) }
+}
 ```
 
-### 7.2 权限管理 API
+**请求处理函数**（`pkg/core/core.go`）：
 
-```protobuf
-POST /permissions     // CreatePermission {permission_name, code, type, path, action, parent_id}
-GET  /permissions     // ListPermission ?type=menu&status=0&page=1
-GET  /permissions/tree // ListPermissionTree ?level=3 (懒加载)
-GET  /permissions/:id // GetPermission
-PUT  /permissions/:id // UpdatePermission
-DELETE /permissions/:id // DeletePermission
+```go
+// JSON 请求处理
+core.HandleJSONRequest[T, R](c, handler, validators...)
+
+// Query 参数请求处理
+core.HandleQueryRequest[T, R](c, handler, validators...)
+
+// URI 参数请求处理
+core.HandleUriRequest[T, R](c, handler, validators...)
+
+// URI + JSON 请求处理
+core.HandleUriJSONRequest[T, R](c, handler, validators...)
 ```
 
-### 7.3 菜单管理 API
+**统一响应格式**（`pkg/errorsx/code.go`）：
 
-```protobuf
-POST /menus           // CreateMenu {menu_name, code, type, parent_id, path, component, permission_id}
-GET  /menus           // ListMenu ?status=0&page=1
-GET  /menus/tree      // ListMenuTree (全树)
-GET  /menus/user      // GetUserMenuTree (JWT user_id, 权限过滤)
-GET  /menus/:id       // GetMenu
-PUT  /menus/:id       // UpdateMenu (支持 sort_order)
-DELETE /menus/:id     // DeleteMenu
+```go
+type APIResponse struct {
+    Code    int         `json:"code"`
+    Message string      `json:"message"`
+    Data    interface{} `json:"data,omitempty"`
+    Reason  string      `json:"reason,omitempty"`
+}
+
+// 成功响应
+errorsx.Success(data interface{}, message ...string)
+// 返回: {"code": 0, "message": "success", "data": {...}}
+
+// 错误响应
+errorsx.FromBizError(err *BizError)
+// 返回: {"code": <bizCode>, "message": "...", "reason": "..."}
 ```
 
-### 7.4 用户角色管理 API
+**统一响应写入**（`pkg/core/core.go`）：
 
-```protobuf
-POST /users/:id/roles  // AssignRolesToUser {role_ids: []}
-GET  /users/:id/roles  // GetUserRoles {roles: [], permissions: []} (扁平)
-DELETE /users/:id/roles/:role_id // RemoveRoleFromUser
+```go
+func WriteResponse(c *gin.Context, data any, err error) {
+    if err != nil {
+        bizErr := errorsx.FromError(err)
+        response := errorsx.FromBizError(bizErr)
+        httpCode := errorsx.GetHTTPCode(bizErr.Code)
+        c.JSON(httpCode, response)
+        return
+    }
+    c.JSON(http.StatusOK, errorsx.Success(data, "success"))
+}
 ```
 
-### 7.5 认证 API 新增
+### 7.2 角色管理 API
 
-```protobuf
-GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/v1/roles` | 创建角色 |
+| `GET` | `/v1/roles` | 获取角色列表（分页） |
+| `GET` | `/v1/roles/:id` | 获取单个角色 |
+| `PATCH` | `/v1/roles/:id` | 更新角色 |
+| `DELETE` | `/v1/roles/:id` | 删除角色 |
+| `GET` | `/v1/roles/:id/permissions` | 获取角色权限列表 |
+| `POST` | `/v1/roles/:id/permissions` | 分配角色权限 |
+
+**Handler 注册示例**（`internal/apiserver/handler/role.go`）：
+
+```go
+func init() {
+    Register(func(v1 *gin.RouterGroup, h *Handler) {
+        rg := v1.Group("/roles")
+        rg.Use(h.mws...)
+        rg.POST("", h.CreateRole)
+        rg.GET("", h.ListRole)
+        rg.GET("/:id", h.GetRole)
+        rg.PATCH("/:id", h.UpdateRole)
+        rg.DELETE("/:id", h.DeleteRole)
+        rg.GET("/:id/permissions", h.GetRolePermissions)
+        rg.PUT("/:id/permissions", h.SetRolePermissions)
+        rg.POST("/:id/permissions", h.AddRolePermissions)
+    })
+}
 ```
 
-**Swagger 集成**：使用 swaggo/swag 生成文档。
+### 7.3 权限管理 API
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/v1/permissions` | 创建权限 |
+| `GET` | `/v1/permissions` | 获取权限列表（分页） |
+| `GET` | `/v1/permissions/tree` | 获取权限树 |
+| `GET` | `/v1/permissions/:id` | 获取单个权限 |
+| `PATCH` | `/v1/permissions/:id` | 更新权限 |
+| `DELETE` | `/v1/permissions/:id` | 删除权限 |
+
+**Handler 注册示例**（`internal/apiserver/handler/permission.go`）：
+
+```go
+func init() {
+    Register(func(v1 *gin.RouterGroup, h *Handler) {
+        rg := v1.Group("/permissions")
+        rg.Use(h.mws...)
+        rg.POST("", h.CreatePermission)
+        rg.GET("", h.ListPermission)
+        rg.GET("/tree", h.ListPermissionTree)
+        rg.GET("/:id", h.GetPermission)
+        rg.PATCH("/:id", h.UpdatePermission)
+        rg.DELETE("/:id", h.DeletePermission)
+    })
+}
+```
+
+### 7.4 菜单管理 API
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/v1/menus` | 创建菜单 |
+| `GET` | `/v1/menus` | 获取菜单列表（分页） |
+| `GET` | `/v1/menus/tree` | 获取菜单树 |
+| `GET` | `/v1/menus/:id` | 获取单个菜单 |
+| `PATCH` | `/v1/menus/:id` | 更新菜单 |
+| `DELETE` | `/v1/menus/:id` | 删除菜单 |
+| `PUT` | `/v1/menus/:id/sort` | 更新菜单排序 |
+
+**Handler 注册示例**（`internal/apiserver/handler/menu.go`）：
+
+```go
+func init() {
+    Register(func(v1 *gin.RouterGroup, h *Handler) {
+        rg := v1.Group("/menus")
+        rg.Use(h.mws...)
+        rg.POST("", h.CreateMenu)
+        rg.PATCH("/:id", h.UpdateMenu)
+        rg.DELETE("/:id", h.DeleteMenu)
+        rg.GET("/:id", h.GetMenu)
+        rg.GET("", h.ListMenu)
+        rg.GET("/tree", h.ListMenuTree)
+        rg.PUT("/:id/sort", h.SortMenu)
+    })
+}
+```
+
+### 7.5 菜单角色管理 API
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/v1/menus/:id/roles` | 获取菜单允许访问的角色列表 |
+| `PUT` | `/v1/menus/:id/roles` | 批量设置菜单允许的角色（覆盖模式） |
+| `POST` | `/v1/menus/:id/roles` | 追加菜单允许的角色 |
+| `DELETE` | `/v1/menus/:id/roles/:roleID` | 移除菜单允许的角色 |
+
+**Handler 注册示例**（`internal/apiserver/handler/menu.go`）：
+
+```go
+func init() {
+    Register(func(v1 *gin.RouterGroup, h *Handler) {
+        rg := v1.Group("/menus")
+        rg.Use(h.mws...)
+        // ... 菜单 CRUD 路由
+        rg.GET("/:id/roles", h.GetMenuRoles)
+        rg.PUT("/:id/roles", h.SetMenuRoles)
+        rg.POST("/:id/roles", h.AddMenuRoles)
+        rg.DELETE("/:id/roles/:roleID", h.RemoveMenuRole)
+    })
+}
+```
+
+**响应示例**：
+
+```json
+// GET /v1/menus/:id/roles - 成功响应
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "menuId": "menu-uuid",
+    "roles": [
+      {
+        "roleId": "admin-role-id",
+        "roleCode": "admin",
+        "roleName": "管理员"
+      }
+    ],
+    "count": 1
+  }
+}
+
+// 错误响应示例
+{
+  "code": 20401,
+  "message": "menu not found",
+  "reason": "MenuNotFound"
+}
+```
+
+**Proto 定义**（`pkg/api/apiserver/v1/menu.proto`）：
+
+```protobuf
+message GetMenuRolesRequest {
+    string menu_id = 1;
+}
+
+message GetMenuRolesResponse {
+    string menu_id = 1;
+    repeated Role roles = 2;
+    int32 count = 3;
+}
+
+message SetMenuRolesRequest {
+    string menu_id = 1;
+    repeated string role_ids = 2;
+}
+
+message SetMenuRolesResponse {
+    string menu_id = 1;
+    repeated string role_ids = 2;
+    int32 count = 3;
+}
+
+message AddMenuRolesRequest {
+    string menu_id = 1;
+    repeated string role_ids = 2;
+}
+
+message RemoveMenuRoleRequest {
+    string menu_id = 1;
+    string role_id = 2;
+}
+```
+
+### 7.6 用户菜单 API
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/v1/users/menu-tree` | 获取当前用户的菜单树 |
+| `GET` | `/v1/route` | 获取用户可访问路由 |
+| `GET` | `/v1/route/constant` | 获取常量路由 |
+
+**Handler 注册示例**（`internal/apiserver/handler/route.go`）：
+
+```go
+func init() {
+    Register(func(v1 *gin.RouterGroup, h *Handler) {
+        rg := v1.Group("/route")
+        rg.Use(h.mws...)
+        rg.GET("", h.GetUserRoutes)
+        rg.GET("/constant", h.GetConstantRoutes)
+    })
+    // 用户菜单树在 user handler 中
+    Register(func(v1 *gin.RouterGroup, h *Handler) {
+        rg := v1.Group("/users")
+        rg.Use(h.mws...)
+        rg.GET("/menu-tree", h.GetUserMenuTree)
+    })
+}
+```
+
+**常量路由响应**（`/v1/route/constant`）：
+
+> 常量路由不参与权限过滤，前端直接硬编码。返回的路由包括：root、not-found、403、404、500、login 等。
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "routes": [
+      {
+        "name": "root",
+        "path": "/",
+        "redirect": "/home",
+        "meta": {
+          "constant": true
+        }
+      },
+      {
+        "name": "login",
+        "path": "/login",
+        "component": "layout.blank$view.login",
+        "meta": {
+          "title": "login",
+          "constant": true,
+          "hideInMenu": true
+        }
+      },
+      {
+        "name": "not-found",
+        "path": "/:pathMatch(.*)*",
+        "component": "layout.blank$view.404",
+        "meta": {
+          "title": "not-found",
+          "constant": true,
+          "hideInMenu": true
+        }
+      }
+    ]
+  }
+}
+```
+
+**用户菜单树响应**（`/v1/users/menu-tree`）：
+
+> 返回当前用户可访问的完整菜单树结构。
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "menus": [
+      {
+        "menuId": "home-uuid",
+        "parentId": null,
+        "menuName": "首页",
+        "menuCode": "home",
+        "menuType": "page",
+        "i18nKey": "route.home",
+        "icon": "mdi:monitor-dashboard",
+        "path": "/home",
+        "component": "view.home",
+        "sortOrder": 1,
+        "visible": 1,
+        "status": 0,
+        "constant": false,
+        "hideInMenu": false,
+        "keepAlive": false,
+        "createdAt": "2026-05-29T00:00:00Z",
+        "updatedAt": "2026-05-29T00:00:00Z",
+        "children": []
+      },
+      {
+        "menuId": "system-manage-uuid",
+        "parentId": null,
+        "menuName": "系统管理",
+        "menuCode": "system-manage",
+        "menuType": "menu",
+        "i18nKey": "route.system-manage",
+        "icon": "ph:gear-six",
+        "path": "/system-manage",
+        "sortOrder": 2,
+        "visible": 1,
+        "status": 0,
+        "constant": false,
+        "hideInMenu": false,
+        "keepAlive": false,
+        "createdAt": "2026-05-29T00:00:00Z",
+        "updatedAt": "2026-05-29T00:00:00Z",
+        "children": [
+          {
+            "menuId": "user-uuid",
+            "parentId": "system-manage-uuid",
+            "menuName": "用户管理",
+            "menuCode": "system-manage_user",
+            "menuType": "page",
+            "i18nKey": "route.system-manage_user",
+            "icon": "ph:user-circle",
+            "path": "/system-manage/user",
+            "component": "view.system-manage_user",
+            "sortOrder": 1,
+            "visible": 1,
+            "status": 0,
+            "constant": false,
+            "hideInMenu": false,
+            "keepAlive": false,
+            "createdAt": "2026-05-29T00:00:00Z",
+            "updatedAt": "2026-05-29T00:00:00Z",
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 7.7 用户角色管理 API
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/v1/users/:id/roles` | 获取用户角色列表 |
+| `POST` | `/v1/users/:id/roles` | 分配用户角色 |
+
+**Handler 注册示例**（`internal/apiserver/handler/user.go`）：
+
+```go
+func init() {
+    Register(func(v1 *gin.RouterGroup, h *Handler) {
+        rg := v1.Group("/users")
+        rg.Use(h.mws...)
+        // ... 用户 CRUD 路由
+        rg.GET("/:id/roles", h.GetUserRoles)
+        rg.POST("/:id/roles", h.AssignRolesToUser)
+        rg.DELETE("/:id/roles/:roleID", h.RemoveRoleFromUser)
+        rg.GET("/menu-tree", h.GetUserMenuTree)
+    })
+}
+```
+
+**Proto 定义**（`pkg/api/apiserver/v1/user_role.proto`）：
+
+```protobuf
+message GetUserRolesRequest {
+    string user_id = 1;
+}
+
+message GetUserRolesResponse {
+    string user_id = 1;
+    repeated Role roles = 2;
+    int32 count = 3;
+}
+
+message AssignRolesToUserRequest {
+    string user_id = 1;
+    repeated string role_ids = 2;
+    string mode = 3;  // "override" 或 "append"
+}
+
+message RemoveUserRoleRequest {
+    string user_id = 1;
+    string role_id = 2;
+}
+```
+
+### 7.8 认证 API
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/v1/auth/login` | 用户登录 |
+| `PUT` | `/v1/auth/refresh-token` | 刷新令牌 |
+| `GET` | `/v1/auth/permissions` | 获取用户权限列表（扁平） |
+
+**路由注册示例**（`internal/apiserver/httpserver.go`）：
+
+```go
+v1.POST("/auth/login", hdl.Login)
+v1.PUT("/auth/refresh-token", hdl.RefreshToken)
+
+// 通过 InstallAll 注册
+hdl.InstallAll(v1)  // 包含 /auth/permissions
+```
+
+### 7.9 请求/响应定义
+
+**获取用户路由响应**（`GET /v1/route`）：
+
+> **注意**：返回的 `routes` 必须是完整的嵌套树结构，前端直接使用 `router.addRoute()` 添加。
+> `meta.roles` 用于前端权限过滤，当角色为空或包含用户角色时允许访问。
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "routes": [
+      {
+        "name": "home",
+        "path": "/home",
+        "component": "layout.base$view.home",
+        "meta": {
+          "title": "home",
+          "i18nKey": "route.home",
+          "icon": "mdi:monitor-dashboard",
+          "order": 1,
+          "hideInMenu": false,
+          "keepAlive": false,
+          "roles": []
+        },
+        "children": []
+      },
+      {
+        "name": "system-manage",
+        "path": "/system-manage",
+        "component": "layout.base",
+        "meta": {
+          "title": "system-manage",
+          "i18nKey": "route.system-manage",
+          "icon": "ph:gear-six",
+          "order": 2,
+          "roles": ["super_admin", "admin"]
+        },
+        "children": [
+          {
+            "name": "system-manage_user",
+            "path": "/system-manage/user",
+            "component": "view.system-manage_user",
+            "meta": {
+              "title": "system-manage_user",
+              "i18nKey": "route.system-manage_user",
+              "icon": "ph:user-circle",
+              "roles": ["super_admin", "admin"]
+            }
+          }
+        ]
+      }
+    ],
+    "home": "home"
+  }
+}
+```
+
+**角色过滤说明**：
+
+- `roles: []` 表示该菜单对所有登录用户可见
+- `roles: ["super_admin", "admin"]` 表示只有 super_admin 和 admin 角色可见
+- 前端根据用户角色列表过滤路由：`routeRoles.some(role => userRoles.includes(role))`
+
+**菜单角色设置请求**（批量覆盖）：
+
+```json
+{
+  "roleIds": ["role-uuid-1", "role-uuid-2"]
+}
+```
+
+**菜单角色设置响应**：
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "menuId": "menu-uuid",
+    "roleIds": ["role-uuid-1", "role-uuid-2"],
+    "count": 2
+  }
+}
+```
 
 ## 八、实施计划
 
 ### 8.1 实施顺序
 
 1. **数据库模型层** (`internal/model/`)
-   - 定义 GORM 模型 (role, user_role 等)，添加 validator 标签和钩子 (AfterUpdate 同步 Casbin + 业务校验)
+   - 定义 GORM 模型 (role, user_role, menu_role 等)，添加 validator 标签和钩子 (AfterUpdate 同步 Casbin + 业务校验)
    - 编写模型转换 (ToProto)，AutoMigrate + 种子脚本
 
 2. **API 定义** (`pkg/api/v1/`)
    - 定义 Proto (可选)，Gin 路由 + Handler 骨架
 
 3. **Store 层** (`internal/store/`)
-   - GORM DAO (role.Store, permission.Store)，支持分页 (gorm-paginator)
+   - GORM DAO (role.Store, permission.Store, menu.Store)，支持分页 (gorm-paginator)
 
 4. **Biz 层** (`internal/biz/v1/`)
    - 业务逻辑 (e.g., AssignRole: 事务 + Casbin sync + 枚举校验 + 联动更新)
@@ -604,13 +1300,13 @@ GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
    - 初始化 Enforcer (SyncedPostgreSQLAdapter)
    - 中间件: gin-casbin
 
-7. **前端集成** (vue-pure-admin)
+7. **前端集成** (vue-pure-admin / SoybeanAdmin)
    - 添加权限页面 (角色/菜单 CRUD，树形 el-tree + 拖拽)
    - 权限指令插件，动态路由守卫
 
 8. **初始化数据**
    - 种子脚本: 创建预设角色 + 分配权限 (super_admin 全权限)
-   - 基础菜单 (e.g., 系统管理、运营模块)
+   - 基础菜单 (e.g., 系统管理、运营模块)，兼容 SoybeanAdmin 格式
 
 9. **单元测试**
    - Go: testify/table-driven，覆盖 Casbin Enforce 和 Biz 校验
@@ -623,7 +1319,7 @@ GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
 | Phase 1 | 数据库 + API 定义 | SQL 迁移 + Gin 路由 |
 | Phase 2 | Store + Biz 层 | DAO + 业务逻辑 (含校验) |
 | Phase 3 | Handler + Casbin | 完整后端 API + Swagger |
-| Phase 4 | 前端集成 + 初始化 | vue-pure-admin 页面 + 种子数据 |
+| Phase 4 | 前端集成 + 初始化 | vue-pure-admin/SoybeanAdmin 页面 + 种子数据 |
 | Phase 5 | 测试 + 部署 | 测试报告 + Docker 镜像 |
 
 ## 九、验收标准
@@ -634,10 +1330,11 @@ GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
 - [ ] 可以给角色分配权限（树形预览）
 - [ ] 可以创建、编辑、删除权限/菜单（拖拽排序，校验联动）
 - [ ] 可以给用户分配角色（多选）
-- [ ] 可以查看用户的菜单树（权限过滤，vue-pure-admin 渲染）
+- [ ] 可以查看用户的菜单树（权限过滤，vue-pure-admin / SoybeanAdmin 渲染）
 - [ ] 前端动态显示菜单/按钮（v-hasPerm 测试）
 - [ ] 后端 API 验证（Postman 403 测试）
 - [ ] 权限变更实时生效（无延迟）
+- [ ] 菜单角色管理 API 正常工作（增删改查）
 
 ### 9.2 性能验收
 
@@ -647,10 +1344,11 @@ GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
 
 ### 9.3 初始数据验收
 
-- [ ] 4 个预设角色创建 + 权限分配 (super_admin 全开)
-- [ ] 基础菜单初始化 (5-10 项，兼容 vue-pure-admin)
+- [ ] 3 个预设角色创建 + 权限分配 (super_admin 全开)
+- [ ] 基础菜单初始化 (5-10 项，兼容 SoybeanAdmin)
+- [ ] menu_role 关联表正确管理菜单与角色的关系
 
-### 9.4 安全/集成验收 新增
+### 9.4 安全/集成验收
 
 - [ ] SQL 注入/越权测试 (e.g., 非 admin 删角色失败)
 - [ ] 应用层校验测试 (e.g., 无效 status 返回 ErrInvalidStatus)
@@ -666,7 +1364,7 @@ GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
 | Casbin 策略同步延迟   | 变更不生效 | SyncedEnforcer + Redis 缓存 |
 | 权限检查性能问题      | API 慢     | 角色缓存 + 索引优化       |
 | 树形结构查询性能      | 加载慢     | path 字段 + 递归 CTE      |
-| 前端集成兼容性        | 渲染异常   | vue-pure-admin 版本 Pin   |
+| 前端集成兼容性        | 渲染异常   | vue-pure-admin / SoybeanAdmin 版本 Pin |
 | 应用层校验遗漏        | 数据不一致 | 单元测试覆盖 Biz 校验     |
 
 ### 10.2 外部依赖
@@ -674,7 +1372,7 @@ GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
 - PostgreSQL + GORM v2
 - Casbin v2 + gin-casbin
 - Redis (go-redis)
-- vue-pure-admin (GitHub 最新 stable)
+- vue-pure-admin 或 SoybeanAdmin (GitHub 最新 stable)
 - slog 日志
 
 ## 十一、后续扩展
@@ -697,5 +1395,9 @@ GET /auth/permissions // GetUserPermissions (扁平 code 列表，用于前端)
 - [Casbin 官方文档](https://casbin.org/docs/overview)
 - [RBAC 设计最佳实践](https://en.wikipedia.org/wiki/Role-based_access_control)
 - [vue-pure-admin 文档](https://github.com/pure-admin/vue-pure-admin)
+- [SoybeanAdmin 文档](https://github.com/soybeanjs/soybean-admin)
+- [Elegant Router 文档](https://github.com/soybeanjs/elegant-router)
 - 项目 README: `@./README.md`
 - 项目宪法: `@.claude/constitution.md`
+- 菜单管理系统设计: `@./03 menu.md`
+- 用户模块业务逻辑: `@./01 user.md`

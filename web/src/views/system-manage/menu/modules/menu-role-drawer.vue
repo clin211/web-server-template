@@ -29,10 +29,6 @@ const allRoles = ref<Api.Role.Role[]>([]);
 const checkedRoleIds = ref<string[]>([]);
 const assignedRoleIds = ref<string[]>([]);
 
-function getRoleId(role: Api.Role.Role) {
-  return role.id || role.roleID;
-}
-
 function isAssignedRole(roleId: string) {
   return assignedRoleIds.value.includes(roleId);
 }
@@ -112,29 +108,35 @@ watch(
 </script>
 
 <template>
-  <NModal v-model:show="visible" :mask-closable="false" preset="card" :title="$t('page.system-manage.menu.roleDrawer.title')" style="width: 500px; max-width: 90vw;">
+  <NModal
+    v-model:show="visible"
+    :mask-closable="false"
+    preset="card"
+    :title="$t('page.system-manage.menu.roleDrawer.title')"
+    style="width: 500px; max-width: 90vw"
+  >
     <NCard :bordered="false" size="small" class="min-h-200px">
       <NSpin :show="loading">
         <div v-if="allRoles.length" class="max-h-400px overflow-y-auto">
           <NCheckboxGroup v-model:value="checkedRoleIds">
             <NSpace vertical>
-              <div v-for="role in allRoles" :key="getRoleId(role)" class="flex items-center justify-between gap-12px">
-                <NCheckbox :value="getRoleId(role)" size="large">
-                  {{ role.name || role.roleName }}
+              <div v-for="role in allRoles" :key="role.roleID" class="flex items-center justify-between gap-12px">
+                <NCheckbox :value="role.roleID" size="large">
+                  {{ role.roleName }}
                 </NCheckbox>
 
-                <NSpace v-if="isAssignedRole(getRoleId(role))" size="small" align="center">
+                <NSpace v-if="isAssignedRole(role.roleID)" size="small" align="center">
                   <NTag size="small" type="success">
                     {{ $t('page.system-manage.menu.roleDrawer.assigned') }}
                   </NTag>
 
-                  <NPopconfirm @positive-click="handleRemoveRole(getRoleId(role))">
+                  <NPopconfirm @positive-click="handleRemoveRole(role.roleID)">
                     <template #trigger>
                       <NButton
                         size="small"
                         text
                         type="error"
-                        :loading="removingRoleId === getRoleId(role)"
+                        :loading="removingRoleId === role.roleID"
                         :disabled="submitting"
                       >
                         {{ $t('page.system-manage.menu.roleDrawer.remove') }}

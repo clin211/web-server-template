@@ -51,9 +51,7 @@ export function createColumns(): DataTableColumns<MenuTableRow> {
       align: 'center',
       width: 80,
       render: row =>
-        row.icon || row.localIcon
-          ? h(SvgIcon, { icon: row.icon, localIcon: row.localIcon, class: 'text-16px' })
-          : '-'
+        row.icon || row.localIcon ? h(SvgIcon, { icon: row.icon, localIcon: row.localIcon, class: 'text-16px' }) : '-'
     },
     {
       key: 'path',
@@ -87,7 +85,10 @@ export function createColumns(): DataTableColumns<MenuTableRow> {
       width: 80,
       render: row => {
         const tagType = row.status === 0 ? 'success' : 'error';
-        const label = row.status === 0 ? $t('page.system-manage.menu.status.normal') : $t('page.system-manage.menu.status.disabled');
+        const label =
+          row.status === 0
+            ? $t('page.system-manage.menu.status.normal')
+            : $t('page.system-manage.menu.status.disabled');
         return h(NTag, { type: tagType, size: 'small' }, { default: () => label });
       }
     },
