@@ -20,6 +20,7 @@ pnpm typecheck         # vue-tsc --noEmit --skipLibCheck
 pnpm lint              # oxlint --fix && eslint --fix .
 pnpm fmt               # oxfmt
 pnpm gen-route         # 重新生成 Elegant Router 产物
+pnpm sync:route        # 同步前端路由到后端菜单系统
 pnpm cleanup           # 清理 Soybean 生成物
 pnpm commit            # 生成 Conventional Commit 提交信息
 pnpm commit:zh         # 生成中文 Conventional Commit 提交信息
@@ -27,7 +28,8 @@ pnpm exec eslint src/path/to/file.ts --fix  # 单文件定向检查
 ```
 
 - 提交前钩子会运行 `pnpm typecheck && pnpm lint && pnpm fmt && git diff --exit-code`；格式化或自动修复导致工作区变脏时，提交会失败。
-- 当前仓库没有根级 `test` script，也未发现业务测试文件；没有“运行单个测试”的现成命令。前端改动主要依赖 `pnpm typecheck`、`pnpm lint` 和浏览器手工验证。
+- `@sa/scripts` 包提供 CLI 工具，入口在 `packages/scripts/bin.ts`。
+- 当前仓库没有根级 `test` script，也未发现业务测试文件；前端改动主要依赖 `pnpm typecheck`、`pnpm lint` 和浏览器手工验证。
 
 ## 仓库分层
 
