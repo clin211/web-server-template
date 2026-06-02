@@ -21,7 +21,7 @@ const permissionRoleId = ref<string | null>(null);
 const permissionRoleName = ref<string | null>(null);
 
 // 使用列设置 hook
-const { columnChecks, finalColumns, reloadColumns } = useColumnSetting<RoleTableRow>({
+const { columnChecks, finalColumns } = useColumnSetting<RoleTableRow>({
   key: 'system-manage-role',
   columnsFactory: createColumns
 });

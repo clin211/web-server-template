@@ -409,7 +409,6 @@ const local: App.I18n.Schema = {
           menuName: 'Menu Name',
           menuCode: 'Menu Code',
           menuType: 'Menu Type',
-          status: 'Status',
           i18nKey: 'I18n Key',
           parentID: 'Parent Menu',
           path: 'Route Path',

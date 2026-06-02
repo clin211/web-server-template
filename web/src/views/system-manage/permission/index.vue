@@ -45,15 +45,11 @@ const { columnChecks, finalColumns } = useColumnSetting<PermissionTableRow>({
   columnsFactory: createColumns
 });
 
-const {
-  drawerVisible,
-  closeDrawer,
-  operateType,
-  editingData,
-  handleAdd,
-  handleEdit,
-  onDeleted
-} = useTableOperate(tableData, 'permissionId', getData);
+const { drawerVisible, closeDrawer, operateType, editingData, handleAdd, handleEdit, onDeleted } = useTableOperate(
+  tableData,
+  'permissionId',
+  getData
+);
 
 async function getData(pageToken = prevPageTokens.value.at(-1) ?? '') {
   tableLoading.value = true;
@@ -119,10 +115,7 @@ async function handleOperateSubmit(
     if (!editingPermissionId.value) return;
 
     const { fetchUpdatePermission } = await import('@/service/api/permission');
-    const res = await fetchUpdatePermission(
-      editingPermissionId.value,
-      data as Api.Permission.UpdatePermissionRequest
-    );
+    const res = await fetchUpdatePermission(editingPermissionId.value, data as Api.Permission.UpdatePermissionRequest);
 
     if (!res.error) {
       window.$message?.success($t('common.updateSuccess'));
@@ -222,12 +215,7 @@ onMounted(() => {
 <template>
   <div>
     <NSpace vertical :size="16">
-      <PermissionSearch
-        v-model="searchModel"
-        :loading="tableLoading"
-        @search="handleSearch"
-        @reset="handleReset"
-      />
+      <PermissionSearch v-model="searchModel" :loading="tableLoading" @search="handleSearch" @reset="handleReset" />
 
       <NCard :bordered="false" size="small" class="card-wrapper">
         <NSpace vertical :size="12">

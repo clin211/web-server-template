@@ -405,7 +405,6 @@ const local: App.I18n.Schema = {
           menuName: '菜单名称',
           menuCode: '菜单编码',
           menuType: '菜单类型',
-          status: '状态',
           i18nKey: '国际化Key',
           parentID: '父菜单',
           path: '路由路径',

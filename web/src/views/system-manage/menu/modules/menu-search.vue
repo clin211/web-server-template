@@ -87,6 +87,6 @@ async function handleReset() {
           </NButton>
         </NSpace>
       </NGi>
-  </NGrid>
-</NCard>
+    </NGrid>
+  </NCard>
 </template>

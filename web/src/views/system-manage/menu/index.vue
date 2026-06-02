@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue';
+import { h, onMounted, ref } from 'vue';
 import { NButton, NPopconfirm, NSpace } from 'naive-ui';
 import type { DataTableBaseColumn } from 'naive-ui';
 import { $t } from '@/locales';
@@ -16,7 +16,6 @@ defineOptions({
   name: 'SystemManageMenu'
 });
 
-const tableData = ref<MenuTableRow[]>([]);
 const searchModel = ref<{ status: string | null; menuType: string | null }>({ status: null, menuType: null });
 const tableLoading = ref(false);
 const operateLoading = ref(false);
@@ -36,7 +35,7 @@ const { columnChecks, finalColumns } = useColumnSetting<MenuTableRow>({
   columnsFactory: createColumns
 });
 
-const { drawerVisible, closeDrawer, operateType, editingData, handleAdd, handleEdit, onDeleted } = useTableOperate(
+const { drawerVisible, closeDrawer, operateType, editingData, handleAdd, onDeleted } = useTableOperate(
   menuTreeData,
   'menuID',
   getData

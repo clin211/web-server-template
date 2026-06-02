@@ -2,7 +2,9 @@
  * 同步前端路由到后端菜单数据库
  * 运行: pnpm sync:route
  *
- * 幂等性: 通过 menuCode 作为唯一标识，已存在的菜单会更新，不存在则创建
+ * 核心逻辑：以数据库为准，匹配本地菜单 code 进行更新或新建
+ * - 已有菜单：更新字段，保留数据库中的 parentID
+ * - 新建菜单：基于路由树结构自动设置 parentID
  */
 
 import axios from 'axios';
@@ -41,153 +43,155 @@ interface MenuPayload {
   parentID?: string;
 }
 
-// 扩展菜单数据（用于关联父子关系）
-interface MenuWithParent extends MenuPayload {
-  _parentCode?: string;
+// 菜单完整信息（从数据库获取）
+interface ExistingMenu {
+  menuID: string;
+  parentID: string;
+  menuCode: string;
+  [key: string]: unknown;
 }
 
 // API 配置
 const API_BASE_URL = process.env.VITE_SERVICE_BASE_URL || 'http://localhost:5558';
 const token =
   process.env.API_TOKEN ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODAyODQ2MTQsImlhdCI6MTc4MDI3NzQxNCwibmJmIjoxNzgwMjc3NDE0LCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwieC11c2VyLWlkIjoiYjA3MzgyZDItZWNlNy00MDI2LTliNDYtMmRhMjY4ZGUxMDA0In0.94u5CjjX9Aw8VRFNHmu6hDKy6KbEkVxyukfpXOrheNc';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODAzNzgwOTYsImlhdCI6MTc4MDM3MDg5NiwibmJmIjoxNzgwMzcwODk2LCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwieC11c2VyLWlkIjoiYjA3MzgyZDItZWNlNy00MDI2LTliNDYtMmRhMjY4ZGUxMDA0In0.GCL0-oaCA4Kw59kqSoH-_LsznsNdjCWiZ4TsCHObPlc';
 
 // 内置常量路由（不同步到数据库）
 const CONSTANT_ROUTES = new Set(['403', '404', '500', 'login', 'home', 'iframe-page']);
 
-// 扁平化路由为菜单数组
-function flattenRoutes(routes: RouteNode[]): MenuWithParent[] {
-  const menus: MenuWithParent[] = [];
-
-  for (const route of routes) {
-    if (CONSTANT_ROUTES.has(route.name)) continue;
-
-    const i18nKey = route.meta?.i18nKey || `route.${route.name}`;
-
-    const menu: MenuWithParent = {
-      menuCode: route.name,
-      menuName: route.meta?.title || route.name,
-      menuType: route.children && route.children.length > 0 ? 'menu' : 'page',
-      i18nKey,
-      icon: route.meta?.icon,
-      path: route.path,
-      component: route.component,
-      sortOrder: route.meta?.order || 0,
-      visible: route.meta?.hideInMenu ? 0 : 1,
-      status: 0
-    };
-
-    menus.push(menu);
-
-    if (route.children && route.children.length > 0) {
-      // 递归处理子路由
-      for (const child of route.children) {
-        if (CONSTANT_ROUTES.has(child.name)) continue;
-
-        const childI18nKey = child.meta?.i18nKey || `route.${child.name}`;
-
-        const childMenu: MenuWithParent = {
-          menuCode: child.name,
-          menuName: child.meta?.title || child.name,
-          menuType: 'page',
-          i18nKey: childI18nKey,
-          icon: child.meta?.icon,
-          path: child.path,
-          component: child.component,
-          sortOrder: child.meta?.order || 0,
-          visible: child.meta?.hideInMenu ? 0 : 1,
-          status: 0,
-          _parentCode: route.name
-        };
-        menus.push(childMenu);
-      }
+// 递归收集所有菜单（扁平化）
+function collectAllMenus(nodes: RouteNode[], result: RouteNode[] = []): RouteNode[] {
+  for (const node of nodes) {
+    if (CONSTANT_ROUTES.has(node.name)) continue;
+    result.push(node);
+    if (node.children && node.children.length > 0) {
+      collectAllMenus(node.children, result);
     }
   }
-
-  return menus;
+  return result;
 }
 
-// 获取已有菜单映射 (menuCode -> menu)
-async function fetchExistingMenus(): Promise<Map<string, any>> {
+// 获取已有菜单映射 (menuCode -> menu)，包括嵌套 children
+async function fetchExistingMenus(): Promise<Map<string, ExistingMenu>> {
   const response = await axios.get(`${API_BASE_URL}/v1/menus`, {
     params: { page_size: 1000 },
     headers: { Authorization: `Bearer ${token}` }
   });
 
-  const map = new Map<string, any>();
-  if (response.data.code === 0) {
-    for (const menu of response.data.data.menus || []) {
-      map.set(menu.menuCode, menu);
+  const map = new Map<string, ExistingMenu>();
+
+  function extractMenus(menus: any[]): void {
+    for (const menu of menus) {
+      map.set(menu.menuCode, {
+        menuID: menu.menuID,
+        parentID: menu.parentID,
+        menuCode: menu.menuCode,
+        ...menu
+      });
+      if (menu.children && menu.children.length > 0) {
+        extractMenus(menu.children);
+      }
     }
   }
+
+  if (response.data.code === 0) {
+    extractMenus(response.data.data.menus || []);
+  }
+
   return map;
 }
 
-// 幂等 upsert：存在则更新，不存在则创建
+// 创建或更新菜单
 async function upsertMenu(
-  menu: MenuPayload,
-  existingMenus: Map<string, any>
-): Promise<{ created: boolean; menuID: string }> {
-  const existing = existingMenus.get(menu.menuCode);
+  menuData: MenuPayload,
+  existingMenu: ExistingMenu | undefined
+): Promise<{ menuID: string; created: boolean }> {
+  const isCreate = !existingMenu;
 
-  let data: any;
-  let method: 'post' | 'put';
-  let url: string;
+  const url = isCreate
+    ? `${API_BASE_URL}/v1/menus`
+    : `${API_BASE_URL}/v1/menus/${existingMenu.menuID}`;
 
-  if (existing) {
-    // 更新已有菜单（保留 parentID）
-    data = { ...menu };
-    if (existing.parentID) {
-      data.parentID = existing.parentID;
-    }
-    method = 'put';
-    url = `${API_BASE_URL}/v1/menus/${existing.menuID}`;
-  } else {
-    // 创建新菜单
-    data = menu;
-    method = 'post';
-    url = `${API_BASE_URL}/v1/menus`;
-  }
+  // 已存在菜单：必须包含 menuID，同时保留数据库中的 parentID
+  // 注意：如果 parentID 是 "0" 或空，表示顶级菜单，不应该传给后端
+  const payload: MenuPayload = isCreate
+    ? menuData
+    : {
+        ...menuData,
+        menuID: existingMenu.menuID,
+        parentID:
+          existingMenu.parentID && existingMenu.parentID !== '0'
+            ? existingMenu.parentID
+            : undefined
+      };
 
   const response = await axios({
-    method,
+    method: isCreate ? 'post' : 'patch',
     url,
-    data,
+    data: payload,
     headers: { Authorization: `Bearer ${token}` }
-  }).catch(err => {
+  }).catch((err) => {
     const message = err.response?.data?.message || err.message;
-    console.error(`  API 错误 [${menu.menuCode}]:`, message);
+    console.error(`  API 错误 [${menuData.menuCode}]:`, message);
     throw new Error(message);
   });
 
   if (response.data.code !== 0) {
-    console.error(`  业务错误 [${menu.menuCode}]:`, response.data.message);
+    console.error(`  业务错误 [${menuData.menuCode}]:`, response.data.message);
     throw new Error(response.data.message || '操作失败');
   }
 
-  const menuID = existing?.menuID || response.data.data.menuID;
-  return { created: !existing, menuID };
+  const menuID = isCreate ? response.data.data.menuID : existingMenu.menuID;
+  return { menuID, created: isCreate };
 }
 
-// 更新子菜单的父级关系
-async function updateParentRelation(
-  menuCode: string,
-  parentMenuCode: string,
+// 递归同步树形结构
+async function syncRouteTree(
+  nodes: RouteNode[],
+  parentMenuID: string | undefined,
+  existingMenus: Map<string, ExistingMenu>,
   menuIDMap: Map<string, string>,
-  existingMenus: Map<string, any>
+  stats: { created: number; updated: number }
 ): Promise<void> {
-  const parentMenu = existingMenus.get(parentMenuCode);
-  if (!parentMenu) return;
+  for (const node of nodes) {
+    if (CONSTANT_ROUTES.has(node.name)) continue;
 
-  const menuID = menuIDMap.get(menuCode);
-  if (!menuID) return;
+    const existingMenu = existingMenus.get(node.name);
+    const menuID = existingMenu?.menuID;
 
-  if (parentMenu.menuID !== parentMenu.parentID) {
-    await axios.put(
-      `${API_BASE_URL}/v1/menus/${menuID}`,
-      { parentID: parentMenu.menuID },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const menuData: MenuPayload = {
+      menuCode: node.name,
+      menuName: node.meta?.title || node.name,
+      menuType: node.children && node.children.length > 0 ? 'menu' : 'page',
+      i18nKey: node.meta?.i18nKey || `route.${node.name}`,
+      icon: node.meta?.icon,
+      path: node.path,
+      component: node.component,
+      sortOrder: node.meta?.order || 0,
+      visible: node.meta?.hideInMenu ? 0 : 1,
+      status: 0
+    };
+
+    try {
+      const result = await upsertMenu(menuData, existingMenu);
+      menuIDMap.set(node.name, result.menuID);
+
+      if (result.created) {
+        stats.created++;
+        console.log(`  + 新建: ${node.name}`);
+      } else {
+        stats.updated++;
+        console.log(`  ~ 更新: ${node.name}`);
+      }
+
+      // 递归同步子路由
+      if (node.children && node.children.length > 0) {
+        await syncRouteTree(node.children, result.menuID, existingMenus, menuIDMap, stats);
+      }
+    } catch (err: any) {
+      console.log(`  x 失败: ${node.name} - ${err.message}`);
+    }
   }
 }
 
@@ -203,61 +207,67 @@ async function main() {
   const existingMenus = await fetchExistingMenus();
   console.log(`  已存在 ${existingMenus.size} 个菜单`);
 
-  // 2. 扁平化路由
-  console.log('\n[2/4] 解析路由结构...');
-  const menus = flattenRoutes(generatedRoutes as RouteNode[]);
-  console.log(`  生成 ${menus.length} 个菜单项`);
+  // 2. 构建路由树
+  console.log('\n[2/4] 构建路由树结构...');
+  const allMenus = collectAllMenus(generatedRoutes as RouteNode[]);
+  console.log(`  解析 ${allMenus.length} 个路由节点`);
 
-  // 3. 批量 upsert
-  console.log('\n[3/4] 同步菜单...');
+  // 3. 树形同步
+  console.log('\n[3/4] 同步菜单（保持树形结构）...');
   const menuIDMap = new Map<string, string>();
-  let created = 0,
-    updated = 0;
+  const stats = { created: 0, updated: 0 };
 
-  for (const menu of menus) {
-    try {
-      const result = await upsertMenu(menu, existingMenus);
-      menuIDMap.set(menu.menuCode, result.menuID);
-      if (result.created) {
-        created++;
-        console.log(`  ✓ 新建: ${menu.menuCode}`);
-      } else {
-        updated++;
-        console.log(`  ↻ 更新: ${menu.menuCode}`);
-      }
-    } catch (err: any) {
-      console.log(`  ✗ 失败: ${menu.menuCode} - ${err.message}`);
-    }
-  }
+  await syncRouteTree(
+    generatedRoutes as RouteNode[],
+    undefined,
+    existingMenus,
+    menuIDMap,
+    stats
+  );
 
-  // 4. 更新父子关系
-  console.log('\n[4/4] 关联父子菜单...');
-  // 重新获取菜单来获取最新的 menuID
+  // 4. 验证父子关系
+  console.log('\n[4/4] 验证父子关系...');
   const updatedMenus = await fetchExistingMenus();
-  for (const menu of menus) {
-    if (menu._parentCode) {
-      const parentMenu = updatedMenus.get(menu._parentCode);
-      const childMenu = updatedMenus.get(menu.menuCode);
-      if (parentMenu && childMenu && parentMenu.menuID !== childMenu.parentID) {
-        await axios.put(
-          `${API_BASE_URL}/v1/menus/${childMenu.menuID}`,
-          { parentID: parentMenu.menuID },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        console.log(`  → 关联: ${menu.menuCode} -> ${menu._parentCode}`);
+  let correctRelations = 0;
+  let needFixRelations = 0;
+
+  for (const node of allMenus) {
+    if (node.children && node.children.length > 0) {
+      const parentMenu = updatedMenus.get(node.name);
+      if (!parentMenu) continue;
+
+      for (const child of node.children) {
+        if (CONSTANT_ROUTES.has(child.name)) continue;
+        const childMenu = updatedMenus.get(child.name);
+        if (!childMenu) continue;
+
+        if (childMenu.parentID === parentMenu.menuID) {
+          correctRelations++;
+        } else {
+          needFixRelations++;
+          console.log(`  ! 修复关系: ${child.name} -> parentID: ${childMenu.parentID} => ${parentMenu.menuID}`);
+          await axios.patch(
+            `${API_BASE_URL}/v1/menus/${childMenu.menuID}`,
+            { parentID: parentMenu.menuID },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        }
       }
     }
   }
+
+  console.log(`  正确关系: ${correctRelations}, 修复: ${needFixRelations}`);
 
   // 总结
   console.log('\n' + '='.repeat(50));
   console.log('同步完成');
-  console.log(`  新建: ${created}`);
-  console.log(`  更新: ${updated}`);
+  console.log(`  新建: ${stats.created}`);
+  console.log(`  更新: ${stats.updated}`);
+  console.log(`  父子关系: ${needFixRelations === 0 ? '全部正确' : `已修复 ${needFixRelations} 个`}`);
   console.log('='.repeat(50));
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(`\n同步失败: ${err.message}`);
   process.exit(1);
 });

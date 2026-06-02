@@ -1,4 +1,3 @@
-import { h } from 'vue';
 import type { DataTableColumns } from 'naive-ui';
 import { $t } from '@/locales';
 

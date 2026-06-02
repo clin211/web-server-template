@@ -51,7 +51,9 @@ export function useColumnSetting<T = unknown>(options: UseColumnSettingOptions<T
       if (column.key !== undefined && 'title' in column) {
         const title = transformColumnTitle
           ? transformColumnTitle(col)
-          : (typeof column.title === 'string' ? column.title : String(column.key));
+          : typeof column.title === 'string'
+            ? column.title
+            : String(column.key);
         checks.push({
           key: String(column.key),
           title,

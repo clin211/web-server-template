@@ -655,7 +655,16 @@ declare namespace App {
               createdAt: string;
             };
             resourceType: { menu: string; button: string };
-            action: { GET: string; POST: string; PUT: string; DELETE: string; PATCH: string; export: string; import: string; query: string };
+            action: {
+              GET: string;
+              POST: string;
+              PUT: string;
+              DELETE: string;
+              PATCH: string;
+              export: string;
+              import: string;
+              query: string;
+            };
             status: { normal: string; disabled: string };
             form: {
               permissionName: string;
