@@ -41,6 +41,7 @@ interface MenuPayload {
   visible: 0 | 1;
   status: 0;
   parentID?: string;
+  menuID?: string;
 }
 
 // 菜单完整信息（从数据库获取）
