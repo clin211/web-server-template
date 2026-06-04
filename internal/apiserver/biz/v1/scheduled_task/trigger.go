@@ -10,13 +10,14 @@ import (
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
+	"github.com/clin211/gin-enterprise-template/pkg/store/where"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 	genericjob "github.com/clin211/gin-enterprise-template/pkg/job"
 )
 
 // Trigger manually triggers a scheduled task execution.
 func (b *scheduledTaskBiz) Trigger(ctx context.Context, rq *v1.TriggerScheduledTaskRequest) (*v1.TriggerScheduledTaskResponse, error) {
-	task, err := b.store.ScheduledTask().GetByScheduledTaskID(ctx, rq.GetScheduledTaskID())
+	task, err := b.store.ScheduledTask().Get(ctx, where.F("scheduled_task_id", rq.GetScheduledTaskID()))
 	if err != nil {
 		return nil, errno.ErrScheduledTaskNotFound
 	}
@@ -57,6 +58,10 @@ func (b *scheduledTaskBiz) Trigger(ctx context.Context, rq *v1.TriggerScheduledT
 		execution.DispatchStatus = DispatchStatusEnqueueFailed
 		execution.ErrorMsg = &errorMsg
 		_ = b.store.ScheduledTaskExecution().Update(ctx, execution)
+
+		// 同时更新任务的 last_error，便于在任务详情页查看最近失败原因
+		_ = b.store.ScheduledTask().UpdateLastExecution(ctx, task.ScheduledTaskID, "", &errorMsg)
+
 		return nil, errno.ErrScheduledTaskEnqueueFailed.WithMessage("%s", err.Error())
 	}
 

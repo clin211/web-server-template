@@ -52,7 +52,8 @@ const local: App.I18n.Schema = {
       no: '否'
     },
     yes: '是',
-    no: '否'
+    no: '否',
+    loadMore: '加载更多'
   },
   request: {
     logout: '请求失败后登出用户',
@@ -234,7 +235,8 @@ const local: App.I18n.Schema = {
     'system-manage_user': '用户管理',
     'system-manage_menu': '菜单管理',
     'system-manage_permission': '权限管理',
-    'system-manage_role': '角色管理'
+    'system-manage_role': '角色管理',
+    'system-manage_scheduled-task': '定时任务'
   },
   page: {
     login: {
@@ -506,6 +508,70 @@ const local: App.I18n.Schema = {
           title: '分配权限',
           selectedCount: '已选 {count} 项',
           appendMode: '追加模式'
+        }
+      },
+      scheduledTask: {
+        columns: {
+          name: '任务名称',
+          scheduledTaskID: '任务ID',
+          taskType: '任务类型',
+          cronExpr: 'Cron表达式',
+          queue: '队列',
+          enabled: '启用',
+          timezone: '时区',
+          nextRunTime: '下次执行时间',
+          lastScheduledAt: '上次调度时间',
+          lastExecutionID: '最近执行ID',
+          lastError: '最近错误',
+          payload: '参数',
+          userID: '用户ID',
+          createdAt: '创建时间',
+          updatedAt: '更新时间'
+        },
+        search: {
+          enabled: '启用状态',
+          taskType: '任务类型'
+        },
+        form: {
+          name: '任务名称',
+          namePlaceholder: '请输入任务名称',
+          nameRequired: '请输入任务名称',
+          taskType: '任务类型',
+          taskTypeRequired: '请选择任务类型',
+          cronExpr: 'Cron表达式',
+          cronExprPlaceholder: '例如: 0 3 * * *',
+          cronExprRequired: '请输入Cron表达式',
+          cronExprInvalid: 'Cron表达式格式不正确',
+          queue: '目标队列',
+          timezone: '时区',
+          payload: 'JSON参数',
+          payloadPlaceholder: '{"key": "value"}',
+          payloadInvalid: 'JSON参数格式不正确',
+          enabled: '启用任务'
+        },
+        drawer: {
+          addTitle: '新增定时任务',
+          editTitle: '编辑定时任务'
+        },
+        detail: {
+          title: '任务详情'
+        },
+        execution: {
+          title: '执行历史',
+          columns: {
+            triggerType: '触发方式',
+            dispatchStatus: '调度状态',
+            processStatus: '执行状态',
+            attempt: '重试次数',
+            durationMs: '耗时',
+            startedAt: '开始时间',
+            finishedAt: '结束时间',
+            createdAt: '创建时间'
+          }
+        },
+        actions: {
+          executions: '执行历史',
+          triggerSuccess: '触发成功'
         }
       }
     }

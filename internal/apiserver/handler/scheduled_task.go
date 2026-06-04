@@ -14,10 +14,12 @@ func init() {
 		rg.PUT(":scheduledTaskID", handler.UpdateScheduledTask)
 		rg.DELETE(":scheduledTaskID", handler.DeleteScheduledTask)
 		rg.GET(":scheduledTaskID", handler.GetScheduledTask)
-		rg.GET("", handler.ListScheduledTasks)
+		rg.GET("", handler.ListScheduledTask)
 		rg.PUT(":scheduledTaskID/toggle", handler.ToggleScheduledTask)
 		rg.POST(":scheduledTaskID/trigger", handler.TriggerScheduledTask)
 		rg.GET(":scheduledTaskID/executions", handler.ListScheduledTaskExecutions)
+
+		v1.GET("/task-definitions", handler.ListTaskDefinitions)
 	})
 }
 
@@ -41,8 +43,8 @@ func (h *Handler) GetScheduledTask(c *gin.Context) {
 	core.HandleUriRequest(c, h.biz.ScheduledTaskV1().Get, h.val.ValidateGetScheduledTaskRequest)
 }
 
-// ListScheduledTasks handles the list scheduled tasks API.
-func (h *Handler) ListScheduledTasks(c *gin.Context) {
+// ListScheduledTask 查询定时任务列表.
+func (h *Handler) ListScheduledTask(c *gin.Context) {
 	core.HandleQueryRequest(c, h.biz.ScheduledTaskV1().List, h.val.ValidateListScheduledTasksRequest)
 }
 
@@ -59,4 +61,9 @@ func (h *Handler) TriggerScheduledTask(c *gin.Context) {
 // ListScheduledTaskExecutions handles the list executions API.
 func (h *Handler) ListScheduledTaskExecutions(c *gin.Context) {
 	core.HandleUriQueryRequest(c, h.biz.ScheduledTaskV1().ListExecutions, h.val.ValidateListScheduledTaskExecutionsRequest)
+}
+
+// ListTaskDefinitions 获取公开的任务类型列表.
+func (h *Handler) ListTaskDefinitions(c *gin.Context) {
+	core.HandleRequest(c, c.ShouldBindQuery, h.biz.ScheduledTaskV1().ListTaskDefinitions)
 }

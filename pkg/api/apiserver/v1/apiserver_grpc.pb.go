@@ -66,6 +66,7 @@ const (
 	APIServer_ToggleScheduledTask_FullMethodName         = "/apiserver.v1.APIServer/ToggleScheduledTask"
 	APIServer_TriggerScheduledTask_FullMethodName        = "/apiserver.v1.APIServer/TriggerScheduledTask"
 	APIServer_ListScheduledTaskExecutions_FullMethodName = "/apiserver.v1.APIServer/ListScheduledTaskExecutions"
+	APIServer_ListTaskDefinitions_FullMethodName         = "/apiserver.v1.APIServer/ListTaskDefinitions"
 )
 
 // APIServerClient is the client API for APIServer service.
@@ -161,6 +162,8 @@ type APIServerClient interface {
 	ToggleScheduledTask(ctx context.Context, in *ToggleScheduledTaskRequest, opts ...grpc.CallOption) (*ToggleScheduledTaskResponse, error)
 	TriggerScheduledTask(ctx context.Context, in *TriggerScheduledTaskRequest, opts ...grpc.CallOption) (*TriggerScheduledTaskResponse, error)
 	ListScheduledTaskExecutions(ctx context.Context, in *ListScheduledTaskExecutionsRequest, opts ...grpc.CallOption) (*ListScheduledTaskExecutionsResponse, error)
+	// 获取公开的任务类型列表
+	ListTaskDefinitions(ctx context.Context, in *ListTaskDefinitionsRequest, opts ...grpc.CallOption) (*ListTaskDefinitionsResponse, error)
 }
 
 type aPIServerClient struct {
@@ -631,6 +634,16 @@ func (c *aPIServerClient) ListScheduledTaskExecutions(ctx context.Context, in *L
 	return out, nil
 }
 
+func (c *aPIServerClient) ListTaskDefinitions(ctx context.Context, in *ListTaskDefinitionsRequest, opts ...grpc.CallOption) (*ListTaskDefinitionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListTaskDefinitionsResponse)
+	err := c.cc.Invoke(ctx, APIServer_ListTaskDefinitions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // APIServerServer is the server API for APIServer service.
 // All implementations must embed UnimplementedAPIServerServer
 // for forward compatibility.
@@ -724,6 +737,8 @@ type APIServerServer interface {
 	ToggleScheduledTask(context.Context, *ToggleScheduledTaskRequest) (*ToggleScheduledTaskResponse, error)
 	TriggerScheduledTask(context.Context, *TriggerScheduledTaskRequest) (*TriggerScheduledTaskResponse, error)
 	ListScheduledTaskExecutions(context.Context, *ListScheduledTaskExecutionsRequest) (*ListScheduledTaskExecutionsResponse, error)
+	// 获取公开的任务类型列表
+	ListTaskDefinitions(context.Context, *ListTaskDefinitionsRequest) (*ListTaskDefinitionsResponse, error)
 	mustEmbedUnimplementedAPIServerServer()
 }
 
@@ -871,6 +886,9 @@ func (UnimplementedAPIServerServer) TriggerScheduledTask(context.Context, *Trigg
 }
 func (UnimplementedAPIServerServer) ListScheduledTaskExecutions(context.Context, *ListScheduledTaskExecutionsRequest) (*ListScheduledTaskExecutionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListScheduledTaskExecutions not implemented")
+}
+func (UnimplementedAPIServerServer) ListTaskDefinitions(context.Context, *ListTaskDefinitionsRequest) (*ListTaskDefinitionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListTaskDefinitions not implemented")
 }
 func (UnimplementedAPIServerServer) mustEmbedUnimplementedAPIServerServer() {}
 func (UnimplementedAPIServerServer) testEmbeddedByValue()                   {}
@@ -1721,6 +1739,24 @@ func _APIServer_ListScheduledTaskExecutions_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _APIServer_ListTaskDefinitions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTaskDefinitionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).ListTaskDefinitions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_ListTaskDefinitions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).ListTaskDefinitions(ctx, req.(*ListTaskDefinitionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // APIServer_ServiceDesc is the grpc.ServiceDesc for APIServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1911,6 +1947,10 @@ var APIServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListScheduledTaskExecutions",
 			Handler:    _APIServer_ListScheduledTaskExecutions_Handler,
+		},
+		{
+			MethodName: "ListTaskDefinitions",
+			Handler:    _APIServer_ListTaskDefinitions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

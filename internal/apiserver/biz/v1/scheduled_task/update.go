@@ -7,12 +7,13 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
+	"github.com/clin211/gin-enterprise-template/pkg/store/where"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 )
 
 // Update updates an existing scheduled task.
 func (b *scheduledTaskBiz) Update(ctx context.Context, rq *v1.UpdateScheduledTaskRequest) (*v1.UpdateScheduledTaskResponse, error) {
-	task, err := b.store.ScheduledTask().GetByScheduledTaskID(ctx, rq.GetScheduledTaskID())
+	task, err := b.store.ScheduledTask().Get(ctx, where.F("scheduled_task_id", rq.GetScheduledTaskID()))
 	if err != nil {
 		return nil, errno.ErrScheduledTaskNotFound
 	}

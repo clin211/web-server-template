@@ -73,3 +73,12 @@ func (x *ListScheduledTaskExecutionsRequest) Default() {
 
 func (x *ListScheduledTaskExecutionsResponse) Default() {
 }
+
+func (x *TaskDefinition) Default() {
+}
+
+func (x *ListTaskDefinitionsRequest) Default() {
+}
+
+func (x *ListTaskDefinitionsResponse) Default() {
+}

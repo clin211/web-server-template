@@ -158,12 +158,19 @@ CREATE TABLE "public"."menu" (
   "menu_type" "public"."menu_type" NOT NULL,
   "i18n_key" varchar(100) COLLATE "pg_catalog"."default",
   "icon" varchar(50) COLLATE "pg_catalog"."default",
+  "local_icon" varchar(50) COLLATE "pg_catalog"."default",
+  "icon_font_size" int4,
   "path" varchar(200) COLLATE "pg_catalog"."default",
   "component" varchar(200) COLLATE "pg_catalog"."default",
   "permission_id" uuid,
   "sort_order" int4 NOT NULL DEFAULT 0,
   "visible" int2 NOT NULL DEFAULT 1,
   "status" int2 NOT NULL DEFAULT 0,
+  "constant" int2 NOT NULL DEFAULT 0,
+  "active_menu" varchar(100) COLLATE "pg_catalog"."default",
+  "hide_in_menu" int2 NOT NULL DEFAULT 0,
+  "keep_alive" int2 NOT NULL DEFAULT 0,
+  "href" varchar(500) COLLATE "pg_catalog"."default",
   "created_at" timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "deleted_at" timestamptz(6)
@@ -177,12 +184,19 @@ COMMENT ON COLUMN "public"."menu"."menu_code" IS '菜单编码（唯一标识）
 COMMENT ON COLUMN "public"."menu"."menu_type" IS '菜单类型（menu=目录, page=页面）';
 COMMENT ON COLUMN "public"."menu"."i18n_key" IS '国际化key（用于前端翻译）';
 COMMENT ON COLUMN "public"."menu"."icon" IS '菜单图标';
+COMMENT ON COLUMN "public"."menu"."local_icon" IS '本地图标';
+COMMENT ON COLUMN "public"."menu"."icon_font_size" IS '图标大小';
 COMMENT ON COLUMN "public"."menu"."path" IS '路由路径';
 COMMENT ON COLUMN "public"."menu"."component" IS '前端组件路径（兼容vue-pure-admin）';
 COMMENT ON COLUMN "public"."menu"."permission_id" IS '关联权限UUID（外键）';
 COMMENT ON COLUMN "public"."menu"."sort_order" IS '排序序号（支持拖拽排序）';
 COMMENT ON COLUMN "public"."menu"."visible" IS '是否可见（0=隐藏,1=显示）';
 COMMENT ON COLUMN "public"."menu"."status" IS '菜单状态（0=启用,1=禁用）';
+COMMENT ON COLUMN "public"."menu"."constant" IS '常量路由（0=否,1=是）';
+COMMENT ON COLUMN "public"."menu"."active_menu" IS '当前激活的菜单（用于面包屑）';
+COMMENT ON COLUMN "public"."menu"."hide_in_menu" IS '在菜单中隐藏（0=否,1=是）';
+COMMENT ON COLUMN "public"."menu"."keep_alive" IS '页面缓存（0=否,1=是）';
+COMMENT ON COLUMN "public"."menu"."href" IS '外链地址';
 COMMENT ON COLUMN "public"."menu"."created_at" IS '创建时间';
 COMMENT ON COLUMN "public"."menu"."updated_at" IS '更新时间';
 COMMENT ON COLUMN "public"."menu"."deleted_at" IS '软删除时间（NULL=未删除）';

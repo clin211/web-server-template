@@ -1396,6 +1396,30 @@
         ]
       }
     },
+    "/v1/task-definitions": {
+      "get": {
+        "summary": "获取任务类型列表",
+        "description": "获取所有公开的任务类型定义，供创建定时任务时选择",
+        "operationId": "APIServer_ListTaskDefinitions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListTaskDefinitionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "定时任务管理"
+        ]
+      }
+    },
     "/v1/users": {
       "get": {
         "summary": "列表用户",
@@ -2604,6 +2628,20 @@
       },
       "title": "ListScheduledTasksResponse 表示定时任务列表响应。"
     },
+    "v1ListTaskDefinitionsResponse": {
+      "type": "object",
+      "properties": {
+        "definitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TaskDefinition"
+          },
+          "title": "definitions 表示公开的任务类型定义列表。"
+        }
+      },
+      "title": "ListTaskDefinitionsResponse 表示任务类型列表响应。"
+    },
     "v1ListUserResponse": {
       "type": "object",
       "properties": {
@@ -3354,6 +3392,42 @@
     "v1SortMenuResponse": {
       "type": "object",
       "title": "SortMenuResponse 表示批量更新菜单排序响应"
+    },
+    "v1TaskDefinition": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "type 表示任务类型标识。"
+        },
+        "description": {
+          "type": "string",
+          "title": "description 表示任务类型描述。"
+        },
+        "allowedQueues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "allowedQueues 表示该任务类型允许投递的队列集合。"
+        },
+        "maxPayloadBytes": {
+          "type": "integer",
+          "format": "int32",
+          "title": "maxPayloadBytes 表示该任务类型允许的最大负载字节数。"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "title": "timeoutSeconds 表示单次任务处理超时时间（秒）。"
+        },
+        "maxRetry": {
+          "type": "integer",
+          "format": "int32",
+          "title": "maxRetry 表示最大重试次数。"
+        }
+      },
+      "title": "TaskDefinition 表示公开的任务类型定义信息。"
     },
     "v1ToggleScheduledTaskResponse": {
       "type": "object",

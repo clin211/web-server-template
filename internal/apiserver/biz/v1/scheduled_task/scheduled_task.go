@@ -41,6 +41,7 @@ type ClientTaskScheduler interface {
 // TaskRegistry provides task definitions and validation.
 type TaskRegistry interface {
 	Get(string) (genericjob.TaskDef, bool)
+	ListPublic() []genericjob.TaskDef
 	ValidateEnqueue(context.Context, string, json.RawMessage, string) (genericjob.TaskDef, string, error)
 }
 
@@ -54,6 +55,7 @@ type ScheduledTaskBiz interface {
 	Toggle(ctx context.Context, rq *v1.ToggleScheduledTaskRequest) (*v1.ToggleScheduledTaskResponse, error)
 	Trigger(ctx context.Context, rq *v1.TriggerScheduledTaskRequest) (*v1.TriggerScheduledTaskResponse, error)
 	ListExecutions(ctx context.Context, rq *v1.ListScheduledTaskExecutionsRequest) (*v1.ListScheduledTaskExecutionsResponse, error)
+	ListTaskDefinitions(ctx context.Context, rq *v1.ListTaskDefinitionsRequest) (*v1.ListTaskDefinitionsResponse, error)
 }
 
 // scheduledTaskBiz implements ScheduledTaskBiz.

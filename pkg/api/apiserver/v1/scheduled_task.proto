@@ -228,3 +228,28 @@ message ListScheduledTaskExecutionsResponse {
   // pageToken 表示分页游标；为空表示没有更多数据。
   string pageToken = 3;
 }
+
+// TaskDefinition 表示公开的任务类型定义信息。
+message TaskDefinition {
+  // type 表示任务类型标识。
+  string type = 1;
+  // description 表示任务类型描述。
+  string description = 2;
+  // allowedQueues 表示该任务类型允许投递的队列集合。
+  repeated string allowedQueues = 3;
+  // maxPayloadBytes 表示该任务类型允许的最大负载字节数。
+  int32 maxPayloadBytes = 4;
+  // timeoutSeconds 表示单次任务处理超时时间（秒）。
+  int32 timeoutSeconds = 5;
+  // maxRetry 表示最大重试次数。
+  int32 maxRetry = 6;
+}
+
+// ListTaskDefinitionsRequest 表示任务类型列表请求。
+message ListTaskDefinitionsRequest {}
+
+// ListTaskDefinitionsResponse 表示任务类型列表响应。
+message ListTaskDefinitionsResponse {
+  // definitions 表示公开的任务类型定义列表。
+  repeated TaskDefinition definitions = 1;
+}

@@ -117,6 +117,16 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'system-manage_scheduled-task',
+        path: '/system-manage/scheduled-task',
+        component: 'view.system-manage_scheduled-task',
+        meta: {
+          title: 'system-manage_scheduled-task',
+          i18nKey: 'route.system-manage_scheduled-task',
+          icon: 'svg-spinners:clock'
+        }
+      },
+      {
         name: 'system-manage_user',
         path: '/system-manage/user',
         component: 'view.system-manage_user',

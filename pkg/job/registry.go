@@ -56,6 +56,8 @@ type RetryPolicy struct {
 type TaskDef struct {
 	// Type 是任务类型的全局唯一标识。
 	Type string
+	// Description 是任务类型的描述信息。
+	Description string
 	// Handler 是任务执行入口。
 	Handler HandlerFunc
 	// PayloadValidator 在任务入队前校验 JSON 负载。
@@ -137,6 +139,20 @@ func (r *Registry) List() []TaskDef {
 	defs := make([]TaskDef, 0, len(r.tasks))
 	for _, def := range r.tasks {
 		defs = append(defs, def)
+	}
+	return defs
+}
+
+// ListPublic 返回所有公开的任务定义副本。
+func (r *Registry) ListPublic() []TaskDef {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	defs := make([]TaskDef, 0)
+	for _, def := range r.tasks {
+		if def.Visibility == VisibilityPublic {
+			defs = append(defs, def)
+		}
 	}
 	return defs
 }

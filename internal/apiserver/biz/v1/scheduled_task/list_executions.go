@@ -6,13 +6,13 @@ import (
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/pagination"
-	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
+	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 )
 
 // ListExecutions returns a paginated list of task execution records.
 func (b *scheduledTaskBiz) ListExecutions(ctx context.Context, rq *v1.ListScheduledTaskExecutionsRequest) (*v1.ListScheduledTaskExecutionsResponse, error) {
-	task, err := b.store.ScheduledTask().GetByScheduledTaskID(ctx, rq.GetScheduledTaskID())
+	task, err := b.store.ScheduledTask().Get(ctx, where.F("scheduled_task_id", rq.GetScheduledTaskID()))
 	if err != nil {
 		return nil, errno.ErrScheduledTaskNotFound
 	}

@@ -24,10 +24,17 @@ func NewSchedulerTaskStore(store store.IStore) genericjob.SchedulerTaskStore {
 	return &schedulerTaskStore{store: store}
 }
 
-// ListEnabledTasks returns all enabled scheduled tasks for the scheduler.
+// ListEnabledTasks 返回所有 enabled=true 的客户端定时任务。
+//
+// 并发安全说明：
+// 1. 使用直接的数据库查询，不依赖 Store 接口的 List 方法
+// 2. 返回所有记录而不受分页限制，确保调度器能加载全部启用的任务
+// 3. 调度器通过 reconcile 周期与数据库状态保持同步
 func (s *schedulerTaskStore) ListEnabledTasks(ctx context.Context) ([]genericjob.SystemTask, error) {
-	tasks, err := s.store.ScheduledTask().ListEnabledTasks(ctx)
-	if err != nil {
+	var tasks []*model.ScheduledTaskM
+	if err := s.store.DB(ctx).
+		Where("enabled = ?", true).
+		Find(&tasks).Error; err != nil {
 		return nil, fmt.Errorf("list enabled scheduled tasks: %w", err)
 	}
 
@@ -43,7 +50,14 @@ func (s *schedulerTaskStore) ListEnabledTasks(ctx context.Context) ([]genericjob
 	return result, nil
 }
 
-// CreateExecutionIfAbsent creates a new execution record if one doesn't already exist for the scheduled time.
+// CreateExecutionIfAbsent 创建一个新的执行记录（如果不存在）。
+//
+// 并发安全保证：
+// 1. 使用 PostgreSQL 的唯一约束 (scheduled_task_id, scheduled_at) 作为幂等保证
+// 2. 即使多个 scheduler 实例同时调用，也只有一个会成功创建记录
+// 3. 另一个调用会收到 created=false，返回已存在的记录
+//
+// 注意：返回的 execution.ExecutionID 可能是新创建的或已存在的，调用方不应假设是新创建的。
 func (s *schedulerTaskStore) CreateExecutionIfAbsent(ctx context.Context, task genericjob.SystemTask, scheduledAt time.Time) (*genericjob.SchedulerExecution, bool, error) {
 	execution := &model.ScheduledTaskExecutionM{
 		ExecutionID:     uuid.New().String(),
@@ -66,7 +80,11 @@ func (s *schedulerTaskStore) CreateExecutionIfAbsent(ctx context.Context, task g
 	}, created, nil
 }
 
-// MarkExecutionEnqueued records that an execution was successfully enqueued.
+// MarkExecutionEnqueued 标记执行记录已成功入队。
+//
+// 并发安全说明：
+// 1. 使用 executionID 作为更新条件，确保只更新对应的记录
+// 2. RowsAffected == 0 表示记录不存在，返回明确错误
 func (s *schedulerTaskStore) MarkExecutionEnqueued(ctx context.Context, executionID string, asynqTaskID string, enqueuedAt time.Time) error {
 	result := s.store.DB(ctx).Model(&model.ScheduledTaskExecutionM{}).
 		Where("execution_id = ?", executionID).
@@ -85,7 +103,11 @@ func (s *schedulerTaskStore) MarkExecutionEnqueued(ctx context.Context, executio
 	return nil
 }
 
-// MarkExecutionEnqueueFailed records that enqueueing failed for an execution.
+// MarkExecutionEnqueueFailed 标记执行记录入队失败。
+//
+// 并发安全说明：
+// 1. 使用 executionID 作为更新条件，确保只更新对应的记录
+// 2. 错误信息会被截断到 512 字符以避免存储过大
 func (s *schedulerTaskStore) MarkExecutionEnqueueFailed(ctx context.Context, executionID string, err error) error {
 	errorMsg := errorString(err)
 	result := s.store.DB(ctx).Model(&model.ScheduledTaskExecutionM{}).
@@ -103,7 +125,12 @@ func (s *schedulerTaskStore) MarkExecutionEnqueueFailed(ctx context.Context, exe
 	return nil
 }
 
-// UpdateTaskScheduleState updates the task's next run time and last execution info.
+// UpdateTaskScheduleState 更新任务的调度状态和最近执行信息。
+//
+// 并发安全说明：
+// 1. 使用任务名称作为更新条件
+// 2. nextRunTime、lastScheduledAt、lastError 都会被更新
+// 3. 如果执行失败，lastError 会记录失败原因
 func (s *schedulerTaskStore) UpdateTaskScheduleState(ctx context.Context, task genericjob.SystemTask, scheduledAt time.Time, nextRunTime *time.Time, executionID string, err error) error {
 	values := map[string]any{
 		"last_scheduled_at": scheduledAt,

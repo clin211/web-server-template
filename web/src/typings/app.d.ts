@@ -364,6 +364,8 @@ declare namespace App {
         };
         yes: string;
         no: string;
+        loadMore: string;
+        pleaseSelect: string;
       };
       request: {
         logout: string;
@@ -696,6 +698,65 @@ declare namespace App {
               title: string;
               selectedCount: string;
               appendMode: string;
+            };
+          };
+          scheduledTask: {
+            columns: {
+              name: string;
+              scheduledTaskID: string;
+              taskType: string;
+              cronExpr: string;
+              queue: string;
+              enabled: string;
+              timezone: string;
+              nextRunTime: string;
+              lastScheduledAt: string;
+              lastExecutionID: string;
+              lastError: string;
+              payload: string;
+              userID: string;
+              createdAt: string;
+              updatedAt: string;
+            };
+            search: {
+              enabled: string;
+              taskType: string;
+            };
+            form: {
+              name: string;
+              namePlaceholder: string;
+              nameRequired: string;
+              taskType: string;
+              taskTypeRequired: string;
+              cronExpr: string;
+              cronExprPlaceholder: string;
+              cronExprRequired: string;
+              cronExprInvalid: string;
+              queue: string;
+              timezone: string;
+              payload: string;
+              payloadPlaceholder: string;
+              payloadInvalid: string;
+              enabled: string;
+            };
+            drawer: { addTitle: string; editTitle: string };
+            detail: { title: string };
+            execution: {
+              title: string;
+              columns: {
+                triggerType: string;
+                dispatchStatus: string;
+                processStatus: string;
+                attempt: string;
+                durationMs: string;
+                startedAt: string;
+                finishedAt: string;
+                createdAt: string;
+              };
+            };
+            actions: {
+              executions: string;
+              triggerSuccess: string;
             };
           };
         };

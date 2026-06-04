@@ -52,7 +52,8 @@ const local: App.I18n.Schema = {
       no: 'No'
     },
     yes: 'Yes',
-    no: 'No'
+    no: 'No',
+    loadMore: 'Load More'
   },
   request: {
     logout: 'Logout user after request failed',
@@ -238,7 +239,8 @@ const local: App.I18n.Schema = {
     'system-manage_user': 'User Management',
     'system-manage_menu': 'Menu Management',
     'system-manage_permission': 'Permission Management',
-    'system-manage_role': 'Role Management'
+    'system-manage_role': 'Role Management',
+    'system-manage_scheduled-task': 'Scheduled Task'
   },
   page: {
     login: {
@@ -510,6 +512,70 @@ const local: App.I18n.Schema = {
           title: 'Assign Permissions',
           selectedCount: '{count} selected',
           appendMode: 'Append Mode'
+        }
+      },
+      scheduledTask: {
+        columns: {
+          name: 'Task Name',
+          scheduledTaskID: 'Task ID',
+          taskType: 'Task Type',
+          cronExpr: 'Cron Expression',
+          queue: 'Queue',
+          enabled: 'Enabled',
+          timezone: 'Timezone',
+          nextRunTime: 'Next Run Time',
+          lastScheduledAt: 'Last Scheduled At',
+          lastExecutionID: 'Last Execution ID',
+          lastError: 'Last Error',
+          payload: 'Payload',
+          userID: 'User ID',
+          createdAt: 'Created At',
+          updatedAt: 'Updated At'
+        },
+        search: {
+          enabled: 'Enabled',
+          taskType: 'Task Type'
+        },
+        form: {
+          name: 'Task Name',
+          namePlaceholder: 'Please enter task name',
+          nameRequired: 'Please enter task name',
+          taskType: 'Task Type',
+          taskTypeRequired: 'Please select task type',
+          cronExpr: 'Cron Expression',
+          cronExprPlaceholder: 'e.g. 0 3 * * *',
+          cronExprRequired: 'Please enter cron expression',
+          cronExprInvalid: 'Invalid cron expression format',
+          queue: 'Target Queue',
+          timezone: 'Timezone',
+          payload: 'JSON Payload',
+          payloadPlaceholder: '{"key": "value"}',
+          payloadInvalid: 'Invalid JSON format',
+          enabled: 'Enable Task'
+        },
+        drawer: {
+          addTitle: 'Add Scheduled Task',
+          editTitle: 'Edit Scheduled Task'
+        },
+        detail: {
+          title: 'Task Detail'
+        },
+        execution: {
+          title: 'Execution History',
+          columns: {
+            triggerType: 'Trigger Type',
+            dispatchStatus: 'Dispatch Status',
+            processStatus: 'Process Status',
+            attempt: 'Attempt',
+            durationMs: 'Duration',
+            startedAt: 'Started At',
+            finishedAt: 'Finished At',
+            createdAt: 'Created At'
+          }
+        },
+        actions: {
+          executions: 'Executions',
+          triggerSuccess: 'Triggered successfully'
         }
       }
     }

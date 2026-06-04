@@ -1324,6 +1324,180 @@ func (x *ListScheduledTaskExecutionsResponse) GetPageToken() string {
 	return ""
 }
 
+// TaskDefinition 表示公开的任务类型定义信息。
+type TaskDefinition struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// type 表示任务类型标识。
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// description 表示任务类型描述。
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	// allowedQueues 表示该任务类型允许投递的队列集合。
+	AllowedQueues []string `protobuf:"bytes,3,rep,name=allowedQueues,proto3" json:"allowedQueues,omitempty"`
+	// maxPayloadBytes 表示该任务类型允许的最大负载字节数。
+	MaxPayloadBytes int32 `protobuf:"varint,4,opt,name=maxPayloadBytes,proto3" json:"maxPayloadBytes,omitempty"`
+	// timeoutSeconds 表示单次任务处理超时时间（秒）。
+	TimeoutSeconds int32 `protobuf:"varint,5,opt,name=timeoutSeconds,proto3" json:"timeoutSeconds,omitempty"`
+	// maxRetry 表示最大重试次数。
+	MaxRetry      int32 `protobuf:"varint,6,opt,name=maxRetry,proto3" json:"maxRetry,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskDefinition) Reset() {
+	*x = TaskDefinition{}
+	mi := &file_apiserver_v1_scheduled_task_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskDefinition) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskDefinition) ProtoMessage() {}
+
+func (x *TaskDefinition) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_scheduled_task_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskDefinition.ProtoReflect.Descriptor instead.
+func (*TaskDefinition) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_scheduled_task_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *TaskDefinition) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *TaskDefinition) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *TaskDefinition) GetAllowedQueues() []string {
+	if x != nil {
+		return x.AllowedQueues
+	}
+	return nil
+}
+
+func (x *TaskDefinition) GetMaxPayloadBytes() int32 {
+	if x != nil {
+		return x.MaxPayloadBytes
+	}
+	return 0
+}
+
+func (x *TaskDefinition) GetTimeoutSeconds() int32 {
+	if x != nil {
+		return x.TimeoutSeconds
+	}
+	return 0
+}
+
+func (x *TaskDefinition) GetMaxRetry() int32 {
+	if x != nil {
+		return x.MaxRetry
+	}
+	return 0
+}
+
+// ListTaskDefinitionsRequest 表示任务类型列表请求。
+type ListTaskDefinitionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListTaskDefinitionsRequest) Reset() {
+	*x = ListTaskDefinitionsRequest{}
+	mi := &file_apiserver_v1_scheduled_task_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTaskDefinitionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTaskDefinitionsRequest) ProtoMessage() {}
+
+func (x *ListTaskDefinitionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_scheduled_task_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTaskDefinitionsRequest.ProtoReflect.Descriptor instead.
+func (*ListTaskDefinitionsRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_scheduled_task_proto_rawDescGZIP(), []int{19}
+}
+
+// ListTaskDefinitionsResponse 表示任务类型列表响应。
+type ListTaskDefinitionsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// definitions 表示公开的任务类型定义列表。
+	Definitions   []*TaskDefinition `protobuf:"bytes,1,rep,name=definitions,proto3" json:"definitions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListTaskDefinitionsResponse) Reset() {
+	*x = ListTaskDefinitionsResponse{}
+	mi := &file_apiserver_v1_scheduled_task_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTaskDefinitionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTaskDefinitionsResponse) ProtoMessage() {}
+
+func (x *ListTaskDefinitionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_scheduled_task_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTaskDefinitionsResponse.ProtoReflect.Descriptor instead.
+func (*ListTaskDefinitionsResponse) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_scheduled_task_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListTaskDefinitionsResponse) GetDefinitions() []*TaskDefinition {
+	if x != nil {
+		return x.Definitions
+	}
+	return nil
+}
+
 var File_apiserver_v1_scheduled_task_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_scheduled_task_proto_rawDesc = "" +
@@ -1440,7 +1614,17 @@ const file_apiserver_v1_scheduled_task_proto_rawDesc = "" +
 	"\n" +
 	"executions\x18\x02 \x03(\v2$.apiserver.v1.ScheduledTaskExecutionR\n" +
 	"executions\x12\x1c\n" +
-	"\tpageToken\x18\x03 \x01(\tR\tpageTokenBDZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
+	"\tpageToken\x18\x03 \x01(\tR\tpageToken\"\xda\x01\n" +
+	"\x0eTaskDefinition\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12$\n" +
+	"\rallowedQueues\x18\x03 \x03(\tR\rallowedQueues\x12(\n" +
+	"\x0fmaxPayloadBytes\x18\x04 \x01(\x05R\x0fmaxPayloadBytes\x12&\n" +
+	"\x0etimeoutSeconds\x18\x05 \x01(\x05R\x0etimeoutSeconds\x12\x1a\n" +
+	"\bmaxRetry\x18\x06 \x01(\x05R\bmaxRetry\"\x1c\n" +
+	"\x1aListTaskDefinitionsRequest\"]\n" +
+	"\x1bListTaskDefinitionsResponse\x12>\n" +
+	"\vdefinitions\x18\x01 \x03(\v2\x1c.apiserver.v1.TaskDefinitionR\vdefinitionsBDZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
 
 var (
 	file_apiserver_v1_scheduled_task_proto_rawDescOnce sync.Once
@@ -1454,7 +1638,7 @@ func file_apiserver_v1_scheduled_task_proto_rawDescGZIP() []byte {
 	return file_apiserver_v1_scheduled_task_proto_rawDescData
 }
 
-var file_apiserver_v1_scheduled_task_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_apiserver_v1_scheduled_task_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_apiserver_v1_scheduled_task_proto_goTypes = []any{
 	(*ScheduledTask)(nil),                       // 0: apiserver.v1.ScheduledTask
 	(*ScheduledTaskExecution)(nil),              // 1: apiserver.v1.ScheduledTaskExecution
@@ -1474,21 +1658,25 @@ var file_apiserver_v1_scheduled_task_proto_goTypes = []any{
 	(*TriggerScheduledTaskResponse)(nil),        // 15: apiserver.v1.TriggerScheduledTaskResponse
 	(*ListScheduledTaskExecutionsRequest)(nil),  // 16: apiserver.v1.ListScheduledTaskExecutionsRequest
 	(*ListScheduledTaskExecutionsResponse)(nil), // 17: apiserver.v1.ListScheduledTaskExecutionsResponse
-	(*structpb.Struct)(nil),                     // 18: google.protobuf.Struct
+	(*TaskDefinition)(nil),                      // 18: apiserver.v1.TaskDefinition
+	(*ListTaskDefinitionsRequest)(nil),          // 19: apiserver.v1.ListTaskDefinitionsRequest
+	(*ListTaskDefinitionsResponse)(nil),         // 20: apiserver.v1.ListTaskDefinitionsResponse
+	(*structpb.Struct)(nil),                     // 21: google.protobuf.Struct
 }
 var file_apiserver_v1_scheduled_task_proto_depIdxs = []int32{
-	18, // 0: apiserver.v1.ScheduledTask.payload:type_name -> google.protobuf.Struct
-	18, // 1: apiserver.v1.CreateScheduledTaskRequest.payload:type_name -> google.protobuf.Struct
-	18, // 2: apiserver.v1.UpdateScheduledTaskRequest.payload:type_name -> google.protobuf.Struct
+	21, // 0: apiserver.v1.ScheduledTask.payload:type_name -> google.protobuf.Struct
+	21, // 1: apiserver.v1.CreateScheduledTaskRequest.payload:type_name -> google.protobuf.Struct
+	21, // 2: apiserver.v1.UpdateScheduledTaskRequest.payload:type_name -> google.protobuf.Struct
 	0,  // 3: apiserver.v1.GetScheduledTaskResponse.scheduledTask:type_name -> apiserver.v1.ScheduledTask
 	0,  // 4: apiserver.v1.ListScheduledTasksResponse.scheduledTasks:type_name -> apiserver.v1.ScheduledTask
 	0,  // 5: apiserver.v1.ToggleScheduledTaskResponse.scheduledTask:type_name -> apiserver.v1.ScheduledTask
 	1,  // 6: apiserver.v1.ListScheduledTaskExecutionsResponse.executions:type_name -> apiserver.v1.ScheduledTaskExecution
-	7,  // [7:7] is the sub-list for method output_type
-	7,  // [7:7] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	18, // 7: apiserver.v1.ListTaskDefinitionsResponse.definitions:type_name -> apiserver.v1.TaskDefinition
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_apiserver_v1_scheduled_task_proto_init() }
@@ -1505,7 +1693,7 @@ func file_apiserver_v1_scheduled_task_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_apiserver_v1_scheduled_task_proto_rawDesc), len(file_apiserver_v1_scheduled_task_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

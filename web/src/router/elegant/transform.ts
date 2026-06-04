@@ -173,6 +173,7 @@ const routeMap: RouteMap = {
   "system-manage_menu": "/system-manage/menu",
   "system-manage_permission": "/system-manage/permission",
   "system-manage_role": "/system-manage/role",
+  "system-manage_scheduled-task": "/system-manage/scheduled-task",
   "system-manage_user": "/system-manage/user"
 };
 

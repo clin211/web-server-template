@@ -511,4 +511,13 @@ service APIServer {
       tags: "定时任务管理"
     };
   }
+  // 获取公开的任务类型列表
+  rpc ListTaskDefinitions(ListTaskDefinitionsRequest) returns (ListTaskDefinitionsResponse) {
+    option (google.api.http) = {get: "/v1/task-definitions"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "获取任务类型列表"
+      description: "获取所有公开的任务类型定义，供创建定时任务时选择"
+      tags: "定时任务管理"
+    };
+  }
 }

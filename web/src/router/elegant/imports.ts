@@ -24,5 +24,6 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "system-manage_menu": () => import("@/views/system-manage/menu/index.vue"),
   "system-manage_permission": () => import("@/views/system-manage/permission/index.vue"),
   "system-manage_role": () => import("@/views/system-manage/role/index.vue"),
+  "system-manage_scheduled-task": () => import("@/views/system-manage/scheduled-task/index.vue"),
   "system-manage_user": () => import("@/views/system-manage/user/index.vue"),
 };
