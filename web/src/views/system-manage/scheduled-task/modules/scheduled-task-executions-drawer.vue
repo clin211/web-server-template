@@ -87,7 +87,11 @@ const columns: DataTableColumns<Api.ScheduledTask.ScheduledTaskExecution> = [
     width: 120,
     align: 'center',
     render: row => {
-      return h(NTag, { type: getDispatchStatusType(row.dispatchStatus), size: 'small' }, { default: () => row.dispatchStatus });
+      return h(
+        NTag,
+        { type: getDispatchStatusType(row.dispatchStatus), size: 'small' },
+        { default: () => row.dispatchStatus }
+      );
     }
   },
   {
@@ -96,7 +100,11 @@ const columns: DataTableColumns<Api.ScheduledTask.ScheduledTaskExecution> = [
     width: 120,
     align: 'center',
     render: row => {
-      return h(NTag, { type: getProcessStatusType(row.processStatus), size: 'small' }, { default: () => row.processStatus });
+      return h(
+        NTag,
+        { type: getProcessStatusType(row.processStatus), size: 'small' },
+        { default: () => row.processStatus }
+      );
     }
   },
   {
@@ -179,7 +187,13 @@ function handleLoadMore() {
               {{ $t('common.loadMore') }}
             </NButton>
           </NSpace>
-          <NDataTable :columns="columns" :data="executions" :bordered="false" :single-line="false" :pagination="false" />
+          <NDataTable
+            :columns="columns"
+            :data="executions"
+            :bordered="false"
+            :single-line="false"
+            :pagination="false"
+          />
         </NSpace>
       </NSpin>
     </NDrawerContent>

@@ -63,11 +63,7 @@ export function createColumns(): DataTableColumns<ScheduledTaskTableRow> {
       ellipsis: { tooltip: true },
       render: row => {
         if (!row.lastError) return '-';
-        return h(
-          NTag,
-          { type: 'error', size: 'small', round: true },
-          { default: () => row.lastError }
-        );
+        return h(NTag, { type: 'error', size: 'small', round: true }, { default: () => row.lastError });
       }
     },
     {

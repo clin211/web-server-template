@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h, onMounted, ref } from 'vue';
-import { NButton, NPopconfirm, NSpace, NSwitch, useMessage, NTag } from 'naive-ui';
+import { NButton, NPopconfirm, NSpace, NSwitch, useMessage } from 'naive-ui';
 import type { DataTableBaseColumn } from 'naive-ui';
 import { $t } from '@/locales';
 import {
@@ -23,7 +23,10 @@ defineOptions({
 
 const message = useMessage();
 
-const searchModel = ref<{ enabled: string | null; taskType: string | null }>({ enabled: null, taskType: null });
+const searchModel = ref<{ enabled: string | null; taskType: string | null }>({
+  enabled: null,
+  taskType: null
+});
 const tableLoading = ref(false);
 const operateLoading = ref(false);
 
@@ -74,7 +77,9 @@ async function handleReset() {
   await getData();
 }
 
-async function handleOperateSubmit(data: Api.ScheduledTask.CreateScheduledTaskRequest | Api.ScheduledTask.UpdateScheduledTaskRequest) {
+async function handleOperateSubmit(
+  data: Api.ScheduledTask.CreateScheduledTaskRequest | Api.ScheduledTask.UpdateScheduledTaskRequest
+) {
   operateLoading.value = true;
   try {
     if (operateType.value === 'add') {
@@ -187,7 +192,9 @@ function getTableColumns() {
               type: 'info',
               onClick: () => handleViewExecutions(row)
             },
-            { default: () => $t('page.system-manage.scheduledTask.actions.executions') }
+            {
+              default: () => $t('page.system-manage.scheduledTask.actions.executions')
+            }
           ),
           h(
             NButton,

@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch, onMounted } from 'vue';
-import { NDrawer, NDrawerContent, NForm, NFormItem, NInput, NSelect, NSwitch, NSpace, NButton, useMessage } from 'naive-ui';
+import {
+  NDrawer,
+  NDrawerContent,
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NSwitch,
+  NSpace,
+  NButton,
+  useMessage
+} from 'naive-ui';
 import { $t } from '@/locales';
 import { fetchListTaskDefinitions } from '@/service/api/scheduled-task';
 
@@ -13,7 +24,10 @@ interface Props {
 
 interface Emits {
   (e: 'update:visible', visible: boolean): void;
-  (e: 'submit', data: Api.ScheduledTask.CreateScheduledTaskRequest | Api.ScheduledTask.UpdateScheduledTaskRequest): void;
+  (
+    e: 'submit',
+    data: Api.ScheduledTask.CreateScheduledTaskRequest | Api.ScheduledTask.UpdateScheduledTaskRequest
+  ): void;
 }
 
 const props = defineProps<Props>();
@@ -40,9 +54,7 @@ const formData = reactive({
 const taskDefinitions = ref<Api.ScheduledTask.TaskDefinition[]>([]);
 
 // 根据选择的任务类型获取允许的队列
-const currentTaskDefinition = computed(() =>
-  taskDefinitions.value.find(d => d.type === formData.taskType)
-);
+const currentTaskDefinition = computed(() => taskDefinitions.value.find(d => d.type === formData.taskType));
 
 // 任务类型选项
 const taskTypeOptions = computed(() =>
@@ -76,7 +88,9 @@ const timezoneOptions = [
 
 const isEdit = computed(() => props.operateType === 'edit');
 const drawerTitle = computed(() =>
-  isEdit.value ? $t('page.system-manage.scheduledTask.drawer.editTitle') : $t('page.system-manage.scheduledTask.drawer.addTitle')
+  isEdit.value
+    ? $t('page.system-manage.scheduledTask.drawer.editTitle')
+    : $t('page.system-manage.scheduledTask.drawer.addTitle')
 );
 
 // 加载任务类型列表
@@ -199,7 +213,10 @@ onMounted(() => {
     <NDrawerContent>
       <NForm label-placement="left" label-width="120">
         <NFormItem :label="$t('page.system-manage.scheduledTask.form.name')" required>
-          <NInput v-model:value="formData.name" :placeholder="$t('page.system-manage.scheduledTask.form.namePlaceholder')" />
+          <NInput
+            v-model:value="formData.name"
+            :placeholder="$t('page.system-manage.scheduledTask.form.namePlaceholder')"
+          />
         </NFormItem>
         <NFormItem :label="$t('page.system-manage.scheduledTask.form.taskType')" required>
           <NSelect
@@ -219,12 +236,7 @@ onMounted(() => {
           <NSelect v-model:value="formData.timezone" :options="timezoneOptions" />
         </NFormItem>
         <NFormItem :label="$t('page.system-manage.scheduledTask.form.payload')">
-          <NInput
-            v-model:value="formData.payload"
-            type="textarea"
-            placeholder='{"key": "value"}'
-            :rows="4"
-          />
+          <NInput v-model:value="formData.payload" type="textarea" placeholder='{"key": "value"}' :rows="4" />
         </NFormItem>
         <NFormItem :label="$t('page.system-manage.scheduledTask.form.enabled')">
           <NSwitch v-model:checked="formData.enabled" />

@@ -111,19 +111,14 @@ async function upsertMenu(
 ): Promise<{ menuID: string; created: boolean }> {
   const isCreate = !existingMenu;
 
-  const url = isCreate
-    ? `${API_BASE_URL}/v1/menus`
-    : `${API_BASE_URL}/v1/menus/${existingMenu.menuID}`;
+  const url = isCreate ? `${API_BASE_URL}/v1/menus` : `${API_BASE_URL}/v1/menus/${existingMenu.menuID}`;
 
   // 新建菜单：使用传入的 parentMenuID
   // 更新菜单：使用传入的 parentMenuID 覆盖数据库中的 parentID，确保树形结构正确
   // 注意：如果 parentMenuID 是空或 "0"，表示顶级菜单，不应该传给后端
   const payload: MenuPayload = {
     ...menuData,
-    parentID:
-      parentMenuID && parentMenuID !== '0'
-        ? parentMenuID
-        : undefined
+    parentID: parentMenuID && parentMenuID !== '0' ? parentMenuID : undefined
   };
 
   if (!isCreate && existingMenu) {
@@ -135,7 +130,7 @@ async function upsertMenu(
     url,
     data: payload,
     headers: { Authorization: `Bearer ${token}` }
-  }).catch((err) => {
+  }).catch(err => {
     const message = err.response?.data?.message || err.message;
     console.error(`  API 错误 [${menuData.menuCode}]:`, message);
     throw new Error(message);
@@ -221,13 +216,7 @@ async function main() {
   const menuIDMap = new Map<string, string>();
   const stats = { created: 0, updated: 0 };
 
-  await syncRouteTree(
-    generatedRoutes as RouteNode[],
-    undefined,
-    existingMenus,
-    menuIDMap,
-    stats
-  );
+  await syncRouteTree(generatedRoutes as RouteNode[], undefined, existingMenus, menuIDMap, stats);
 
   // 总结
   console.log('\n' + '='.repeat(50));
@@ -237,7 +226,7 @@ async function main() {
   console.log('='.repeat(50));
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(`\n同步失败: ${err.message}`);
   process.exit(1);
 });
