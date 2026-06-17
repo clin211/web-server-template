@@ -5,7 +5,6 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
-	"github.com/clin211/gin-enterprise-template/pkg/authz"
 )
 
 // UserBiz 定义处理用户请求所需的方法.
@@ -29,12 +28,11 @@ type UserExpansion interface {
 // userBiz 是 UserBiz 接口的实现.
 type userBiz struct {
 	store store.IStore
-	authz *authz.Authz
 }
 
 // 确保 userBiz 实现了 UserBiz 接口.
 var _ UserBiz = (*userBiz)(nil)
 
-func New(store store.IStore, authz *authz.Authz) *userBiz {
-	return &userBiz{store: store, authz: authz}
+func New(store store.IStore, _ any) *userBiz {
+	return &userBiz{store: store}
 }

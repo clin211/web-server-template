@@ -29,16 +29,6 @@ type IStore interface {
 	// TX 用于在 Biz 层实现事务。
 	TX(ctx context.Context, fn func(ctx context.Context) error) error
 	User() UserStore
-	// RBAC 相关
-	Role() RoleStore
-	Permission() PermissionStore
-	Menu() MenuStore
-	MenuRole() MenuRoleStore
-	UserRole() UserRoleStore
-	// ScheduledTask 获取定时任务存储接口.
-	ScheduledTask() ScheduledTaskStore
-	// ScheduledTaskExecution 获取定时任务执行记录存储接口.
-	ScheduledTaskExecution() ScheduledTaskExecutionStore
 }
 
 // transactionKey 是用于在 context.Context 中存储事务上下文的键。
@@ -101,39 +91,4 @@ func (store *datastore) TX(ctx context.Context, fn func(ctx context.Context) err
 // User 返回一个实现了 UserStore 接口的实例.
 func (store *datastore) User() UserStore {
 	return newUserStore(store)
-}
-
-// Role 返回一个实现了 RoleStore 接口的实例.
-func (store *datastore) Role() RoleStore {
-	return newRoleStore(store)
-}
-
-// Permission 返回一个实现了 PermissionStore 接口的实例.
-func (store *datastore) Permission() PermissionStore {
-	return newPermissionStore(store)
-}
-
-// Menu 返回一个实现了 MenuStore 接口的实例.
-func (store *datastore) Menu() MenuStore {
-	return newMenuStore(store)
-}
-
-// MenuRole 返回一个实现了 MenuRoleStore 接口的实例.
-func (store *datastore) MenuRole() MenuRoleStore {
-	return newMenuRoleStore(store)
-}
-
-// UserRole 返回一个实现了 UserRoleStore 接口的实例.
-func (store *datastore) UserRole() UserRoleStore {
-	return newUserRoleStore(store)
-}
-
-// ScheduledTask 返回一个实现了 ScheduledTaskStore 接口的实例.
-func (store *datastore) ScheduledTask() ScheduledTaskStore {
-	return newScheduledTaskStore(store)
-}
-
-// ScheduledTaskExecution 返回一个实现了 ScheduledTaskExecutionStore 接口的实例.
-func (store *datastore) ScheduledTaskExecution() ScheduledTaskExecutionStore {
-	return newScheduledTaskExecutionStore(store)
 }

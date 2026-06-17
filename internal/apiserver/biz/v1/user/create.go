@@ -9,7 +9,6 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
-	"github.com/clin211/gin-enterprise-template/internal/pkg/known"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
 )
@@ -46,11 +45,6 @@ func (b *userBiz) Create(ctx context.Context, rq *v1.CreateUserRequest) (*v1.Cre
 
 	if err := b.store.User().Create(ctx, &userM); err != nil {
 		return nil, err
-	}
-
-	if _, err := b.authz.AddGroupingPolicy(userM.UserID, known.RoleUser); err != nil {
-		slog.ErrorContext(ctx, "Failed to add grouping policy for user", "user", userM.UserID, "role", known.RoleUser, "error", err)
-		return nil, errno.ErrAddRole.WithMessage(err.Error())
 	}
 
 	return &v1.CreateUserResponse{UserID: userM.UserID}, nil

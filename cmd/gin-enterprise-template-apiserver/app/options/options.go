@@ -23,8 +23,6 @@ type ServerOptions struct {
 	RedisOptions *genericoptions.RedisOptions `json:"redis" mapstructure:"redis"`
 	// OTelOptions 用于指定 OpenTelemetry 选项。
 	OTelOptions *genericoptions.OTelOptions `json:"otel" mapstructure:"otel"`
-	// JobOptions 包含异步任务和定时任务配置选项。
-	JobOptions *genericoptions.JobOptions `json:"job" mapstructure:"job"`
 }
 
 // NewServerOptions 创建一个使用默认值的 ServerOptions 实例。
@@ -36,7 +34,6 @@ func NewServerOptions() *ServerOptions {
 		PostgreSQLOptions: genericoptions.NewPostgreSQLOptions(),
 		RedisOptions:      genericoptions.NewRedisOptions(),
 		OTelOptions:       genericoptions.NewOTelOptions(),
-		JobOptions:        genericoptions.NewJobOptions(),
 	}
 	opts.HTTPOptions.Addr = ":5555"
 
@@ -53,7 +50,6 @@ func (o *ServerOptions) AddFlags(fs *pflag.FlagSet) {
 	o.PostgreSQLOptions.AddFlags(fs, "postgresql")
 	o.RedisOptions.AddFlags(fs, "redis")
 	o.OTelOptions.AddFlags(fs, "otel")
-	o.JobOptions.AddFlags(fs, "job")
 }
 
 // Complete 完成所有必需的选项。
@@ -74,7 +70,6 @@ func (o *ServerOptions) Validate() error {
 	errs = append(errs, o.PostgreSQLOptions.Validate()...)
 	errs = append(errs, o.RedisOptions.Validate()...)
 	errs = append(errs, o.OTelOptions.Validate()...)
-	errs = append(errs, o.JobOptions.Validate()...)
 
 	// 汇总所有错误并返回。
 	return utilerrors.NewAggregate(errs)
@@ -89,6 +84,5 @@ func (o *ServerOptions) Config() (*apiserver.Config, error) {
 		PostgreSQLOptions: o.PostgreSQLOptions,
 		RedisOptions:      o.RedisOptions,
 		OTelOptions:       o.OTelOptions,
-		JobOptions:        o.JobOptions,
 	}, nil
 }

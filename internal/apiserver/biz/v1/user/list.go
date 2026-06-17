@@ -5,8 +5,6 @@ import (
 	"log/slog"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
-	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
-	"github.com/clin211/gin-enterprise-template/internal/pkg/known"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/pagination"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
 
@@ -35,9 +33,6 @@ func (b *userBiz) List(ctx context.Context, rq *v1.ListUserRequest) (*v1.ListUse
 	whr := where.NewWhere(where.WithLimit(int64(pageSize)))
 	if cursor != nil {
 		whr.Cursor = cursor
-	}
-	if contextx.Username(ctx) != known.AdminUsername {
-		whr.T(ctx)
 	}
 
 	count, userList, err := b.store.User().List(ctx, whr)

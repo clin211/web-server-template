@@ -5,14 +5,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/clin211/gin-enterprise-template/pkg/authz"
-	genericjob "github.com/clin211/gin-enterprise-template/pkg/job"
 	genericoptions "github.com/clin211/gin-enterprise-template/pkg/options"
 	"github.com/clin211/gin-enterprise-template/pkg/server"
-
-	apiserverjobworker "github.com/clin211/gin-enterprise-template/internal/apiserver/job/worker"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
-	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/biz"
@@ -32,7 +27,6 @@ type Config struct {
 	HTTPOptions       *genericoptions.HTTPOptions
 	PostgreSQLOptions *genericoptions.PostgreSQLOptions
 	RedisOptions      *genericoptions.RedisOptions
-	JobOptions        *genericoptions.JobOptions
 	// OTelOptions 提供 service name / endpoint 等可观测性配置；
 	// httpserver 与 metrics 子系统从这里读取 service name，避免源码硬编码。
 	OTelOptions *genericoptions.OTelOptions
@@ -40,12 +34,8 @@ type Config struct {
 
 // Server 表示 Web 服务器。
 type Server struct {
-	cfg         *ServerConfig
-	srv         server.Server
-	worker      *apiserverjobworker.Worker
-	scheduler   *genericjob.Scheduler
-	producer    genericjob.Producer
-	redisClient *redis.Client
+	cfg *ServerConfig
+	srv server.Server
 }
 
 // ServerConfig 包含服务器的核心依赖和配置。
@@ -54,7 +44,6 @@ type ServerConfig struct {
 	biz       biz.IBiz
 	val       *validation.Validator
 	retriever mw.UserRetriever
-	authz     *authz.Authz
 }
 
 // NewServer 初始化并返回一个新的 Server 实例。
@@ -77,17 +66,6 @@ func (cfg *Config) NewServer(ctx context.Context) (*Server, error) {
 // Run 启动服务器并监听终止信号。
 // 在收到终止信号时，它会优雅地关闭服务器。
 func (s *Server) Run(ctx context.Context) error {
-	if s.worker != nil {
-		if err := s.worker.Start(ctx); err != nil {
-			return err
-		}
-	}
-	if s.scheduler != nil {
-		if err := s.scheduler.Start(ctx); err != nil {
-			return err
-		}
-	}
-
 	go s.srv.RunOrDie()
 
 	<-ctx.Done()
@@ -96,22 +74,6 @@ func (s *Server) Run(ctx context.Context) error {
 	defer cancel()
 
 	s.srv.GracefulStop(shutdownCtx)
-	if s.scheduler != nil {
-		s.scheduler.Stop(shutdownCtx)
-	}
-	if s.worker != nil {
-		s.worker.Shutdown(shutdownCtx)
-	}
-	if s.producer != nil {
-		if err := s.producer.Close(); err != nil {
-			slog.WarnContext(shutdownCtx, "Failed to close job producer", "error", err)
-		}
-	}
-	if s.redisClient != nil {
-		if err := s.redisClient.Close(); err != nil {
-			slog.WarnContext(shutdownCtx, "Failed to close redis client", "error", err)
-		}
-	}
 
 	slog.Info("Server exited successfully.")
 
@@ -149,31 +111,6 @@ func (r *UserRetriever) GetUser(ctx context.Context, userID string) (*model.User
 // ProvideDB 根据配置提供数据库实例。
 func ProvideDB(cfg *Config) (*gorm.DB, error) {
 	return cfg.NewDB()
-}
-
-// ProvideRedis 根据配置提供 redis 实例。
-func ProvideRedis(cfg *Config) (*redis.Client, error) {
-	if cfg.JobOptions == nil || (!cfg.JobOptions.Async.Enabled && !cfg.JobOptions.Scheduler.Enabled && !cfg.JobOptions.ClientTask.Enabled) {
-		return redis.NewClient(&redis.Options{
-			Addr:         cfg.RedisOptions.Addr,
-			Username:     cfg.RedisOptions.Username,
-			Password:     cfg.RedisOptions.Password,
-			DB:           cfg.RedisOptions.Database,
-			MaxRetries:   cfg.RedisOptions.MaxRetries,
-			MinIdleConns: cfg.RedisOptions.MinIdleConns,
-			DialTimeout:  cfg.RedisOptions.DialTimeout,
-			ReadTimeout:  cfg.RedisOptions.ReadTimeout,
-			WriteTimeout: cfg.RedisOptions.WriteTimeout,
-			PoolTimeout:  cfg.RedisOptions.PoolTimeout,
-			PoolSize:     cfg.RedisOptions.PoolSize,
-		}), nil
-	}
-	return cfg.RedisOptions.NewClient()
-}
-
-// ProvideJobOptions 根据配置提供任务选项.
-func ProvideJobOptions(cfg *Config) *genericoptions.JobOptions {
-	return cfg.JobOptions
 }
 
 // NewWebServer 根据 ServerConfig 创建 Web 服务器.

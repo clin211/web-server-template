@@ -72,8 +72,8 @@ func (c *ServerConfig) InstallRESTAPI(engine *gin.Engine) {
 	// 注册业务无关的 API 接口
 	InstallGenericAPI(engine, c.resolveServiceName())
 
-	// 认证和授权中间件
-	authMiddlewares := []gin.HandlerFunc{mw.AuthnMiddleware(c.retriever), mw.AuthzMiddleware(c.authz)}
+	// 认证中间件
+	authMiddlewares := []gin.HandlerFunc{mw.AuthnMiddleware(c.retriever)}
 
 	// 创建核心业务处理器
 	hdl := handler.NewHandler(c.biz, c.val, authMiddlewares...)

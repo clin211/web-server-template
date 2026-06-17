@@ -233,20 +233,5 @@ func GenerateTemplateModels(g *gen.Generator) {
 	g.GenerateModelAs("user", "UserM")
 	g.GenerateModelAs("user_config", "UserConfigM")
 	g.GenerateModelAs("user_login_log", "UserLoginLogM")
-
-	// RBAC 权限控制表
-	g.GenerateModelAs("role", "RoleM")
-	g.GenerateModelAs("user_role", "UserRoleM")
-	g.GenerateModelAs("permission", "PermissionM")
-	g.GenerateModelAs("role_permission", "RolePermissionM")
-	g.GenerateModelAs("menu", "MenuM")
-	g.GenerateModelAs("menu_role", "MenuRoleM")
 	g.GenerateModelAs("audit_log", "AuditLogM")
-
-	// 定时任务表
-	g.GenerateModelAs("scheduled_task", "ScheduledTaskM")
-	g.GenerateModelAs("scheduled_task_execution", "ScheduledTaskExecutionM")
-
-	// 权限控制表
-	g.GenerateModelAs("casbin_rule", "CasbinRuleM")
 }
