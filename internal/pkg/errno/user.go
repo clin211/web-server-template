@@ -8,26 +8,26 @@ var (
 	// 用户相关错误
 	ErrUsernameInvalid = errorsx.NewBizError(
 		errorsx.CodeUserInvalidUsername,
-		"User.UsernameInvalid",
-		"Invalid username: Username must consist of letters, digits, and underscores only, and its length must be between 3 and 20 characters.",
+		"User.InvalidUsername",
+		"用户名无效：用户名只能包含字母、数字和下划线，长度必须在 3 到 20 个字符之间。",
 	)
 
 	ErrPasswordInvalid = errorsx.NewBizError(
 		errorsx.CodeUserInvalidPassword,
-		"User.PasswordInvalid",
-		"Password is incorrect.",
+		"User.InvalidPassword",
+		"密码强度不符合太低，需要包含大小写字母、数字。",
 	)
 
 	ErrUserAlreadyExists = errorsx.NewBizError(
 		errorsx.CodeUserAlreadyExists,
 		"User.AlreadyExists",
-		"User already exists.",
+		"用户已存在。",
 	)
 
 	ErrUserNotFound = errorsx.NewBizError(
 		errorsx.CodeUserNotFound,
 		"User.NotFound",
-		"User not found.",
+		"用户未找到。",
 	)
 
 	// 新增更多用户相关错误
@@ -47,12 +47,6 @@ var (
 		errorsx.CodeUserInvalidCredentials,
 		"User.PasswordExpired",
 		"用户密码已过期，请重置您的密码。",
-	)
-
-	ErrUserInsufficientBalance = errorsx.NewBizError(
-		errorsx.CodeUserInsufficientBalance,
-		"User.InsufficientBalance",
-		"用户余额不足以执行此操作。",
 	)
 
 	ErrUserEmailAlreadyVerified = errorsx.NewBizError(

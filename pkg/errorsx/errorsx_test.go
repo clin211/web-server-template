@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestBizError(t *testing.T) {
@@ -17,6 +19,25 @@ func TestBizError(t *testing.T) {
 	assert.Equal(t, "User.NotFound", err.Reason)
 	assert.Equal(t, "用户不存在", err.Message)
 	assert.Equal(t, "biz error: code=20101 reason=User.NotFound message=用户不存在", err.Error())
+}
+
+func TestBizErrorHTTPStatus(t *testing.T) {
+	bizErr := NewBizError(CodeUserNotFound, "User.NotFound", "用户不存在")
+	assert.Equal(t, http.StatusOK, bizErr.HTTPStatus())
+
+	authErr := NewBizError(CodeAuthTokenInvalid, "Auth.TokenInvalid", "令牌无效")
+	assert.Equal(t, http.StatusUnauthorized, authErr.HTTPStatus())
+
+	sysErr := NewBizError(CodeDatabaseReadFailed, "Infra.DatabaseReadFailed", "数据库读取失败")
+	assert.Equal(t, http.StatusInternalServerError, sysErr.HTTPStatus())
+}
+
+func TestFromErrorPreservesGRPCAuthStatus(t *testing.T) {
+	authStatus := NewBizError(CodeAuthTokenInvalid, "Auth.TokenInvalid", "令牌无效").GRPCStatus().Err()
+	converted := FromError(authStatus)
+	assert.Equal(t, CodeAuthUnauthenticated, converted.Code)
+	assert.Equal(t, "Auth.TokenInvalid", converted.Reason)
+	assert.Equal(t, http.StatusUnauthorized, converted.HTTPStatus())
 }
 
 func TestBizErrorWithMethods(t *testing.T) {
@@ -86,29 +107,10 @@ func TestGetErrorLevel(t *testing.T) {
 	}{
 		{CodeInternalServer, LevelSystem},
 		{CodeUserNotFound, LevelUser},
-		{CodePostNotFound, LevelBusiness},
 	}
 
 	for _, tt := range tests {
 		assert.Equal(t, tt.level, GetErrorLevel(tt.code))
-	}
-}
-
-func TestGetModule(t *testing.T) {
-	tests := []struct {
-		code   BizCode
-		module int
-	}{
-		{CodeUserNotFound, ModuleUser},
-		{CodePostNotFound, ModulePost},
-		{CodeCommentNotFound, ModuleComment},
-		{CodeAuthUnauthenticated, ModuleAuth},
-		{CodeDatabaseReadFailed, ModuleDatabase},
-		{CodeCacheReadFailed, ModuleCache},
-	}
-
-	for _, tt := range tests {
-		assert.Equal(t, tt.module, GetModule(tt.code))
 	}
 }
 
@@ -119,7 +121,6 @@ func TestGetHTTPCode(t *testing.T) {
 	}{
 		{CodeOK, http.StatusOK},
 		{CodeUserNotFound, http.StatusOK},
-		{CodePostPermissionDenied, http.StatusOK},
 		{CodeInternalServer, http.StatusInternalServerError},
 		{CodeDatabaseConnectFailed, http.StatusInternalServerError},
 	}
@@ -167,27 +168,11 @@ func TestFromError(t *testing.T) {
 	assert.Equal(t, bizErr, converted)
 
 	// 测试转换普通错误
-	normalErr := errors.New("normal error")
+	normalErr := errors.New("普通错误")
 	converted = FromError(normalErr)
 	assert.Equal(t, CodeInternalServer, converted.Code)
 	assert.Equal(t, "Unknown", converted.Reason)
-	assert.Equal(t, "normal error", converted.Message)
-}
-
-func TestErrorCompatibility(t *testing.T) {
-	// 测试旧版本错误的兼容性
-	oldErr := &ErrorXCompat{
-		Code:     http.StatusNotFound,
-		Reason:   "User.NotFound",
-		Message:  "User not found.",
-		Metadata: map[string]string{"user_id": "12345"},
-	}
-
-	converted := FromError(oldErr)
-	assert.Equal(t, CodeUserNotFound, converted.Code)
-	assert.Equal(t, "User.NotFound", converted.Reason)
-	assert.Equal(t, "User not found.", converted.Message)
-	assert.Equal(t, "12345", converted.Metadata["user_id"])
+	assert.Equal(t, "普通错误", converted.Message)
 }
 
 func TestCode(t *testing.T) {
@@ -216,28 +201,6 @@ func TestReason(t *testing.T) {
 	assert.Equal(t, "InternalError", Reason(normalErr))
 }
 
-func TestErrorXCompat(t *testing.T) {
-	// 测试旧版本兼容错误
-	err := NewCompat(400, "InvalidInput", "Invalid input: %s", "username")
-
-	assert.Equal(t, 400, err.Code)
-	assert.Equal(t, "InvalidInput", err.Reason)
-	assert.Equal(t, "Invalid input: username", err.Message)
-
-	// 测试 WithMessage
-	err.WithMessage("New message")
-	assert.Equal(t, "New message", err.Message)
-
-	// 测试 WithMetadata
-	err.WithMetadata(map[string]string{"field": "username"})
-	assert.Equal(t, "username", err.Metadata["field"])
-
-	// 测试 KV
-	err.KV("user_id", "12345", "trace_id", "abc")
-	assert.Equal(t, "12345", err.Metadata["user_id"])
-	assert.Equal(t, "abc", err.Metadata["trace_id"])
-}
-
 // 基准测试
 func BenchmarkNewBizError(b *testing.B) {
 	for i := 0; i < b.N; i++ {
@@ -245,9 +208,92 @@ func BenchmarkNewBizError(b *testing.B) {
 	}
 }
 
-func BenchmarkFromError(b *testing.B) {
-	err := NewBizError(CodeUserNotFound, "User.NotFound", "用户不存在")
-	for i := 0; i < b.N; i++ {
-		_ = FromError(err)
+func TestBizErrorHTTPStatusFromCode(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      *BizError
+		wantHTTP int
+	}{
+		{
+			name:     "user not found returns 200",
+			err:      NewBizError(CodeUserNotFound, "User.NotFound", "用户不存在"),
+			wantHTTP: http.StatusOK,
+		},
+		{
+			name:     "auth token invalid returns 401",
+			err:      NewBizError(CodeAuthTokenInvalid, "Auth.TokenInvalid", "令牌无效"),
+			wantHTTP: http.StatusUnauthorized,
+		},
+		{
+			name:     "permission denied returns 403",
+			err:      NewBizError(CodeUserPermissionDenied, "Auth.PermissionDenied", "权限不足"),
+			wantHTTP: http.StatusForbidden,
+		},
+		{
+			name:     "database read failed returns 500",
+			err:      NewBizError(CodeDatabaseReadFailed, "Infra.DatabaseReadFailed", "数据库读取失败"),
+			wantHTTP: http.StatusInternalServerError,
+		},
 	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.wantHTTP, tt.err.HTTPStatus())
+		})
+	}
+}
+
+func TestFromErrorConvertsPlainErrorWithoutCompat(t *testing.T) {
+	converted := FromError(errors.New("普通错误"))
+	assert.Equal(t, CodeInternalServer, converted.Code)
+	assert.Equal(t, "Unknown", converted.Reason)
+	assert.Equal(t, "普通错误", converted.Message)
+}
+
+func TestGetHTTPCodeKeepsProtocolMappings(t *testing.T) {
+	tests := []struct {
+		name     string
+		code     BizCode
+		wantHTTP int
+	}{
+		{name: "ok", code: CodeOK, wantHTTP: http.StatusOK},
+		{name: "user not found", code: CodeUserNotFound, wantHTTP: http.StatusOK},
+		{name: "unauthenticated", code: CodeAuthUnauthenticated, wantHTTP: http.StatusUnauthorized},
+		{name: "token invalid", code: CodeAuthTokenInvalid, wantHTTP: http.StatusUnauthorized},
+		{name: "token expired", code: CodeAuthTokenExpired, wantHTTP: http.StatusUnauthorized},
+		{name: "permission denied", code: CodeUserPermissionDenied, wantHTTP: http.StatusForbidden},
+		{name: "too many requests", code: CodeTooManyRequests, wantHTTP: http.StatusTooManyRequests},
+		{name: "service unavailable", code: CodeServiceUnavailable, wantHTTP: http.StatusServiceUnavailable},
+		{name: "request timeout", code: CodeRequestTimeout, wantHTTP: http.StatusGatewayTimeout},
+		{name: "database connect failed", code: CodeDatabaseConnectFailed, wantHTTP: http.StatusInternalServerError},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.wantHTTP, GetHTTPCode(tt.code))
+		})
+	}
+}
+
+func TestFromErrorUsesUnifiedGRPCReason(t *testing.T) {
+	converted := FromError(status.Error(codes.Internal, "boom"))
+	assert.Equal(t, CodeInternalServer, converted.Code)
+	assert.Equal(t, "GRPCError", converted.Reason)
+	assert.Equal(t, "boom", converted.Message)
+}
+
+func TestPredefinedMessagesUseChinese(t *testing.T) {
+	assert.Equal(t, "成功", OK.Message)
+	assert.Equal(t, "内部服务器错误", ErrInternal.Message)
+	assert.Equal(t, "资源未找到", ErrNotFound.Message)
+	assert.Equal(t, "请求体绑定失败", ErrBind.Message)
+	assert.Equal(t, "参数校验失败", ErrInvalidArgument.Message)
+	assert.Equal(t, "未认证", ErrUnauthenticated.Message)
+	assert.Equal(t, "权限不足", ErrPermissionDenied.Message)
+	assert.Equal(t, "操作失败，请稍后重试", ErrOperationFailed.Message)
+}
+
+func TestSuccessUsesChineseDefaultMessage(t *testing.T) {
+	resp := Success(nil)
+	assert.Equal(t, "成功", resp.Message)
 }

@@ -25,17 +25,6 @@ const (
 	LevelDownstream = 5 // 下游服务错误
 )
 
-// 业务模块定义
-const (
-	ModuleCommon   = 1 // 通用模块
-	ModuleUser     = 1 // 用户模块
-	ModulePost     = 1 // 博客文章模块
-	ModuleComment  = 1 // 评论模块
-	ModuleAuth     = 1 // 认证模块
-	ModuleDatabase = 1 // 数据库模块
-	ModuleCache    = 1 // 缓存模块
-)
-
 // 常用错误码定义
 const (
 	CodeOK                      BizCode = 0     // 成功
@@ -46,13 +35,6 @@ const (
 	CodeUserInvalidUsername     BizCode = 20105 // 用户名无效
 	CodeUserInvalidPassword     BizCode = 20106 // 密码无效
 	CodeUserPermissionDenied    BizCode = 20107 // 用户权限不足
-
-	CodePostNotFound         BizCode = 30101 // 文章不存在 (Level=3, Module=01, Error=01)
-	CodePostAlreadyPublished BizCode = 30102 // 文章已发布
-	CodePostPermissionDenied BizCode = 30103 // 文章权限不足
-
-	CodeCommentNotFound         BizCode = 40101 // 评论不存在 (Level=4, Module=01, Error=01)
-	CodeCommentPermissionDenied BizCode = 40102 // 评论权限不足
 
 	CodeAuthUnauthenticated BizCode = 50101 // 未认证 (Level=5, Module=01, Error=01)
 	CodeAuthTokenInvalid    BizCode = 50102 // Token无效
@@ -126,18 +108,23 @@ func GetErrorLevel(code BizCode) int {
 	return int(code/10000) % 10
 }
 
-// GetModule 从错误码中提取业务模块
-func GetModule(code BizCode) int {
-	if code == 0 {
-		return 0
-	}
-	return int(code/100) % 100
-}
-
 // GetHTTPCode 根据错误码映射对应的HTTP状态码
 func GetHTTPCode(code BizCode) int {
-	if code == CodeOK {
+	switch code {
+	case CodeOK:
 		return http.StatusOK
+	case CodeAuthUnauthenticated, CodeAuthTokenInvalid, CodeAuthTokenExpired:
+		return http.StatusUnauthorized
+	case CodeAuthSignToken:
+		return http.StatusInternalServerError
+	case CodeUserPermissionDenied:
+		return http.StatusForbidden
+	case CodeTooManyRequests:
+		return http.StatusTooManyRequests
+	case CodeServiceUnavailable:
+		return http.StatusServiceUnavailable
+	case CodeRequestTimeout:
+		return http.StatusGatewayTimeout
 	}
 
 	level := GetErrorLevel(code)
@@ -210,6 +197,11 @@ func (err *BizError) Is(target error) bool {
 		return bizErr.Code == err.Code
 	}
 	return false
+}
+
+// HTTPStatus 返回该错误的 HTTP 状态码。
+func (err *BizError) HTTPStatus() int {
+	return GetHTTPCode(err.Code)
 }
 
 // ToGRPCCode converts HTTP status code to gRPC status code
@@ -286,7 +278,7 @@ func FromGRPCCode(code codes.Code) int {
 
 // Success 创建成功响应
 func Success(data interface{}, message ...string) *APIResponse {
-	msg := "success"
+	msg := "成功"
 	if len(message) > 0 {
 		msg = message[0]
 	}
@@ -329,7 +321,7 @@ func (err *BizError) GRPCStatus() *status.Status {
 		}
 	}
 
-	s, _ := status.New(ToGRPCCode(GetHTTPCode(err.Code)), err.Message).WithDetails(&details)
+	s, _ := status.New(ToGRPCCode(err.HTTPStatus()), err.Message).WithDetails(&details)
 	return s
 }
 
@@ -366,33 +358,6 @@ func FromError(err error) *BizError {
 		return bizErr
 	}
 
-	// 处理兼容版本的 ErrorXCompat
-	if compatErr := new(ErrorXCompat); errors.As(err, &compatErr) {
-		// 将旧版本错误映射到新的错误码
-		bizCode := BizCode(11001) // 默认系统错误
-		switch compatErr.Code {
-		case http.StatusBadRequest:
-			bizCode = CodeUserInvalidCredentials
-		case http.StatusNotFound:
-			bizCode = CodeUserNotFound
-		case http.StatusUnauthorized:
-			bizCode = CodeAuthUnauthenticated
-		case http.StatusForbidden:
-			bizCode = CodeUserPermissionDenied
-		case http.StatusInternalServerError:
-			bizCode = CodeInternalServer
-		}
-
-		bizErr := NewBizError(bizCode, compatErr.Reason, compatErr.Message)
-		if compatErr.Metadata != nil {
-			bizErr.Metadata = make(map[string]interface{})
-			for k, v := range compatErr.Metadata {
-				bizErr.Metadata[k] = v
-			}
-		}
-		return bizErr
-	}
-
 	// 处理 gRPC 错误
 	gs, ok := status.FromError(err)
 	if ok {
@@ -400,9 +365,17 @@ func FromError(err error) *BizError {
 		bizCode := BizCode(11001) // 默认系统错误
 		if code == http.StatusBadRequest {
 			bizCode = CodeUserInvalidCredentials
+		} else if code == http.StatusNotFound {
+			bizCode = CodeUserNotFound
+		} else if code == http.StatusUnauthorized {
+			bizCode = CodeAuthUnauthenticated
+		} else if code == http.StatusForbidden {
+			bizCode = CodeUserPermissionDenied
+		} else if code == http.StatusInternalServerError {
+			bizCode = CodeInternalServer
 		}
 
-		bizErr := NewBizError(bizCode, "gRPC", gs.Message())
+		bizErr := NewBizError(bizCode, "GRPCError", gs.Message())
 
 		// 提取详细信息
 		for _, detail := range gs.Details() {

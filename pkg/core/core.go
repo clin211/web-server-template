@@ -302,12 +302,9 @@ func FinalizeRequest[T any](c *gin.Context, rq *T, validators ...Validator[T]) e
 func WriteResponse(c *gin.Context, data any, err error) {
 	if err != nil {
 		// 如果发生错误，生成错误响应
-		bizErr := errorsx.FromError(err) // 转换为业务错误
+		bizErr := errorsx.FromError(err)
 		response := errorsx.FromBizError(bizErr)
-
-		// 根据错误级别选择HTTP状态码
-		httpCode := errorsx.GetHTTPCode(bizErr.Code)
-		c.JSON(httpCode, response)
+		c.JSON(bizErr.HTTPStatus(), response)
 		return
 	}
 
@@ -330,8 +327,7 @@ func WriteResponse(c *gin.Context, data any, err error) {
 // WriteBizError 写入业务错误的便捷函数
 func WriteBizError(c *gin.Context, bizErr *errorsx.BizError) {
 	response := errorsx.FromBizError(bizErr)
-	httpCode := errorsx.GetHTTPCode(bizErr.Code)
-	c.JSON(httpCode, response)
+	c.JSON(bizErr.HTTPStatus(), response)
 }
 
 // WriteSuccess 写入成功响应的便捷函数

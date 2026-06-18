@@ -8,7 +8,7 @@ import (
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/metrics"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	mw "github.com/clin211/gin-enterprise-template/internal/pkg/middleware/gin"
-	"github.com/clin211/gin-enterprise-template/pkg/core"
+	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
 	genericmw "github.com/clin211/gin-enterprise-template/pkg/middleware/gin"
 	"github.com/clin211/gin-enterprise-template/pkg/server"
 	"github.com/gin-contrib/pprof"
@@ -103,7 +103,8 @@ func InstallGenericAPI(engine *gin.Engine, serviceName string) {
 
 	// 注册 404 路由处理
 	engine.NoRoute(func(c *gin.Context) {
-		core.WriteBizError(c, errno.ErrPageNotFound)
+		response := errorsx.FromBizError(errno.ErrPageNotFound)
+		c.JSON(http.StatusNotFound, response)
 	})
 }
 

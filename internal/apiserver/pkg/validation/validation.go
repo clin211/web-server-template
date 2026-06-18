@@ -19,13 +19,13 @@ type Validator struct {
 
 // 使用全局预编译的正则表达式，避免重复创建和编译。
 var (
-	lengthRegex     = regexp.MustCompile(`^.{3,20}$`)                                          // 长度在 3 到 20 个字符之间
-	validRegex      = regexp.MustCompile(`^[A-Za-z0-9_]+$`)                                    // 仅包含字母、数字和下划线
-	validMenuCodeRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)                                   // 仅包含字母、数字、下划线和连字符
-	letterRegex     = regexp.MustCompile(`[A-Za-z]`)                                           // 至少包含一个字母
-	numberRegex     = regexp.MustCompile(`\d`)                                                 // 至少包含一个数字
-	emailRegex      = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)   // 电子邮件格式
-	phoneRegex      = regexp.MustCompile(`^1[3-9]\d{9}$`)                                      // 中国手机号
+	lengthRegex     = regexp.MustCompile(`^.{3,20}$`)                                        // 长度在 3 到 20 个字符之间
+	validRegex      = regexp.MustCompile(`^[A-Za-z0-9_]+$`)                                  // 仅包含字母、数字和下划线
+	validMenuCodeRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)                                 // 仅包含字母、数字、下划线和连字符
+	letterRegex     = regexp.MustCompile(`[A-Za-z]`)                                         // 至少包含一个字母
+	numberRegex     = regexp.MustCompile(`\d`)                                               // 至少包含一个数字
+	emailRegex      = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`) // 电子邮件格式
+	phoneRegex      = regexp.MustCompile(`^1[3-9]\d{9}$`)                                    // 中国手机号
 )
 
 // ProviderSet 是 Wire 提供者集，用于声明依赖注入规则。
