@@ -10,7 +10,7 @@ jwt:
 
 postgresql:
   addr: 127.0.0.1:5432
-  database: enterprise-template
+  database: test
   username: postgres
   password: "2eVHeXDmZ5nTDiPb"
   max-idle-connections: 100 # 最大空闲连接数

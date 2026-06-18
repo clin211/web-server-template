@@ -33,7 +33,7 @@ type Querier interface {
 // GenerateConfig 保存代码生成的配置.
 type GenerateConfig struct {
 	ModelPackagePath string
-	GenerateFunc    func(g *gen.Generator)
+	GenerateFunc     func(g *gen.Generator)
 }
 
 // 预定义的生成配置.
@@ -43,10 +43,10 @@ var generateConfigs = map[string]GenerateConfig{
 
 // 命令行参数.
 var (
-	configFile = pflag.StringP("config", "c", "", "Config file path (default: ./configs/gin-enterprise-template-apiserver.yaml)")
+	configFile = pflag.StringP("config", "c", "", "Config file path (default: ./configs/configs.yaml)")
 	modelPath  = ""
 	components = pflag.StringSlice("component", []string{"gin-enterprise-template"}, "Generated model code's for specified component.")
-	help      = pflag.BoolP("help", "h", false, "Show this help message.")
+	help       = pflag.BoolP("help", "h", false, "Show this help message.")
 )
 
 func main() {
@@ -129,7 +129,7 @@ func initializeDatabase() (*gorm.DB, error) {
 			return nil, fmt.Errorf("failed to get current directory: %w", err)
 		}
 		// 从 cmd/gen-gorm-model 目录回退到项目根目录
-		configPath = filepath.Join(cwd, "..", "..", "configs", "gin-enterprise-template-apiserver.yaml")
+		configPath = filepath.Join(cwd, "..", "..", "configs", "configs.yaml")
 	}
 
 	// 加载配置
@@ -231,7 +231,6 @@ func applyGeneratorOptions(g *gen.Generator) {
 func GenerateTemplateModels(g *gen.Generator) {
 	// 系统核心表
 	g.GenerateModelAs("user", "UserM")
-	g.GenerateModelAs("user_config", "UserConfigM")
 	g.GenerateModelAs("user_login_log", "UserLoginLogM")
 	g.GenerateModelAs("audit_log", "AuditLogM")
 }

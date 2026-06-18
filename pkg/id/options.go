@@ -96,7 +96,7 @@ func getSonyflakeOptionsOrSetDefault(options *SonyflakeOptions) *SonyflakeOption
 	if options == nil {
 		return &SonyflakeOptions{
 			machineId: 1,
-			startTime: time.Date(2022, 10, 10, 0, 0, 0, 0, time.UTC),
+			startTime: time.Date(2026, 06, 18, 0, 0, 0, 0, time.UTC),
 		}
 	}
 	return options

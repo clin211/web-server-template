@@ -13,10 +13,10 @@ const TableNameAuditLogM = "audit_log"
 // AuditLogM mapped from table <audit_log>
 type AuditLogM struct {
 	ID        int64     `gorm:"column:id;primaryKey;autoIncrement:true;comment:内部主键ID（自增序列）" json:"id"`             // 内部主键ID（自增序列）
-	UserID    string    `gorm:"column:user_id;not null;comment:操作用户UUID" json:"userId"`                             // 操作用户UUID
+	UserID    string    `gorm:"column:user_id;not null;comment:操作用户RID，引用user(user_id)" json:"userId"`              // 操作用户RID，引用user(user_id)
 	Action    string    `gorm:"column:action;not null;comment:操作类型（如role_assign、permission_deny）" json:"action"`    // 操作类型（如role_assign、permission_deny）
 	Resource  *string   `gorm:"column:resource;comment:操作的资源" json:"resource"`                                      // 操作的资源
-	Details   *string   `gorm:"column:details;comment:操作详情（JSONB格式，记录变更前后数据）" json:"details"`                       // 操作详情（JSONB格式，记录变更前后数据）
+	Details   *string   `gorm:"column:details;comment:操作详情（JSON字符串格式，记录变更前后数据）" json:"details"`                     // 操作详情（JSON字符串格式，记录变更前后数据）
 	CreatedAt time.Time `gorm:"column:created_at;not null;default:current_timestamp;comment:操作时间" json:"createdAt"` // 操作时间
 }
 

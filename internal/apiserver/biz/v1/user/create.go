@@ -9,7 +9,9 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
+	"github.com/clin211/gin-enterprise-template/internal/pkg/rid"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
+	"github.com/clin211/gin-enterprise-template/pkg/authn"
 	"github.com/clin211/gin-enterprise-template/pkg/store/where"
 )
 
@@ -43,6 +45,9 @@ func (b *userBiz) Create(ctx context.Context, rq *v1.CreateUserRequest) (*v1.Cre
 		}
 	}
 
+	userM.UserID = rid.UserID.MustNew()
+	password, _ := authn.Encrypt(rq.Password)
+	userM.Password = password
 	if err := b.store.User().Create(ctx, &userM); err != nil {
 		return nil, err
 	}

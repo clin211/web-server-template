@@ -1,31 +1,39 @@
 package rid
 
 import (
+	"context"
+
 	"github.com/clin211/gin-enterprise-template/pkg/id"
 )
 
-const defaultABC = "abcdefghijklmnopqrstuvwxyz1234567890"
+const defaultCharset = "abcdefghijklmnopqrstuvwxyz1234567890"
 
 type ResourceID string
 
 const (
-	// UserID 定义用户的资源标识符。
+	// UserID 定义用户资源的业务 ID 前缀。
 	UserID ResourceID = "user"
 )
 
-// String 将资源标识符转换为字符串。
+var defaultIDCounter = id.NewSonyflake()
+
+// String 返回资源 ID 前缀的字符串表示。
 func (rid ResourceID) String() string {
 	return string(rid)
 }
 
-// New 创建带有前缀的唯一标识符。
+// New 使用给定计数器创建带前缀的业务 ID。
 func (rid ResourceID) New(counter uint64) string {
-	// 使用自定义选项生成唯一标识符。
 	uniqueStr := id.NewCode(
 		counter,
-		id.WithCodeChars([]rune(defaultABC)),
+		id.WithCodeChars([]rune(defaultCharset)),
 		id.WithCodeL(6),
 		id.WithCodeSalt(Salt()),
 	)
 	return rid.String() + "-" + uniqueStr
+}
+
+// MustNew 使用默认计数器创建带前缀的业务 ID。
+func (rid ResourceID) MustNew() string {
+	return rid.New(defaultIDCounter.Id(context.Background()))
 }
