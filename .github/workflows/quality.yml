@@ -56,11 +56,11 @@ jobs:
           echo "${protoc_dir}/bin" >> "${GITHUB_PATH}"
           "${protoc_dir}/bin/protoc" --version
 
-      - name: Set up golangci-lint
+      - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.12.2
-          args: --version
+          install-only: true
 
       - name: Install generation tools
         run: |
