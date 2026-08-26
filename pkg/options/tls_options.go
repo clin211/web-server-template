@@ -52,15 +52,6 @@ func (o *TLSOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 	fs.StringVar(&o.Key, fullPrefix+".key", o.Key, "Path to key file for connecting to the server.")
 }
 
-func (o *TLSOptions) MustTLSConfig() *tls.Config {
-	tlsConf, err := o.TLSConfig()
-	if err != nil {
-		return &tls.Config{}
-	}
-
-	return tlsConf
-}
-
 func (o *TLSOptions) TLSConfig() (*tls.Config, error) {
 	if !o.UseTLS {
 		return nil, nil
@@ -68,6 +59,7 @@ func (o *TLSOptions) TLSConfig() (*tls.Config, error) {
 
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: o.InsecureSkipVerify,
+		MinVersion:         tls.VersionTLS12,
 	}
 
 	if o.Cert != "" && o.Key != "" {

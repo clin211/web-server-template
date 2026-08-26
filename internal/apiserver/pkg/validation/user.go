@@ -66,10 +66,10 @@ func (v *Validator) ValidateLoginRequest(ctx context.Context, rq *v1.LoginReques
 
 // ValidateChangePasswordRequest 校验 ChangePasswordRequest 结构体的有效性.
 func (v *Validator) ValidateChangePasswordRequest(ctx context.Context, rq *v1.ChangePasswordRequest) error {
-	if rq.GetUserID() != contextx.UserID(ctx) {
-		return errno.ErrPermissionDenied.WithMessage("change password only allowed for current user")
+	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
+		return err
 	}
-	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
+	return validateCurrentUser(ctx, rq.GetUserID())
 }
 
 // ValidateCreateUserRequest 校验 CreateUserRequest 结构体的有效性.
@@ -79,20 +79,46 @@ func (v *Validator) ValidateCreateUserRequest(ctx context.Context, rq *v1.Create
 
 // ValidateUpdateUserRequest 校验更新用户请求.
 func (v *Validator) ValidateUpdateUserRequest(ctx context.Context, rq *v1.UpdateUserRequest) error {
-	return genericvalidation.ValidateSelectedFields(rq, v.ValidateUserRules(), "UserID")
+	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
+		return err
+	}
+	return validateCurrentUser(ctx, rq.GetUserID())
 }
 
 // ValidateDeleteUserRequest 校验 DeleteUserRequest 结构体的有效性.
 func (v *Validator) ValidateDeleteUserRequest(ctx context.Context, rq *v1.DeleteUserRequest) error {
-	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
+	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
+		return err
+	}
+	return validateCurrentUser(ctx, rq.GetUserID())
 }
 
 // ValidateGetUserRequest 校验 GetUserRequest 结构体的有效性.
 func (v *Validator) ValidateGetUserRequest(ctx context.Context, rq *v1.GetUserRequest) error {
-	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
+	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
+		return err
+	}
+	return validateCurrentUser(ctx, rq.GetUserID())
 }
 
 // ValidateListUserRequest 校验 ListUserRequest 结构体的有效性.
 func (v *Validator) ValidateListUserRequest(ctx context.Context, rq *v1.ListUserRequest) error {
-	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
+	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
+		return err
+	}
+
+	// 列表接口会返回所有用户。当前模型没有可验证的管理员/角色声明，因此默认拒绝，
+	// 避免把“已登录”误当成“有用户管理权限”。引入 RBAC 后应在这里替换为显式授权。
+	return errno.ErrPermissionDenied
+}
+
+func validateCurrentUser(ctx context.Context, targetUserID string) error {
+	currentUserID := contextx.UserID(ctx)
+	if currentUserID == "" {
+		return errno.ErrUnauthenticated
+	}
+	if targetUserID != currentUserID {
+		return errno.ErrPermissionDenied
+	}
+	return nil
 }

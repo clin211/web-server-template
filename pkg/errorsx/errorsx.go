@@ -363,19 +363,29 @@ func FromError(err error) *BizError {
 	if ok {
 		code := FromGRPCCode(gs.Code())
 		bizCode := BizCode(11001) // 默认系统错误
+		reason := "GRPCError"
+		message := gs.Message()
 		if code == http.StatusBadRequest {
 			bizCode = CodeUserInvalidCredentials
+			reason = "Common.InvalidArgument"
+			message = "请求参数无效。"
 		} else if code == http.StatusNotFound {
 			bizCode = CodeUserNotFound
 		} else if code == http.StatusUnauthorized {
 			bizCode = CodeAuthUnauthenticated
+			reason = ErrUnauthenticated.Reason
+			message = ErrUnauthenticated.Message
 		} else if code == http.StatusForbidden {
 			bizCode = CodeUserPermissionDenied
+			reason = "Auth.PermissionDenied"
+			message = "权限不足。"
 		} else if code == http.StatusInternalServerError {
 			bizCode = CodeInternalServer
+			reason = ErrInternal.Reason
+			message = ErrInternal.Message
 		}
 
-		bizErr := NewBizError(bizCode, "GRPCError", gs.Message())
+		bizErr := NewBizError(bizCode, reason, message)
 
 		// 提取详细信息
 		for _, detail := range gs.Details() {
@@ -393,6 +403,7 @@ func FromError(err error) *BizError {
 		return bizErr
 	}
 
-	// 其他未知错误
-	return NewBizError(CodeInternalServer, "Unknown", err.Error())
+	// 未分类错误只能在服务端日志中保留原文，对外统一成稳定的系统错误，避免泄露
+	// SQL、连接串、文件路径等内部实现细节。
+	return NewBizError(CodeInternalServer, ErrInternal.Reason, ErrInternal.Message)
 }

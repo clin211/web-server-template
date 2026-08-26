@@ -13,18 +13,24 @@ import (
 )
 
 // NewServer 设置并创建包含所有必要依赖的 Web 服务器。
-func NewServer(*Config) (*Server, error) {
+func NewServer(*Config) (*Server, func(), error) {
 	wire.Build(
 		NewWebServer,
 		wire.Struct(new(ServerConfig), "*"), // * 表示注入全部字段
 		wire.Struct(new(Server), "*"),
 		wire.NewSet(store.ProviderSet, biz.ProviderSet),
 		ProvideDB, // 提供数据库实例
+		ProvideDatabaseCloser,
+		ProvideReadinessChecker,
+		ProvideRedisRefreshTokenStore,
+		ProvideTokenManagerWithStore,
+		ProvideLoginRateLimiter,
+		NewAsyncRuntime,
 		validation.ProviderSet,
 		wire.NewSet(
 			wire.Struct(new(UserRetriever), "*"),
 			wire.Bind(new(mw.UserRetriever), new(*UserRetriever)),
 		),
 	)
-	return nil, nil
+	return nil, nil, nil
 }

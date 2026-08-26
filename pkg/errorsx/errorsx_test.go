@@ -171,8 +171,8 @@ func TestFromError(t *testing.T) {
 	normalErr := errors.New("普通错误")
 	converted = FromError(normalErr)
 	assert.Equal(t, CodeInternalServer, converted.Code)
-	assert.Equal(t, "Unknown", converted.Reason)
-	assert.Equal(t, "普通错误", converted.Message)
+	assert.Equal(t, "InternalError", converted.Reason)
+	assert.Equal(t, "内部服务器错误", converted.Message)
 }
 
 func TestCode(t *testing.T) {
@@ -246,8 +246,8 @@ func TestBizErrorHTTPStatusFromCode(t *testing.T) {
 func TestFromErrorConvertsPlainErrorWithoutCompat(t *testing.T) {
 	converted := FromError(errors.New("普通错误"))
 	assert.Equal(t, CodeInternalServer, converted.Code)
-	assert.Equal(t, "Unknown", converted.Reason)
-	assert.Equal(t, "普通错误", converted.Message)
+	assert.Equal(t, "InternalError", converted.Reason)
+	assert.Equal(t, "内部服务器错误", converted.Message)
 }
 
 func TestGetHTTPCodeKeepsProtocolMappings(t *testing.T) {
@@ -278,8 +278,15 @@ func TestGetHTTPCodeKeepsProtocolMappings(t *testing.T) {
 func TestFromErrorUsesUnifiedGRPCReason(t *testing.T) {
 	converted := FromError(status.Error(codes.Internal, "boom"))
 	assert.Equal(t, CodeInternalServer, converted.Code)
-	assert.Equal(t, "GRPCError", converted.Reason)
-	assert.Equal(t, "boom", converted.Message)
+	assert.Equal(t, "InternalError", converted.Reason)
+	assert.Equal(t, "内部服务器错误", converted.Message)
+}
+
+func TestFromErrorHidesGRPCAuthenticationDetails(t *testing.T) {
+	converted := FromError(status.Error(codes.Unauthenticated, "token signature is invalid: secret detail"))
+	assert.Equal(t, CodeAuthUnauthenticated, converted.Code)
+	assert.Equal(t, "Auth.Unauthenticated", converted.Reason)
+	assert.Equal(t, "未认证", converted.Message)
 }
 
 func TestPredefinedMessagesUseChinese(t *testing.T) {

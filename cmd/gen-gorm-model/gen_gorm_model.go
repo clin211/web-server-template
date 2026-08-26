@@ -233,4 +233,7 @@ func GenerateTemplateModels(g *gen.Generator) {
 	g.GenerateModelAs("user", "UserM")
 	g.GenerateModelAs("user_login_log", "UserLoginLogM")
 	g.GenerateModelAs("audit_log", "AuditLogM")
+	g.GenerateModelAs("outbox_event", "OutboxEventM")
+	g.GenerateModelAs("inbox_event", "InboxEventM")
+	g.GenerateModelAs("dead_letter_event", "DeadLetterEventM")
 }

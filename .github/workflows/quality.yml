@@ -1,0 +1,119 @@
+name: Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up Buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          version: 1.57.2
+
+      - name: Set up Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "30.0"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.4.0
+          args: --version
+
+      - name: Install generation tools
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.29.0
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.29.0
+          go install github.com/onexstack/protoc-gen-defaults@v0.0.2
+          go install github.com/favadi/protoc-go-inject-tag@v1.4.0
+          go install github.com/google/wire/cmd/wire@v0.6.0
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Determine lint baseline
+        id: lint-base
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            base="$PR_BASE_SHA"
+          elif git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            base="$BEFORE_SHA"
+          else
+            base="HEAD~1"
+          fi
+          echo "rev=$base" >> "$GITHUB_OUTPUT"
+
+      - name: Verify
+        run: make verify LINT_NEW_FROM_REV="${{ steps.lint-base.outputs.rev }}"
+
+      - name: Vulnerability scan
+        run: govulncheck ./...
+
+      - name: Build container
+        run: docker build --file Dockerfile --build-arg OS=linux --build-arg ARCH=amd64 .
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Start integration dependencies
+        run: make integration.up
+      - name: Run integration tests
+        env:
+          TEST_POSTGRES_DSN: postgres://postgres:integration-postgres@127.0.0.1:55432/enterprise_template_test?sslmode=disable
+          TEST_KAFKA_BROKERS: 127.0.0.1:29092
+          TEST_KAFKA_TOPIC: events
+          TEST_KAFKA_DLQ_TOPIC: events.dlq
+        run: make integration.test
+      - name: Run startup smoke test
+        run: make integration.smoke
+      - name: Stop integration dependencies
+        if: always()
+        run: make integration.down

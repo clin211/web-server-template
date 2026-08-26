@@ -1,8 +1,6 @@
 package where
 
 import (
-	"context"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -11,12 +9,6 @@ const (
 	// defaultLimit 定义分页的默认限制。
 	defaultLimit = -1
 )
-
-// Tenant 表示一个具有键和用于检索其值的函数的租户。
-type Tenant struct {
-	Key       string                           // 与租户关联的键
-	ValueFunc func(ctx context.Context) string // 根据上下文检索租户值的函数
-}
 
 // Where 定义了可以修改 GORM 数据库查询的类型的接口。
 type Where interface {
@@ -57,9 +49,6 @@ type Options struct {
 	// +optional
 	Cursor *int64 `json:"cursor"`
 }
-
-// tenant holds the registered tenant instance.
-var registeredTenant Tenant
 
 // WithOffset 使用给定的偏移量值初始化 Options 中的 Offset 字段。
 func WithOffset(offset int64) Option {
@@ -201,14 +190,6 @@ func (whr *Options) Q(query interface{}, args ...interface{}) *Options {
 	return whr
 }
 
-// T 使用提供的上下文检索与已注册租户关联的值。
-func (whr *Options) T(ctx context.Context) *Options {
-	if registeredTenant.Key != "" && registeredTenant.ValueFunc != nil {
-		whr.F(registeredTenant.Key, registeredTenant.ValueFunc(ctx))
-	}
-	return whr
-}
-
 // F 向查询添加过滤器。
 func (whr *Options) F(kvs ...any) *Options {
 	if len(kvs)%2 != 0 {
@@ -259,20 +240,7 @@ func C(conds ...clause.Expression) *Options {
 	return NewWhere().C(conds...)
 }
 
-// T 是一个便捷函数，用于创建带有租户的新 Options。
-func T(ctx context.Context) *Options {
-	return NewWhere().F(registeredTenant.Key, registeredTenant.ValueFunc(ctx))
-}
-
 // F 是一个便捷函数，用于创建带有过滤器的新 Options。
 func F(kvs ...any) *Options {
 	return NewWhere().F(kvs...)
-}
-
-// RegisterTenant 使用指定的键和值函数注册一个新租户。
-func RegisterTenant(key string, valueFunc func(context.Context) string) {
-	registeredTenant = Tenant{
-		Key:       key,
-		ValueFunc: valueFunc,
-	}
 }

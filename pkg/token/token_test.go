@@ -2,15 +2,29 @@ package token
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/metadata"
 )
+
+type fakeRefreshTokenStore struct {
+	used map[string]struct{}
+}
+
+func (s *fakeRefreshTokenStore) Consume(_ context.Context, tokenID string, _ time.Duration) (bool, error) {
+	if _, exists := s.used[tokenID]; exists {
+		return false, nil
+	}
+	s.used[tokenID] = struct{}{}
+	return true, nil
+}
 
 func initTestConfig() {
 	Reset()
@@ -86,6 +100,48 @@ func TestSign(t *testing.T) {
 	assert.False(t, IsAccessToken(refreshToken))
 }
 
+func TestSignWithVersionCarriesTokenVersion(t *testing.T) {
+	initTestConfig()
+
+	accessToken, refreshToken, _, _, err := SignWithVersion("user-1", 7)
+	assert.NoError(t, err)
+	for _, tokenString := range []string{accessToken, refreshToken} {
+		version, versionErr := GetTokenVersion(tokenString)
+		assert.NoError(t, versionErr)
+		assert.Equal(t, int64(7), version)
+	}
+}
+
+func TestManagersKeepSigningConfigurationIsolated(t *testing.T) {
+	first := NewManager("first-manager-key-with-sufficient-length", time.Hour, 24*time.Hour, WithIdentityKey("user_id"))
+	second := NewManager("second-manager-key-with-sufficient-length", time.Hour, 24*time.Hour, WithIdentityKey("user_id"))
+
+	_, refreshToken, _, _, err := first.SignWithVersion("user-1", 3)
+	assert.NoError(t, err)
+	identity, version, err := first.ParseRefreshTokenWithVersion(refreshToken)
+	assert.NoError(t, err)
+	assert.Equal(t, "user-1", identity)
+	assert.Equal(t, int64(3), version)
+	_, _, err = second.ParseRefreshTokenWithVersion(refreshToken)
+	assert.Error(t, err)
+}
+
+func TestManagerRotatesRefreshTokenOnce(t *testing.T) {
+	store := &fakeRefreshTokenStore{used: make(map[string]struct{})}
+	manager := NewManagerWithRefreshStore(store, "rotation-test-key-with-sufficient-length", time.Hour, 24*time.Hour, WithIdentityKey("user_id"))
+	_, oldRefreshToken, _, _, err := manager.SignWithVersion("user-1", 4)
+	assert.NoError(t, err)
+
+	accessToken, newRefreshToken, _, _, err := manager.RotateRefreshToken(context.Background(), oldRefreshToken, "user-1", 4)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, accessToken)
+	assert.NotEmpty(t, newRefreshToken)
+	assert.NotEqual(t, oldRefreshToken, newRefreshToken)
+
+	_, _, _, _, err = manager.RotateRefreshToken(context.Background(), oldRefreshToken, "user-1", 4)
+	assert.True(t, errors.Is(err, ErrRefreshTokenReused))
+}
+
 // TestParseRefreshToken 测试解析 Refresh Token
 func TestParseRefreshToken(t *testing.T) {
 	initTestConfig()
@@ -155,6 +211,35 @@ func TestParseRequestWithGin(t *testing.T) {
 	identityKey, err = ParseRequest(c)
 	assert.Error(t, err)
 	assert.Equal(t, ErrNotAccessToken, err)
+}
+
+func TestParseAuthorizationHeaderRejectsTrailingContent(t *testing.T) {
+	t.Parallel()
+
+	for _, header := range []string{
+		"Bearer token trailing",
+		"Bearer  token",
+		"bearer token",
+		"Bearer\ttoken",
+	} {
+		if _, err := ParseAuthorizationHeader(header); err == nil {
+			t.Errorf("ParseAuthorizationHeader(%q) error = nil", header)
+		}
+	}
+	if tokenString, err := ParseAuthorizationHeader("Bearer token"); err != nil || tokenString != "token" {
+		t.Fatalf("ParseAuthorizationHeader(valid) = %q, %v", tokenString, err)
+	}
+}
+
+func TestParseWithKeyRejectsNonHS256HMAC(t *testing.T) {
+	t.Parallel()
+
+	key := "algorithm-test-key-with-sufficient-length"
+	tokenObject := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{"exp": time.Now().Add(time.Hour).Unix()})
+	tokenString, err := tokenObject.SignedString([]byte(key))
+	assert.NoError(t, err)
+	_, err = ParseWithKey(tokenString, key)
+	assert.Error(t, err)
 }
 
 // TestParseRequestWithGRPC 测试从 gRPC 上下文解析 token

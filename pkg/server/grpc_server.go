@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net"
 
@@ -27,6 +28,9 @@ func NewGRPCServer(
 	serverOptions []grpc.ServerOption,
 	registerBuilder func() (func(grpc.ServiceRegistrar), string),
 ) (*GRPCServer, error) {
+	if grpcOptions == nil {
+		return nil, fmt.Errorf("gRPC options are required")
+	}
 	lis, err := net.Listen("tcp", grpcOptions.Addr)
 	if err != nil {
 		slog.Error("Failed to listen", "err", err)
@@ -34,7 +38,11 @@ func NewGRPCServer(
 	}
 
 	if tlsOptions != nil && tlsOptions.UseTLS {
-		tlsConfig := tlsOptions.MustTLSConfig()
+		tlsConfig, err := tlsOptions.TLSConfig()
+		if err != nil {
+			_ = lis.Close()
+			return nil, fmt.Errorf("create gRPC TLS config: %w", err)
+		}
 		serverOptions = append(serverOptions, grpc.Creds(credentials.NewTLS(tlsConfig)))
 	}
 
@@ -51,20 +59,32 @@ func NewGRPCServer(
 	}, nil
 }
 
-// RunOrDie 启动 GRPC 服务器并在出错时记录致命错误.
-func (s *GRPCServer) RunOrDie() {
+// Run 启动 GRPC 服务器，并将服务错误返回给调用方。
+func (s *GRPCServer) Run() error {
 	slog.Info("Start to listening the incoming requests",
 		"protocol", "grpc",
 		"addr", s.lis.Addr().String())
 	if err := s.srv.Serve(s.lis); err != nil {
-		slog.Error("Failed to serve grpc server", "err", err)
+		return fmt.Errorf("serve gRPC server: %w", err)
 	}
+	return nil
 }
 
 // GracefulStop 优雅地关闭 GRPC 服务器.
-func (s *GRPCServer) GracefulStop(ctx context.Context) {
+func (s *GRPCServer) GracefulStop(ctx context.Context) error {
 	slog.Info("Gracefully stop grpc server")
-	s.srv.GracefulStop()
+	done := make(chan struct{})
+	go func() {
+		s.srv.GracefulStop()
+		close(done)
+	}()
+	select {
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		s.srv.Stop()
+		return fmt.Errorf("gRPC graceful stop deadline exceeded: %w", ctx.Err())
+	}
 }
 
 // registerHealthServer 注册健康检查服务.

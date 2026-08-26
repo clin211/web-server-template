@@ -15,30 +15,56 @@ import (
 // Injectors from wire.go:
 
 // NewServer 设置并创建包含所有必要依赖的 Web 服务器。
-func NewServer(config *Config) (*Server, error) {
-	db, err := ProvideDB(config)
+func NewServer(config *Config) (*Server, func(), error) {
+	db, cleanup, err := ProvideDB(config)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	datastore := store.NewStore(db)
-	bizBiz := biz.NewBiz(datastore)
+	redisRefreshTokenStore, cleanup2, err := ProvideRedisRefreshTokenStore(config)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	manager := ProvideTokenManagerWithStore(config, redisRefreshTokenStore)
+	bizBiz := biz.NewBiz(datastore, manager)
 	validator := validation.New(datastore)
 	userRetriever := &UserRetriever{
 		store: datastore,
 	}
+	asyncRuntime, err := NewAsyncRuntime(config, datastore)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	apiserverReadinessChecker := ProvideReadinessChecker(config, db, redisRefreshTokenStore, asyncRuntime)
+	loginRateLimiter := ProvideLoginRateLimiter(redisRefreshTokenStore)
 	serverConfig := &ServerConfig{
-		Config:    config,
-		biz:       bizBiz,
-		val:       validator,
-		retriever: userRetriever,
+		Config:       config,
+		biz:          bizBiz,
+		val:          validator,
+		retriever:    userRetriever,
+		readiness:    apiserverReadinessChecker,
+		tokens:       manager,
+		loginLimiter: loginRateLimiter,
 	}
 	server, err := NewWebServer(serverConfig)
 	if err != nil {
-		return nil, err
+		cleanup2()
+		cleanup()
+		return nil, nil, err
 	}
+	closer := ProvideDatabaseCloser(db)
 	apiserverServer := &Server{
-		cfg: serverConfig,
-		srv: server,
+		cfg:      serverConfig,
+		srv:      server,
+		async:    asyncRuntime,
+		database: closer,
+		redis:    redisRefreshTokenStore,
 	}
-	return apiserverServer, nil
+	return apiserverServer, func() {
+		cleanup2()
+		cleanup()
+	}, nil
 }

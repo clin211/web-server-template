@@ -1,8 +1,10 @@
 package options
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -15,6 +17,11 @@ import (
 
 var _ IOptions = (*PostgreSQLOptions)(nil)
 
+var (
+	errPostgreSQLPasswordRequired = errors.New("postgresql.password is required")
+	errPostgreSQLSSLMode          = errors.New("postgresql.ssl-mode must be one of disable, require")
+)
+
 // PostgreSQLOptions 定义 postgresql 数据库的选项。
 type PostgreSQLOptions struct {
 	Addr                  string        `json:"addr,omitempty" mapstructure:"addr"`
@@ -24,6 +31,7 @@ type PostgreSQLOptions struct {
 	MaxIdleConnections    int           `json:"max-idle-connections,omitempty" mapstructure:"max-idle-connections,omitempty"`
 	MaxOpenConnections    int           `json:"max-open-connections,omitempty" mapstructure:"max-open-connections"`
 	MaxConnectionLifeTime time.Duration `json:"max-connection-life-time,omitempty" mapstructure:"max-connection-life-time"`
+	SSLMode               string        `json:"ssl-mode,omitempty" mapstructure:"ssl-mode"`
 	LogLevel              int           `json:"log-level" mapstructure:"log-level"`
 }
 
@@ -32,12 +40,13 @@ func NewPostgreSQLOptions() *PostgreSQLOptions {
 	return &PostgreSQLOptions{
 		Addr:                  "127.0.0.1:5432",
 		Username:              "onex",
-		Password:              "onex(#)666",
+		Password:              "",
 		Database:              "onex",
 		MaxIdleConnections:    100,
 		MaxOpenConnections:    100,
 		MaxConnectionLifeTime: time.Duration(10) * time.Second,
 		LogLevel:              1, // Silent
+		SSLMode:               "disable",
 	}
 }
 
@@ -51,6 +60,13 @@ func (o *PostgreSQLOptions) Validate() []error {
 			"postgresql.password looks like a placeholder/known-weak value (%q); please set a real password",
 			o.Password,
 		))
+	}
+	if o.Addr != "" && o.Password == "" {
+		errs = append(errs, errPostgreSQLPasswordRequired)
+	}
+	sslMode := strings.ToLower(o.SSLMode)
+	if sslMode != "disable" && sslMode != "require" {
+		errs = append(errs, errPostgreSQLSSLMode)
 	}
 
 	return errs
@@ -71,6 +87,7 @@ func (o *PostgreSQLOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 		"Maximum open connections allowed to connect to postgresql.")
 	fs.DurationVar(&o.MaxConnectionLifeTime, fullPrefix+".max-connection-life-time", o.MaxConnectionLifeTime, ""+
 		"Maximum connection life time allowed to connect to postgresql.")
+	fs.StringVar(&o.SSLMode, fullPrefix+".ssl-mode", o.SSLMode, "PostgreSQL TLS mode: disable or require.")
 	fs.IntVar(&o.LogLevel, fullPrefix+".log-level", o.LogLevel, ""+
 		"Specify gorm log level.")
 }
@@ -85,6 +102,7 @@ func (o *PostgreSQLOptions) NewDB() (*gorm.DB, error) {
 		MaxIdleConnections:    o.MaxIdleConnections,
 		MaxOpenConnections:    o.MaxOpenConnections,
 		MaxConnectionLifeTime: o.MaxConnectionLifeTime,
+		SSLMode:               o.SSLMode,
 		Logger:                gormslog.New(slog.Default(), gormlogger.LogLevel(o.LogLevel)),
 	}
 

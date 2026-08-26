@@ -6,6 +6,11 @@ COMMON_SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 PROJ_ROOT_DIR := $(strip $(abspath $(shell cd $(COMMON_SELF_DIR)/ && pwd -P)))
 # Directory for build artifacts and temporary files
 OUTPUT_DIR := $(PROJ_ROOT_DIR)/_output
+INTEGRATION_PROJECT ?= gin-enterprise-template-integration
+INTEGRATION_DATA_DIR := $(OUTPUT_DIR)/integration
+INTEGRATION_POSTGRES_PORT ?= 55432
+INTEGRATION_KAFKA_PORT ?= 29092
+INTEGRATION_REDIS_PORT ?= 56380
 # Path to Protobuf files
 APIROOT=$(PROJ_ROOT_DIR)/pkg/api
 ROOT_PACKAGE=github.com/clin211/gin-enterprise-template
@@ -14,7 +19,14 @@ REGISTRY_PREFIX ?= gin-enterprise-template
 
 # Set the unit test coverage threshold. The value of 1 here is just for demonstration, as the project currently lacks comprehensive unit tests.
 # For production environments, it is recommended to set a higher threshold, e.g., 60.
-COVERAGE := 1
+COVERAGE ?= 20
+PROTOC_GEN_GO_VERSION ?= v1.36.11
+PROTOC_GEN_GO_GRPC_VERSION ?= v1.6.2
+GRPC_GATEWAY_VERSION ?= v2.29.0
+PROTOC_GEN_DEFAULTS_VERSION ?= v0.0.2
+PROTOC_INJECT_TAG_VERSION ?= v1.4.0
+WIRE_VERSION ?= v0.6.0
+GOLANGCI_LINT_VERSION ?= v2.4.0
 
 # ==============================================================================
 # Define version-related variables
@@ -32,7 +44,7 @@ ifeq ($(IS_GIT_REPO),)
 else
     # Define the VERSION semantic version (if not already set)
     ifeq ($(origin VERSION), undefined)
-        VERSION := $(shell git describe --tags --abbrev=0 --match='v*')
+        VERSION := $(shell git describe --tags --abbrev=0 --match='v*' 2>/dev/null || echo v0.0.0)
     endif
 
     # Check if the code repository is in a dirty state (default is dirty)
@@ -149,6 +161,96 @@ image.%: build.% ## 构建指定的 Docker 镜像
 format: format.proto ## Format source code with gofmt (-s -w) and protobuf with buf.
 	@gofmt -s -w ./
 
+.PHONY: verify
+verify: verify.format verify.generated verify.vet verify.test verify.lint verify.build ## Run the non-mutating production quality gate.
+
+.PHONY: verify.format
+verify.format: ## Check Go and Proto formatting without modifying the worktree.
+	@test -z "$$(gofmt -s -l $$(find . -name '*.go' -not -path './third_party/*' -not -path './_output/*'))"
+	@buf format --diff $(PROJ_ROOT_DIR) --path pkg/api/apiserver/v1
+
+.PHONY: verify.vet
+verify.vet: ## Run the standard Go static analyzer.
+	@go vet ./...
+
+.PHONY: verify.test
+verify.test: ## Run unit tests with race detection and coverage.
+	@mkdir -p $(OUTPUT_DIR)
+	@go test -race -cover -coverprofile=$(OUTPUT_DIR)/coverage.out -timeout=10m -shuffle=on -short `go list ./...|egrep -v 'tools|vendor|third_party'`
+	@go tool cover -func=$(OUTPUT_DIR)/coverage.out | awk -v target=$(COVERAGE) -f $(PROJ_ROOT_DIR)/scripts/coverage.awk
+
+.PHONY: verify.generated
+verify.generated: ## Regenerate Proto/OpenAPI/Wire and fail on drift; requires a clean generated-file worktree.
+	@test -z "$$(git status --porcelain -- pkg/api/apiserver/v1 api/openapi internal/apiserver/wire_gen.go)" || \
+		(echo "generated files have local changes; commit or stash them before verification"; exit 1)
+	@$(MAKE) protoc
+	@go generate ./internal/apiserver
+	@git diff --exit-code -- pkg/api/apiserver/v1 api/openapi internal/apiserver/wire_gen.go
+
+.PHONY: verify.lint
+verify.lint: ## Run static analysis for new changes without changing source files.
+	@if [ -n "$(LINT_NEW_FROM_REV)" ]; then \
+		golangci-lint run -c $(PROJ_ROOT_DIR)/.golangci.yaml --new-from-rev="$(LINT_NEW_FROM_REV)" $(PROJ_ROOT_DIR)/...; \
+	else \
+		golangci-lint run -c $(PROJ_ROOT_DIR)/.golangci.yaml --new $(PROJ_ROOT_DIR)/...; \
+	fi
+
+.PHONY: verify.build
+verify.build: ## Build the API server binary.
+	@$(MAKE) build BINS=gin-enterprise-template-apiserver
+
+.PHONY: integration.up
+integration.up: ## Start isolated PostgreSQL and Kafka integration dependencies.
+	@mkdir -p $(INTEGRATION_DATA_DIR)/pgdata
+	@COMPOSE_PROJECT_NAME=$(INTEGRATION_PROJECT) \
+	 POSTGRES_DB=enterprise_template_test \
+	 POSTGRES_PASSWORD=integration-postgres \
+	 POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
+	 POSTGRES_DATA_PATH=$(INTEGRATION_DATA_DIR)/pgdata \
+	 KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
+	 REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
+	 REDIS_PASSWORD=integration-redis \
+	 docker compose -f docker-compose.env.yml up -d --wait postgres redis redpanda
+	@COMPOSE_PROJECT_NAME=$(INTEGRATION_PROJECT) \
+	 POSTGRES_DB=enterprise_template_test \
+	 POSTGRES_PASSWORD=integration-postgres \
+	 POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
+	 POSTGRES_DATA_PATH=$(INTEGRATION_DATA_DIR)/pgdata \
+	 KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
+	 REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
+	 REDIS_PASSWORD=integration-redis \
+	 docker compose -f docker-compose.env.yml run --rm topic-init
+
+.PHONY: integration.test
+integration.test: ## Run PostgreSQL and Kafka integration tests.
+	@TEST_POSTGRES_DSN="$${TEST_POSTGRES_DSN:-postgres://postgres:integration-postgres@127.0.0.1:$(INTEGRATION_POSTGRES_PORT)/enterprise_template_test?sslmode=disable}" \
+	 TEST_KAFKA_BROKERS="$${TEST_KAFKA_BROKERS:-127.0.0.1:$(INTEGRATION_KAFKA_PORT)}" \
+	 TEST_KAFKA_TOPIC="$${TEST_KAFKA_TOPIC:-events}" \
+	 TEST_KAFKA_DLQ_TOPIC="$${TEST_KAFKA_DLQ_TOPIC:-events.dlq}" \
+	 TEST_REDIS_ADDR="$${TEST_REDIS_ADDR:-127.0.0.1:$(INTEGRATION_REDIS_PORT)}" \
+	 TEST_REDIS_PASSWORD="$${TEST_REDIS_PASSWORD:-integration-redis}" \
+	 go test -race -count=1 -v ./internal/apiserver/store ./internal/messaging/consumer ./pkg/token -run Integration
+
+.PHONY: integration.smoke
+integration.smoke: build ## Start the API against integration dependencies and verify liveness/readiness.
+	@INTEGRATION_POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
+	 INTEGRATION_KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
+	 INTEGRATION_REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
+	 ./scripts/smoke-test.sh $(OUTPUT_DIR)/platforms/$(OS)/$(ARCH)/gin-enterprise-template-apiserver
+
+.PHONY: integration.down
+integration.down: ## Stop and remove isolated integration dependencies.
+	@COMPOSE_PROJECT_NAME=$(INTEGRATION_PROJECT) \
+	 POSTGRES_DB=enterprise_template_test \
+	 POSTGRES_PASSWORD=integration-postgres \
+	 POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
+	 POSTGRES_DATA_PATH=$(INTEGRATION_DATA_DIR)/pgdata \
+	 KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
+	 REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
+	 REDIS_PASSWORD=integration-redis \
+	 docker compose -f docker-compose.env.yml down -v --remove-orphans
+	@$(RM) -r $(INTEGRATION_DATA_DIR)
+
 .PHONY: format.proto
 format.proto: ## Format protobuf files in pkg/api/apiserver/v1 with buf.
 	@buf format -w $(PROJ_ROOT_DIR) --path pkg/api/apiserver/v1
@@ -223,18 +325,18 @@ lint: ## Static analysis with golangci-lint (uses .golangci.yaml).
 .PHONY: deps
 deps: ## Install build and codegen tools.
 	@echo "===========> Installing dependent tools, may take a while ..."
-	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
-	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
-	@go install github.com/onexstack/protoc-gen-defaults@latest
-	@go install github.com/favadi/protoc-go-inject-tag@latest
-	@go install github.com/google/wire/cmd/wire@latest
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GEN_GO_VERSION)
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GO_GRPC_VERSION)
+	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@$(GRPC_GATEWAY_VERSION)
+	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@$(GRPC_GATEWAY_VERSION)
+	@go install github.com/onexstack/protoc-gen-defaults@$(PROTOC_GEN_DEFAULTS_VERSION)
+	@go install github.com/favadi/protoc-go-inject-tag@$(PROTOC_INJECT_TAG_VERSION)
+	@go install github.com/google/wire/cmd/wire@$(WIRE_VERSION)
 	@go install github.com/onexstack/addlicense@v0.0.3
 	@if ! command -v golangci-lint >/dev/null 2>&1; then \
 		echo "golangci-lint not found, installing..."; \
 		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | \
-			sh -s -- -b "$(go env GOPATH)/bin" v2.4.0 ; \
+			sh -s -- -b "$(go env GOPATH)/bin" $(GOLANGCI_LINT_VERSION) ; \
 	fi
 
 .PHONY: generate

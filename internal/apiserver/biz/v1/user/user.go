@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"time"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
@@ -27,12 +28,20 @@ type UserExpansion interface {
 
 // userBiz 是 UserBiz 接口的实现.
 type userBiz struct {
-	store store.IStore
+	store        store.IStore
+	tokenManager TokenManager
+}
+
+// TokenManager 定义用户业务签发令牌所需的最小能力。
+type TokenManager interface {
+	SignWithVersion(identity string, version int64) (string, string, time.Time, time.Time, error)
+	RotateRefreshToken(ctx context.Context, token, identity string, version int64) (string, string, time.Time, time.Time, error)
 }
 
 // 确保 userBiz 实现了 UserBiz 接口.
 var _ UserBiz = (*userBiz)(nil)
 
-func New(store store.IStore, _ any) *userBiz {
-	return &userBiz{store: store}
+// New 创建用户业务服务。
+func New(store store.IStore, tokenManager TokenManager) *userBiz {
+	return &userBiz{store: store, tokenManager: tokenManager}
 }

@@ -25,7 +25,7 @@ func NewHealthOptions() *HealthOptions {
 	return &HealthOptions{
 		HTTPProfile:        false,
 		HealthCheckPath:    "/healthz",
-		HealthCheckAddress: "0.0.0.0:20250",
+		HealthCheckAddress: "127.0.0.1:20250",
 	}
 }
 

@@ -1,6 +1,7 @@
 package options
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -18,6 +19,8 @@ import (
 
 var _ IOptions = (*KafkaOptions)(nil)
 
+var errKafkaAsyncWriter = errors.New("kafka writer async mode is incompatible with reliable outbox delivery")
+
 type logger struct {
 	v int32
 }
@@ -26,6 +29,7 @@ func (l *logger) Printf(format string, args ...any) {
 	klog.V(klog.Level(l.v)).Infof(format, args...)
 }
 
+// WriterOptions 定义 Kafka Writer 的确认、批处理和重试策略。
 type WriterOptions struct {
 	// 限制传递消息的最大尝试次数。
 	//
@@ -61,9 +65,16 @@ type WriterOptions struct {
 	BatchBytes int `mapstructure:"batch-bytes"`
 }
 
+// ReaderOptions 定义 Kafka Reader 的消费组、拉取和 offset 提交策略。
 type ReaderOptions struct {
+	// Topic 是 Consumer 的输入 topic。它与 KafkaOptions.Topic（Outbox writer 的
+	// 输出 topic）独立配置，避免同一服务默认消费自己刚发布的领域事件。
+	Topic string `mapstructure:"topic"`
+
 	// GroupID 保存可选的消费者组 ID。如果指定了 GroupID，则
 	// 不应指定 Partition，例如 0
+	// GroupID 同时构成 Inbox 幂等命名空间，生产部署后应保持稳定；更换它会让历史事件
+	// 以新消费者身份重新处理。
 	GroupID string `mapstructure:"group-id"`
 
 	// GroupTopics 允许指定多个主题，但只能与
@@ -114,8 +125,9 @@ type ReaderOptions struct {
 	// 仅在设置 GroupID 时使用
 	HeartbeatInterval time.Duration `mapstructure:"heartbeat-interval"`
 
-	// CommitInterval 指示偏移量提交到
-	// 代理的间隔。如果为 0，则将同步处理提交。
+	// CommitInterval 为 0 时，CommitMessages 会同步等待 broker 确认。本项目只有在业务事务
+	// 成功或 DLQ 已持久化后才提交 offset，因此 Consumer 启用时必须保持为 0；周期自动提交
+	// 可能越过尚未完成的消息，破坏 at-least-once 保证。
 	//
 	// 默认值：0
 	//
@@ -149,8 +161,9 @@ type ReaderOptions struct {
 // KafkaOptions 定义 kafka 集群的选项。
 // kafka-go reader 和 writer 的通用选项。
 type KafkaOptions struct {
-	// kafka-go reader 和 writer 通用选项
-	Brokers       []string      `mapstructure:"brokers"`
+	Brokers []string `mapstructure:"brokers"`
+	// Topic 是 Outbox writer 的输出 topic。Consumer 输入 topic 由 ReaderOptions.Topic
+	// 独立配置，避免生产者服务意外消费自身事件。
 	Topic         string        `mapstructure:"topic"`
 	ClientID      string        `mapstructure:"client-id"`
 	Timeout       time.Duration `mapstructure:"timeout"`
@@ -164,7 +177,7 @@ type KafkaOptions struct {
 	// kafka-go writer 选项
 	WriterOptions WriterOptions `mapstructure:"writer"`
 
-	// kafka-go reader 选项
+	// ReaderOptions 仅供 Consumer 使用；Outbox 和 DLQ Relay 使用 WriterOptions。
 	ReaderOptions ReaderOptions `mapstructure:"reader"`
 }
 
@@ -174,14 +187,15 @@ func NewKafkaOptions() *KafkaOptions {
 		TLSOptions: NewTLSOptions(),
 		Timeout:    3 * time.Second,
 		WriterOptions: WriterOptions{
-			RequiredAcks: 1,
+			RequiredAcks: int(kafka.RequireAll),
 			MaxAttempts:  10,
-			Async:        true,
+			Async:        false,
 			BatchSize:    100,
 			BatchTimeout: 1 * time.Second,
 			BatchBytes:   1 * MiB,
 		},
 		ReaderOptions: ReaderOptions{
+			Topic:             "inbound-events",
 			QueueCapacity:     100,
 			MinBytes:          1,
 			MaxBytes:          1 * MiB,
@@ -204,6 +218,8 @@ func (o *KafkaOptions) Validate() []error {
 		errs = append(errs, fmt.Errorf("kafka broker can not be empty"))
 	}
 
+	// SASL 认证必须运行在 TLS 上，避免 PLAIN/SCRAM 交换及凭据暴露在明文链路中。
+	// Username 和 Password 也不得写入日志或提交到仓库，应由部署环境的 secret 注入。
 	if !o.TLSOptions.UseTLS && o.SASLMechanism != "" {
 		errs = append(errs, fmt.Errorf("SASL-Mechanism is setted but use_ssl is false"))
 	}
@@ -223,6 +239,9 @@ func (o *KafkaOptions) Validate() []error {
 	if o.WriterOptions.BatchTimeout <= 0 {
 		errs = append(errs, fmt.Errorf("--kafka.writer.batch-timeout cannot be negative"))
 	}
+	if o.WriterOptions.Async {
+		errs = append(errs, errKafkaAsyncWriter)
+	}
 
 	errs = append(errs, o.TLSOptions.Validate()...)
 
@@ -234,7 +253,7 @@ func (o *KafkaOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 	o.TLSOptions.AddFlags(fs, fullPrefix+".tls")
 
 	fs.StringSliceVar(&o.Brokers, fullPrefix+".brokers", o.Brokers, "The list of brokers used to discover the partitions available on the kafka cluster.")
-	fs.StringVar(&o.Topic, fullPrefix+".topic", o.Topic, "The topic that the writer/reader will produce/consume messages to.")
+	fs.StringVar(&o.Topic, fullPrefix+".topic", o.Topic, "The topic that the outbox writer produces messages to.")
 	fs.StringVar(&o.ClientID, fullPrefix+".client-id", o.ClientID, " Unique identifier for client connections established by this Dialer. ")
 	fs.DurationVar(&o.Timeout, fullPrefix+".timeout", o.Timeout, "Timeout is the maximum amount of time a dial will wait for a connect to complete.")
 	fs.StringVar(&o.SASLMechanism, fullPrefix+".mechanism", o.SASLMechanism, "Configures the Dialer to use SASL authentication.")
@@ -253,6 +272,8 @@ func (o *KafkaOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 		"Time limit on how often incomplete message batches will be flushed to kafka.")
 	fs.IntVar(&o.WriterOptions.BatchBytes, fullPrefix+".writer.batch-bytes", o.WriterOptions.BatchBytes, ""+
 		"Limit the maximum size of a request in bytes before being sent to a partition.")
+	fs.StringVar(&o.ReaderOptions.Topic, fullPrefix+".reader.topic", o.ReaderOptions.Topic,
+		"Kafka topic consumed by the reader; keep it separate from the outbox writer topic in the same service.")
 	fs.StringVar(&o.ReaderOptions.GroupID, fullPrefix+".reader.group-id", o.ReaderOptions.GroupID, ""+
 		"GroupID holds the optional consumer group id. If GroupID is specified, then Partition should NOT be specified e.g. 0.")
 	fs.IntVar(&o.ReaderOptions.Partition, fullPrefix+".reader.partition", o.ReaderOptions.Partition, "Partition to read messages from.")
@@ -278,6 +299,7 @@ func (o *KafkaOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 		"Limit of how many attempts will be made before delivering the error. ")
 }
 
+// GetMechanism 创建 SASL 机制；调用方应先执行 Validate，避免不支持的配置静默降级。
 func (o *KafkaOptions) GetMechanism() (sasl.Mechanism, error) {
 	var mechanism sasl.Mechanism
 
@@ -302,6 +324,7 @@ func (o *KafkaOptions) GetMechanism() (sasl.Mechanism, error) {
 	return mechanism, nil
 }
 
+// Dialer 创建连接配置；调用方应先执行 Validate，确保认证与 TLS 约束已经满足。
 func (o *KafkaOptions) Dialer() (*kafka.Dialer, error) {
 	tlsConfig, err := o.TLSOptions.TLSConfig()
 	if err != nil {
@@ -321,7 +344,25 @@ func (o *KafkaOptions) Dialer() (*kafka.Dialer, error) {
 	}, nil
 }
 
+// Writer 创建 Kafka Writer；调用方应先执行 Validate。
+//
+// 可靠投递链路要求 WriterOptions.Async 为 false，否则 nil 返回值并不代表 broker 已确认消息。
 func (o *KafkaOptions) Writer() (*kafka.Writer, error) {
+	if o.WriterOptions.Async {
+		return nil, errKafkaAsyncWriter
+	}
+	return o.WriterForTopic(o.Topic)
+}
+
+// WriterForTopic 创建同步 Kafka Writer，并将目标 topic 固定在该 writer 上。
+// DLQ Relay 使用独立 writer，避免通过 Message.Topic 覆盖 kafka-go writer 的固定 topic。
+func (o *KafkaOptions) WriterForTopic(topic string) (*kafka.Writer, error) {
+	if o.WriterOptions.Async {
+		return nil, errKafkaAsyncWriter
+	}
+	if topic == "" {
+		return nil, fmt.Errorf("kafka writer topic is required")
+	}
 	dialer, err := o.Dialer()
 	if err != nil {
 		return nil, err
@@ -329,12 +370,15 @@ func (o *KafkaOptions) Writer() (*kafka.Writer, error) {
 
 	// Kafka writer connection config
 	config := kafka.WriterConfig{
-		Brokers:      o.Brokers,
-		Topic:        o.Topic,
-		Balancer:     &kafka.LeastBytes{},
+		Brokers: o.Brokers,
+		Topic:   topic,
+		// KafkaPublisher uses aggregate_id as the key. Hash preserves aggregate-local
+		// ordering by keeping all messages with the same key on one partition.
+		Balancer:     &kafka.Hash{},
 		Dialer:       dialer,
 		WriteTimeout: o.Timeout,
 		ReadTimeout:  o.Timeout,
+		RequiredAcks: o.WriterOptions.RequiredAcks,
 
 		Async:        o.WriterOptions.Async,
 		BatchSize:    o.WriterOptions.BatchSize,
@@ -351,4 +395,46 @@ func (o *KafkaOptions) Writer() (*kafka.Writer, error) {
 
 	kafkaWriter := kafka.NewWriter(config)
 	return kafkaWriter, nil
+}
+
+// ReaderConfig 构造并校验使用手动 offset 提交的 Kafka Reader 配置。
+// 显式校验必须发生在 kafka.NewReader 前，因为 kafka-go 对非法配置可能直接 panic。
+func (o *KafkaOptions) ReaderConfig() (kafka.ReaderConfig, error) {
+	dialer, err := o.Dialer()
+	if err != nil {
+		return kafka.ReaderConfig{}, fmt.Errorf("create Kafka reader dialer: %w", err)
+	}
+	config := kafka.ReaderConfig{
+		Brokers:           o.Brokers,
+		GroupID:           o.ReaderOptions.GroupID,
+		Topic:             o.ReaderOptions.Topic,
+		Partition:         o.ReaderOptions.Partition,
+		Dialer:            dialer,
+		QueueCapacity:     o.ReaderOptions.QueueCapacity,
+		MinBytes:          o.ReaderOptions.MinBytes,
+		MaxBytes:          o.ReaderOptions.MaxBytes,
+		MaxWait:           o.ReaderOptions.MaxWait,
+		ReadBatchTimeout:  o.ReaderOptions.ReadBatchTimeout,
+		HeartbeatInterval: o.ReaderOptions.HeartbeatInterval,
+		CommitInterval:    o.ReaderOptions.CommitInterval,
+		RebalanceTimeout:  o.ReaderOptions.RebalanceTimeout,
+		StartOffset:       o.ReaderOptions.StartOffset,
+		MaxAttempts:       o.ReaderOptions.MaxAttempts,
+		Logger:            &logger{4},
+		ErrorLogger:       &logger{1},
+	}
+	if err := config.Validate(); err != nil {
+		return kafka.ReaderConfig{}, fmt.Errorf("validate Kafka reader config: %w", err)
+	}
+	return config, nil
+}
+
+// Reader 创建使用 FetchMessage 和同步 CommitMessages 的 Kafka Reader。
+// Consumer 不使用 ReadMessage 的自动提交路径，确保 offset 晚于业务终态或 DLQ 持久化。
+func (o *KafkaOptions) Reader() (*kafka.Reader, error) {
+	config, err := o.ReaderConfig()
+	if err != nil {
+		return nil, err
+	}
+	return kafka.NewReader(config), nil
 }

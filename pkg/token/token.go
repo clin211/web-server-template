@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -83,18 +84,23 @@ func storeConfig(cfg Config) {
 
 // 预定义错误
 var (
-	ErrMissingIdentityKey  = errors.New("missing identity key in token")
-	ErrInvalidIdentityKey  = errors.New("invalid identity key in token")
-	ErrEmptyToken          = errors.New("token is empty")
-	ErrInvalidAuthHeader   = errors.New("invalid authorization header")
-	ErrEmptyAuthHeader     = errors.New("authorization header is empty")
-	ErrMalformedAuthHeader = errors.New("malformed authorization header")
-	ErrInvalidTokenClaims  = errors.New("invalid token claims")
-	ErrPathSkipped         = errors.New("path is skipped for authentication")
-	ErrInvalidTokenType    = errors.New("invalid token type")
-	ErrNotRefreshToken     = errors.New("token is not a refresh token")
-	ErrNotAccessToken      = errors.New("token is not an access token")
-	ErrMissingTokenType    = errors.New("missing token type in claims")
+	ErrMissingIdentityKey        = errors.New("missing identity key in token")
+	ErrInvalidIdentityKey        = errors.New("invalid identity key in token")
+	ErrEmptyToken                = errors.New("token is empty")
+	ErrInvalidAuthHeader         = errors.New("invalid authorization header")
+	ErrEmptyAuthHeader           = errors.New("authorization header is empty")
+	ErrMalformedAuthHeader       = errors.New("malformed authorization header")
+	ErrInvalidTokenClaims        = errors.New("invalid token claims")
+	ErrPathSkipped               = errors.New("path is skipped for authentication")
+	ErrInvalidTokenType          = errors.New("invalid token type")
+	ErrNotRefreshToken           = errors.New("token is not a refresh token")
+	ErrNotAccessToken            = errors.New("token is not an access token")
+	ErrMissingTokenType          = errors.New("missing token type in claims")
+	ErrMissingTokenVersion       = errors.New("missing token version in claims")
+	ErrInvalidTokenVersion       = errors.New("invalid token version in claims")
+	ErrRefreshTokenStoreRequired = errors.New("refresh token store is required")
+	ErrRefreshTokenReused        = errors.New("refresh token has already been used")
+	ErrMissingTokenID            = errors.New("missing token ID in claims")
 )
 
 // WithKey 设置签名密钥
@@ -265,8 +271,8 @@ func ParseIdentity(tokenString string, key string) (string, error) {
 
 	// 解析 token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// 确保 token 加密算法符合预期的加密算法
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		// 服务签发算法固定为 HS256；接受任意 HMAC 会让 HS384/HS512 也成为未声明契约。
+		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(key), nil
@@ -406,12 +412,11 @@ func extractTokenFromGRPC(ctx context.Context) (string, error) {
 
 // parseAuthorizationHeader 解析 Authorization 头部
 func parseAuthorizationHeader(header string) (string, error) {
-	var token string
-	n, err := fmt.Sscanf(header, "Bearer %s", &token)
-	if err != nil || n != 1 {
+	parts := strings.Split(header, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" || strings.TrimSpace(parts[1]) != parts[1] {
 		return "", ErrMalformedAuthHeader
 	}
-
+	token := parts[1]
 	if token == "" {
 		return "", ErrEmptyToken
 	}
@@ -419,9 +424,23 @@ func parseAuthorizationHeader(header string) (string, error) {
 	return token, nil
 }
 
+// ParseAuthorizationHeader 严格解析 HTTP Authorization header。只接受单个
+// "Bearer <token>"，拒绝尾随内容、额外空白和大小写变体。
+func ParseAuthorizationHeader(header string) (string, error) {
+	return parseAuthorizationHeader(header)
+}
+
 // Sign 使用 jwtSecret 签发 Access Token 和 Refresh Token 对
 func Sign(identityValue string) (accessToken, refreshToken string, accessExpireAt, refreshExpireAt time.Time, err error) {
-	cfg := loadConfig()
+	return SignWithVersion(identityValue, 0)
+}
+
+// SignWithVersion 签发携带账号令牌版本的 Access Token 和 Refresh Token。
+func SignWithVersion(identityValue string, tokenVersion int64) (accessToken, refreshToken string, accessExpireAt, refreshExpireAt time.Time, err error) {
+	return signWithConfig(loadConfig(), identityValue, tokenVersion)
+}
+
+func signWithConfig(cfg Config, identityValue string, tokenVersion int64) (accessToken, refreshToken string, accessExpireAt, refreshExpireAt time.Time, err error) {
 	if cfg.key == "" {
 		return "", "", time.Time{}, time.Time{}, jwt.ErrInvalidKey
 	}
@@ -432,10 +451,11 @@ func Sign(identityValue string) (accessToken, refreshToken string, accessExpireA
 
 	// 签发 Access Token
 	accessClaims := jwt.MapClaims{
-		"token_type": TokenTypeAccess,
-		"nbf":        now.Unix(),
-		"iat":        now.Unix(),
-		"exp":        accessExpireAt.Unix(),
+		"token_type":    TokenTypeAccess,
+		"token_version": tokenVersion,
+		"nbf":           now.Unix(),
+		"iat":           now.Unix(),
+		"exp":           accessExpireAt.Unix(),
 	}
 	if cfg.identityKey != "" && identityValue != "" {
 		accessClaims[cfg.identityKey] = identityValue
@@ -449,10 +469,12 @@ func Sign(identityValue string) (accessToken, refreshToken string, accessExpireA
 
 	// 签发 Refresh Token
 	refreshClaims := jwt.MapClaims{
-		"token_type": TokenTypeRefresh,
-		"nbf":        now.Unix(),
-		"iat":        now.Unix(),
-		"exp":        refreshExpireAt.Unix(),
+		"token_type":    TokenTypeRefresh,
+		"token_version": tokenVersion,
+		"jti":           uuid.NewString(),
+		"nbf":           now.Unix(),
+		"iat":           now.Unix(),
+		"exp":           refreshExpireAt.Unix(),
 	}
 	if cfg.identityKey != "" && identityValue != "" {
 		refreshClaims[cfg.identityKey] = identityValue
@@ -465,6 +487,45 @@ func Sign(identityValue string) (accessToken, refreshToken string, accessExpireA
 	}
 
 	return accessToken, refreshToken, accessExpireAt, refreshExpireAt, nil
+}
+
+// GetTokenVersion 获取 token 中的账号令牌版本。
+func GetTokenVersion(tokenString string) (int64, error) {
+	claims, err := GetClaims(tokenString)
+	if err != nil {
+		return 0, err
+	}
+	return tokenVersionFromClaims(claims)
+}
+
+// ParseRequestWithVersion 验证 Access Token 并返回身份与令牌版本。
+func ParseRequestWithVersion(ctx context.Context) (string, int64, error) {
+	identity, err := ParseRequest(ctx)
+	if err != nil {
+		return "", 0, err
+	}
+	tokenString, err := extractTokenFromRequest(ctx)
+	if err != nil {
+		return "", 0, err
+	}
+	version, err := GetTokenVersion(tokenString)
+	if err != nil {
+		return "", 0, err
+	}
+	return identity, version, nil
+}
+
+// ParseRefreshTokenWithVersion 验证 Refresh Token 并返回身份与令牌版本。
+func ParseRefreshTokenWithVersion(tokenString string) (string, int64, error) {
+	identity, err := ParseRefreshToken(tokenString)
+	if err != nil {
+		return "", 0, err
+	}
+	version, err := GetTokenVersion(tokenString)
+	if err != nil {
+		return "", 0, err
+	}
+	return identity, version, nil
 }
 
 // SignWithClaims 使用自定义 claims 签发 token（使用 accessExpiration）
@@ -518,7 +579,7 @@ func Parse(tokenString string) error {
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(cfg.key), nil
@@ -546,7 +607,7 @@ func GetClaims(tokenString string) (jwt.MapClaims, error) {
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(cfg.key), nil
@@ -612,7 +673,7 @@ func ParseWithKey(tokenString, key string) (jwt.MapClaims, error) {
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(key), nil

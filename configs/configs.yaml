@@ -1,47 +1,178 @@
+# 本地开发配置。生产环境不要直接复用本文件中的数据库和 Redis 凭据。
+# 配置优先级：命令行参数 > APP_* 环境变量 > 本文件 > 程序默认值。
+# 环境变量会把层级分隔符和连字符转换为下划线，例如：
+#   jwt.secret -> APP_JWT_SECRET
+#   postgresql.password -> APP_POSTGRESQL_PASSWORD
+#   kafka.writer.required-acks -> APP_KAFKA_WRITER_REQUIRED_ACKS
+
+# HTTP 服务与跨域策略。
 http:
-  addr: 0.0.0.0:5558 # 服务监听地址（与 README、Dockerfile EXPOSE 保持一致）
-timeout: 30s # 服务端超时
+  # 监听所有网卡的 5558 端口；仅本机访问时可改为 127.0.0.1:5558。
+  addr: 0.0.0.0:5558
+  # 同时用于请求读取、响应写入和空闲连接超时，必须大于 0。
+  timeout: 30s
+  # 允许跨域访问的精确 Origin，必须包含 http/https scheme，禁止使用 "*"。
+  # 空列表表示禁用 CORS；示例：["http://localhost:3000"]。
+  allowed-origins: []
 
+# JWT 访问令牌和刷新令牌。
 jwt:
-  # 必填：至少 32 字符随机字符串，可通过 openssl rand -hex 32 生成
-  secret: "509b6f89be5a69ba54e65c9ed3a14735e945fc83908229c303c703b5a5aa5fe2"
-  access-expiration: 2h # Access Token 有效期。单位：h(小时)
-  refresh-expiration: 168h # Refresh Token 有效期，单位：h(小时)
+  # 启动必填，且至少 32 个字符。推荐通过 APP_JWT_SECRET 或 secret manager 注入，
+  # 可使用 `openssl rand -hex 32` 生成；不要把真实密钥提交到仓库。
+  secret: ""
+  # Access Token 有效期，必须大于 0。
+  access-expiration: 2h
+  # Refresh Token 有效期，必须大于等于 access-expiration。
+  refresh-expiration: 168h
 
+# PostgreSQL 连接池和传输安全。本节凭据仅匹配本地 docker-compose.env.yml。
 postgresql:
-  addr: 127.0.0.1:5432
-  database: test
+  # PostgreSQL 服务地址，支持 hostname、IPv4 和带方括号的 IPv6 地址。
+  addr: 127.0.0.1:54321
+  # 应用使用的数据库名和登录用户。
+  database: enterprise_template
   username: postgres
-  password: "2eVHeXDmZ5nTDiPb"
-  max-idle-connections: 100 # 最大空闲连接数
-  max-open-connections: 1000 # 最大打开连接数
-  max-connection-life-time: 5m # 连接最大生命周期
-  log-level: 2 # 日志级别: 1=Silent(静默), 2=Error(错误), 3=Warn(警告), 4=Info(所有日志含SQL)，对应 gorm.io/gorm/logger.LogLevel
+  # 启动必填；生产环境通过 APP_POSTGRESQL_PASSWORD 注入。
+  password: "dev-only-postgres"
+  # 连接池中允许保留的最大空闲连接数。
+  max-idle-connections: 100
+  # 数据库连接池允许打开的最大连接数，应按数据库容量和实例数共同规划。
+  max-open-connections: 1000
+  # 单个连接可复用的最长时间，避免永久持有已失效或负载不均的连接。
+  max-connection-life-time: 5m
+  # GORM 日志级别：1=Silent、2=Error、3=Warn、4=Info（包含 SQL）。
+  log-level: 2
+  # 可选值：disable、require。disable 仅适用于本地开发，生产环境推荐 require。
+  ssl-mode: disable
 
-# Redis 数据库相关配置
+# Redis 保存 refresh token 单次消费状态和跨实例登录限流计数，因此是认证链路强依赖。
 redis:
-  addr: 127.0.0.1:56379 # Redis 服务器地址和端口，默认 127.0.0.1:6379
-  username: "" # Redis 用户名（使用默认用户，留空）
-  password: "e9a7ff6291ee4869246848899221e9cc"
-  database: 0 # Redis 数据库索引，默认 0
-  max-retries: 3 # 最大重试次数，默认 3
-  min-idle-conns: 0 # 最小空闲连接数，默认 0
-  dial-timeout: 5s # 拨号超时时间，默认 5
-  read-timeout: 3s # 读取超时时间，默认 3
-  write-timeout: 3s # 写入超时时间，默认 3
-  pool-time: 4s # 连接池超时时间，默认 4s
-  pool-size: 10 # 连接池大小，默认 10
-  enable-trace: false # 是否启用链路追踪，默认 false
+  # Redis 服务地址；本地 Compose 映射到宿主机 56379 端口。
+  addr: 127.0.0.1:56379
+  # ACL 用户名；使用 Redis default 用户时留空。
+  username: ""
+  # 启动必填；生产环境通过 APP_REDIS_PASSWORD 注入。
+  password: "dev-only-redis"
+  # Redis logical database，仅用于本地隔离；生产环境优先使用独立实例或命名空间。
+  database: 0
+  # 命令失败后的最大重试次数。
+  max-retries: 3
+  # 连接池预留的最小空闲连接数。
+  min-idle-conns: 0
+  # 建连、读取、写入和等待空闲连接的超时。
+  dial-timeout: 5s
+  read-timeout: 3s
+  write-timeout: 3s
+  # 历史配置键名为 pool-time，实际含义是连接池等待超时。
+  pool-time: 4s
+  # 每个应用实例的最大连接池大小。
+  pool-size: 10
+  # 是否为 Redis 客户端调用记录链路追踪。
+  enable-trace: false
 
+# 登录暴力破解防护，使用 Redis 在多个应用实例之间共享固定窗口计数。
+login-security:
+  # 关闭后登录接口不执行限流；生产环境建议保持开启。
+  enabled: true
+  # 同一直接客户端地址在一个窗口内允许的最大登录尝试次数。
+  max-attempts: 10
+  # 固定计数窗口长度。
+  window: 5m
+
+# 可选的事务性 Outbox Relay 基建；仅在业务明确写入 Outbox 事件时启用。
+outbox:
+  # 当前没有业务事件生产者，默认关闭；启用后 Kafka 和输出 topic 会成为启动依赖。
+  enabled: false
+  # 每轮最多领取的待发布事件数。
+  batch-size: 100
+  # 两轮数据库扫描之间的间隔。
+  poll-interval: 1s
+  # 单批事件的处理租约，必须覆盖最坏情况下整批串行发布时间。
+  lease-duration: 30s
+  # 发布失败使用带抖动的指数退避，max-retry-delay 不得小于 retry-delay。
+  retry-delay: 1s
+  max-retry-delay: 5m
+  # 达到次数后事件进入 dead 终态，等待人工检查或补偿。
+  max-attempts: 20
+
+# Kafka Consumer、Inbox 幂等屏障和持久化 DLQ。
+consumer:
+  # 当前尚未注册实际入站业务 handler，必须保持 false；误开启会 fail-closed。
+  enabled: false
+  # Inbox 中持久化的最大业务处理次数，重启不会重置计数。
+  max-attempts: 5
+  # 业务处理失败的基础和最大退避时间。
+  retry-delay: 1s
+  max-retry-delay: 1m
+  # 已 Fetch 消息在停机时允许完成业务事务、DLQ 和 offset 提交的总时间。
+  process-timeout: 30s
+  # Inbox 处理租约应大于 process-timeout，避免多个实例同时执行同一事件。
+  inbox-lease-duration: 1m
+  # 死信输出 topic，必须与 reader.topic 分离，避免形成消费循环。
+  dlq-topic: inbound-events.dlq
+
+# Kafka 同时服务 Outbox 输出、Consumer 输入和 DLQ 输出。
+kafka:
+  # Broker 引导地址列表；本地 Redpanda 暴露在宿主机 19092 端口。
+  brokers:
+    - 127.0.0.1:19092
+  # Outbox Relay 发布的目标 topic。
+  topic: events
+  # Kafka 客户端标识，用于 broker 日志和指标定位调用方。
+  client-id: gin-enterprise-template-apiserver
+  # 建连及读写 broker 的超时。
+  timeout: 3s
+  writer:
+    # -1 表示等待所有同步副本确认，是可靠 Outbox 投递的要求。
+    required-acks: -1
+    # 必须保持 false；异步 Writer 不会把 broker 发布错误返回给 Relay。
+    async: false
+    # kafka-go 单次写入的最大尝试次数。
+    max-attempts: 10
+    # Writer 的批量条数、刷新间隔和最大请求字节数。
+    batch-size: 100
+    batch-timeout: 1s
+    batch-bytes: 1048576
+  reader:
+    # Consumer 输入 topic，应与本服务 Outbox 输出 topic 分离。
+    topic: inbound-events
+    # 稳定的消费组 ID，同时作为 Inbox 幂等命名空间；上线后不要随意修改。
+    group-id: gin-enterprise-template-apiserver-inbound
+    # Reader 内部待处理消息队列容量。
+    queue-capacity: 100
+    # 单次 Fetch 接受的最小和最大数据量，单位为字节。
+    min-bytes: 1
+    max-bytes: 1048576
+    # Broker 聚合 Fetch 数据和客户端读取批次的最长等待时间。
+    max-wait: 1s
+    read-batch-timeout: 1s
+    # 消费组心跳与 rebalance 等待时间。
+    heartbeat-interval: 3s
+    rebalance-timeout: 30s
+    # 必须保持 0s，确保业务完成或 DLQ 持久化后同步提交 offset。
+    commit-interval: 0s
+    # 无历史 offset 时从最早消息开始；kafka-go 中 -2 表示 FirstOffset。
+    start-offset: -2
+    # Reader Fetch 操作的最大尝试次数，不等同于业务处理 max-attempts。
+    max-attempts: 3
+
+# OpenTelemetry、结构化日志和 Prometheus 指标。
 otel:
+  # OTLP gRPC Collector 地址；classic 模式不发送 trace，此值暂不使用。
   endpoint: 127.0.0.1:4327
+  # 写入 trace、metric 和 log resource 的稳定服务名。
   service-name: gin-enterprise-template-apiserver
-  output-mode: classic # 支持 otel、console、file、classic、hybrid
-  level: info # 日志级别：debug、info、warn/warning、error（不区分大小写）
+  # 可选值：otel、console、file、classic、hybrid。
+  # classic 使用本地 slog 和 Prometheus reader，/metrics 由 HTTP 服务固定暴露。
+  output-mode: classic
+  # 最低日志级别：debug、info、warn/warning、error，不区分大小写。
+  level: info
+  # 是否在日志中记录源码文件和行号；生产高流量场景可关闭以减少开销。
   add-source: true
-  use-prometheus-endpoint: true
   slog:
-    # 该配置项只有 output-mode 为 slog 时生效
+    # classic/hybrid 模式使用的 slog 输出格式：json 或 text。
     format: json
+    # text 格式使用 Go time layout；json 格式下该项不生效。
     time-format: "2006-01-02 15:04:05"
-    output: ./_output/apiserver.log # 支持 stdout, stderr, or file path
+    # 可选 stdout、stderr 或文件路径；目录必须已存在且进程具有写权限。
+    output: ./_output/apiserver.log

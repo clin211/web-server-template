@@ -1,26 +1,37 @@
 package handler
 
 import (
+	"net"
+
+	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
 	"github.com/clin211/gin-enterprise-template/pkg/core"
 	"github.com/gin-gonic/gin"
 )
 
-func init() {
-	Register(func(v1 *gin.RouterGroup, handler *Handler) {
-		// 用户相关路由
-		rg := v1.Group("/users")
-		rg.POST("", handler.CreateUser) // 创建用户。这里要注意：创建用户是不用进行认证和授权的
-		rg.Use(handler.mws...)
-		rg.PUT(":userID/change-password", handler.ChangePassword) // 修改用户密码
-		rg.PUT(":userID", handler.UpdateUser)                     // 更新用户信息
-		rg.DELETE(":userID", handler.DeleteUser)                  // 删除用户
-		rg.GET(":userID", handler.GetUser)                        // 查询用户详情
-		rg.GET("", handler.ListUser)                              // 查询用户列表
-	})
+func installUserRoutes(v1 *gin.RouterGroup, handler *Handler) {
+	// POST /users 是公开注册入口。它与受保护的用户资源路由显式分组，避免后续
+	// 调整中间件顺序时意外改变注册接口的认证策略。
+	v1.POST("/users", handler.CreateUser)
+
+	// 当前没有角色/权限模型，受保护的用户资源只能由登录用户操作自己的数据；
+	// 具体的对象级授权由 validation 层在绑定 URI 后执行。
+	rg := v1.Group("/users", handler.mws...)
+	rg.PUT(":userID/change-password", handler.ChangePassword) // 修改用户密码
+	rg.PUT(":userID", handler.UpdateUser)                     // 更新用户信息
+	rg.DELETE(":userID", handler.DeleteUser)                  // 删除用户
+	rg.GET(":userID", handler.GetUser)                        // 查询用户详情
+	rg.GET("", handler.ListUser)                              // 查询用户列表
 }
 
 // Login 用户登录并返回 JWT Token.
 func (h *Handler) Login(c *gin.Context) {
+	address := c.Request.RemoteAddr
+	if host, _, err := net.SplitHostPort(address); err == nil {
+		address = host
+	}
+	ctx := contextx.WithClientAddress(c.Request.Context(), address)
+	ctx = contextx.WithUserAgent(ctx, c.Request.UserAgent())
+	c.Request = c.Request.WithContext(ctx)
 	core.HandleJSONRequest(c, h.biz.UserV1().Login, h.val.ValidateLoginRequest)
 }
 

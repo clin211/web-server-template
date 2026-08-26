@@ -29,6 +29,9 @@ internal/apiserver/          业务实现
   model/                     GORM 生成模型
   pkg/conversion/            Model 与 Proto 转换
   pkg/validation/            请求校验
+internal/messaging/          异步消息基础设施
+  consumer/                  Kafka 消费、Inbox 幂等和 DLQ 处理
+  outbox/                    事务事件契约、Kafka 发布和 Relay
 pkg/api/apiserver/v1/        Proto API 定义及生成代码
 pkg/                         可复用公共包
 configs/                     本地配置、数据库 schema、OTel 配置

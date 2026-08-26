@@ -6,10 +6,11 @@
 
 - Gin REST API
 - PostgreSQL + GORM 数据访问
-- JWT Access Token / Refresh Token 认证
+- JWT Access Token / Refresh Token 认证、token version 撤销和 Redis 单次刷新
+- Redis 跨实例登录限流与登录安全审计
+- Transactional Outbox、Kafka、Inbox 和持久化 DLQ
 - 用户管理：创建、查询、更新、删除、列表、修改密码
 - OpenTelemetry + Prometheus `/metrics`
-- `pprof` 诊断入口 `/debug/pprof/`
 - Protobuf / OpenAPI / Wire / Makefile 工程化支持
 
 ## 目录结构
@@ -48,26 +49,22 @@ make generate
 
 ### 2. 准备运行配置
 
-默认配置文件：`configs/gin-enterprise-template-apiserver.yaml`
+默认会从用户配置目录、`./configs` 和当前目录查找 `configs.yaml`；也可通过
+`--config` 显式指定。显式路径不存在或无法解析时服务会拒绝启动。
 
-至少需要更新：
+开发环境的数据库和 Redis 密码只用于本地容器。JWT secret 不写入仓库，启动前通过环境变量注入：
 
-```yaml
-jwt:
-  secret: "请替换为至少 32 字符随机字符串"
-
-postgresql:
-  addr: 127.0.0.1:5432
-  database: template
-  username: postgres
-  password: "请替换为数据库密码"
-
-redis:
-  addr: 127.0.0.1:6379
-  password: "请替换为 Redis 密码"
+```bash
+export APP_JWT_SECRET="$(openssl rand -hex 32)"
 ```
 
-### 3. 启动本地依赖服务
+生产部署使用 `configs/configs.container.yaml` 作为无凭据基线，并通过 secret manager
+或环境变量覆盖 `APP_POSTGRESQL_PASSWORD`、`APP_REDIS_PASSWORD` 和 TLS 配置。仓库不会
+创建固定管理员，首个账号应由受控 bootstrap 流程创建。
+
+已有数据库升级时按顺序执行 `configs/migrations/` 下的 SQL；`configs/schema.sql` 仅用于初始化空数据库。
+
+### 3. 启动本地依赖服务（PostgreSQL、Redis、Redpanda 和 OTel Collector）
 
 ```bash
 docker compose -f docker-compose.env.yml up -d
@@ -79,43 +76,45 @@ docker compose -f docker-compose.env.yml up -d
 make build BINS=gin-enterprise-template-apiserver
 
 _output/platforms/$(go env GOOS)/$(go env GOARCH)/gin-enterprise-template-apiserver \
-  --config configs/gin-enterprise-template-apiserver.yaml
+  --config configs/configs.yaml
 ```
 
 ## API 概览
 
 ### 通用接口
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| `GET` | `/healthz` | 健康检查 |
-| `GET` | `/metrics` | Prometheus 指标 |
-| `GET` | `/debug/pprof/` | pprof 入口 |
+| 方法  | 路径            | 说明            |
+| ----- | --------------- | --------------- |
+| `GET` | `/healthz`      | 健康检查        |
+| `GET` | `/readyz`       | PostgreSQL、Redis、Kafka 和异步 worker 就绪检查 |
+| `GET` | `/metrics`      | Prometheus 指标 |
 
 ### 认证接口
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| `POST` | `/v1/auth/login` | 用户登录 |
-| `PUT` | `/v1/auth/refresh-token` | 刷新令牌 |
+| 方法   | 路径                     | 说明     |
+| ------ | ------------------------ | -------- |
+| `POST` | `/v1/auth/login`         | 用户登录 |
+| `PUT`  | `/v1/auth/refresh-token` | 刷新令牌 |
 
 ### 用户接口
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| `POST` | `/v1/users` | 创建用户 |
-| `GET` | `/v1/users` | 用户列表 |
-| `GET` | `/v1/users/{userID}` | 用户详情 |
-| `PUT` | `/v1/users/{userID}` | 更新用户 |
-| `DELETE` | `/v1/users/{userID}` | 删除用户 |
-| `PUT` | `/v1/users/{userID}/change-password` | 修改密码 |
+| 方法     | 路径                                 | 说明     |
+| -------- | ------------------------------------ | -------- |
+| `POST`   | `/v1/users`                          | 创建用户 |
+| `GET`    | `/v1/users`                          | 用户列表 |
+| `GET`    | `/v1/users/{userID}`                 | 用户详情 |
+| `PUT`    | `/v1/users/{userID}`                 | 更新用户 |
+| `DELETE` | `/v1/users/{userID}`                 | 删除用户 |
+| `PUT`    | `/v1/users/{userID}/change-password` | 修改密码 |
+
+除公开注册外，用户资源只允许访问当前账号；在 RBAC 管理员角色落地前，用户列表接口默认返回 `403`。
 
 ## 验证服务
 
 ```bash
-curl -i http://localhost:5555/healthz
-curl -i http://localhost:5555/metrics
-curl -i http://localhost:5555/debug/pprof/
+curl -i http://localhost:5558/healthz
+curl -i http://localhost:5558/readyz
+curl -i http://localhost:5558/metrics
 ```
 
 ## 常用命令
@@ -124,9 +123,12 @@ curl -i http://localhost:5555/debug/pprof/
 make test
 make cover
 make lint
+make verify
+make verify.generated
+make integration.up integration.test integration.smoke integration.down
 go test -bench=. ./...
 ```
 
 ## 说明
 
-当前仓库已移除菜单、角色、权限、用户角色、定时任务和管理前端相关实现；用户与认证主干以代码和 OpenAPI 产物为准。
+用户与认证主干以代码和 OpenAPI 产物为准。

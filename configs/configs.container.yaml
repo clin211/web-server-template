@@ -1,0 +1,93 @@
+# 容器/生产基线配置。所有 secret 必须由部署平台通过 APP_* 环境变量注入；
+# 本文件不包含可直接用于登录数据库、Redis 或签发 JWT 的默认凭据。
+http:
+  addr: 0.0.0.0:5558
+  timeout: 30s
+  allowed-origins: []
+
+jwt:
+  secret: ""
+  access-expiration: 2h
+  refresh-expiration: 168h
+
+postgresql:
+  addr: postgres:5432
+  database: enterprise_template
+  username: app
+  password: ""
+  max-idle-connections: 20
+  max-open-connections: 100
+  max-connection-life-time: 5m
+  log-level: 2
+  ssl-mode: require
+
+redis:
+  addr: redis:6379
+  username: ""
+  password: ""
+  database: 0
+  max-retries: 3
+  min-idle-conns: 1
+  dial-timeout: 5s
+  read-timeout: 3s
+  write-timeout: 3s
+  pool-time: 4s
+  pool-size: 20
+  enable-trace: true
+
+login-security:
+  enabled: true
+  max-attempts: 10
+  window: 5m
+
+outbox:
+  enabled: false
+  batch-size: 100
+  poll-interval: 1s
+  lease-duration: 30s
+  retry-delay: 1s
+  max-retry-delay: 5m
+  max-attempts: 20
+
+consumer:
+  enabled: false
+  max-attempts: 5
+  retry-delay: 1s
+  max-retry-delay: 1m
+  process-timeout: 30s
+  inbox-lease-duration: 1m
+  dlq-topic: inbound-events.dlq
+
+kafka:
+  brokers: [kafka:9092]
+  topic: events
+  client-id: gin-enterprise-template-apiserver
+  timeout: 3s
+  writer:
+    required-acks: -1
+    async: false
+    max-attempts: 10
+    batch-size: 100
+    batch-timeout: 1s
+    batch-bytes: 1048576
+  reader:
+    topic: inbound-events
+    group-id: gin-enterprise-template-apiserver-inbound
+    queue-capacity: 100
+    min-bytes: 1
+    max-bytes: 1048576
+    max-wait: 1s
+    read-batch-timeout: 1s
+    heartbeat-interval: 3s
+    commit-interval: 0s
+    rebalance-timeout: 30s
+    start-offset: -2
+    max-attempts: 3
+
+otel:
+  endpoint: otel-collector:4317
+  service-name: gin-enterprise-template-apiserver
+  output-mode: otel
+  level: info
+  add-source: true
+  use-prometheus-endpoint: true

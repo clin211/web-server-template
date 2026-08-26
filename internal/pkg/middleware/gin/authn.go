@@ -2,7 +2,6 @@ package gin
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/clin211/gin-enterprise-template/pkg/core"
@@ -22,76 +21,97 @@ type UserRetriever interface {
 
 // AuthnMiddleware 是一个认证中间件，用于从 gin.Context 中提取 token 并验证 token 是否合法。
 // 只接受 Access Token（token_type="access"）。
-func AuthnMiddleware(retriever UserRetriever) gin.HandlerFunc {
+func AuthnMiddleware(retriever UserRetriever, tokenManager *token.Manager) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if tokenManager == nil {
+			core.WriteResponse(c, nil, errno.ErrTokenInvalid)
+			c.Abort()
+			return
+		}
 		// 解析 JWT Token
-		userID, err := token.ParseRequest(c)
+		userID, tokenVersion, err := tokenManager.ParseRequestWithVersion(c)
 		if err != nil {
-			core.WriteResponse(c, nil, errno.ErrTokenInvalid.WithMessage(err.Error()))
+			slog.WarnContext(c.Request.Context(), "Failed to parse access token", "error", err)
+			core.WriteResponse(c, nil, errno.ErrTokenInvalid)
 			c.Abort()
 			return
 		}
 
-		slog.Info("Token parsing successful", "userID", userID)
-
-		user, err := retriever.GetUser(c, userID)
-		if err != nil {
-			core.WriteResponse(c, nil, errno.ErrUnauthenticated.WithMessage(err.Error()))
-			c.Abort()
+		if !loadAuthenticatedUser(c, retriever, userID, tokenVersion) {
 			return
 		}
-
-		ctx := contextx.WithUserID(c.Request.Context(), user.UserID)
-		ctx = contextx.WithUsername(ctx, user.Username)
-		c.Request = c.Request.WithContext(ctx)
-
 		c.Next()
 	}
 }
 
 // RefreshAuthnMiddleware 是一个专门用于刷新令牌的认证中间件。
 // 只接受 Refresh Token（token_type="refresh"）。
-func RefreshAuthnMiddleware(retriever UserRetriever) gin.HandlerFunc {
+func RefreshAuthnMiddleware(retriever UserRetriever, tokenManager *token.Manager) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if tokenManager == nil {
+			core.WriteResponse(c, nil, errno.ErrTokenInvalid)
+			c.Abort()
+			return
+		}
 		// 从 Authorization header 获取 token
 		header := c.Request.Header.Get("Authorization")
 		if header == "" {
-			core.WriteResponse(c, nil, errno.ErrTokenInvalid.WithMessage("authorization header is empty"))
+			core.WriteResponse(c, nil, errno.ErrTokenInvalid)
 			c.Abort()
 			return
 		}
 
 		// 解析 Bearer token
-		var tokenString string
-		n, err := fmt.Sscanf(header, "Bearer %s", &tokenString)
-		if err != nil || n != 1 {
-			core.WriteResponse(c, nil, errno.ErrTokenInvalid.WithMessage("invalid authorization header format"))
+		tokenString, err := token.ParseAuthorizationHeader(header)
+		if err != nil {
+			core.WriteResponse(c, nil, errno.ErrTokenInvalid)
 			c.Abort()
 			return
 		}
 
 		// 验证是 refresh token 并解析 userID
-		userID, err := token.ParseRefreshToken(tokenString)
+		userID, tokenVersion, err := tokenManager.ParseRefreshTokenWithVersion(tokenString)
 		if err != nil {
-			slog.ErrorContext(c, "Failed to parse refresh token", "error", err)
-			core.WriteResponse(c, nil, errno.ErrTokenInvalid.WithMessage(err.Error()))
+			slog.WarnContext(c.Request.Context(), "Failed to parse refresh token", "error", err)
+			core.WriteResponse(c, nil, errno.ErrTokenInvalid)
 			c.Abort()
 			return
 		}
 
-		slog.Info("Refresh token parsing successful", "userID", userID)
-
-		user, err := retriever.GetUser(c, userID)
-		if err != nil {
-			core.WriteResponse(c, nil, errno.ErrUnauthenticated.WithMessage(err.Error()))
-			c.Abort()
+		if !loadAuthenticatedUser(c, retriever, userID, tokenVersion) {
 			return
 		}
-
-		ctx := contextx.WithUserID(c.Request.Context(), user.UserID)
-		ctx = contextx.WithUsername(ctx, user.Username)
+		ctx := contextx.WithAccessToken(c.Request.Context(), tokenString)
 		c.Request = c.Request.WithContext(ctx)
 
 		c.Next()
 	}
+}
+
+func loadAuthenticatedUser(c *gin.Context, retriever UserRetriever, userID string, tokenVersion int64) bool {
+	user, err := retriever.GetUser(c.Request.Context(), userID)
+	if err != nil || user == nil || user.UserID != userID {
+		slog.WarnContext(c.Request.Context(), "Failed to retrieve authenticated user", "userID", userID, "error", err)
+		core.WriteResponse(c, nil, errno.ErrUnauthenticated)
+		c.Abort()
+		return false
+	}
+	if user.Status != 0 {
+		slog.WarnContext(c.Request.Context(), "Disabled user attempted authentication", "userID", userID)
+		core.WriteResponse(c, nil, errno.ErrUserDisabled)
+		c.Abort()
+		return false
+	}
+	if user.TokenVersion != tokenVersion {
+		slog.WarnContext(c.Request.Context(), "Stale token version rejected", "userID", userID)
+		core.WriteResponse(c, nil, errno.ErrUnauthenticated)
+		c.Abort()
+		return false
+	}
+
+	ctx := contextx.WithUserID(c.Request.Context(), user.UserID)
+	ctx = contextx.WithUsername(ctx, user.Username)
+	ctx = contextx.WithTokenVersion(ctx, tokenVersion)
+	c.Request = c.Request.WithContext(ctx)
+	return true
 }

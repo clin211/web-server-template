@@ -160,6 +160,7 @@ linters:
     - godox
     - goconst
     - varnamelen
+    - wsl_v5
 
   # All available settings of specific linters.
   settings:
@@ -4010,15 +4011,15 @@ issues:
   # much better don't allow issues in new code.
   #
   # Default: false
-  new: true
+  new: false
 
   # Show only new issues created after the best common ancestor (merge-base against HEAD).
   # Default: ""
-  new-from-merge-base: master
+  # new-from-merge-base: main
 
   # Show only new issues created after git revision `REV`.
   # Default: ""
-  new-from-rev: HEAD
+  # new-from-rev: HEAD
 
   # Show only new issues created in git patch with set file path.
   # Default: ""
@@ -4026,7 +4027,7 @@ issues:
 
   # Show issues in any part of update files (requires new-from-rev or new-from-patch).
   # Default: false
-  whole-files: true
+  whole-files: false
 
   # Fix found issues (if it's supported by the linter).
   # Default: false

@@ -19,6 +19,8 @@ func (b *userBiz) List(ctx context.Context, rq *v1.ListUserRequest) (*v1.ListUse
 	if pageToken != "" {
 		decodedCursor, err := pagination.DecodeCursor(pageToken)
 		if err != nil {
+			// 当前 API 对非法/过期 token 采用兼容策略，回到第一页而不是拒绝请求；调用方
+			// 可能看到重复结果，因此不能把 page_token 当作 exactly-once 遍历保证。
 			slog.WarnContext(ctx, "Failed to decode page_token, starting from beginning", "error", err)
 		} else {
 			if id, ok := decodedCursor.GetInt64("id"); ok {

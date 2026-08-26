@@ -14,11 +14,14 @@ import (
 // Context 是一个中间件，用于将通用前缀字段注入到 gin.Context 中。
 func Context() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 从当前 span 中获取 traceID 并设置到 gin.Context
-		traceID := trace.SpanFromContext(c.Request.Context()).SpanContext().TraceID().String()
+		spanContext := trace.SpanFromContext(c.Request.Context()).SpanContext()
+		if !spanContext.IsValid() {
+			c.Next()
+			return
+		}
 
 		// 将 traceID 存储到新的 context 中，并更新请求的 context
-		ctx := contextx.WithTraceID(c.Request.Context(), traceID)
+		ctx := contextx.WithTraceID(c.Request.Context(), spanContext.TraceID().String())
 		c.Request = c.Request.WithContext(ctx)
 
 		c.Next()

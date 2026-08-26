@@ -3,6 +3,7 @@ package biz
 import (
 	userv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/user"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
+	"github.com/clin211/gin-enterprise-template/pkg/token"
 	"github.com/google/wire"
 )
 
@@ -20,18 +21,19 @@ type IBiz interface {
 
 // biz 是 IBiz 的具体实现。
 type biz struct {
-	store store.IStore
+	store  store.IStore
+	tokens *token.Manager
 }
 
 // 确保 biz 实现了 IBiz 接口。
 var _ IBiz = (*biz)(nil)
 
 // NewBiz 创建 IBiz 实例。
-func NewBiz(store store.IStore) *biz {
-	return &biz{store: store}
+func NewBiz(store store.IStore, tokens *token.Manager) *biz {
+	return &biz{store: store, tokens: tokens}
 }
 
 // UserV1 返回一个实现了 UserBiz 接口的实例.
 func (b *biz) UserV1() userv1.UserBiz {
-	return userv1.New(b.store, nil)
+	return userv1.New(b.store, b.tokens)
 }

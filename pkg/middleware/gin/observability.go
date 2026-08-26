@@ -1,11 +1,9 @@
 package gin
 
 import (
-	"bytes"
-	"context"
 	"fmt"
-	"io"
 	"log/slog"
+	"net/http"
 	"strings"
 	"time"
 
@@ -46,7 +44,7 @@ const (
 type ObservabilityOptions struct {
 	TraceInjectionMode TraceInjectionMode
 	CustomTraceHeader  string   // 追踪 ID 的自定义头名称
-	SkipPaths          []string // 跳过日志记录的路径（支持通配符）
+	SkipPaths          []string // 短路整个中间件的路径：同时跳过访问日志和响应追踪头注入
 }
 
 // Option 是用于配置中间件的函数式选项
@@ -112,9 +110,8 @@ func Observability(opts ...Option) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		start := time.Now()
-		ctx := c.Request.Context()
 
-		// 检查此请求是否应该被跳过
+		// skip 会短路整个中间件，而不只是压低访问日志；被跳过的响应也不会注入追踪头。
 		shouldSkip := shouldSkipPath(c.Request.URL.Path, c.Request.Method, config.SkipPaths)
 		if shouldSkip {
 			c.Next()
@@ -122,69 +119,44 @@ func Observability(opts ...Option) gin.HandlerFunc {
 		}
 
 		// 尽早提取追踪信息
-		span := trace.SpanFromContext(ctx)
+		span := trace.SpanFromContext(c.Request.Context())
 		spanCtx := span.SpanContext()
 
 		// 根据配置注入追踪头（除非跳过追踪）
 		injectTraceHeaders(c, spanCtx, config)
 
-		var requestBody string
-		var responseBuffer bytes.Buffer
-
-		// 仅在需要记录日志且启用调试时捕获请求体
-		isDebugLevel := isDebugEnabled()
-
-		if isDebugLevel && c.Request.Body != nil {
-			bodyBytes, _ := io.ReadAll(c.Request.Body)
-			requestBody = string(bodyBytes)
-			c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-		}
-
-		if isDebugLevel {
-			writer := &bodyCaptureWriter{ResponseWriter: c.Writer, body: &responseBuffer}
-			c.Writer = writer
-		}
-
 		c.Next()
 
-		duration := time.Since(start).Seconds()
-
-		// 构建结构化日志
-		httpData := map[string]any{
-			"request": map[string]any{
-				"method": c.Request.Method,
-				"path":   c.Request.URL.Path,
-			},
-			"response": map[string]any{
-				"status_code": c.Writer.Status(),
-			},
+		// 优先记录 Gin 路由模板，避免用户 ID 等动态路径造成高基数或泄露敏感标识。
+		// 只有未匹配路由没有模板，此时才回退原始 path，运维侧应避免把该字段用作指标标签。
+		route := c.FullPath()
+		if route == "" {
+			route = c.Request.URL.Path
 		}
 
-		if isDebugLevel {
-			httpData["request"].(map[string]any)["body"] = map[string]any{
-				"content": requestBody,
-				"bytes":   len(requestBody),
-			}
-
-			httpData["response"].(map[string]any)["body"] = map[string]any{
-				"content": responseBuffer.String(),
-				"bytes":   responseBuffer.Len(),
-			}
-		}
-
-		logLevel := slog.LevelInfo
-		if isDebugLevel {
-			logLevel = slog.LevelDebug
-		}
-
-		slog.Log(ctx, logLevel, "HTTP request completed",
-			"duration_sec", duration,
-			"source", map[string]any{"ip": c.ClientIP()},
-			"http", httpData,
-			"user", map[string]any{"agent": c.Request.UserAgent()},
-			"trace", map[string]any{"id": spanCtx.TraceID().String()},
-			"span", map[string]any{"id": spanCtx.SpanID().String()},
+		statusCode := c.Writer.Status()
+		// 请求体、响应体、query、完整 headers 和 cookie 有意不记录，防止密码和 token
+		// 进入日志。ClientIP 依赖 Gin trusted proxies 配置，仅用于观测，不能作为鉴权或审计身份。
+		slog.Log(c.Request.Context(), requestLogLevel(statusCode), "HTTP request completed",
+			"event.name", "http.request.completed",
+			"duration_ms", float64(time.Since(start).Microseconds())/1000,
+			"client.address", c.ClientIP(),
+			"http.request.method", c.Request.Method,
+			"http.route", route,
+			"http.response.status_code", statusCode,
+			"user_agent.original", c.Request.UserAgent(),
 		)
+	}
+}
+
+func requestLogLevel(statusCode int) slog.Level {
+	switch {
+	case statusCode >= http.StatusInternalServerError:
+		return slog.LevelError
+	case statusCode >= http.StatusBadRequest:
+		return slog.LevelWarn
+	default:
+		return slog.LevelInfo
 	}
 }
 
@@ -238,7 +210,8 @@ func matchPathPattern(path, pattern string) bool {
 	return false
 }
 
-// matchWildcard 执行简单的通配符匹配
+// matchWildcard 执行简单的字符串通配符匹配。
+// 这里不是 glob 或 path.Match：* 可以跨越 /，不支持转义，只处理前缀、后缀和包含关系。
 func matchWildcard(text, pattern string) bool {
 	if pattern == "*" {
 		return true
@@ -263,7 +236,8 @@ func matchWildcard(text, pattern string) bool {
 	return text == pattern
 }
 
-// injectTraceHeaders 根据配置注入追踪头
+// injectTraceHeaders 根据当前服务 span 注入响应追踪头，并沿用其采样标志。
+// CustomTraceHeader 只影响 InjectTraceIDOnly 和 InjectBoth；W3C 与 None 模式会忽略它。
 func injectTraceHeaders(c *gin.Context, spanCtx trace.SpanContext, config *ObservabilityOptions) {
 	if !spanCtx.IsValid() {
 		return
@@ -338,20 +312,4 @@ func ObservabilitySkipMetrics() gin.HandlerFunc {
 // ObservabilityWithSkipPaths 创建带自定义跳过路径的中间件
 func ObservabilityWithSkipPaths(paths ...string) gin.HandlerFunc {
 	return Observability(WithSkipPaths(paths...))
-}
-
-// bodyCaptureWriter 捕获并复制写入的响应体
-type bodyCaptureWriter struct {
-	gin.ResponseWriter
-	body *bytes.Buffer
-}
-
-func (w *bodyCaptureWriter) Write(b []byte) (int, error) {
-	w.body.Write(b)
-	return w.ResponseWriter.Write(b)
-}
-
-// isDebugEnabled 检查是否为全局日志记录器启用了调试日志
-func isDebugEnabled() bool {
-	return slog.Default().Enabled(context.Background(), slog.LevelDebug)
 }

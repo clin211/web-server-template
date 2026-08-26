@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1.7
 
 # 0) Build args (overridable in CI)
-ARG BUILDER_IMAGE=golang:1.25.0
+ARG BUILDER_IMAGE=golang:1.26.4
 ARG RUNTIME_IMAGE=gcr.io/distroless/base-debian12:nonroot
 ARG UID=65532
 ARG GID=65532
 
 # 1) Builder stage
-FROM golang:1.25.3 AS builder
+FROM ${BUILDER_IMAGE} AS builder
 ENV GOTOOLCHAIN=auto
 ARG GOPROXY=https://goproxy.cn,direct
 ENV GOPROXY=${GOPROXY}
@@ -56,23 +56,20 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 RUN mkdir -p /app && cp -v _output/platforms/${OS}/${ARCH}/gin-enterprise-template-apiserver /app/gin-enterprise-template-apiserver
 
 # 2) Runtime stage：极小基础镜像
-FROM scratch AS runtime
+FROM ${RUNTIME_IMAGE} AS runtime
+ARG UID
+ARG GID
 WORKDIR /app
-# 复制 CA 证书以支持 HTTPS（如不需要可移除该行）
-# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-# 仅复制二进制
 COPY --from=builder /app/gin-enterprise-template-apiserver /app/gin-enterprise-template-apiserver
+COPY configs/configs.container.yaml /app/configs/configs.yaml
 
-# 使用非 root（数值 UID 即可）
-USER 10001
+# distroless nonroot 镜像内置 65532:65532。
+USER ${UID}:${GID}
 
-# 与 configs/gin-enterprise-template-apiserver.yaml 中 http.addr 端口保持一致
-EXPOSE 5555
+# 与 configs/configs.yaml 中 http.addr 保持一致。
+EXPOSE 5558
 
-# 健康检查（k8s 之外的 docker 运行时也能感知服务可用性）
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD ["/app/gin-enterprise-template-apiserver", "--help"]
+# distroless 不包含 shell/curl；部署平台应通过 /healthz 配置 HTTP 探针。
 
 ENTRYPOINT ["/app/gin-enterprise-template-apiserver"]
-# 预计用 Compose volumes 挂载配置文件，保留默认命令
-CMD ["-c", "/app/configs/gin-enterprise-template-apiserver.yaml"]
+CMD ["-c", "/app/configs/configs.yaml"]

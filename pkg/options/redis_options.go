@@ -1,6 +1,7 @@
 package options
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 )
 
 var _ IOptions = (*RedisOptions)(nil)
+
+var errRedisPasswordRequired = errors.New("redis.password is required")
 
 // RedisOptions 定义 redis 集群的选项。
 type RedisOptions struct {
@@ -60,12 +63,15 @@ func (o *RedisOptions) Validate() []error {
 	}
 
 	// 仅在 Addr 配置了的情况下校验密码——这样不使用 Redis 的服务无须配置密码。
-	// 空密码（开发场景）允许通过；只拒绝明显的占位符。
+	// Redis 保存 refresh token 单次消费和登录限流状态，网络服务必须启用认证。
 	if o.Addr != "" && o.Password != "" && IsPlaceholderSecret(o.Password) {
 		errs = append(errs, fmt.Errorf(
 			"redis.password looks like a placeholder/known-weak value (%q); please set a real password or leave it empty",
 			o.Password,
 		))
+	}
+	if o.Addr != "" && o.Password == "" {
+		errs = append(errs, errRedisPasswordRequired)
 	}
 
 	return errs

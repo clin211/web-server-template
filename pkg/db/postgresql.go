@@ -1,7 +1,8 @@
 package db
 
 import (
-	"fmt"
+	"net"
+	"net/url"
 	"strings"
 	"time"
 
@@ -19,25 +20,47 @@ type PostgreSQLOptions struct {
 	MaxIdleConnections    int
 	MaxOpenConnections    int
 	MaxConnectionLifeTime time.Duration
+	SSLMode               string
 	// +optional
 	Logger logger.Interface
 }
 
 // DSN 从 PostgreSQLOptions 返回数据源名称(DSN).
 func (o *PostgreSQLOptions) DSN() string {
-	splited := strings.Split(o.Addr, ":")
-	host, port := splited[0], "5432"
-	if len(splited) > 1 {
-		port = splited[1]
+	host, port := splitPostgreSQLAddr(o.Addr)
+	sslMode := o.SSLMode
+	if sslMode == "" {
+		sslMode = "disable"
 	}
+	query := url.Values{
+		"sslmode":  {sslMode},
+		"TimeZone": {"Asia/Shanghai"},
+	}
+	dsn := &url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(o.Username, o.Password),
+		Host:     net.JoinHostPort(host, port),
+		Path:     "/" + url.PathEscape(o.Database),
+		RawQuery: query.Encode(),
+	}
+	return dsn.String()
+}
 
-	return fmt.Sprintf(`user=%s password=%s host=%s port=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai`,
-		o.Username,
-		o.Password,
-		host,
-		port,
-		o.Database,
-	)
+func splitPostgreSQLAddr(addr string) (string, string) {
+	addr = strings.TrimSpace(addr)
+	if host, port, err := net.SplitHostPort(addr); err == nil {
+		return host, port
+	}
+	if strings.HasPrefix(addr, "[") && strings.HasSuffix(addr, "]") {
+		return strings.Trim(addr, "[]"), "5432"
+	}
+	if strings.Count(addr, ":") > 1 {
+		return addr, "5432"
+	}
+	if addr == "" {
+		return "127.0.0.1", "5432"
+	}
+	return addr, "5432"
 }
 
 // NewPostgreSQL 使用给定的选项创建一个新的 gorm 数据库实例.
@@ -85,6 +108,9 @@ func setPostgreSQLDefaults(opts *PostgreSQLOptions) {
 	}
 	if opts.MaxConnectionLifeTime == 0 {
 		opts.MaxConnectionLifeTime = time.Duration(10) * time.Second
+	}
+	if opts.SSLMode == "" {
+		opts.SSLMode = "disable"
 	}
 	if opts.Logger == nil {
 		opts.Logger = logger.Default

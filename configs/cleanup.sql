@@ -4,13 +4,19 @@ ALTER TABLE IF EXISTS "public"."user_config" DROP CONSTRAINT IF EXISTS "user_con
 
 DROP TABLE IF EXISTS "public"."user_login_log";
 DROP TABLE IF EXISTS "public"."user_config";
-DROP TABLE IF EXISTS "public"."user";
 DROP TABLE IF EXISTS "public"."audit_log";
+DROP TABLE IF EXISTS "public"."dead_letter_event";
+DROP TABLE IF EXISTS "public"."inbox_event";
+DROP TABLE IF EXISTS "public"."outbox_event";
+DROP TABLE IF EXISTS "public"."user";
 
 DROP SEQUENCE IF EXISTS "public"."user_login_log_id_seq";
 DROP SEQUENCE IF EXISTS "public"."user_config_id_seq";
 DROP SEQUENCE IF EXISTS "public"."user_id_seq";
 DROP SEQUENCE IF EXISTS "public"."audit_log_id_seq";
+DROP SEQUENCE IF EXISTS "public"."dead_letter_event_id_seq";
+DROP SEQUENCE IF EXISTS "public"."inbox_event_id_seq";
+DROP SEQUENCE IF EXISTS "public"."outbox_event_id_seq";
 
 DROP FUNCTION IF EXISTS "public"."uuid_ns_x500"();
 DROP FUNCTION IF EXISTS "public"."uuid_ns_url"();
