@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # 0) Build args (overridable in CI)
-ARG BUILDER_IMAGE=golang:1.26.4
+ARG BUILDER_IMAGE=golang:1.26.6
 ARG RUNTIME_IMAGE=gcr.io/distroless/base-debian12:nonroot
 ARG UID=65532
 ARG GID=65532

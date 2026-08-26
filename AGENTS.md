@@ -12,7 +12,7 @@
 ## 项目概况
 
 - 模块：`github.com/clin211/gin-enterprise-template`
-- Go：`go 1.26.4`（项目要求 Go 1.25+）
+- Go：`go 1.26.6`（项目要求 Go 1.25+）
 - 类型：Gin 后端 API skeleton
 - 当前业务主干：用户登录、刷新令牌、用户 CRUD、修改密码。
 - 主要组件：Gin、GORM、PostgreSQL、Redis、JWT、OpenTelemetry、Prometheus、slog、Google Wire、Protobuf/OpenAPI。
