@@ -26,7 +26,7 @@ GRPC_GATEWAY_VERSION ?= v2.29.0
 PROTOC_GEN_DEFAULTS_VERSION ?= v0.0.2
 PROTOC_INJECT_TAG_VERSION ?= v1.4.0
 WIRE_VERSION ?= v0.6.0
-GOLANGCI_LINT_VERSION ?= v2.4.0
+GOLANGCI_LINT_VERSION ?= v2.12.2
 
 # ==============================================================================
 # Define version-related variables

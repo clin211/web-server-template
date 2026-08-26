@@ -3342,7 +3342,7 @@ linters:
               json: snake
               xml: pascal
             # Default: empty or the same as the default/root configuration.
-            extended-rules:
+            extended-rules: {}
             # Same options as the base `extended-rules`.
             # Default: false (WARNING: it doesn't follow the default/root configuration)
             use-field-name: true
@@ -3868,7 +3868,7 @@ linters:
       - common-false-positives
       - legacy
 
-    rules:
+    rules: []
 
     # Which file paths to exclude: they will be analyzed, but issues from them won't be reported.
     # "/" will be replaced by the current OS file path separator to properly work on Windows.
@@ -3877,12 +3877,12 @@ linters:
       - third_party
     # Which file paths to not exclude.
     # Default: []
-    paths-except:
+    paths-except: []
 
 formatters:
   # Enable specific formatter.
   # Default: [] (uses standard Go formatting)
-  enable:
+  enable: []
     #- gci
     #- gofmt
     #- gofumpt
@@ -3987,7 +3987,7 @@ formatters:
     # Which file paths to exclude.
     # This option is ignored when using `--stdin` as the path is unknown.
     # Default: []
-    paths:
+    paths: []
 
 issues:
   # Maximum issues count per one linter.
@@ -4032,9 +4032,6 @@ issues:
   # Fix found issues (if it's supported by the linter).
   # Default: false
   fix: false
-
-  exclude-dirs-use-default: true
-
 
 # Output configuration options.
 output:
