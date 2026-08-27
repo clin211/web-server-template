@@ -7,7 +7,6 @@ PROJ_ROOT_DIR := $(strip $(abspath $(shell cd $(COMMON_SELF_DIR)/ && pwd -P)))
 # Directory for build artifacts and temporary files
 OUTPUT_DIR := $(PROJ_ROOT_DIR)/_output
 INTEGRATION_PROJECT ?= gin-enterprise-template-integration
-INTEGRATION_DATA_DIR := $(OUTPUT_DIR)/integration
 INTEGRATION_POSTGRES_PORT ?= 55432
 INTEGRATION_KAFKA_PORT ?= 29092
 INTEGRATION_REDIS_PORT ?= 56380
@@ -201,24 +200,25 @@ verify.build: ## Build the API server binary.
 
 .PHONY: integration.up
 integration.up: ## Start isolated PostgreSQL and Kafka integration dependencies.
-	@mkdir -p $(INTEGRATION_DATA_DIR)/pgdata
 	@COMPOSE_PROJECT_NAME=$(INTEGRATION_PROJECT) \
 	 POSTGRES_DB=enterprise_template_test \
 	 POSTGRES_PASSWORD=integration-postgres \
 	 POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
-	 POSTGRES_DATA_PATH=$(INTEGRATION_DATA_DIR)/pgdata \
+	 POSTGRES_DATA_PATH=pgdata \
 	 KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
 	 REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
 	 REDIS_PASSWORD=integration-redis \
+	 REDIS_DATA_PATH=redisdata \
 	 docker compose -f docker-compose.env.yml up -d --wait postgres redis redpanda
 	@COMPOSE_PROJECT_NAME=$(INTEGRATION_PROJECT) \
 	 POSTGRES_DB=enterprise_template_test \
 	 POSTGRES_PASSWORD=integration-postgres \
 	 POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
-	 POSTGRES_DATA_PATH=$(INTEGRATION_DATA_DIR)/pgdata \
+	 POSTGRES_DATA_PATH=pgdata \
 	 KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
 	 REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
 	 REDIS_PASSWORD=integration-redis \
+	 REDIS_DATA_PATH=redisdata \
 	 docker compose -f docker-compose.env.yml run --rm topic-init
 
 .PHONY: integration.test
@@ -244,12 +244,12 @@ integration.down: ## Stop and remove isolated integration dependencies.
 	 POSTGRES_DB=enterprise_template_test \
 	 POSTGRES_PASSWORD=integration-postgres \
 	 POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
-	 POSTGRES_DATA_PATH=$(INTEGRATION_DATA_DIR)/pgdata \
+	 POSTGRES_DATA_PATH=pgdata \
 	 KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
 	 REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
 	 REDIS_PASSWORD=integration-redis \
+	 REDIS_DATA_PATH=redisdata \
 	 docker compose -f docker-compose.env.yml down -v --remove-orphans
-	@$(RM) -r $(INTEGRATION_DATA_DIR)
 
 .PHONY: format.proto
 format.proto: ## Format protobuf files in pkg/api/apiserver/v1 with buf.
