@@ -9,7 +9,7 @@ ARG GID=65532
 # 1) Builder stage
 FROM ${BUILDER_IMAGE} AS builder
 ENV GOTOOLCHAIN=auto
-ARG GOPROXY=https://goproxy.cn,direct
+ARG GOPROXY=https://proxy.golang.org|direct
 ENV GOPROXY=${GOPROXY}
 ENV GOSUMDB=sum.golang.org
 ARG OS=linux
