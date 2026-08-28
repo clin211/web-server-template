@@ -59,6 +59,15 @@ message RefreshTokenRequest {
   // 该请求无需额外字段，仅通过现有的认证信息（如旧的 token）进行刷新
 }
 
+// InfoRequest 表示获取当前用户信息请求。
+message InfoRequest {}
+
+// InfoResponse 表示当前用户信息响应。
+message InfoResponse {
+  // user 表示当前登录用户信息，不包含密码等敏感字段
+  User user = 1;
+}
+
 // RefreshTokenResponse 表示刷新令牌的响应
 message RefreshTokenResponse {
   // token 表示返回的访问令牌
@@ -70,6 +79,12 @@ message RefreshTokenResponse {
   // refreshExpireAt 表示刷新令牌的过期时间
   int64 refreshExpireAt = 4;
 }
+
+// LogoutRequest 表示退出登录请求。
+message LogoutRequest {}
+
+// LogoutResponse 表示退出登录响应。
+message LogoutResponse {}
 
 // ChangePasswordRequest 表示修改密码请求
 message ChangePasswordRequest {

@@ -26,7 +26,19 @@ func (x *LoginResponse) Default() {
 func (x *RefreshTokenRequest) Default() {
 }
 
+func (x *InfoRequest) Default() {
+}
+
+func (x *InfoResponse) Default() {
+}
+
 func (x *RefreshTokenResponse) Default() {
+}
+
+func (x *LogoutRequest) Default() {
+}
+
+func (x *LogoutResponse) Default() {
 }
 
 func (x *ChangePasswordRequest) Default() {

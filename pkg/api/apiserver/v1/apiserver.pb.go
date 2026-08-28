@@ -27,77 +27,182 @@ var File_apiserver_v1_apiserver_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\n" +
-	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xa6\f\n" +
-	"\tAPIServer\x12\x91\x01\n" +
-	"\aHealthz\x12\x16.google.protobuf.Empty\x1a\x1d.apiserver.v1.HealthzResponse\"O\x92A<\n" +
-	"\f服务治理\x12\f健康检查\x1a\x1e检查服务是否健康运行\x82\xd3\xe4\x93\x02\n" +
-	"\x12\b/healthz\x12\xac\x01\n" +
-	"\x05Login\x12\x1a.apiserver.v1.LoginRequest\x1a\x1b.apiserver.v1.LoginResponse\"j\x92AN\n" +
-	"\f用户认证\x12\f用户登录\x1a0用户使用用户名和密码进行登录认证\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12\xc2\x01\n" +
-	"\fRefreshToken\x12!.apiserver.v1.RefreshTokenRequest\x1a\x1b.apiserver.v1.LoginResponse\"r\x92AN\n" +
-	"\f用户认证\x12\f刷新令牌\x1a0使用现有令牌刷新获取新的访问令牌\x82\xd3\xe4\x93\x02\x1b:\x01*\x1a\x16/v1/auth/refresh-token\x12\x9e\x01\n" +
+	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xca\x1c\n" +
+	"\tAPIServer\x12\x98\x02\n" +
+	"\aHealthz\x12\x16.google.protobuf.Empty\x1a\x1d.apiserver.v1.HealthzResponse\"\xd5\x01\x92A\xc1\x01\n" +
+	"\f服务治理\x12\f健康检查\x1a\x1e检查服务是否健康运行JF\n" +
+	"\x03200\x12?\n" +
+	"\x12服务健康状态\x12)\n" +
+	"'\x1a%.apiserver.v1.HealthzResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIError\x82\xd3\xe4\x93\x02\n" +
+	"\x12\b/healthz\x12\xcf\x02\n" +
+	"\x05Login\x12\x1a.apiserver.v1.LoginRequest\x1a\x1b.apiserver.v1.LoginResponse\"\x8c\x02\x92A\xef\x01\n" +
+	"\f用户认证\x12\f用户登录\x1a0用户使用用户名和密码进行登录认证Jb\n" +
+	"\x03200\x12[\n" +
+	"0登录成功，返回访问令牌与刷新令牌\x12'\n" +
+	"%\x1a#.apiserver.v1.LoginResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIError\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12\xfa\x02\n" +
+	"\fRefreshToken\x12!.apiserver.v1.RefreshTokenRequest\x1a\x1b.apiserver.v1.LoginResponse\"\xa9\x02\x92A\x87\x02\n" +
+	"\f用户认证\x12\f刷新令牌\x1a0使用现有令牌刷新获取新的访问令牌Jh\n" +
+	"\x03200\x12a\n" +
+	"6刷新成功，返回新的访问令牌与刷新令牌\x12'\n" +
+	"%\x1a#.apiserver.v1.LoginResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"CreateUser\x12\x1f.apiserver.v1.CreateUserRequest\x1a .apiserver.v1.CreateUserResponse\"M\x92A6\n" +
-	"\f用户管理\x12\f创建用户\x1a\x18创建一个新的用户\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/users\x12\xa5\x01\n" +
-	"\aGetUser\x12\x1c.apiserver.v1.GetUserRequest\x1a\x1d.apiserver.v1.GetUserResponse\"]\x92A@\n" +
-	"\f用户管理\x12\f获取用户\x1a\"根据用户 ID 获取用户信息\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/users/{userID}\x12\xb1\x01\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x18\x1a\x16/v1/auth/refresh-token\x12\xdf\x02\n" +
+	"\x04Info\x12\x19.apiserver.v1.InfoRequest\x1a\x1a.apiserver.v1.InfoResponse\"\x9f\x02\x92A\x86\x02\n" +
+	"\f用户认证\x12\x18获取当前用户信息\x1a9使用当前访问令牌获取当前用户的脱敏资料JR\n" +
+	"\x03200\x12K\n" +
+	"!当前登录用户的脱敏资料\x12&\n" +
+	"$\x1a\".apiserver.v1.InfoResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"UpdateUser\x12\x1f.apiserver.v1.UpdateUserRequest\x1a .apiserver.v1.UpdateUserResponse\"`\x92A@\n" +
-	"\f用户管理\x12\f更新用户\x1a\"根据用户 ID 更新用户信息\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/v1/users/{userID}\x12\xa8\x01\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/auth/info\x12\xc8\x02\n" +
+	"\x06Logout\x12\x1b.apiserver.v1.LogoutRequest\x1a\x1c.apiserver.v1.LogoutResponse\"\x82\x02\x92A\xe7\x01\n" +
+	"\f用户认证\x12\f退出登录\x1a9撤销当前用户已签发的访问令牌和刷新令牌J?\n" +
+	"\x03200\x128\n" +
+	"\f退出成功\x12(\n" +
+	"&\x1a$.apiserver.v1.LogoutResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"DeleteUser\x12\x1f.apiserver.v1.DeleteUserRequest\x1a .apiserver.v1.DeleteUserResponse\"W\x92A:\n" +
-	"\f用户管理\x12\f删除用户\x1a\x1c根据用户 ID 删除用户\x82\xd3\xe4\x93\x02\x14*\x12/v1/users/{userID}\x12\x99\x01\n" +
-	"\tListUsers\x12\x1d.apiserver.v1.ListUserRequest\x1a\x1e.apiserver.v1.ListUserResponse\"M\x92A9\n" +
-	"\f用户管理\x12\f列表用户\x1a\x1b获取所有用户的列表\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12\xcc\x01\n" +
-	"\x0eChangePassword\x12#.apiserver.v1.ChangePasswordRequest\x1a$.apiserver.v1.ChangePasswordResponse\"o\x92A?\n" +
-	"\f用户管理\x12\f修改密码\x1a!当前用户修改自己的密码\x82\xd3\xe4\x93\x02':\x01*\x1a\"/v1/users/{userID}/change-passwordB\x90\x03\x92A\xc8\x02\x12\x9d\x02\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x11\"\x0f/v1/auth/logout\x12\xb7\x02\n" +
+	"\n" +
+	"CreateUser\x12\x1f.apiserver.v1.CreateUserRequest\x1a .apiserver.v1.CreateUserResponse\"\xe5\x01\x92A\xcd\x01\n" +
+	"\f用户管理\x12\f创建用户\x1a\x18创建一个新的用户JX\n" +
+	"\x03200\x12Q\n" +
+	"!创建成功，返回新用户 ID\x12,\n" +
+	"*\x1a(.apiserver.v1.CreateUserResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIError\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/users\x12\xb8\x02\n" +
+	"\aGetUser\x12\x1c.apiserver.v1.GetUserRequest\x1a\x1d.apiserver.v1.GetUserResponse\"\xef\x01\x92A\xd1\x01\n" +
+	"\f用户管理\x12\f获取用户\x1a\"根据用户 ID 获取用户信息J@\n" +
+	"\x03200\x129\n" +
+	"\f用户信息\x12)\n" +
+	"'\x1a%.apiserver.v1.GetUserResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/users/{userID}\x12\xc7\x02\n" +
+	"\n" +
+	"UpdateUser\x12\x1f.apiserver.v1.UpdateUserRequest\x1a .apiserver.v1.UpdateUserResponse\"\xf5\x01\x92A\xd4\x01\n" +
+	"\f用户管理\x12\f更新用户\x1a\"根据用户 ID 更新用户信息JC\n" +
+	"\x03200\x12<\n" +
+	"\f更新成功\x12,\n" +
+	"*\x1a(.apiserver.v1.UpdateUserResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/v1/users/{userID}\x12\xbe\x02\n" +
+	"\n" +
+	"DeleteUser\x12\x1f.apiserver.v1.DeleteUserRequest\x1a .apiserver.v1.DeleteUserResponse\"\xec\x01\x92A\xce\x01\n" +
+	"\f用户管理\x12\f删除用户\x1a\x1c根据用户 ID 删除用户JC\n" +
+	"\x03200\x12<\n" +
+	"\f删除成功\x12,\n" +
+	"*\x1a(.apiserver.v1.DeleteUserResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x14*\x12/v1/users/{userID}\x12\xbc\x02\n" +
+	"\tListUsers\x12\x1d.apiserver.v1.ListUserRequest\x1a\x1e.apiserver.v1.ListUserResponse\"\xef\x01\x92A\xda\x01\n" +
+	"\f用户管理\x12\f列表用户\x1a\x1b获取所有用户的列表JP\n" +
+	"\x03200\x12I\n" +
+	"\x1b用户列表与分页游标\x12*\n" +
+	"(\x1a&.apiserver.v1.ListUserResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12\xe6\x02\n" +
+	"\x0eChangePassword\x12#.apiserver.v1.ChangePasswordRequest\x1a$.apiserver.v1.ChangePasswordResponse\"\x88\x02\x92A\xd7\x01\n" +
+	"\f用户管理\x12\f修改密码\x1a!当前用户修改自己的密码JG\n" +
+	"\x03200\x12@\n" +
+	"\f修改成功\x120\n" +
+	".\x1a,.apiserver.v1.ChangePasswordResponseEnvelopeJ;\n" +
+	"\adefault\x120\n" +
+	"\x12统一错误响应\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02':\x01*\x1a\"/v1/users/{userID}/change-passwordB\xbc\x04\x92A\xf4\x03\x12\x9d\x02\n" +
 	"\rAPI Server v1\x12\x98\x01基于 gin-enterprise-template 的通用后端 API 服务：\n" +
 	"- JWT 用户认证\n" +
 	"- 用户基础管理\n" +
 	"- RESTful 资源接口\n" +
 	"- OpenTelemetry 可观测性\"l\n" +
-	"\x1egin-enterprise-template 项目\x122https://github.com/clin211/gin-enterprise-template\x1a\x16767425412lin@gmail.com2\x031.0*\x02\x01\x022\x10application/json:\x10application/jsonZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
+	"\x1egin-enterprise-template 项目\x122https://github.com/clin211/gin-enterprise-template\x1a\x16767425412lin@gmail.com2\x031.0*\x02\x01\x022\x10application/json:\x10application/jsonZ\xa9\x01\n" +
+	"\xa6\x01\n" +
+	"\n" +
+	"BearerAuth\x12\x97\x01\b\x02\x12\x81\x01JWT Bearer token，格式为 Bearer <token>；refresh-token 操作使用 refresh token，其余受保护操作使用 access token\x1a\rAuthorization \x02ZBgithub.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1b\x06proto3"
 
 var file_apiserver_v1_apiserver_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),          // 0: google.protobuf.Empty
 	(*LoginRequest)(nil),           // 1: apiserver.v1.LoginRequest
 	(*RefreshTokenRequest)(nil),    // 2: apiserver.v1.RefreshTokenRequest
-	(*CreateUserRequest)(nil),      // 3: apiserver.v1.CreateUserRequest
-	(*GetUserRequest)(nil),         // 4: apiserver.v1.GetUserRequest
-	(*UpdateUserRequest)(nil),      // 5: apiserver.v1.UpdateUserRequest
-	(*DeleteUserRequest)(nil),      // 6: apiserver.v1.DeleteUserRequest
-	(*ListUserRequest)(nil),        // 7: apiserver.v1.ListUserRequest
-	(*ChangePasswordRequest)(nil),  // 8: apiserver.v1.ChangePasswordRequest
-	(*HealthzResponse)(nil),        // 9: apiserver.v1.HealthzResponse
-	(*LoginResponse)(nil),          // 10: apiserver.v1.LoginResponse
-	(*CreateUserResponse)(nil),     // 11: apiserver.v1.CreateUserResponse
-	(*GetUserResponse)(nil),        // 12: apiserver.v1.GetUserResponse
-	(*UpdateUserResponse)(nil),     // 13: apiserver.v1.UpdateUserResponse
-	(*DeleteUserResponse)(nil),     // 14: apiserver.v1.DeleteUserResponse
-	(*ListUserResponse)(nil),       // 15: apiserver.v1.ListUserResponse
-	(*ChangePasswordResponse)(nil), // 16: apiserver.v1.ChangePasswordResponse
+	(*InfoRequest)(nil),            // 3: apiserver.v1.InfoRequest
+	(*LogoutRequest)(nil),          // 4: apiserver.v1.LogoutRequest
+	(*CreateUserRequest)(nil),      // 5: apiserver.v1.CreateUserRequest
+	(*GetUserRequest)(nil),         // 6: apiserver.v1.GetUserRequest
+	(*UpdateUserRequest)(nil),      // 7: apiserver.v1.UpdateUserRequest
+	(*DeleteUserRequest)(nil),      // 8: apiserver.v1.DeleteUserRequest
+	(*ListUserRequest)(nil),        // 9: apiserver.v1.ListUserRequest
+	(*ChangePasswordRequest)(nil),  // 10: apiserver.v1.ChangePasswordRequest
+	(*HealthzResponse)(nil),        // 11: apiserver.v1.HealthzResponse
+	(*LoginResponse)(nil),          // 12: apiserver.v1.LoginResponse
+	(*InfoResponse)(nil),           // 13: apiserver.v1.InfoResponse
+	(*LogoutResponse)(nil),         // 14: apiserver.v1.LogoutResponse
+	(*CreateUserResponse)(nil),     // 15: apiserver.v1.CreateUserResponse
+	(*GetUserResponse)(nil),        // 16: apiserver.v1.GetUserResponse
+	(*UpdateUserResponse)(nil),     // 17: apiserver.v1.UpdateUserResponse
+	(*DeleteUserResponse)(nil),     // 18: apiserver.v1.DeleteUserResponse
+	(*ListUserResponse)(nil),       // 19: apiserver.v1.ListUserResponse
+	(*ChangePasswordResponse)(nil), // 20: apiserver.v1.ChangePasswordResponse
 }
 var file_apiserver_v1_apiserver_proto_depIdxs = []int32{
 	0,  // 0: apiserver.v1.APIServer.Healthz:input_type -> google.protobuf.Empty
 	1,  // 1: apiserver.v1.APIServer.Login:input_type -> apiserver.v1.LoginRequest
 	2,  // 2: apiserver.v1.APIServer.RefreshToken:input_type -> apiserver.v1.RefreshTokenRequest
-	3,  // 3: apiserver.v1.APIServer.CreateUser:input_type -> apiserver.v1.CreateUserRequest
-	4,  // 4: apiserver.v1.APIServer.GetUser:input_type -> apiserver.v1.GetUserRequest
-	5,  // 5: apiserver.v1.APIServer.UpdateUser:input_type -> apiserver.v1.UpdateUserRequest
-	6,  // 6: apiserver.v1.APIServer.DeleteUser:input_type -> apiserver.v1.DeleteUserRequest
-	7,  // 7: apiserver.v1.APIServer.ListUsers:input_type -> apiserver.v1.ListUserRequest
-	8,  // 8: apiserver.v1.APIServer.ChangePassword:input_type -> apiserver.v1.ChangePasswordRequest
-	9,  // 9: apiserver.v1.APIServer.Healthz:output_type -> apiserver.v1.HealthzResponse
-	10, // 10: apiserver.v1.APIServer.Login:output_type -> apiserver.v1.LoginResponse
-	10, // 11: apiserver.v1.APIServer.RefreshToken:output_type -> apiserver.v1.LoginResponse
-	11, // 12: apiserver.v1.APIServer.CreateUser:output_type -> apiserver.v1.CreateUserResponse
-	12, // 13: apiserver.v1.APIServer.GetUser:output_type -> apiserver.v1.GetUserResponse
-	13, // 14: apiserver.v1.APIServer.UpdateUser:output_type -> apiserver.v1.UpdateUserResponse
-	14, // 15: apiserver.v1.APIServer.DeleteUser:output_type -> apiserver.v1.DeleteUserResponse
-	15, // 16: apiserver.v1.APIServer.ListUsers:output_type -> apiserver.v1.ListUserResponse
-	16, // 17: apiserver.v1.APIServer.ChangePassword:output_type -> apiserver.v1.ChangePasswordResponse
-	9,  // [9:18] is the sub-list for method output_type
-	0,  // [0:9] is the sub-list for method input_type
+	3,  // 3: apiserver.v1.APIServer.Info:input_type -> apiserver.v1.InfoRequest
+	4,  // 4: apiserver.v1.APIServer.Logout:input_type -> apiserver.v1.LogoutRequest
+	5,  // 5: apiserver.v1.APIServer.CreateUser:input_type -> apiserver.v1.CreateUserRequest
+	6,  // 6: apiserver.v1.APIServer.GetUser:input_type -> apiserver.v1.GetUserRequest
+	7,  // 7: apiserver.v1.APIServer.UpdateUser:input_type -> apiserver.v1.UpdateUserRequest
+	8,  // 8: apiserver.v1.APIServer.DeleteUser:input_type -> apiserver.v1.DeleteUserRequest
+	9,  // 9: apiserver.v1.APIServer.ListUsers:input_type -> apiserver.v1.ListUserRequest
+	10, // 10: apiserver.v1.APIServer.ChangePassword:input_type -> apiserver.v1.ChangePasswordRequest
+	11, // 11: apiserver.v1.APIServer.Healthz:output_type -> apiserver.v1.HealthzResponse
+	12, // 12: apiserver.v1.APIServer.Login:output_type -> apiserver.v1.LoginResponse
+	12, // 13: apiserver.v1.APIServer.RefreshToken:output_type -> apiserver.v1.LoginResponse
+	13, // 14: apiserver.v1.APIServer.Info:output_type -> apiserver.v1.InfoResponse
+	14, // 15: apiserver.v1.APIServer.Logout:output_type -> apiserver.v1.LogoutResponse
+	15, // 16: apiserver.v1.APIServer.CreateUser:output_type -> apiserver.v1.CreateUserResponse
+	16, // 17: apiserver.v1.APIServer.GetUser:output_type -> apiserver.v1.GetUserResponse
+	17, // 18: apiserver.v1.APIServer.UpdateUser:output_type -> apiserver.v1.UpdateUserResponse
+	18, // 19: apiserver.v1.APIServer.DeleteUser:output_type -> apiserver.v1.DeleteUserResponse
+	19, // 20: apiserver.v1.APIServer.ListUsers:output_type -> apiserver.v1.ListUserResponse
+	20, // 21: apiserver.v1.APIServer.ChangePassword:output_type -> apiserver.v1.ChangePasswordResponse
+	11, // [11:22] is the sub-list for method output_type
+	0,  // [0:11] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

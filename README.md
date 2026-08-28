@@ -95,6 +95,8 @@ _output/platforms/$(go env GOOS)/$(go env GOARCH)/gin-enterprise-template-apiser
 | ------ | ------------------------ | -------- |
 | `POST` | `/v1/auth/login`         | 用户登录 |
 | `PUT`  | `/v1/auth/refresh-token` | 刷新令牌 |
+| `GET`  | `/v1/auth/info`          | 获取当前用户信息 |
+| `POST` | `/v1/auth/logout`        | 服务端撤销当前账号令牌 |
 
 ### 用户接口
 
@@ -107,7 +109,7 @@ _output/platforms/$(go env GOOS)/$(go env GOARCH)/gin-enterprise-template-apiser
 | `DELETE` | `/v1/users/{userID}`                 | 删除用户 |
 | `PUT`    | `/v1/users/{userID}/change-password` | 修改密码 |
 
-除公开注册外，用户资源只允许访问当前账号；在 RBAC 管理员角色落地前，用户列表接口默认返回 `403`。
+除公开注册外，用户资源只允许访问当前账号；在 RBAC 管理员角色落地前，用户列表接口默认返回 `403`。所有响应均使用 `{code,message,data,reason}` 包络；当前用户资料通过受保护的 `/v1/auth/info` 获取。
 
 ## 验证服务
 

@@ -2,7 +2,9 @@ package errorsx
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,7 +25,7 @@ func TestBizError(t *testing.T) {
 
 func TestBizErrorHTTPStatus(t *testing.T) {
 	bizErr := NewBizError(CodeUserNotFound, "User.NotFound", "用户不存在")
-	assert.Equal(t, http.StatusOK, bizErr.HTTPStatus())
+	assert.Equal(t, http.StatusNotFound, bizErr.HTTPStatus())
 
 	authErr := NewBizError(CodeAuthTokenInvalid, "Auth.TokenInvalid", "令牌无效")
 	assert.Equal(t, http.StatusUnauthorized, authErr.HTTPStatus())
@@ -120,7 +122,7 @@ func TestGetHTTPCode(t *testing.T) {
 		httpCode int
 	}{
 		{CodeOK, http.StatusOK},
-		{CodeUserNotFound, http.StatusOK},
+		{CodeUserNotFound, http.StatusNotFound},
 		{CodeInternalServer, http.StatusInternalServerError},
 		{CodeDatabaseConnectFailed, http.StatusInternalServerError},
 	}
@@ -171,8 +173,8 @@ func TestFromError(t *testing.T) {
 	normalErr := errors.New("普通错误")
 	converted = FromError(normalErr)
 	assert.Equal(t, CodeInternalServer, converted.Code)
-	assert.Equal(t, "InternalError", converted.Reason)
-	assert.Equal(t, "内部服务器错误", converted.Message)
+	assert.Equal(t, "Common.InternalError", converted.Reason)
+	assert.Equal(t, "内部服务器错误。", converted.Message)
 }
 
 func TestCode(t *testing.T) {
@@ -215,9 +217,9 @@ func TestBizErrorHTTPStatusFromCode(t *testing.T) {
 		wantHTTP int
 	}{
 		{
-			name:     "user not found returns 200",
+			name:     "user not found returns 404",
 			err:      NewBizError(CodeUserNotFound, "User.NotFound", "用户不存在"),
-			wantHTTP: http.StatusOK,
+			wantHTTP: http.StatusNotFound,
 		},
 		{
 			name:     "auth token invalid returns 401",
@@ -246,8 +248,8 @@ func TestBizErrorHTTPStatusFromCode(t *testing.T) {
 func TestFromErrorConvertsPlainErrorWithoutCompat(t *testing.T) {
 	converted := FromError(errors.New("普通错误"))
 	assert.Equal(t, CodeInternalServer, converted.Code)
-	assert.Equal(t, "InternalError", converted.Reason)
-	assert.Equal(t, "内部服务器错误", converted.Message)
+	assert.Equal(t, "Common.InternalError", converted.Reason)
+	assert.Equal(t, "内部服务器错误。", converted.Message)
 }
 
 func TestGetHTTPCodeKeepsProtocolMappings(t *testing.T) {
@@ -257,7 +259,10 @@ func TestGetHTTPCodeKeepsProtocolMappings(t *testing.T) {
 		wantHTTP int
 	}{
 		{name: "ok", code: CodeOK, wantHTTP: http.StatusOK},
-		{name: "user not found", code: CodeUserNotFound, wantHTTP: http.StatusOK},
+		{name: "user not found", code: CodeUserNotFound, wantHTTP: http.StatusNotFound},
+		{name: "user already exists", code: CodeUserAlreadyExists, wantHTTP: http.StatusConflict},
+		{name: "invalid credentials", code: CodeUserInvalidCredentials, wantHTTP: http.StatusBadRequest},
+		{name: "unclassified user level", code: CodeUserInsufficientBalance, wantHTTP: http.StatusBadRequest},
 		{name: "unauthenticated", code: CodeAuthUnauthenticated, wantHTTP: http.StatusUnauthorized},
 		{name: "token invalid", code: CodeAuthTokenInvalid, wantHTTP: http.StatusUnauthorized},
 		{name: "token expired", code: CodeAuthTokenExpired, wantHTTP: http.StatusUnauthorized},
@@ -278,29 +283,83 @@ func TestGetHTTPCodeKeepsProtocolMappings(t *testing.T) {
 func TestFromErrorUsesUnifiedGRPCReason(t *testing.T) {
 	converted := FromError(status.Error(codes.Internal, "boom"))
 	assert.Equal(t, CodeInternalServer, converted.Code)
-	assert.Equal(t, "InternalError", converted.Reason)
-	assert.Equal(t, "内部服务器错误", converted.Message)
+	assert.Equal(t, "Common.InternalError", converted.Reason)
+	assert.Equal(t, "内部服务器错误。", converted.Message)
 }
 
 func TestFromErrorHidesGRPCAuthenticationDetails(t *testing.T) {
 	converted := FromError(status.Error(codes.Unauthenticated, "token signature is invalid: secret detail"))
 	assert.Equal(t, CodeAuthUnauthenticated, converted.Code)
 	assert.Equal(t, "Auth.Unauthenticated", converted.Reason)
-	assert.Equal(t, "未认证", converted.Message)
+	assert.Equal(t, "未认证。", converted.Message)
 }
 
 func TestPredefinedMessagesUseChinese(t *testing.T) {
-	assert.Equal(t, "成功", OK.Message)
-	assert.Equal(t, "内部服务器错误", ErrInternal.Message)
-	assert.Equal(t, "资源未找到", ErrNotFound.Message)
-	assert.Equal(t, "请求体绑定失败", ErrBind.Message)
-	assert.Equal(t, "参数校验失败", ErrInvalidArgument.Message)
-	assert.Equal(t, "未认证", ErrUnauthenticated.Message)
-	assert.Equal(t, "权限不足", ErrPermissionDenied.Message)
-	assert.Equal(t, "操作失败，请稍后重试", ErrOperationFailed.Message)
+	assert.Equal(t, "内部服务器错误。", ErrInternal.Message)
+	assert.Equal(t, "资源未找到。", ErrNotFound.Message)
+	assert.Equal(t, "请求体绑定失败。", ErrBind.Message)
+	assert.Equal(t, "参数校验失败。", ErrInvalidArgument.Message)
+	assert.Equal(t, "未认证。", ErrUnauthenticated.Message)
+	assert.Equal(t, "权限不足。", ErrPermissionDenied.Message)
+	assert.Equal(t, "操作失败，请稍后重试。", ErrOperationFailed.Message)
 }
 
-func TestSuccessUsesChineseDefaultMessage(t *testing.T) {
+func TestSuccessUsesUnifiedDefaultMessage(t *testing.T) {
+	// 默认 message 与 core.WriteResponse 的成功输出保持同一口径。
 	resp := Success(nil)
-	assert.Equal(t, "成功", resp.Message)
+	assert.Equal(t, "success", resp.Message)
+}
+
+// TestWithMethodsDoNotMutateReceiver 验证所有 WithXxx 方法都是复制语义：
+// 预定义错误是包级共享哨兵，若原地修改会跨请求污染并引发数据竞争。
+func TestWithMethodsDoNotMutateReceiver(t *testing.T) {
+	base := NewBizError(CodeUserNotFound, "User.NotFound", "用户不存在")
+
+	derived := []struct {
+		name   string
+		err    *BizError
+		check  func(t *testing.T, err *BizError)
+	}{
+		{"WithDetails", base.WithDetails("请求 A 的绑定详情"), func(t *testing.T, err *BizError) {
+			assert.Equal(t, "请求 A 的绑定详情", err.Details)
+		}},
+		{"WithMetadata", base.WithMetadata(map[string]any{"request": "A"}), func(t *testing.T, err *BizError) {
+			assert.Equal(t, "A", err.Metadata["request"])
+		}},
+		{"WithMessage", base.WithMessage("用户账户已被删除"), func(t *testing.T, err *BizError) {
+			assert.Equal(t, "用户账户已被删除", err.Message)
+		}},
+	}
+
+	for _, tt := range derived {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.check(t, tt.err)
+
+			// 派生是新实例，原哨兵保持零值状态
+			assert.NotSame(t, base, tt.err)
+			assert.Empty(t, base.Details)
+			assert.Nil(t, base.Metadata)
+			assert.Equal(t, "用户不存在", base.Message)
+		})
+	}
+}
+
+// TestWithDetailsConcurrentDerivation 在 -race 下并发派生共享哨兵，
+// 回归 WithDetails 曾经的原地修改竞态。
+func TestWithDetailsConcurrentDerivation(t *testing.T) {
+	base := NewBizError(CodeUserInvalidCredentials, "Common.BindError", "请求体绑定失败。")
+
+	var wg sync.WaitGroup
+	for i := 0; i < 64; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			details := fmt.Sprintf("request-%d", i)
+			derived := base.WithDetails(details)
+			assert.Equal(t, details, derived.Details)
+		}(i)
+	}
+	wg.Wait()
+
+	assert.Empty(t, base.Details)
 }

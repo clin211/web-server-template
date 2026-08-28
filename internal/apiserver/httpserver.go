@@ -110,6 +110,8 @@ func (c *ServerConfig) InstallRESTAPI(engine *gin.Engine) error {
 	}
 	// 注意：refresh-token 使用专门的 RefreshAuthnMiddleware，接受 refresh token
 	v1.PUT("/auth/refresh-token", mw.RefreshAuthnMiddleware(c.retriever, c.tokens), hdl.RefreshToken)
+	v1.GET("/auth/info", mw.AuthnMiddleware(c.retriever, c.tokens), hdl.Info)
+	v1.POST("/auth/logout", mw.AuthnMiddleware(c.retriever, c.tokens), hdl.Logout)
 	// 注册资源路由
 	hdl.InstallAll(v1)
 	return nil

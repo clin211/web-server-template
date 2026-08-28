@@ -4,18 +4,16 @@ import (
 	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
 )
 
-// 重新导出错误码和预定义错误，方便业务层使用
+// 通用预定义错误的别名。唯一词表在 pkg/errorsx/code.go；本包仅为业务层
+// 提供贴近分层习惯的引用入口，不再单独定义同码不同文案的重复哨兵。
 var (
-	// 预定义错误
-	OK = errorsx.OK
-
-	ErrInternal         = errorsx.NewBizError(errorsx.CodeInternalServer, "Common.InternalError", "内部服务器错误。")
-	ErrNotFound         = errorsx.NewBizError(errorsx.CodeUserNotFound, "Common.NotFound", "资源未找到。")
-	ErrBind             = errorsx.NewBizError(errorsx.CodeUserInvalidCredentials, "Common.BindError", "请求体绑定失败。")
-	ErrInvalidArgument  = errorsx.NewBizError(errorsx.CodeUserInvalidCredentials, "Common.InvalidArgument", "参数校验失败。")
-	ErrUnauthenticated  = errorsx.NewBizError(errorsx.CodeAuthUnauthenticated, "Auth.Unauthenticated", "未认证。")
-	ErrPermissionDenied = errorsx.NewBizError(errorsx.CodeUserPermissionDenied, "Auth.PermissionDenied", "权限不足。")
-	ErrOperationFailed  = errorsx.NewBizError(errorsx.CodeInternalServer, "Common.OperationFailed", "操作失败，请稍后重试。")
+	ErrInternal         = errorsx.ErrInternal
+	ErrNotFound         = errorsx.ErrNotFound
+	ErrBind             = errorsx.ErrBind
+	ErrInvalidArgument  = errorsx.ErrInvalidArgument
+	ErrUnauthenticated  = errorsx.ErrUnauthenticated
+	ErrPermissionDenied = errorsx.ErrPermissionDenied
+	ErrOperationFailed  = errorsx.ErrOperationFailed
 
 	// Token 相关错误
 	ErrSignToken    = errorsx.NewBizError(errorsx.CodeAuthSignToken, "Auth.SignFailed", "签名 JSON Web 令牌时发生错误。")

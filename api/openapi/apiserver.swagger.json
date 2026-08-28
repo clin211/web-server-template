@@ -33,20 +33,49 @@
         "operationId": "APIServer_Healthz",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "服务健康状态",
             "schema": {
-              "$ref": "#/definitions/v1HealthzResponse"
+              "$ref": "#/definitions/v1HealthzResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
         "tags": [
           "服务治理"
+        ]
+      }
+    },
+    "/v1/auth/info": {
+      "get": {
+        "summary": "获取当前用户信息",
+        "description": "使用当前访问令牌获取当前用户的脱敏资料",
+        "operationId": "APIServer_Info",
+        "responses": {
+          "200": {
+            "description": "当前登录用户的脱敏资料",
+            "schema": {
+              "$ref": "#/definitions/v1InfoResponseEnvelope"
+            }
+          },
+          "default": {
+            "description": "统一错误响应",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "tags": [
+          "用户认证"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -57,15 +86,15 @@
         "operationId": "APIServer_Login",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "登录成功，返回访问令牌与刷新令牌",
             "schema": {
-              "$ref": "#/definitions/v1LoginResponse"
+              "$ref": "#/definitions/v1LoginResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
@@ -84,6 +113,35 @@
         ]
       }
     },
+    "/v1/auth/logout": {
+      "post": {
+        "summary": "退出登录",
+        "description": "撤销当前用户已签发的访问令牌和刷新令牌",
+        "operationId": "APIServer_Logout",
+        "responses": {
+          "200": {
+            "description": "退出成功",
+            "schema": {
+              "$ref": "#/definitions/v1LogoutResponseEnvelope"
+            }
+          },
+          "default": {
+            "description": "统一错误响应",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "tags": [
+          "用户认证"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/v1/auth/refresh-token": {
       "put": {
         "summary": "刷新令牌",
@@ -91,31 +149,25 @@
         "operationId": "APIServer_RefreshToken",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "刷新成功，返回新的访问令牌与刷新令牌",
             "schema": {
-              "$ref": "#/definitions/v1LoginResponse"
+              "$ref": "#/definitions/v1LoginResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "该请求无需额外字段，仅通过现有的认证信息（如旧的 token）进行刷新",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1RefreshTokenRequest"
-            }
-          }
-        ],
         "tags": [
           "用户认证"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -126,15 +178,15 @@
         "operationId": "APIServer_ListUsers",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "用户列表与分页游标",
             "schema": {
-              "$ref": "#/definitions/v1ListUserResponse"
+              "$ref": "#/definitions/v1ListUserResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
@@ -157,6 +209,11 @@
         ],
         "tags": [
           "用户管理"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       },
       "post": {
@@ -165,15 +222,15 @@
         "operationId": "APIServer_CreateUser",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "创建成功，返回新用户 ID",
             "schema": {
-              "$ref": "#/definitions/v1CreateUserResponse"
+              "$ref": "#/definitions/v1CreateUserResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
@@ -199,15 +256,15 @@
         "operationId": "APIServer_GetUser",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "用户信息",
             "schema": {
-              "$ref": "#/definitions/v1GetUserResponse"
+              "$ref": "#/definitions/v1GetUserResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
@@ -222,6 +279,11 @@
         ],
         "tags": [
           "用户管理"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       },
       "delete": {
@@ -230,15 +292,15 @@
         "operationId": "APIServer_DeleteUser",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "删除成功",
             "schema": {
-              "$ref": "#/definitions/v1DeleteUserResponse"
+              "$ref": "#/definitions/v1DeleteUserResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
@@ -253,6 +315,11 @@
         ],
         "tags": [
           "用户管理"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       },
       "put": {
@@ -261,15 +328,15 @@
         "operationId": "APIServer_UpdateUser",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "更新成功",
             "schema": {
-              "$ref": "#/definitions/v1UpdateUserResponse"
+              "$ref": "#/definitions/v1UpdateUserResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
@@ -292,6 +359,11 @@
         ],
         "tags": [
           "用户管理"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -302,15 +374,15 @@
         "operationId": "APIServer_ChangePassword",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "修改成功",
             "schema": {
-              "$ref": "#/definitions/v1ChangePasswordResponse"
+              "$ref": "#/definitions/v1ChangePasswordResponseEnvelope"
             }
           },
           "default": {
-            "description": "An unexpected error response.",
+            "description": "统一错误响应",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/v1APIError"
             }
           }
         },
@@ -333,6 +405,11 @@
         ],
         "tags": [
           "用户管理"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     }
@@ -374,37 +451,47 @@
       },
       "title": "UpdateUserRequest 表示更新用户请求"
     },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {}
-    },
-    "rpcStatus": {
+    "v1APIError": {
       "type": "object",
       "properties": {
         "code": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "code 表示业务错误码，如 50101 表示认证失败"
         },
         "message": {
-          "type": "string"
+          "type": "string",
+          "title": "message 表示用户可读的错误信息"
         },
-        "details": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/protobufAny"
-          }
+        "reason": {
+          "type": "string",
+          "title": "reason 表示错误原因标识，用于程序化判断"
         }
-      }
+      },
+      "title": "APIError 表示统一错误响应包络，所有非 2xx 响应共用（default 响应）。"
     },
     "v1ChangePasswordResponse": {
       "type": "object",
       "title": "ChangePasswordResponse 表示修改密码响应"
+    },
+    "v1ChangePasswordResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1ChangePasswordResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "ChangePasswordResponseEnvelope 表示修改密码的成功响应包络"
     },
     "v1CreateUserRequest": {
       "type": "object",
@@ -442,9 +529,47 @@
       },
       "title": "CreateUserResponse 表示创建用户响应"
     },
+    "v1CreateUserResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1CreateUserResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "CreateUserResponseEnvelope 表示创建用户的成功响应包络"
+    },
     "v1DeleteUserResponse": {
       "type": "object",
       "title": "DeleteUserResponse 表示删除用户响应"
+    },
+    "v1DeleteUserResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1DeleteUserResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "DeleteUserResponseEnvelope 表示删除用户的成功响应包络"
     },
     "v1GetUserResponse": {
       "type": "object",
@@ -455,6 +580,25 @@
         }
       },
       "title": "GetUserResponse 表示获取用户响应"
+    },
+    "v1GetUserResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1GetUserResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "GetUserResponseEnvelope 表示获取用户的成功响应包络"
     },
     "v1HealthzResponse": {
       "type": "object",
@@ -478,6 +622,54 @@
       },
       "title": "HealthzResponse 表示健康检查的响应结构。"
     },
+    "v1HealthzResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1HealthzResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "HealthzResponseEnvelope 表示健康检查的成功响应包络"
+    },
+    "v1InfoResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1User",
+          "title": "user 表示当前登录用户信息，不包含密码等敏感字段"
+        }
+      },
+      "title": "InfoResponse 表示当前用户信息响应。"
+    },
+    "v1InfoResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1InfoResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "InfoResponseEnvelope 表示获取当前用户信息的成功响应包络"
+    },
     "v1ListUserResponse": {
       "type": "object",
       "properties": {
@@ -500,6 +692,25 @@
         }
       },
       "title": "ListUserResponse 表示用户列表响应"
+    },
+    "v1ListUserResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1ListUserResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "ListUserResponseEnvelope 表示用户列表的成功响应包络"
     },
     "v1LoginRequest": {
       "type": "object",
@@ -533,10 +744,47 @@
       },
       "title": "LoginResponse 表示登录响应"
     },
-    "v1RefreshTokenRequest": {
+    "v1LoginResponseEnvelope": {
       "type": "object",
-      "description": "该请求无需额外字段，仅通过现有的认证信息（如旧的 token）进行刷新",
-      "title": "RefreshTokenRequest 表示刷新令牌的请求"
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1LoginResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "LoginResponseEnvelope 表示登录与刷新令牌的成功响应包络"
+    },
+    "v1LogoutResponse": {
+      "type": "object",
+      "title": "LogoutResponse 表示退出登录响应。"
+    },
+    "v1LogoutResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1LogoutResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "LogoutResponseEnvelope 表示退出登录的成功响应包络"
     },
     "v1ServiceStatus": {
       "type": "string",
@@ -551,6 +799,25 @@
     "v1UpdateUserResponse": {
       "type": "object",
       "title": "UpdateUserResponse 表示更新用户响应"
+    },
+    "v1UpdateUserResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "title": "code 表示业务状态码，0 表示成功"
+        },
+        "message": {
+          "type": "string",
+          "title": "message 表示提示信息"
+        },
+        "data": {
+          "$ref": "#/definitions/v1UpdateUserResponse",
+          "title": "data 表示业务数据"
+        }
+      },
+      "title": "UpdateUserResponseEnvelope 表示更新用户的成功响应包络"
     },
     "v1User": {
       "type": "object",
@@ -615,6 +882,14 @@
         }
       },
       "title": "User 表示用户信息"
+    }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "description": "JWT Bearer token，格式为 Bearer \u003ctoken\u003e；refresh-token 操作使用 refresh token，其余受保护操作使用 access token",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }

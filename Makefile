@@ -278,7 +278,7 @@ protoc: ## Compile Protobuf files.
 		--go-grpc_out=paths=source_relative:$(APIROOT)   \
 		--grpc-gateway_out=allow_delete_body=true,paths=source_relative:$(APIROOT) \
 		--openapiv2_out=$(PROJ_ROOT_DIR)/api/openapi \
-		--openapiv2_opt=allow_delete_body=true,logtostderr=true \
+		--openapiv2_opt=allow_merge=true,merge_file_name=apiserver,disable_default_errors=true,allow_delete_body=true,logtostderr=true \
 		--defaults_out=paths=source_relative:$(APIROOT) \
 		$(shell find $(APIROOT)/* -name *.proto)
 	@find $(APIROOT)/* -name "*.pb.go" -exec protoc-go-inject-tag -input={} \;
@@ -293,7 +293,7 @@ protoc.%: ## Compile Protobuf files.
 		--go_out=paths=source_relative:$(APIROOT)        \
 		--go-grpc_out=paths=source_relative:$(APIROOT)   \
 		--openapiv2_out=$(PROJ_ROOT_DIR)/api/openapi \
-		--openapiv2_opt=allow_delete_body=true,logtostderr=true \
+		--openapiv2_opt=allow_merge=true,merge_file_name=apiserver,disable_default_errors=true,allow_delete_body=true,logtostderr=true \
 		--defaults_out=paths=source_relative:$(APIROOT) \
 		$(shell find $(APIROOT)/$* -name *.proto)
 	@find $(APIROOT)/$* -name "*.pb.go" -exec protoc-go-inject-tag -input={} \;

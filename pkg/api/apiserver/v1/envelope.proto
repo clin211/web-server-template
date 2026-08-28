@@ -1,0 +1,126 @@
+// HTTP 契约层：定义 REST 接口的统一响应包络。
+//
+// 运行时由 pkg/core.WriteResponse 与 pkg/errorsx 产出如下 JSON：
+//   - 成功：{"code":0,"message":"success","data":<protojson(业务响应)>}
+//   - 失败：{"code":<业务错误码>,"message":<信息>,"reason":<原因>}
+//
+// 本文件的消息仅用于 OpenAPI 文档契约（供 openapiv2_operation.responses 注解引用），
+// 不参与 gRPC 运行时逻辑；字段名与 errorsx.APIResponse 的 json 标签保持一致。
+syntax = "proto3";
+
+package apiserver.v1;
+
+import "apiserver/v1/healthz.proto";
+import "apiserver/v1/user.proto";
+
+option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";
+
+// APIError 表示统一错误响应包络，所有非 2xx 响应共用（default 响应）。
+message APIError {
+  // code 表示业务错误码，如 50101 表示认证失败
+  int32 code = 1;
+  // message 表示用户可读的错误信息
+  string message = 2;
+  // reason 表示错误原因标识，用于程序化判断
+  string reason = 3;
+}
+
+// HealthzResponseEnvelope 表示健康检查的成功响应包络
+message HealthzResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  HealthzResponse data = 3;
+}
+
+// LoginResponseEnvelope 表示登录与刷新令牌的成功响应包络
+message LoginResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  LoginResponse data = 3;
+}
+
+// InfoResponseEnvelope 表示获取当前用户信息的成功响应包络
+message InfoResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  InfoResponse data = 3;
+}
+
+// LogoutResponseEnvelope 表示退出登录的成功响应包络
+message LogoutResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  LogoutResponse data = 3;
+}
+
+// CreateUserResponseEnvelope 表示创建用户的成功响应包络
+message CreateUserResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  CreateUserResponse data = 3;
+}
+
+// GetUserResponseEnvelope 表示获取用户的成功响应包络
+message GetUserResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  GetUserResponse data = 3;
+}
+
+// UpdateUserResponseEnvelope 表示更新用户的成功响应包络
+message UpdateUserResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  UpdateUserResponse data = 3;
+}
+
+// DeleteUserResponseEnvelope 表示删除用户的成功响应包络
+message DeleteUserResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  DeleteUserResponse data = 3;
+}
+
+// ListUserResponseEnvelope 表示用户列表的成功响应包络
+message ListUserResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  ListUserResponse data = 3;
+}
+
+// ChangePasswordResponseEnvelope 表示修改密码的成功响应包络
+message ChangePasswordResponseEnvelope {
+  // code 表示业务状态码，0 表示成功
+  int32 code = 1;
+  // message 表示提示信息
+  string message = 2;
+  // data 表示业务数据
+  ChangePasswordResponse data = 3;
+}

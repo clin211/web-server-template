@@ -9,6 +9,7 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
+	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
 )
 
@@ -16,7 +17,8 @@ import (
 func (b *userBiz) Delete(ctx context.Context, rq *v1.DeleteUserRequest) (*v1.DeleteUserResponse, error) {
 	userM, err := b.store.User().Get(ctx, where.F("user_id", rq.GetUserID()))
 	if err != nil {
-		return nil, err
+		// 资源不存在应表现为业务错误（404 语义），而非 500 系统错误。
+		return nil, errno.FromStore(err)
 	}
 	if err := b.store.TX(ctx, func(txCtx context.Context) error {
 		if err := b.store.User().Delete(txCtx, where.F("user_id", userM.UserID)); err != nil {

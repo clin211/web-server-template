@@ -23,6 +23,8 @@ type UserBiz interface {
 type UserExpansion interface {
 	Login(ctx context.Context, rq *v1.LoginRequest) (*v1.LoginResponse, error)
 	RefreshToken(ctx context.Context, rq *v1.RefreshTokenRequest) (*v1.LoginResponse, error)
+	Info(ctx context.Context, rq *v1.InfoRequest) (*v1.InfoResponse, error)
+	Logout(ctx context.Context, rq *v1.LogoutRequest) (*v1.LogoutResponse, error)
 	ChangePassword(ctx context.Context, rq *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error)
 }
 

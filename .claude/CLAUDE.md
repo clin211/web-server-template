@@ -139,15 +139,16 @@ Model   (数据库模型) -> internal/apiserver/model/
 这里假设需要新增一个 Comment 资源，用来记录博客的评论，并将这些记录保存在数据库中。可以按以下顺序来实现 Comment 资源相关的功能代码：
 
 1. 定义 API 接口(`pkg/api/apiserver/v1/apiserver.proto`)；
-2. 编译 `Protobuf` 文件(`pkg/api/apiserver/v1`)；
-3. 在 `/internal/template/model` 重定义数据库接口；
-4. 完善 API 接口请求参数的默认值设置方法（使用`third_party/protobuf/github.com/onexstack/defaults/defaults.proto`）；
-5. 实现 API 接口的请求参数校验方法（在文件 `internal/apiserver/pkg/validation/comment.go` 中实现）；
-6. 实现 `Comment` 资源的 `Store` 层代码（在文件 `internal/apiserver/store/comment.go` 中实现）；
-7. 实现 `Comment` 资源的 `Model` 和 `Proto` 的转换函数（在 `internal/apiserver/pkg/conversion/comment.go` 文件中实现）；
-8. 实现 `Comment` 资源的 `Biz` 层代码（在文件 `internal/apiserver/biz/v1/comment/comment.go` 中实现）；
+2. 在 `pkg/api/apiserver/v1/envelope.proto` 中为新响应定义 `XxxResponseEnvelope` 包络消息，并在对应 RPC 的 `openapiv2_operation` 注解 `responses` 中引用它（`default` 响应统一复用 `APIError`），使 `make protoc` 直出的 Swagger 2.0 文档自带统一响应包络；
+3. 编译 `Protobuf` 文件(`pkg/api/apiserver/v1`)；
+4. 在 `/internal/template/model` 重定义数据库接口；
+5. 完善 API 接口请求参数的默认值设置方法（使用`third_party/protobuf/github.com/onexstack/defaults/defaults.proto`）；
+6. 实现 API 接口的请求参数校验方法（在文件 `internal/apiserver/pkg/validation/comment.go` 中实现）；
+7. 实现 `Comment` 资源的 `Store` 层代码（在文件 `internal/apiserver/store/comment.go` 中实现）；
+8. 实现 `Comment` 资源的 `Model` 和 `Proto` 的转换函数（在 `internal/apiserver/pkg/conversion/comment.go` 文件中实现）；
+9. 实现 `Comment` 资源的 `Biz` 层代码（在文件 `internal/apiserver/biz/v1/comment/comment.go` 中实现）；
    * 每一个接口都是一个独立的文件（比如： create.go、update.go、delete.go、refreshtoken.go）
-9. 实现 `Comment` 资源的 `Handler` 层代码（在文件 `internal/apiserver/handler/comment.go` 中实现）。
+10. 实现 `Comment` 资源的 `Handler` 层代码（在文件 `internal/apiserver/handler/comment.go` 中实现）。
 
 > 推荐按顺序执行，每步完成后进行单元测试。
 

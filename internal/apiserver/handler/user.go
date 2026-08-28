@@ -41,6 +41,16 @@ func (h *Handler) RefreshToken(c *gin.Context) {
 	core.HandleNoBodyRequest(c, h.biz.UserV1().RefreshToken)
 }
 
+// Info 获取当前用户信息。
+func (h *Handler) Info(c *gin.Context) {
+	core.HandleNoBodyRequest(c, h.biz.UserV1().Info)
+}
+
+// Logout 撤销当前用户的所有已签发令牌。
+func (h *Handler) Logout(c *gin.Context) {
+	core.HandleNoBodyRequest(c, h.biz.UserV1().Logout)
+}
+
 // ChangePassword 修改用户密码.
 func (h *Handler) ChangePassword(c *gin.Context) {
 	core.HandleUriJSONRequest(c, h.biz.UserV1().ChangePassword, h.val.ValidateChangePasswordRequest)

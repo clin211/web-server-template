@@ -23,6 +23,8 @@ const (
 	APIServer_Healthz_FullMethodName        = "/apiserver.v1.APIServer/Healthz"
 	APIServer_Login_FullMethodName          = "/apiserver.v1.APIServer/Login"
 	APIServer_RefreshToken_FullMethodName   = "/apiserver.v1.APIServer/RefreshToken"
+	APIServer_Info_FullMethodName           = "/apiserver.v1.APIServer/Info"
+	APIServer_Logout_FullMethodName         = "/apiserver.v1.APIServer/Logout"
 	APIServer_CreateUser_FullMethodName     = "/apiserver.v1.APIServer/CreateUser"
 	APIServer_GetUser_FullMethodName        = "/apiserver.v1.APIServer/GetUser"
 	APIServer_UpdateUser_FullMethodName     = "/apiserver.v1.APIServer/UpdateUser"
@@ -38,6 +40,8 @@ type APIServerClient interface {
 	Healthz(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HealthzResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error)
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
@@ -78,6 +82,26 @@ func (c *aPIServerClient) RefreshToken(ctx context.Context, in *RefreshTokenRequ
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, APIServer_RefreshToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InfoResponse)
+	err := c.cc.Invoke(ctx, APIServer_Info_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIServerClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogoutResponse)
+	err := c.cc.Invoke(ctx, APIServer_Logout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,6 +175,8 @@ type APIServerServer interface {
 	Healthz(context.Context, *emptypb.Empty) (*HealthzResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*LoginResponse, error)
+	Info(context.Context, *InfoRequest) (*InfoResponse, error)
+	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
@@ -175,6 +201,12 @@ func (UnimplementedAPIServerServer) Login(context.Context, *LoginRequest) (*Logi
 }
 func (UnimplementedAPIServerServer) RefreshToken(context.Context, *RefreshTokenRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RefreshToken not implemented")
+}
+func (UnimplementedAPIServerServer) Info(context.Context, *InfoRequest) (*InfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Info not implemented")
+}
+func (UnimplementedAPIServerServer) Logout(context.Context, *LogoutRequest) (*LogoutResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Logout not implemented")
 }
 func (UnimplementedAPIServerServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateUser not implemented")
@@ -265,6 +297,42 @@ func _APIServer_RefreshToken_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServerServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).Info(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_Info_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).Info(ctx, req.(*InfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIServer_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServerServer).Logout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APIServer_Logout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServerServer).Logout(ctx, req.(*LogoutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -395,6 +463,14 @@ var APIServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RefreshToken",
 			Handler:    _APIServer_RefreshToken_Handler,
+		},
+		{
+			MethodName: "Info",
+			Handler:    _APIServer_Info_Handler,
+		},
+		{
+			MethodName: "Logout",
+			Handler:    _APIServer_Logout_Handler,
 		},
 		{
 			MethodName: "CreateUser",

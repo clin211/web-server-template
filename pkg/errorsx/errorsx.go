@@ -108,7 +108,10 @@ func GetErrorLevel(code BizCode) int {
 	return int(code/10000) % 10
 }
 
-// GetHTTPCode 根据错误码映射对应的HTTP状态码
+// GetHTTPCode 根据错误码映射对应的HTTP状态码。
+// 语义遵循 REST：资源不存在 404、冲突 409、请求侧参数或状态问题 4xx；
+// 未显式归类的用户/业务级错误统一 400，系统与上下游错误返回 5xx/502。
+// 由此保证"非 2xx 即业务失败"，与 OpenAPI 契约中 default 响应（APIError）的语义一致。
 func GetHTTPCode(code BizCode) int {
 	switch code {
 	case CodeOK:
@@ -119,6 +122,12 @@ func GetHTTPCode(code BizCode) int {
 		return http.StatusInternalServerError
 	case CodeUserPermissionDenied:
 		return http.StatusForbidden
+	case CodeUserNotFound:
+		return http.StatusNotFound
+	case CodeUserAlreadyExists:
+		return http.StatusConflict
+	case CodeUserInvalidCredentials, CodeUserInvalidUsername, CodeUserInvalidPassword:
+		return http.StatusBadRequest
 	case CodeTooManyRequests:
 		return http.StatusTooManyRequests
 	case CodeServiceUnavailable:
@@ -134,8 +143,9 @@ func GetHTTPCode(code BizCode) int {
 	case LevelUpstream, LevelDownstream:
 		return http.StatusBadGateway
 	case LevelUser, LevelBusiness:
-		// 业务错误统一返回200，通过code字段区分
-		return http.StatusOK
+		// 未显式归类的用户/业务错误属于请求上下文问题，返回 400 而非 200，
+		// 避免客户端把业务失败误判为成功。
+		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError
 	}
@@ -151,38 +161,39 @@ func NewBizError(code BizCode, reason, message string) *BizError {
 	}
 }
 
-// WithDetails 设置错误详情
-func (err *BizError) WithDetails(details string) *BizError {
-	err.Details = details
-	return err
-}
-
-// WithMetadata 设置元数据
-func (err *BizError) WithMetadata(metadata map[string]interface{}) *BizError {
-	err.Metadata = metadata
-	return err
-}
-
-// WithMessage 设置错误消息（创建新实例避免内存共享问题）
-func (err *BizError) WithMessage(message string) *BizError {
-	// 创建新的错误实例，避免内存共享问题
-	newErr := &BizError{
-		Code:     err.Code,
-		Level:    err.Level,
-		Reason:   err.Reason,
-		Message:  message,
-		Details:  err.Details,
-		Metadata: err.Metadata,
-	}
-
-	// 如果有元数据，创建副本避免共享
+// clone 返回错误的副本（含元数据深拷贝），是所有 WithXxx 方法共享的复制语义
+// 基础。预定义错误是包级共享的哨兵值，原地修改会在并发请求间产生数据竞争并
+// 互相污染（例如把上一个请求的绑定错误详情带进下一个请求的日志），因此任何
+// 派生操作都必须返回新实例。
+func (err *BizError) clone() *BizError {
+	newErr := *err
 	if err.Metadata != nil {
-		newErr.Metadata = make(map[string]interface{})
+		newErr.Metadata = make(map[string]interface{}, len(err.Metadata))
 		for k, v := range err.Metadata {
 			newErr.Metadata[k] = v
 		}
 	}
+	return &newErr
+}
 
+// WithDetails 设置错误详情（返回新实例，不修改接收者）
+func (err *BizError) WithDetails(details string) *BizError {
+	newErr := err.clone()
+	newErr.Details = details
+	return newErr
+}
+
+// WithMetadata 设置元数据（返回新实例，不修改接收者）
+func (err *BizError) WithMetadata(metadata map[string]interface{}) *BizError {
+	newErr := err.clone()
+	newErr.Metadata = metadata
+	return newErr
+}
+
+// WithMessage 设置错误消息（返回新实例，不修改接收者）
+func (err *BizError) WithMessage(message string) *BizError {
+	newErr := err.clone()
+	newErr.Message = message
 	return newErr
 }
 
@@ -276,9 +287,10 @@ func FromGRPCCode(code codes.Code) int {
 	}
 }
 
-// Success 创建成功响应
+// Success 创建成功响应。
+// 默认 message 与 core.WriteResponse 的成功输出保持同一口径（"success"）。
 func Success(data interface{}, message ...string) *APIResponse {
-	msg := "成功"
+	msg := "success"
 	if len(message) > 0 {
 		msg = message[0]
 	}
@@ -377,8 +389,8 @@ func FromError(err error) *BizError {
 			message = ErrUnauthenticated.Message
 		} else if code == http.StatusForbidden {
 			bizCode = CodeUserPermissionDenied
-			reason = "Auth.PermissionDenied"
-			message = "权限不足。"
+			reason = ErrPermissionDenied.Reason
+			message = ErrPermissionDenied.Message
 		} else if code == http.StatusInternalServerError {
 			bizCode = CodeInternalServer
 			reason = ErrInternal.Reason

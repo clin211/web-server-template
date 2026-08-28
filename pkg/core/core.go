@@ -3,13 +3,10 @@ package core
 import (
 	"context"
 	"io"
+	"log/slog"
 	"net/http"
-	"os"
-	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
@@ -26,59 +23,8 @@ type Binder func(any) error
 // Handler 是处理函数的类型，用于处理已经绑定和验证的数据.
 type Handler[T any, R any] func(ctx context.Context, req *T) (R, error)
 
-// generateRequestID 生成请求ID
-func generateRequestID() string {
-	return uuid.New().String()
-}
-
-// getServerID 获取服务器ID
-func getServerID() string {
-	return os.Getenv("SERVER_ID")
-}
-
-// setResponseHeaders 设置响应头
-func setResponseHeaders(c *gin.Context, requestID string, startTime time.Time) {
-	// 设置请求ID
-	c.Header(errorsx.HeaderRequestID, requestID)
-
-	// 设置时间戳
-	c.Header(errorsx.HeaderTimestamp, strconv.FormatInt(time.Now().Unix(), 10))
-
-	// 计算并设置响应时间
-	responseTime := time.Since(startTime).Milliseconds()
-	c.Header(errorsx.HeaderResponseTime, strconv.FormatInt(responseTime, 10))
-
-	// 设置服务器ID
-	if serverID := getServerID(); serverID != "" {
-		c.Header(errorsx.HeaderServerID, serverID)
-	}
-
-	// 设置 Trace ID（如果有）
-	if traceID, exists := c.Get("trace_id"); exists {
-		c.Header(errorsx.HeaderTraceID, traceID.(string))
-	}
-}
-
-// ResponseMiddleware 统一响应格式中间件
-func ResponseMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		startTime := time.Now()
-
-		// 设置或获取 Request ID
-		requestID := c.GetHeader(errorsx.HeaderRequestID)
-		if requestID == "" {
-			requestID = generateRequestID()
-		}
-
-		// 存储到 context 供后续使用
-		c.Set("request_id", requestID)
-
-		c.Next()
-
-		// 设置响应头
-		setResponseHeaders(c, requestID, startTime)
-	}
-}
+// successMessage 是所有成功响应统一使用的 message 文案。
+const successMessage = "success"
 
 // HandleAllRequest 是处理综合请求的快捷函数。
 // 它会将 URI 参数、Query/Form 参数、以及 JSON Body 一并绑定到结构体中，
@@ -308,30 +254,28 @@ func WriteResponse(c *gin.Context, data any, err error) {
 		return
 	}
 
-	// 如果没有错误，返回成功响应
-	response := errorsx.Success(data, "success")
+	// proto.Message 走 protojson（EmitUnpopulated + 枚举名），与 OpenAPI 契约
+	// 中 XxxResponseEnvelope 的字段声明保持一致；注意必须传入指针，值类型无法
+	// 通过断言，会退化到 encoding/json 并丢失零值字段。
 	if message, ok := data.(proto.Message); ok {
 		payload, marshalErr := protojson.MarshalOptions{EmitUnpopulated: true}.Marshal(message)
 		if marshalErr != nil {
-			c.JSON(http.StatusOK, response)
+			// 序列化失败属于程序错误：返回 500 内部错误，而不是输出一个
+			// 与契约不一致的"部分成功"响应。
+			slog.ErrorContext(c.Request.Context(), "Failed to marshal proto response", "error", marshalErr)
+			c.JSON(http.StatusInternalServerError, errorsx.FromBizError(errorsx.ErrInternal))
 			return
 		}
 
-		c.Data(http.StatusOK, "application/json; charset=utf-8", []byte("{\"code\":0,\"message\":\"success\",\"data\":"+string(payload)+"}"))
+		c.Data(http.StatusOK, "application/json; charset=utf-8", []byte("{\"code\":0,\"message\":\""+successMessage+"\",\"data\":"+string(payload)+"}"))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, errorsx.Success(data, successMessage))
 }
 
 // WriteBizError 写入业务错误的便捷函数
 func WriteBizError(c *gin.Context, bizErr *errorsx.BizError) {
 	response := errorsx.FromBizError(bizErr)
 	c.JSON(bizErr.HTTPStatus(), response)
-}
-
-// WriteSuccess 写入成功响应的便捷函数
-func WriteSuccess(c *gin.Context, data any, message ...string) {
-	response := errorsx.Success(data, message...)
-	c.JSON(http.StatusOK, response)
 }

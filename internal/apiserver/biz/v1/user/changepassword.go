@@ -21,7 +21,8 @@ import (
 func (b *userBiz) ChangePassword(ctx context.Context, rq *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error) {
 	userM, err := b.store.User().Get(ctx, where.F("user_id", contextx.UserID(ctx)))
 	if err != nil {
-		return nil, err
+		// 认证后用户被删除等场景：按资源不存在处理，而非 500 系统错误。
+		return nil, errno.FromStore(err)
 	}
 
 	if err := authn.Compare(userM.Password, rq.GetOldPassword()); err != nil {
