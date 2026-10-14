@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@import "@heroui/react/styles";
+
+@theme {
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  --color-console-ink: #172033;
+  --color-console-muted: #687386;
+  --color-console-line: #dce2eb;
+  --color-console-surface: #ffffff;
+  --color-console-canvas: #f5f7fb;
+  --color-console-accent: #2164d8;
+  --color-console-accent-soft: #e8f0ff;
+  --color-console-success: #237a55;
+}
+
+:root {
+  --field-radius: 0.5rem;
+  color: var(--color-console-ink);
+  background: var(--color-console-canvas);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+  letter-spacing: 0;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--color-console-canvas);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.button,
+.card,
+.input {
+  border-radius: 0.5rem;
+}
+
+.input {
+  --field-border-width: 1px;
+  --field-border: var(--color-console-line);
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-console-accent) 40%, transparent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

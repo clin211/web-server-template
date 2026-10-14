@@ -1,0 +1,41 @@
+{
+  "feature": "session",
+  "operations": [
+    {
+      "name": "login",
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "upstreamSecurity": "anonymous",
+      "credentialPolicy": "anonymous",
+      "successRef": "#/definitions/v1LoginResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    },
+    {
+      "name": "refresh-session",
+      "method": "PUT",
+      "path": "/v1/auth/refresh-token",
+      "upstreamSecurity": "bearer",
+      "credentialPolicy": "refresh",
+      "successRef": "#/definitions/v1LoginResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    },
+    {
+      "name": "current-session",
+      "method": "GET",
+      "path": "/v1/auth/info",
+      "upstreamSecurity": "bearer",
+      "credentialPolicy": "access",
+      "successRef": "#/definitions/v1InfoResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    },
+    {
+      "name": "logout",
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "upstreamSecurity": "bearer",
+      "credentialPolicy": "access",
+      "successRef": "#/definitions/v1LogoutResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    }
+  ]
+}

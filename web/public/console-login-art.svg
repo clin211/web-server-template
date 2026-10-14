@@ -1,0 +1,42 @@
+<svg width="720" height="620" viewBox="0 0 720 620" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Gin Console operations workspace</title>
+  <desc id="desc">An abstract operations workspace with a dashboard window, activity nodes, and a protected status marker.</desc>
+  <path d="M187 74C266 15 419 22 510 89C594 151 636 269 602 373C567 480 464 548 342 544C219 540 107 469 82 366C56 259 107 135 187 74Z" fill="#DDE5EF"/>
+  <path d="M251 93C327 50 441 67 500 132C556 194 572 305 531 386C487 472 391 500 298 469C212 441 157 367 164 276C170 193 193 126 251 93Z" fill="#14243A"/>
+  <path d="M247 124C303 92 389 93 443 133C491 168 514 238 496 299C476 365 422 411 350 415C278 419 219 378 203 315C187 250 197 153 247 124Z" fill="#1D3553"/>
+  <g opacity="0.28" stroke="#B6C8DF" stroke-width="1">
+    <path d="M219 172H473"/>
+    <path d="M208 216H491"/>
+    <path d="M202 260H500"/>
+    <path d="M207 304H494"/>
+    <path d="M221 348H478"/>
+    <path d="M270 115V407"/>
+    <path d="M316 101V417"/>
+    <path d="M362 99V417"/>
+    <path d="M408 108V411"/>
+    <path d="M454 126V392"/>
+  </g>
+  <rect x="247" y="177" width="231" height="154" rx="14" fill="#F8FAFC"/>
+  <rect x="247" y="177" width="231" height="28" rx="14" fill="#E6ECF4"/>
+  <circle cx="264" cy="191" r="4" fill="#8EA1B8"/>
+  <circle cx="278" cy="191" r="4" fill="#8EA1B8"/>
+  <circle cx="292" cy="191" r="4" fill="#8EA1B8"/>
+  <rect x="269" y="227" width="62" height="8" rx="4" fill="#B8C5D5"/>
+  <rect x="269" y="246" width="101" height="7" rx="3.5" fill="#DCE3EC"/>
+  <rect x="269" y="274" width="188" height="8" rx="4" fill="#E4EAF1"/>
+  <rect x="269" y="274" width="124" height="8" rx="4" fill="#3A76DB"/>
+  <rect x="269" y="294" width="188" height="8" rx="4" fill="#E4EAF1"/>
+  <rect x="269" y="294" width="158" height="8" rx="4" fill="#6C91D4"/>
+  <path d="M224 383L292 346L344 365L402 326L466 354" stroke="#AFC2DC" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="224" cy="383" r="7" fill="#F8FAFC" stroke="#84A2CA" stroke-width="3"/>
+  <circle cx="292" cy="346" r="7" fill="#F8FAFC" stroke="#84A2CA" stroke-width="3"/>
+  <circle cx="344" cy="365" r="7" fill="#F8FAFC" stroke="#84A2CA" stroke-width="3"/>
+  <circle cx="402" cy="326" r="7" fill="#F8FAFC" stroke="#84A2CA" stroke-width="3"/>
+  <circle cx="466" cy="354" r="7" fill="#F8FAFC" stroke="#84A2CA" stroke-width="3"/>
+  <rect x="421" y="377" width="101" height="42" rx="21" fill="#F8FAFC"/>
+  <circle cx="445" cy="398" r="8" fill="#2F73D9"/>
+  <path d="M441 398L444 401L450 394" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="243" y="444" width="74" height="10" rx="5" fill="#A1B5CF"/>
+  <rect x="328" y="444" width="119" height="10" rx="5" fill="#879DBB"/>
+  <circle cx="486" cy="449" r="5" fill="#2F73D9"/>
+</svg>

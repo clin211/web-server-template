@@ -1,0 +1,14 @@
+{
+  "feature": "registration",
+  "operations": [
+    {
+      "name": "register-account",
+      "method": "POST",
+      "path": "/v1/users",
+      "upstreamSecurity": "anonymous",
+      "credentialPolicy": "anonymous",
+      "successRef": "#/definitions/v1CreateUserResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    }
+  ]
+}

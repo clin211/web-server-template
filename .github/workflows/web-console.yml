@@ -1,0 +1,77 @@
+name: Web Console Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    env:
+      PNPM_CONFIG_DANGEROUSLY_ALLOW_ALL_BUILDS: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: web/.node-version
+
+      - name: Install pnpm
+        run: npm install --global pnpm@11.24.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Static quality gates
+        run: pnpm check
+
+      - name: Coverage
+        run: pnpm test:coverage
+
+      - name: Build
+        run: pnpm build
+
+      - name: Browser bundle scan
+        run: pnpm browser-bundle:check
+
+      - name: Production smoke
+        run: pnpm production:smoke
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: pnpm test:e2e
+
+      - name: Build and verify read-only container
+        run: |
+          docker build --tag gin-enterprise-console:ci .
+          container_id="$(docker run --detach --rm \
+            --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+            --env BACKEND_API_URL=http://127.0.0.1:5558 \
+            --env CONSOLE_ORIGIN=http://127.0.0.1:3000 \
+            --env CONSOLE_SESSION_SECRET=ci-container-secret-with-at-least-32-bytes \
+            --publish 127.0.0.1::3000 \
+            gin-enterprise-console:ci)"
+          trap 'docker rm --force "$container_id" >/dev/null 2>&1 || true' EXIT
+          host_port="$(docker port "$container_id" 3000/tcp | sed 's/.*://')"
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "http://127.0.0.1:${host_port}/api/health" >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          test "${ready:-0}" = "1"
+          test "$(docker inspect --format '{{.Config.User}}' "$container_id")" = "console"
+          test "$(docker inspect --format '{{.HostConfig.ReadonlyRootfs}}' "$container_id")" = "true"

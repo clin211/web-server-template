@@ -1,0 +1,41 @@
+{
+  "feature": "account",
+  "operations": [
+    {
+      "name": "resolve-current-identity",
+      "method": "GET",
+      "path": "/v1/auth/info",
+      "upstreamSecurity": "bearer",
+      "credentialPolicy": "access",
+      "successRef": "#/definitions/v1InfoResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    },
+    {
+      "name": "update-current-account",
+      "method": "PUT",
+      "path": "/v1/users/{userID}",
+      "upstreamSecurity": "bearer",
+      "credentialPolicy": "access",
+      "successRef": "#/definitions/v1UpdateUserResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    },
+    {
+      "name": "change-current-password",
+      "method": "PUT",
+      "path": "/v1/users/{userID}/change-password",
+      "upstreamSecurity": "bearer",
+      "credentialPolicy": "access",
+      "successRef": "#/definitions/v1ChangePasswordResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    },
+    {
+      "name": "delete-current-account",
+      "method": "DELETE",
+      "path": "/v1/users/{userID}",
+      "upstreamSecurity": "bearer",
+      "credentialPolicy": "access",
+      "successRef": "#/definitions/v1DeleteUserResponseEnvelope",
+      "errorRef": "#/definitions/v1APIError"
+    }
+  ]
+}

@@ -48,3 +48,6 @@ go.work.sum
 
 # 编译产物
 gin-enterprise-template-apiserver
+
+# 前端包管理器本地缓存
+/.pnpm-store/
