@@ -327,3 +327,60 @@ Worker：`make dev.worker`；事件闭环使用 `--outbox.enabled --consumer.ena
 - [现状矩阵与实施验证](docs/guide/enterprise-delivery.md)
 
 生产部署示例 `docker-compose.app.yml` 使用明确镜像 digest；不要提交真实凭据。`make verify`、`make integration.test` 和 `scripts/image-smoke.sh <image-id>` 分别验证本地质量、真实依赖和镜像闭环。P2 多租户、SSO 和复杂工作流仅记录建议。
+
+## HTTP 中英文提示
+
+HTTP 默认使用英文，通过 `Accept-Language` 选择语言。支持英文 `en`（含 `en-US`、`en-GB`）及简体中文 `zh-Hans`（含 `zh`、`zh-CN`；其他中文区域标签也统一使用简体中文），按 `q` 权重选择第一个受支持的语言，忽略 `q=0`。未提供、无效或没有受支持语言时使用英文。
+
+```bash
+# 默认英文
+curl -i http://localhost:5558/healthz
+
+# 简体中文，成功提示为“成功”
+curl -i -H 'Accept-Language: zh-CN' http://localhost:5558/healthz
+
+# 按权重选择简体中文
+curl -i -H 'Accept-Language: en;q=0.5,zh-Hans;q=0.9' http://localhost:5558/missing
+```
+
+响应通过 `Content-Language: en` 或 `zh-Hans` 标识所选语言，并追加 `Vary: Accept-Language`，保留跨域请求的 `Vary: Origin`。认证、限流、校验、任务和 404 提示均使用同一请求语言；HTTP 状态码、业务码、`reason` 和业务数据不随语言改变。英文成功提示仍为 `success`。
+
+项目资源位于 `internal/pkg/localization/locales/en.json` 和 `zh-Hans.json`，通过 `go:embed` 打包，部署无需挂载语言文件。增加提示时，在两份资源中添加相同消息键；业务错误默认以 `Reason` 为消息键，需要保留现有 `reason` 并细化提示时使用 `WithMessageID("Validation.EmailInvalid")`。显式 `WithMessage` 保留原文，后续调用 `WithMessageID` 可重新启用翻译。翻译顺序为所选语言、英文、调用方回退文本、消息 ID。
+
+`pkg/i18n` 仅提供通用翻译机制和上下文传递，`New()` 不内置项目文案，其他应用可以通过 `WithFS` 或 `WithFile` 注入自己的资源。`internal/pkg/localization` 负责项目词表、默认英文和语言协商策略，通过 `localization.New()` 构造项目翻译器，由 API Server 注入 HTTP 中间件；公共包不依赖内部资源包。
+
+语言资源应在启动时加载完成，HTTP 运行期间共享只读 Bundle，每个请求独立选择 Localizer；不要在请求处理期间调用 `Add` 或 `AddFS` 修改资源。`localization.DefaultMessage` 为内部错误定义提供兼容的中文默认文案；`pkg/errorsx` 保留自身回退文本，HTTP 在输出时通过请求翻译器翻译。未注入翻译器时，公共包使用调用方或自身的回退文本。`pkg/app/defaults.json` 和 `pkg/errorsx/defaults.json` 只保存各组件自身的兼容回退文本，不包含用户或任务等业务文案。CLI 默认帮助文案由 `pkg/app` 自身维护，不加载项目词表；CLI 语言切换、日志、审计记录和任务载荷不属于本次国际化范围。
+
+### 动态消息参数
+
+语言资源使用 go-i18n 原生 Go 模板语法，参数名采用 Go 的 MixedCaps 风格。例如：
+
+```json
+{
+  "Validation.NicknameTooLong": "昵称长度必须小于 {{.MaxLength}} 个字符。"
+}
+```
+
+业务错误携带消息键和参数，在 HTTP 响应时才按照请求语言渲染。校验条件和提示参数必须引用同一业务阈值，不能在翻译中再次写死数字：
+
+```go
+const nicknameMaxLength = 30
+
+if utf8.RuneCountInString(nickname) >= nicknameMaxLength {
+    return errno.ErrInvalidArgument.
+        WithMessageID("Validation.NicknameTooLong").
+        WithMessageParams(i18n.Params{"MaxLength": nicknameMaxLength})
+}
+```
+
+直接翻译可以调用 `translator.T("Validation.NicknameTooLong", i18n.Params{"MaxLength": 45})`；`T`、`E`、`LocalizeT`、`LocalizeE` 的原有无参数调用保持兼容，每次最多提供一份参数表。需要处理渲染错误的调用方使用 `translator.Localize(message, params)`，该方法返回 `(string, error)`；缺失翻译的正常语言回退视为成功，缺少模板参数、模板损坏或参数类型不受支持会返回错误。
+
+`Params` 是平面的参数表，只支持内置字符串、布尔和数值类型；不接受指针、嵌套容器或函数。`WithMessageParams` 替换并复制整份参数表，不合并旧参数，传入 `nil` 清空参数。必须先调用 `WithMessageID`，再调用 `WithMessageParams`：更换消息键会清空旧参数，`WithMessage` 则清空参数并保持显式文案优先。其他错误派生方法同样复制参数，避免请求之间相互影响。
+
+昵称和新密码长度以 Unicode 码点（rune）计数，汉字和单码点 emoji 各计一个；组合字符与多码点 emoji 不按视觉字形合并。创建用户和修改密码时，新密码遵循当前长度及复杂度规则；登录密码与旧密码仅检查非空，由密码哈希比较验证，避免策略调整阻断历史凭据。
+
+所有渲染都经过 go-i18n，使用严格的 `missingkey=error`，并对原生 `index` 补充缺失键检查，不进行二次字符串替换。参数值中的模板符号按普通文本保留；语言资源和显式 `goi18n.Message.Other` 属于受信任的模板，`BizError.Message` 则始终作为普通回退文本保留，请求输入只能作为参数值或普通文本，不能作为模板。参数不进入响应元数据，诊断日志不记录参数值。
+
+`LocalizeT` 等便捷方法遇到渲染错误时记录诊断，尝试默认语言、调用方回退模板，最后返回消息 ID，不输出半成品模板或 `<no value>`。业务错误先尝试指定消息和默认语言；无法渲染时，使用当前请求语言的通用 `reason` 提示，再回退到普通文案，保持状态码、业务码和 `reason` 不变。业务错误的渲染诊断携带请求上下文，供日志关联 request ID 和 trace ID。`localization.DefaultMessage` 也走相同渲染机制，不再直接返回资源中的模板原文。
+
+新增或修改模板时运行相关测试：中英文词表不仅要求消息键相同，还要求占位符集合一致；参数可以在不同语言中按语法需要调整顺序。项目词表使用静态参数名（如 `.MaxLength` 或 `index . "MaxLength"`），以便测试核对两种语言的参数集合；动态索引仍可在通用翻译 API 中使用。

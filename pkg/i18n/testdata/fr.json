@@ -1,0 +1,6 @@
+{
+  "example.greeting": "Bonjour",
+  "example.limit": "{{.FieldName}} : maximum {{.MaxLength}}",
+  "example.broken": "Maximum {{.Unknown}}",
+  "example.malformed": "{{.Broken"
+}

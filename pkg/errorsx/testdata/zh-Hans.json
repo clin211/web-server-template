@@ -1,0 +1,5 @@
+{
+  "example.limit": "{{.Missing}}",
+  "Validation.EmailInvalid": "邮箱格式无效。",
+  "Common.InternalError": "内部服务器错误。"
+}

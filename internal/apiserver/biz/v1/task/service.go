@@ -9,6 +9,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	"github.com/clin211/gin-enterprise-template/internal/job"
@@ -16,14 +20,14 @@ import (
 	"github.com/clin211/gin-enterprise-template/internal/messaging/outbox"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/propagation"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-	"strconv"
-	"strings"
-	"time"
 )
+
+const maxIdempotencyKeyLength = 128
 
 var errInvalidReportEvent = errors.New("invalid report event")
 var errReportEventDoesNotMatchCommittedResult = errors.New("report event does not match committed result")
@@ -82,8 +86,10 @@ func (s *Service) Submit(ctx context.Context, p job.ReportParams, key string) (m
 	if err := job.ValidateReport(p); err != nil {
 		return model.TaskM{}, errno.ErrInvalidArgument
 	}
-	if key == "" || len(key) > 128 {
-		return model.TaskM{}, errno.ErrInvalidArgument.WithMessage("Idempotency-Key required, at most 128 characters")
+	if key == "" || len(key) > maxIdempotencyKeyLength {
+		return model.TaskM{}, errno.ErrInvalidArgument.
+			WithMessageID("Task.IdempotencyKeyInvalid").
+			WithMessageParams(i18n.Params{"MaxLength": maxIdempotencyKeyLength})
 	}
 	//nolint:errchkjson // Explicitly preserve the encoding error contract.
 	b, err := json.Marshal(p)
@@ -163,7 +169,7 @@ func (s *Service) Retry(ctx context.Context, id, key string) (model.TaskM, error
 	if old.Status != "failed" && old.Status != "canceled" {
 		return old, store.ErrIdempotencyConflict
 	}
-	if key == "" || len(key) > 128 {
+	if key == "" || len(key) > maxIdempotencyKeyLength {
 		return old, errno.ErrInvalidArgument
 	}
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte("retry:"+id)))
@@ -428,7 +434,7 @@ func (s *Service) Replay(ctx context.Context, id, key string) (string, error) {
 	if err := s.Require(ctx, "dlq.replay", ""); err != nil {
 		return "", err
 	}
-	if key == "" || len(key) > 128 {
+	if key == "" || len(key) > maxIdempotencyKeyLength {
 		return "", errno.ErrInvalidArgument
 	}
 	actor := contextx.UserID(ctx)
@@ -461,14 +467,14 @@ func (s *Service) replayEnvelope(ctx context.Context, id string) (outbox.Envelop
 		return outbox.Envelope{}, errno.FromStore(err)
 	}
 	if dead.CreatedAt.Before(time.Now().Add(-90 * 24 * time.Hour)) {
-		return outbox.Envelope{}, errno.ErrInvalidArgument.WithMessage("replay window expired")
+		return outbox.Envelope{}, errno.ErrInvalidArgument.WithMessageID("Task.ReplayWindowExpired")
 	}
 	e, err := outbox.ParseEnvelope(dead.Payload)
 	if err != nil {
-		return outbox.Envelope{}, errno.ErrInvalidArgument.WithMessage("invalid original envelope")
+		return outbox.Envelope{}, errno.ErrInvalidArgument.WithMessageID("Task.OriginalEnvelopeInvalid")
 	}
 	if e.EventType != "report.generated.v1" {
-		return outbox.Envelope{}, errno.ErrInvalidArgument.WithMessage("unsupported replay type")
+		return outbox.Envelope{}, errno.ErrInvalidArgument.WithMessageID("Task.ReplayTypeUnsupported")
 	}
 	var p struct {
 		TaskID   string `json:"task_id"`

@@ -13,9 +13,10 @@ import (
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
-	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/known"
+	"github.com/clin211/gin-enterprise-template/internal/pkg/localization"
 	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 	"github.com/clin211/gin-enterprise-template/pkg/token"
 )
 
@@ -44,35 +45,35 @@ func TestAuthnMiddlewareReturnsStableErrors(t *testing.T) {
 			header:    "Bearer not-a-jwt",
 			retriever: &fakeUserRetriever{},
 			wantCode:  errorsx.CodeAuthTokenInvalid,
-			wantMsg:   errno.ErrTokenInvalid.Message,
+			wantMsg:   "Invalid token.",
 		},
 		{
 			name:      "user lookup failure",
 			header:    signedAccessToken(t, "user-1"),
 			retriever: &fakeUserRetriever{err: errors.New("postgres connection string leaked")},
 			wantCode:  errorsx.CodeAuthUnauthenticated,
-			wantMsg:   errno.ErrUnauthenticated.Message,
+			wantMsg:   "Unauthenticated.",
 		},
 		{
 			name:      "retrieved identity does not match token",
 			header:    signedAccessToken(t, "user-1"),
 			retriever: &fakeUserRetriever{user: &model.UserM{UserID: "user-2"}},
 			wantCode:  errorsx.CodeAuthUnauthenticated,
-			wantMsg:   errno.ErrUnauthenticated.Message,
+			wantMsg:   "Unauthenticated.",
 		},
 		{
 			name:      "disabled user",
 			header:    signedAccessToken(t, "user-1"),
 			retriever: &fakeUserRetriever{user: &model.UserM{UserID: "user-1", Status: 1}},
 			wantCode:  errorsx.CodeUserPermissionDenied,
-			wantMsg:   errno.ErrUserDisabled.Message,
+			wantMsg:   "User account is disabled.",
 		},
 		{
 			name:      "token version is stale",
 			header:    signedAccessToken(t, "user-1"),
 			retriever: &fakeUserRetriever{user: &model.UserM{UserID: "user-1", TokenVersion: 1}},
 			wantCode:  errorsx.CodeAuthUnauthenticated,
-			wantMsg:   errno.ErrUnauthenticated.Message,
+			wantMsg:   "Unauthenticated.",
 		},
 	}
 
@@ -82,7 +83,7 @@ func TestAuthnMiddlewareReturnsStableErrors(t *testing.T) {
 			c, _ := gin.CreateTestContext(recorder)
 			req := httptest.NewRequest(http.MethodGet, "/v1/users/user-1", nil)
 			req.Header.Set("Authorization", tt.header)
-			c.Request = req
+			c.Request = req.WithContext(i18n.WithContext(req.Context(), localization.New()))
 
 			AuthnMiddleware(tt.retriever, authnTestTokenManager())(c)
 
@@ -106,7 +107,7 @@ func TestAuthnMiddlewareAddsActiveUserToContext(t *testing.T) {
 	c, _ := gin.CreateTestContext(recorder)
 	req := httptest.NewRequest(http.MethodGet, "/v1/users/user-1", nil)
 	req.Header.Set("Authorization", signedAccessToken(t, "user-1"))
-	c.Request = req
+	c.Request = req.WithContext(i18n.WithContext(req.Context(), localization.New()))
 
 	AuthnMiddleware(&fakeUserRetriever{user: &model.UserM{
 		UserID:   "user-1",
@@ -131,7 +132,7 @@ func TestRefreshAuthnMiddlewareRejectsDisabledUser(t *testing.T) {
 	c, _ := gin.CreateTestContext(recorder)
 	req := httptest.NewRequest(http.MethodPut, "/v1/auth/refresh-token", nil)
 	req.Header.Set("Authorization", "Bearer "+signedRefreshToken(t, "user-1"))
-	c.Request = req
+	c.Request = req.WithContext(i18n.WithContext(req.Context(), localization.New()))
 
 	RefreshAuthnMiddleware(&fakeUserRetriever{user: &model.UserM{UserID: "user-1", Status: 1}}, authnTestTokenManager())(c)
 
@@ -142,8 +143,8 @@ func TestRefreshAuthnMiddlewareRejectsDisabledUser(t *testing.T) {
 	if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
-	if response.Message != errno.ErrUserDisabled.Message {
-		t.Fatalf("response message = %q, want %q", response.Message, errno.ErrUserDisabled.Message)
+	if response.Message != "User account is disabled." {
+		t.Fatalf("response message = %q, want %q", response.Message, "User account is disabled.")
 	}
 }
 

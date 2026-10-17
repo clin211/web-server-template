@@ -2,8 +2,11 @@ package validation
 
 import (
 	"context"
+	"unicode/utf8"
+
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 	genericvalidation "github.com/clin211/gin-enterprise-template/pkg/validation"
 
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
@@ -14,22 +17,26 @@ import (
 func (v *Validator) ValidateUserRules() genericvalidation.Rules {
 	password := stringRule(isValidPassword)
 	return genericvalidation.Rules{
-		"Password": password, "OldPassword": password, "NewPassword": password,
+		"Password": password, "OldPassword": stringRule(validatePasswordRequired), "NewPassword": password,
 		"UserID": stringRule(func(value string) error {
 			if value == "" {
-				return errno.ErrInvalidArgument.WithMessage("userID cannot be empty")
+				return errno.ErrInvalidArgument.WithMessageID("Validation.UserIDRequired")
 			}
 			return nil
 		}),
 		"Username": stringRule(func(value string) error {
 			if !isValidUsername(value) {
-				return errno.ErrUsernameInvalid
+				return errno.ErrUsernameInvalid.
+					WithMessageID("Validation.UsernameInvalid").
+					WithMessageParams(i18n.Params{"MinLength": usernameMinLength, "MaxLength": usernameMaxLength})
 			}
 			return nil
 		}),
 		"Nickname": stringRule(func(value string) error {
-			if len(value) >= 30 {
-				return errno.ErrInvalidArgument.WithMessage("nickname must be less than 30 characters")
+			if utf8.RuneCountInString(value) >= nicknameMaxLength {
+				return errno.ErrInvalidArgument.
+					WithMessageID("Validation.NicknameTooLong").
+					WithMessageParams(i18n.Params{"MaxLength": nicknameMaxLength})
 			}
 			return nil
 		}),
@@ -37,8 +44,10 @@ func (v *Validator) ValidateUserRules() genericvalidation.Rules {
 		"Phone": stringRule(isValidPhone),
 		"Limit": func(value any) error {
 			limit, ok := value.(int64)
-			if !ok || limit <= 0 {
-				return errno.ErrInvalidArgument.WithMessage("limit must be greater than 0")
+			if !ok || limit <= minimumListLimit {
+				return errno.ErrInvalidArgument.
+					WithMessageID("Validation.LimitPositive").
+					WithMessageParams(i18n.Params{"Min": minimumListLimit})
 			}
 			return nil
 		},
@@ -50,7 +59,7 @@ func stringRule(validate func(string) error) genericvalidation.ValidatorFunc {
 	return func(value any) error {
 		text, ok := value.(string)
 		if !ok {
-			return errno.ErrInvalidArgument.WithMessage("field must be a string")
+			return errno.ErrInvalidArgument.WithMessageID("Validation.StringRequired")
 		}
 		return validate(text)
 	}
@@ -58,7 +67,10 @@ func stringRule(validate func(string) error) genericvalidation.ValidatorFunc {
 
 // ValidateLoginRequest 校验登录请求.
 func (v *Validator) ValidateLoginRequest(ctx context.Context, rq *v1.LoginRequest) error {
-	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
+	rules := v.ValidateUserRules()
+	// 已有凭据由密码哈希比较验证，不能因新密码策略调整而拒绝历史用户登录。
+	rules["Password"] = stringRule(validatePasswordRequired)
+	return genericvalidation.ValidateAllFields(rq, rules)
 }
 
 // ValidateChangePasswordRequest 校验 ChangePasswordRequest 结构体的有效性.

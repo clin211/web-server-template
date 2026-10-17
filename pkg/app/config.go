@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -22,7 +21,7 @@ const configFlagName = "config"
 // 将配置文件中的值读取到 viper 中。
 func AddConfigFlag(fs *pflag.FlagSet, name string, watch bool) {
 	var cfgFile string
-	fs.StringVarP(&cfgFile, configFlagName, "c", "", i18n.DefaultMessage("CLI.ConfigFlag"))
+	fs.StringVarP(&cfgFile, configFlagName, "c", "", defaultMessage("CLI.ConfigFlag"))
 
 	// 启用 viper 的自动环境变量解析。这意味着
 	// viper 将自动从环境变量中读取与 viper

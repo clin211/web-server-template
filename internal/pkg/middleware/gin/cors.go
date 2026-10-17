@@ -27,7 +27,7 @@ func CORS(allowedOrigins []string) ginframework.HandlerFunc {
 
 		c.Header("Access-Control-Allow-Origin", origin)
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
+		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept, accept-language")
 		if c.Request.Method == http.MethodOptions {
 			c.AbortWithStatus(http.StatusNoContent)
 			return

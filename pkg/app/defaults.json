@@ -1,0 +1,8 @@
+{
+  "CLI.ConfigFlag": "从指定的 `FILE` 读取配置，支持 JSON、TOML、YAML、HCL 或 Java properties 格式。",
+  "CLI.HelpShort": "关于任何命令的帮助。",
+  "CLI.HelpLong": "Help 为应用程序中的任何命令提供帮助。\n只需输入 %s help [命令路径] 即可获取完整详情。",
+  "CLI.UnknownHelp": "未知的帮助主题 %#q\n",
+  "CLI.HelpFlag": "%s 的帮助。",
+  "CLI.CommandHelpFlag": "%s 命令的帮助。"
+}

@@ -128,6 +128,8 @@ _output/platforms/$(go env GOOS)/$(go env GOARCH)/gin-enterprise-template-apiser
 
 修改接口时同步考虑：请求默认值、参数校验、错误码、认证中间件、OpenAPI 生成物、日志和可观测性。
 
+国际化职责分离：`pkg/i18n` 仅提供通用翻译机制；项目词表和语言协商策略放在 `internal/pkg/localization`，由应用启动时装配注入。公共包不得依赖项目内部词表，CLI 默认文案由 `pkg/app` 自身维护。动态文案使用 go-i18n 原生 `{{.MaxLength}}` 模板和 `i18n.Params`，业务通过 `WithMessageID(...).WithMessageParams(...)` 传递阈值；校验和提示参数共用业务常量，不自行实现字符串替换。
+
 ## Git 约定
 
 提交消息使用 Conventional Commits：

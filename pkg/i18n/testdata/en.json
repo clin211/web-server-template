@@ -1,0 +1,7 @@
+{
+  "example.greeting": "Hello",
+  "example.fallback": "English fallback",
+  "example.limit": "Maximum {{.MaxLength}} for {{.FieldName}}",
+  "example.broken": "Maximum {{.MaxLength}}",
+  "example.malformed": "{{.Broken"
+}

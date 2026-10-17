@@ -144,12 +144,14 @@ const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02':\x01*\x1a\"/v1/users/{userID}/change-passwordB\xbc\x04\x92A\xf4\x03\x12\x9d\x02\n" +
-	"\rAPI Server v1\x12\x98\x01基于 gin-enterprise-template 的通用后端 API 服务：\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02':\x01*\x1a\"/v1/users/{userID}/change-passwordB\xf5\x06\x92A\xad\x06\x12\xd6\x04\n" +
+	"\rAPI Server v1\x12\xd1\x03基于 gin-enterprise-template 的通用后端 API 服务：\n" +
 	"- JWT 用户认证\n" +
 	"- 用户基础管理\n" +
 	"- RESTful 资源接口\n" +
-	"- OpenTelemetry 可观测性\"l\n" +
+	"- OpenTelemetry 可观测性\n" +
+	"\n" +
+	"HTTP 提示支持 Accept-Language：默认 en，zh/zh-CN/zh-Hans 使用简体中文；支持 q 权重，忽略 q=0，无效或不支持的语言回退英文。响应返回 Content-Language 和 Vary: Accept-Language；仅提示文本随语言变化，状态码、业务码、reason 和业务数据保持不变。\"l\n" +
 	"\x1egin-enterprise-template 项目\x122https://github.com/clin211/gin-enterprise-template\x1a\x16767425412lin@gmail.com2\x031.0*\x02\x01\x022\x10application/json:\x10application/jsonZ\xa9\x01\n" +
 	"\xa6\x01\n" +
 	"\n" +

@@ -1,0 +1,4 @@
+{
+  "jwt.token.invalid": "令牌无效。",
+  "jwt.token.expired": "令牌已过期。"
+}

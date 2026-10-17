@@ -4,17 +4,19 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
+	"strconv"
+	"time"
+
 	taskbiz "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/task"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	"github.com/clin211/gin-enterprise-template/internal/job"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	"github.com/clin211/gin-enterprise-template/pkg/core"
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 	"github.com/gin-gonic/gin"
-	"io"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 func installTaskRoutes(v1 *gin.RouterGroup, h *Handler) {
@@ -174,7 +176,7 @@ func strictBody(c *gin.Context, v any) bool {
 }
 func reply(c *gin.Context, status int, data any, err error) {
 	if errors.Is(err, store.ErrIdempotencyConflict) {
-		c.JSON(409, gin.H{"code": 409, "message": "resource version, state or idempotency conflict", "reason": "Task.Conflict"})
+		c.JSON(409, gin.H{"code": 409, "message": i18n.FromContext(c.Request.Context()).T("Task.Conflict"), "reason": "Task.Conflict"})
 		return
 	}
 	if err != nil {
@@ -184,7 +186,7 @@ func reply(c *gin.Context, status int, data any, err error) {
 	if data == nil {
 		data = gin.H{}
 	}
-	c.JSON(status, gin.H{"code": 0, "message": "success", "data": data})
+	c.JSON(status, gin.H{"code": 0, "message": i18n.FromContext(c.Request.Context()).T("Common.Success"), "data": data})
 }
 
 func (h *Handler) allowReplay(c *gin.Context) bool {

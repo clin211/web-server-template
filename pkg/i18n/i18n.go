@@ -21,7 +21,7 @@ type I18n struct {
 	lang      language.Tag
 }
 
-// New 使用给定选项创建 I18n 结构体实例。
+// New 使用给定选项创建翻译器，语言资源由调用方显式提供。
 // 接受可变的函数选项参数，并返回指向 I18n 结构体的指针。
 func New(options ...func(*Options)) *I18n {
 	ops := getOptionsOrSetDefault(nil)
@@ -29,6 +29,7 @@ func New(options ...func(*Options)) *I18n {
 		f(ops)
 	}
 	bundle := i18n.NewBundle(ops.language)
+	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	localizer := i18n.NewLocalizer(bundle, ops.language.String())
 	switch ops.format {
 	case "toml":
@@ -69,37 +70,9 @@ func (i I18n) Language() language.Tag {
 	return i.lang
 }
 
-// LocalizeT 本地化给定消息并返回本地化字符串。
-// 如果无法翻译，则返回消息 ID 作为默认消息。
-func (i I18n) LocalizeT(message *i18n.Message) string {
-	if message == nil {
-		return ""
-	}
-
-	rp, err := i.localizer.Localize(&i18n.LocalizeConfig{
-		DefaultMessage: message,
-	})
-	if err != nil {
-		// 无法翻译时使用 id 作为默认消息
-		return message.ID
-	}
-	return rp
-}
-
-// LocalizeE 是 LocalizeT 方法的包装器，将本地化字符串转换为错误类型并返回。
-func (i I18n) LocalizeE(message *i18n.Message) error {
-	return &localizedError{message: i.LocalizeT(message)}
-}
-
-// T 本地化给定 ID 的消息并返回本地化字符串。
-// 使用 LocalizeT 方法执行翻译。
-func (i I18n) T(id string) string {
-	return i.LocalizeT(&i18n.Message{ID: id})
-}
-
-// E 是 T 的包装器，将本地化字符串转换为错误类型并返回。
-func (i I18n) E(id string) error {
-	return &localizedError{message: i.T(id)}
+// DefaultLanguage 获取资源回退时使用的默认语言。
+func (i I18n) DefaultLanguage() language.Tag {
+	return i.ops.language
 }
 
 type localizedError struct{ message string }
@@ -107,6 +80,7 @@ type localizedError struct{ message string }
 func (e *localizedError) Error() string { return e.message }
 
 // Add 添加语言文件或目录，通过文件名获取语言。
+// 仅在启动时调用，不能与 LocalizeT 或 Select 并发使用。
 func (i I18n) Add(f string) {
 	info, err := os.Stat(f)
 	if err != nil {
@@ -135,7 +109,7 @@ func (i I18n) loadFile(name string) {
 	}
 }
 
-// AddFS 添加语言嵌入文件。
+// AddFS 添加语言嵌入文件，仅在启动时调用，不能与翻译并发使用。
 func (i I18n) AddFS(fs embed.FS) {
 	for _, name := range readFS(fs, ".") {
 		if _, err := i.bundle.LoadMessageFileFS(fs, name); err != nil {

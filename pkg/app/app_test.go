@@ -29,3 +29,14 @@ func TestNewAppNamedOptionsRegistersGlobalFlags(t *testing.T) {
 		}
 	}
 }
+
+func TestConfigFlagKeepsDefaultHelp(t *testing.T) {
+	application := NewApp("example", "Example application")
+	flag := application.Command().PersistentFlags().Lookup("config")
+	if flag == nil {
+		t.Fatal("config flag missing")
+	}
+	if want := "从指定的 `FILE` 读取配置，支持 JSON、TOML、YAML、HCL 或 Java properties 格式。"; flag.Usage != want {
+		t.Fatalf("config help = %q, want %q", flag.Usage, want)
+	}
+}

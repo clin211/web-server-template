@@ -2,16 +2,19 @@ package core
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/clin211/gin-enterprise-template/pkg/binding"
 	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 )
 
 // Validator 是验证函数的类型，用于对绑定的数据结构进行验证.
@@ -22,9 +25,6 @@ type Binder func(any) error
 
 // Handler 是处理函数的类型，用于处理已经绑定和验证的数据.
 type Handler[T any, R any] func(ctx context.Context, req *T) (R, error)
-
-// successMessage 是所有成功响应统一使用的 message 文案。
-const successMessage = "success"
 
 // HandleAllRequest 是处理综合请求的快捷函数。
 // 它会将 URI 参数、Query/Form 参数、以及 JSON Body 一并绑定到结构体中，
@@ -248,11 +248,10 @@ func FinalizeRequest[T any](c *gin.Context, rq *T, validators ...Validator[T]) e
 func WriteResponse(c *gin.Context, data any, err error) {
 	if err != nil {
 		// 如果发生错误，生成错误响应
-		bizErr := errorsx.FromError(err)
-		response := errorsx.FromBizError(bizErr)
-		c.JSON(bizErr.HTTPStatus(), response)
+		WriteBizError(c, errorsx.FromError(err))
 		return
 	}
+	successMessage := i18n.FromContext(c.Request.Context()).LocalizeT(&goi18n.Message{ID: "Common.Success", Other: "success"})
 
 	// proto.Message 走 protojson（EmitUnpopulated + 枚举名），与 OpenAPI 契约
 	// 中 XxxResponseEnvelope 的字段声明保持一致；注意必须传入指针，值类型无法
@@ -263,11 +262,11 @@ func WriteResponse(c *gin.Context, data any, err error) {
 			// 序列化失败属于程序错误：返回 500 内部错误，而不是输出一个
 			// 与契约不一致的"部分成功"响应。
 			slog.ErrorContext(c.Request.Context(), "Failed to marshal proto response", "error", marshalErr)
-			c.JSON(http.StatusInternalServerError, errorsx.FromBizError(errorsx.ErrInternal))
+			WriteBizError(c, errorsx.ErrInternal)
 			return
 		}
 
-		c.Data(http.StatusOK, "application/json; charset=utf-8", []byte("{\"code\":0,\"message\":\""+successMessage+"\",\"data\":"+string(payload)+"}"))
+		c.JSON(http.StatusOK, errorsx.Success(json.RawMessage(payload), successMessage))
 		return
 	}
 
@@ -276,6 +275,6 @@ func WriteResponse(c *gin.Context, data any, err error) {
 
 // WriteBizError 写入业务错误的便捷函数
 func WriteBizError(c *gin.Context, bizErr *errorsx.BizError) {
-	response := errorsx.FromBizError(bizErr)
+	response := errorsx.FromBizError(bizErr.Localize(c.Request.Context()))
 	c.JSON(bizErr.HTTPStatus(), response)
 }

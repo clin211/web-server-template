@@ -8,6 +8,7 @@ import (
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
+	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
 )
 
 func TestUserResourceValidationEnforcesOwnership(t *testing.T) {
@@ -121,6 +122,49 @@ func TestUserRulesRejectUnexpectedTypes(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			if err := rules[name](struct{}{}); !errors.Is(err, errno.ErrInvalidArgument) {
 				t.Fatalf("unexpected type error = %v, want invalid argument", err)
+			}
+		})
+	}
+}
+
+func TestPasswordValidationPreservesExistingCredentials(t *testing.T) {
+	validator := &Validator{}
+	ctx := contextx.WithUserID(context.Background(), "user-1")
+	for _, tt := range []struct {
+		name     string
+		validate func() error
+		wantID   string
+	}{
+		{"legacy login", func() error {
+			return validator.ValidateLoginRequest(ctx, &v1.LoginRequest{Username: "user1", Password: "a1😀"})
+		}, ""},
+		{"legacy old password", func() error {
+			return validator.ValidateChangePasswordRequest(ctx, &v1.ChangePasswordRequest{UserID: "user-1", OldPassword: "a1😀", NewPassword: "new123"})
+		}, ""},
+		{"missing login password", func() error {
+			return validator.ValidateLoginRequest(ctx, &v1.LoginRequest{Username: "user1"})
+		}, "Validation.PasswordRequired"},
+		{"missing old password", func() error {
+			return validator.ValidateChangePasswordRequest(ctx, &v1.ChangePasswordRequest{UserID: "user-1", NewPassword: "new123"})
+		}, "Validation.PasswordRequired"},
+		{"short new password", func() error {
+			return validator.ValidateChangePasswordRequest(ctx, &v1.ChangePasswordRequest{UserID: "user-1", OldPassword: "old123", NewPassword: "a1😀"})
+		}, "Validation.PasswordTooShort"},
+		{"valid Unicode new password", func() error {
+			return validator.ValidateChangePasswordRequest(ctx, &v1.ChangePasswordRequest{UserID: "user-1", OldPassword: "a1😀", NewPassword: "a1中😀文好"})
+		}, ""},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.validate()
+			if tt.wantID == "" {
+				if err != nil {
+					t.Fatalf("valid credential rejected: %v", err)
+				}
+				return
+			}
+			var bizErr *errorsx.BizError
+			if !errors.As(err, &bizErr) || bizErr.MessageID != tt.wantID {
+				t.Fatalf("validation error = %v, want message ID %s", err, tt.wantID)
 			}
 		})
 	}

@@ -1,12 +1,15 @@
 package errorsx
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"maps"
 	"net/http"
 
 	"github.com/clin211/gin-enterprise-template/pkg/i18n"
+	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -69,8 +72,14 @@ type BizError struct {
 	// 错误原因（英文，用于日志和监控）
 	Reason string `json:"reason,omitempty"`
 
-	// 用户友好消息（中文，用于前端显示）
+	// 用户友好消息，HTTP 输出时按请求语言翻译。
 	Message string `json:"message,omitempty"`
+
+	// MessageID 指定翻译键；为空时使用 Reason，不参与响应序列化。
+	MessageID string `json:"-"`
+
+	messageOverride bool
+	messageParams   i18n.Params
 
 	// 详细信息
 	Details string `json:"details,omitempty"`
@@ -152,6 +161,7 @@ func NewBizError(code BizCode, reason, message string) *BizError {
 func (err *BizError) clone() *BizError {
 	newErr := *err
 	newErr.Metadata = maps.Clone(err.Metadata)
+	newErr.messageParams = maps.Clone(err.messageParams)
 	return &newErr
 }
 
@@ -173,7 +183,74 @@ func (err *BizError) WithMetadata(metadata map[string]any) *BizError {
 func (err *BizError) WithMessage(message string) *BizError {
 	newErr := err.clone()
 	newErr.Message = message
+	newErr.MessageID = ""
+	newErr.messageParams = nil
+	newErr.messageOverride = true
 	return newErr
+}
+
+// WithMessageID 设置翻译键并清空旧模板参数（返回新实例），保留业务码、Reason 及回退文案。
+func (err *BizError) WithMessageID(id string) *BizError {
+	newErr := err.clone()
+	newErr.MessageID = id
+	newErr.messageParams = nil
+	newErr.messageOverride = false
+	return newErr
+}
+
+// WithMessageParams 替换模板参数并复制参数表（返回新实例），nil 清空参数。
+// 在 WithMessageID 之后调用；参数只用于翻译，不会作为元数据暴露给客户端。
+// 参数值仅支持 i18n.Params 约定的内置标量，调用返回后修改原表不会影响此错误。
+func (err *BizError) WithMessageParams(params i18n.Params) *BizError {
+	newErr := err.clone()
+	newErr.messageParams = maps.Clone(params)
+	return newErr
+}
+
+// Localize 返回按请求语言翻译的副本，避免修改多个请求共享的预定义错误。
+// WithMessage 显式设置的文本优先于翻译，直到再次调用 WithMessageID。
+func (err *BizError) Localize(ctx context.Context) *BizError {
+	newErr := err.clone()
+	if newErr.messageOverride {
+		return newErr
+	}
+	id := newErr.MessageID
+	if id == "" {
+		id = newErr.Reason
+	}
+	translator := i18n.FromContext(ctx)
+	message, renderErr := localizeMessage(ctx, translator, id, newErr.messageParams)
+	if renderErr == nil {
+		newErr.Message = message
+		return newErr
+	}
+	// 普通错误文案（包括上游错误）不是受信任模板，不能传给 DefaultMessage.Other。
+	if id != newErr.Reason {
+		if fallback, fallbackErr := localizeMessage(ctx, translator, newErr.Reason, nil); fallbackErr == nil {
+			newErr.Message = fallback
+		}
+	}
+	if newErr.Message == "" {
+		newErr.Message = id
+	}
+	return newErr
+}
+
+func localizeMessage(ctx context.Context, translator *i18n.I18n, id string, params i18n.Params) (string, error) {
+	message := &goi18n.Message{ID: id}
+	result, err := translator.Localize(message, params)
+	if err == nil {
+		return result, nil
+	}
+	var missing *goi18n.MessageNotFoundErr
+	if !errors.As(err, &missing) {
+		// 模板执行错误可能包含输入值，诊断只记录消息键、语言和请求上下文。
+		slog.WarnContext(ctx, "localize business error failed", "message_id", id, "language", translator.Language().String())
+	}
+	if translator.Language() != translator.DefaultLanguage() {
+		return translator.Select(translator.DefaultLanguage()).Localize(message, params)
+	}
+	return "", err
 }
 
 // Error 实现 error 接口
@@ -327,7 +404,7 @@ func fromGRPCStatus(gs *status.Status) *BizError {
 func grpcBizError(gs *status.Status) *BizError {
 	switch FromGRPCCode(gs.Code()) {
 	case http.StatusBadRequest:
-		return NewBizError(CodeUserInvalidCredentials, "Common.InvalidArgument", i18n.DefaultMessage("Common.BadRequest"))
+		return NewBizError(CodeUserInvalidCredentials, "Common.InvalidArgument", defaultMessage("Common.BadRequest"))
 	case http.StatusNotFound:
 		return NewBizError(CodeUserNotFound, "GRPCError", gs.Message())
 	case http.StatusUnauthorized:

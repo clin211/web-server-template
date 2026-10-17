@@ -1,0 +1,10 @@
+{
+  "Common.InternalError": "内部服务器错误。",
+  "Common.NotFound": "资源未找到。",
+  "Common.BindError": "请求体绑定失败。",
+  "Common.InvalidArgument": "参数校验失败。",
+  "Auth.Unauthenticated": "未认证。",
+  "Auth.PermissionDenied": "权限不足。",
+  "Common.OperationFailed": "操作失败，请稍后重试。",
+  "Common.BadRequest": "请求参数无效。"
+}

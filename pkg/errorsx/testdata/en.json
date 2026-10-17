@@ -1,0 +1,5 @@
+{
+  "example.limit": "Limit {{.MaxLength}}",
+  "example.lookup": "{{index . .Lookup}}",
+  "Common.InvalidArgument": "Invalid request parameters."
+}
