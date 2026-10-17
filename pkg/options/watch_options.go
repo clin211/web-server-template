@@ -10,7 +10,16 @@ import (
 
 // watch 相关的静态错误定义
 var (
-	errWatchDuplicateWatcher = errors.New("disable-watchers contains duplicate entries")
+	errWatchLockNameEmpty             = errors.New("lock-name cannot be empty")
+	errWatchHealthPortInvalid         = errors.New("healthz-port must be between 1 and 65535")
+	errWatchWorkersInvalid            = errors.New("max-workers must be greater than 0")
+	errWatchTimeoutInvalid            = errors.New("watch-timeout must be greater than 0")
+	errWatchTimeoutTooLong            = errors.New("watch-timeout should not exceed 24 hours for practical reasons")
+	errWatchConcurrencyInvalid        = errors.New("per-watch-concurrency must be greater than 0")
+	errWatchConcurrencyTooLarge       = errors.New("per-watch-concurrency should not exceed 1000 for resource management")
+	errWatchConcurrencyExceedsWorkers = errors.New("per-watch-concurrency cannot be greater than max-workers")
+	errWatchDisabledNameEmpty         = errors.New("disable-watchers cannot contain empty strings")
+	errWatchDuplicateWatcher          = errors.New("disable-watchers contains duplicate entries")
 )
 
 // 确保接口实现
@@ -79,55 +88,69 @@ func (o *WatchOptions) Validate() []error {
 
 	// 验证 LockName
 	if o.LockName == "" {
-		errs = append(errs, errors.New("lock-name cannot be empty"))
+		errs = append(errs, errWatchLockNameEmpty)
 	}
 
 	// 验证 HealthzPort
 	if o.HealthzPort <= 0 || o.HealthzPort > 65535 {
-		errs = append(errs, errors.New("healthz-port must be between 1 and 65535"))
+		errs = append(errs, errWatchHealthPortInvalid)
 	}
 
 	// 验证 MaxWorkers
 	if o.MaxWorkers <= 0 {
-		errs = append(errs, errors.New("max-workers must be greater than 0"))
+		errs = append(errs, errWatchWorkersInvalid)
 	}
 
-	// 验证 WatchTimeout
-	if o.WatchTimeout <= 0 {
-		errs = append(errs, errors.New("watch-timeout must be greater than 0"))
-	}
+	errs = append(errs, o.validateExecutionLimits()...)
 
-	// 检查合理的超时边界（可选但推荐）
-	if o.WatchTimeout > 24*time.Hour {
-		errs = append(errs, errors.New("watch-timeout should not exceed 24 hours for practical reasons"))
-	}
+	return append(errs, o.validateDisabledWatchers()...)
+}
 
-	// 验证 PerConcurrency
-	if o.PerConcurrency <= 0 {
-		errs = append(errs, errors.New("per-watch-concurrency must be greater than 0"))
-	}
-
-	// 检查合理的并发边界
-	if o.PerConcurrency > 1000 {
-		errs = append(errs, errors.New("per-watch-concurrency should not exceed 1000 for resource management"))
-	}
-
-	// 交叉验证：PerConcurrency 不应超过 MaxWorkers
-	if int64(o.PerConcurrency) > o.MaxWorkers {
-		errs = append(errs, errors.New("per-watch-concurrency cannot be greater than max-workers"))
-	}
+func (o *WatchOptions) validateDisabledWatchers() []error {
+	var errs []error
 
 	// 验证 DisableWatchers（可选：检查重复项）
 	watcherSet := make(map[string]bool)
 	for _, watcher := range o.DisableWatchers {
 		if watcher == "" {
-			errs = append(errs, errors.New("disable-watchers cannot contain empty strings"))
+			errs = append(errs, errWatchDisabledNameEmpty)
 			continue
 		}
 		if watcherSet[watcher] {
 			errs = append(errs, fmt.Errorf("%w: %s", errWatchDuplicateWatcher, watcher))
 		}
 		watcherSet[watcher] = true
+	}
+
+	return errs
+}
+
+func (o *WatchOptions) validateExecutionLimits() []error {
+	var errs []error
+
+	// 验证 WatchTimeout
+	if o.WatchTimeout <= 0 {
+		errs = append(errs, errWatchTimeoutInvalid)
+	}
+
+	// 检查合理的超时边界（可选但推荐）
+	if o.WatchTimeout > 24*time.Hour {
+		errs = append(errs, errWatchTimeoutTooLong)
+	}
+
+	// 验证 PerConcurrency
+	if o.PerConcurrency <= 0 {
+		errs = append(errs, errWatchConcurrencyInvalid)
+	}
+
+	// 检查合理的并发边界
+	if o.PerConcurrency > 1000 {
+		errs = append(errs, errWatchConcurrencyTooLarge)
+	}
+
+	// 交叉验证：PerConcurrency 不应超过 MaxWorkers
+	if int64(o.PerConcurrency) > o.MaxWorkers {
+		errs = append(errs, errWatchConcurrencyExceedsWorkers)
 	}
 
 	return errs

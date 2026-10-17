@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	_ "go.uber.org/automaxprocs"
 	"k8s.io/component-base/cli"
@@ -199,20 +198,16 @@ func (app *App) buildCommand() {
 	// 在所有情况下，错误打印都在下面完成。
 	cmd.SilenceErrors = true
 
-	cmd.SetOutput(os.Stdout)
+	cmd.SetOut(os.Stdout)
 	cmd.SetErr(os.Stderr)
 	cmd.Flags().SortFlags = true
 
-	var fs *pflag.FlagSet
+	fs := cmd.PersistentFlags()
 	// 方法2：使用type switch
 	switch typed := app.options.(type) {
 	case NamedFlagSetOptions:
-		var fss cliflag.NamedFlagSets
+		fss := typed.Flags()
 		fs = fss.FlagSet("global")
-
-		if app.options != nil {
-			fss = typed.Flags()
-		}
 
 		for _, f := range fss.FlagSets {
 			cmd.Flags().AddFlagSet(f)
@@ -234,6 +229,10 @@ func (app *App) buildCommand() {
 		AddConfigFlag(fs, app.name, app.watch)
 	}
 
+	if fs != cmd.PersistentFlags() {
+		cmd.PersistentFlags().AddFlagSet(fs)
+	}
+
 	app.cmd = cmd
 }
 
@@ -250,26 +249,43 @@ func (app *App) runCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if app.options != nil {
-		if err := viper.Unmarshal(app.options); err != nil {
-			return err
-		}
-
-		if complete, ok := app.options.(interface{ Complete() error }); ok {
-			if err := complete.Complete(); err != nil {
-				return err
-			}
-		}
-
-		if validate, ok := app.options.(interface{ Validate() error }); ok {
-			if err := validate.Validate(); err != nil {
-				return err
-			}
-		}
+	if err := app.completeOptions(); err != nil {
+		return err
 	}
 
 	app.initializeLogger()
 
+	app.logStartup(cmd)
+
+	if app.healthCheckFunc != nil {
+		if err := app.healthCheckFunc(); err != nil {
+			return err
+		}
+	}
+
+	// 运行应用程序
+	return app.run()
+}
+
+func (app *App) completeOptions() error {
+	if app.options == nil {
+		return nil
+	}
+	if err := viper.Unmarshal(app.options); err != nil {
+		return err
+	}
+	if complete, ok := app.options.(interface{ Complete() error }); ok {
+		if err := complete.Complete(); err != nil {
+			return err
+		}
+	}
+	if validate, ok := app.options.(interface{ Validate() error }); ok {
+		return validate.Validate()
+	}
+	return nil
+}
+
+func (app *App) logStartup(cmd *cobra.Command) {
 	if !app.silence {
 		slog.Info("Starting application",
 			"name", app.name,
@@ -284,15 +300,6 @@ func (app *App) runCommand(cmd *cobra.Command, args []string) error {
 			cliflag.PrintFlags(cmd.Flags())
 		}
 	}
-
-	if app.healthCheckFunc != nil {
-		if err := app.healthCheckFunc(); err != nil {
-			return err
-		}
-	}
-
-	// 运行应用程序
-	return app.run()
 }
 
 // Command 返回应用程序内的 cobra 命令实例。

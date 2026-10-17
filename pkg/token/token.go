@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -45,10 +46,6 @@ var (
 	once        sync.Once // 确保配置只被初始化一次
 )
 
-func init() {
-	storeConfig(defaultConfig())
-}
-
 func defaultConfig() Config {
 	return Config{
 		key:               "",
@@ -75,7 +72,11 @@ func cloneConfig(cfg Config) Config {
 }
 
 func loadConfig() Config {
-	return configValue.Load().(Config)
+	cfg, ok := configValue.Load().(Config)
+	if !ok {
+		return defaultConfig()
+	}
+	return cfg
 }
 
 func storeConfig(cfg Config) {
@@ -84,6 +85,7 @@ func storeConfig(cfg Config) {
 
 // 预定义错误
 var (
+	errUnexpectedSigningMethod   = errors.New("unexpected signing method")
 	ErrMissingIdentityKey        = errors.New("missing identity key in token")
 	ErrInvalidIdentityKey        = errors.New("invalid identity key in token")
 	ErrEmptyToken                = errors.New("token is empty")
@@ -205,13 +207,11 @@ func matchPath(requestPath, pattern string) bool {
 	}
 
 	// 通配符匹配
-	if strings.HasSuffix(pattern, "/*") {
-		prefix := strings.TrimSuffix(pattern, "/*")
+	if prefix, ok := strings.CutSuffix(pattern, "/*"); ok {
 		return strings.HasPrefix(requestPath, prefix)
 	}
 
-	if strings.HasSuffix(pattern, "*") {
-		prefix := strings.TrimSuffix(pattern, "*")
+	if prefix, ok := strings.CutSuffix(pattern, "*"); ok {
 		return strings.HasPrefix(requestPath, prefix)
 	}
 
@@ -270,10 +270,10 @@ func ParseIdentity(tokenString string, key string) (string, error) {
 	}
 
 	// 解析 token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		// 服务签发算法固定为 HS256；接受任意 HMAC 会让 HS384/HS512 也成为未声明契约。
 		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("%w: %v", errUnexpectedSigningMethod, token.Header["alg"])
 		}
 		return []byte(key), nil
 	})
@@ -431,23 +431,23 @@ func ParseAuthorizationHeader(header string) (string, error) {
 }
 
 // Sign 使用 jwtSecret 签发 Access Token 和 Refresh Token 对
-func Sign(identityValue string) (accessToken, refreshToken string, accessExpireAt, refreshExpireAt time.Time, err error) {
+func Sign(identityValue string) (string, string, time.Time, time.Time, error) {
 	return SignWithVersion(identityValue, 0)
 }
 
 // SignWithVersion 签发携带账号令牌版本的 Access Token 和 Refresh Token。
-func SignWithVersion(identityValue string, tokenVersion int64) (accessToken, refreshToken string, accessExpireAt, refreshExpireAt time.Time, err error) {
+func SignWithVersion(identityValue string, tokenVersion int64) (string, string, time.Time, time.Time, error) {
 	return signWithConfig(loadConfig(), identityValue, tokenVersion)
 }
 
-func signWithConfig(cfg Config, identityValue string, tokenVersion int64) (accessToken, refreshToken string, accessExpireAt, refreshExpireAt time.Time, err error) {
+func signWithConfig(cfg Config, identityValue string, tokenVersion int64) (string, string, time.Time, time.Time, error) {
 	if cfg.key == "" {
 		return "", "", time.Time{}, time.Time{}, jwt.ErrInvalidKey
 	}
 
 	now := time.Now()
-	accessExpireAt = now.Add(cfg.accessExpiration)
-	refreshExpireAt = now.Add(cfg.refreshExpiration)
+	accessExpireAt := now.Add(cfg.accessExpiration)
+	refreshExpireAt := now.Add(cfg.refreshExpiration)
 
 	// 签发 Access Token
 	accessClaims := jwt.MapClaims{
@@ -462,7 +462,7 @@ func signWithConfig(cfg Config, identityValue string, tokenVersion int64) (acces
 	}
 
 	accessTokenObj := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
-	accessToken, err = accessTokenObj.SignedString([]byte(cfg.key))
+	accessToken, err := accessTokenObj.SignedString([]byte(cfg.key))
 	if err != nil {
 		return "", "", time.Time{}, time.Time{}, fmt.Errorf("failed to sign access token: %w", err)
 	}
@@ -481,7 +481,7 @@ func signWithConfig(cfg Config, identityValue string, tokenVersion int64) (acces
 	}
 
 	refreshTokenObj := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
-	refreshToken, err = refreshTokenObj.SignedString([]byte(cfg.key))
+	refreshToken, err := refreshTokenObj.SignedString([]byte(cfg.key))
 	if err != nil {
 		return "", "", time.Time{}, time.Time{}, fmt.Errorf("failed to sign refresh token: %w", err)
 	}
@@ -540,9 +540,7 @@ func SignWithClaims(customClaims jwt.MapClaims) (string, time.Time, error) {
 
 	// 合并自定义 claims 和必要的时间字段
 	claims := make(jwt.MapClaims)
-	for k, v := range customClaims {
-		claims[k] = v
-	}
+	maps.Copy(claims, customClaims)
 
 	// 确保必要的时间字段存在
 	if _, exists := claims["nbf"]; !exists {
@@ -578,9 +576,9 @@ func Parse(tokenString string) error {
 		return jwt.ErrInvalidKey
 	}
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("%w: %v", errUnexpectedSigningMethod, token.Header["alg"])
 		}
 		return []byte(cfg.key), nil
 	})
@@ -606,9 +604,9 @@ func GetClaims(tokenString string) (jwt.MapClaims, error) {
 		return nil, jwt.ErrInvalidKey
 	}
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("%w: %v", errUnexpectedSigningMethod, token.Header["alg"])
 		}
 		return []byte(cfg.key), nil
 	})
@@ -672,9 +670,9 @@ func ParseWithKey(tokenString, key string) (jwt.MapClaims, error) {
 		return nil, jwt.ErrInvalidKey
 	}
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("%w: %v", errUnexpectedSigningMethod, token.Header["alg"])
 		}
 		return []byte(key), nil
 	})

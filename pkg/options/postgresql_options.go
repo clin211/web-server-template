@@ -57,7 +57,7 @@ func (o *PostgreSQLOptions) Validate() []error {
 	// 仅在 Addr 配置了的情况下校验密码——这样不使用 PostgreSQL 的服务无须配置。
 	if o.Addr != "" && IsPlaceholderSecret(o.Password) {
 		errs = append(errs, fmt.Errorf(
-			"postgresql.password looks like a placeholder/known-weak value (%q); please set a real password",
+			"%w: postgresql.password looks like a placeholder/known-weak value (%q); please set a real password", errInvalidConfiguration,
 			o.Password,
 		))
 	}

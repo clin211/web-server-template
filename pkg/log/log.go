@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"maps"
 	"sync"
 	"time"
 
@@ -15,6 +16,8 @@ type Field = zapcore.Field
 type ContextExtractors map[string]func(context.Context) string
 
 // Logger 定义了 onex 项目的日志接口. 该接口只包含了支持的日志记录方法.
+//
+//nolint:interfacebloat // Legacy public API combines zap-style logging and GORM; keep external implementations source compatible.
 type Logger interface {
 	Debugf(format string, args ...any)
 	Debugw(msg string, keyvals ...any)
@@ -36,7 +39,7 @@ type Logger interface {
 	gormlogger.Interface
 }
 
-// zapLogger 是 Logger 接口的具体实现. 它底层封装了 zap.Logger.
+// zapLogger 封装 zap.Logger，并提供 GORM 日志适配。
 type zapLogger struct {
 	z                 *zap.Logger
 	opts              *Options
@@ -46,7 +49,6 @@ type zapLogger struct {
 // Option 是一个函数类型，用于配置 zapLogger 的选项
 type Option func(*zapLogger)
 
-// 确保 zapLogger 实现了 Logger 接口. 以下变量赋值，可以使错误在编译期被发现.
 var _ Logger = (*zapLogger)(nil)
 
 var (
@@ -57,9 +59,7 @@ var (
 // WithContextExtractor 添加自定义的 context 提取逻辑
 func WithContextExtractor(contextExtractors ContextExtractors) Option {
 	return func(l *zapLogger) {
-		for k, v := range contextExtractors {
-			l.contextExtractors[k] = v
-		}
+		maps.Copy(l.contextExtractors, contextExtractors)
 	}
 }
 
@@ -141,6 +141,8 @@ func NewLogger(opts *Options, options ...Option) *zapLogger {
 }
 
 // Default 返回全局 Logger.
+//
+//nolint:iface // Returning the public interface preserves the established API contract.
 func Default() Logger {
 	return std
 }

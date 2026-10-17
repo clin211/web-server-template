@@ -8,9 +8,9 @@ import (
 	"slices"
 	"strings"
 
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
-	"go.opentelemetry.io/otel/log/global"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
 
@@ -36,7 +36,7 @@ func newConfig(options []Option) config {
 	}
 
 	if c.provider == nil {
-		c.provider = global.GetLoggerProvider()
+		c.provider = otel.GetLoggerProvider()
 	}
 
 	return c
@@ -190,7 +190,7 @@ func (h *Handler) Handle(ctx context.Context, record slog.Record) error {
 func (h *Handler) convertRecord(r slog.Record) log.Record {
 	var record log.Record
 	record.SetTimestamp(r.Time)
-	record.SetBody(log.StringValue(r.Message))
+	record.SetBody(attribute.StringValue(r.Message))
 
 	const sevOffset = slog.Level(log.SeverityDebug) - slog.LevelDebug
 	record.SetSeverity(log.Severity(r.Level + sevOffset))
@@ -200,9 +200,9 @@ func (h *Handler) convertRecord(r slog.Record) log.Record {
 		fs := runtime.CallersFrames([]uintptr{r.PC})
 		f, _ := fs.Next()
 		record.AddAttributes(
-			log.String(string(semconv.CodeFilePathKey), f.File),
-			log.String(string(semconv.CodeFunctionNameKey), f.Function),
-			log.Int(string(semconv.CodeLineNumberKey), f.Line),
+			attribute.String(string(semconv.CodeFilePathKey), f.File),
+			attribute.String(string(semconv.CodeFunctionNameKey), f.Function),
+			attribute.Int(string(semconv.CodeLineNumberKey), f.Line),
 		)
 	}
 
@@ -210,24 +210,7 @@ func (h *Handler) convertRecord(r slog.Record) log.Record {
 		record.AddAttributes(h.attrs.KeyValues()...)
 	}
 
-	n := r.NumAttrs()
-	if h.group != nil {
-		if n > 0 {
-			buf := newKVBuffer(n)
-			r.Attrs(buf.AddAttr)
-			record.AddAttributes(h.group.KeyValue(buf.KeyValues()...))
-		} else {
-			// 如果没有属性，Handler 不应输出组。
-			g := h.group.NextNonEmpty()
-			if g != nil {
-				record.AddAttributes(g.KeyValue())
-			}
-		}
-	} else if n > 0 {
-		buf := newKVBuffer(n)
-		r.Attrs(buf.AddAttr)
-		record.AddAttributes(buf.KeyValues()...)
-	}
+	record.AddAttributes(h.recordAttributes(r)...)
 
 	return record
 }
@@ -328,21 +311,21 @@ func (g *group) NextNonEmpty() *group {
 	return g.next.NextNonEmpty()
 }
 
-// KeyValue 返回包含 kvs 的组 g 作为 [log.KeyValue]。返回的 KeyValue 的值
+// KeyValue 返回包含 kvs 的组 g 作为 [attribute.KeyValue]。返回的 KeyValue 的值
 // 将为 [log.KindMap] 类型。
 //
 // 传递的 kvs 在返回值中呈现，但不添加到组中。
 //
 // 这不会检查 g。调用者有责任确保 g 非空或 kvs 非空，以返回有效的组表示
 // （根据 slog）。
-func (g *group) KeyValue(kvs ...log.KeyValue) log.KeyValue {
+func (g *group) KeyValue(kvs ...attribute.KeyValue) attribute.KeyValue {
 	// 假设已经对组 g 进行了检查（即非空）。
-	out := log.Map(g.name, g.attrs.KeyValues(kvs...)...)
+	out := attribute.Map(g.name, g.attrs.KeyValues(kvs...)...)
 	g = g.next
 	for g != nil {
 		// 如果没有属性，Handler 不应输出组。
 		if g.attrs.Len() > 0 {
-			out = log.Map(g.name, g.attrs.KeyValues(out)...)
+			out = attribute.Map(g.name, g.attrs.KeyValues(out)...)
 		}
 		g = g.next
 	}
@@ -368,14 +351,14 @@ func (g *group) AddAttrs(attrs []slog.Attr) {
 }
 
 type kvBuffer struct {
-	data []log.KeyValue
+	data []attribute.KeyValue
 }
 
 func newKVBuffer(n int) *kvBuffer {
-	return &kvBuffer{data: make([]log.KeyValue, 0, n)}
+	return &kvBuffer{data: make([]attribute.KeyValue, 0, n)}
 }
 
-// Len 返回 b 持有的 [log.KeyValue] 的数量。
+// Len 返回 b 持有的 [attribute.KeyValue] 的数量。
 func (b *kvBuffer) Len() int {
 	if b == nil {
 		return 0
@@ -391,8 +374,8 @@ func (b *kvBuffer) Clone() *kvBuffer {
 	return &kvBuffer{data: slices.Clone(b.data)}
 }
 
-// KeyValues 返回追加到 b 持有的 [log.KeyValue] 的 kvs。
-func (b *kvBuffer) KeyValues(kvs ...log.KeyValue) []log.KeyValue {
+// KeyValues 返回追加到 b 持有的 [attribute.KeyValue] 的 kvs。
+func (b *kvBuffer) KeyValues(kvs ...attribute.KeyValue) []attribute.KeyValue {
 	if b == nil {
 		return kvs
 	}
@@ -419,8 +402,8 @@ func (b *kvBuffer) AddAttr(attr slog.Attr) bool {
 		if attr.Value.Kind() == slog.KindGroup {
 			// Handler 应该内联具有空键的组的 Attrs。
 			for _, a := range attr.Value.Group() {
-				b.data = append(b.data, log.KeyValue{
-					Key:   a.Key,
+				b.data = append(b.data, attribute.KeyValue{
+					Key:   attribute.Key(a.Key),
 					Value: convert(a.Value),
 				})
 			}
@@ -432,41 +415,28 @@ func (b *kvBuffer) AddAttr(attr slog.Attr) bool {
 			return true
 		}
 	}
-	b.data = append(b.data, log.KeyValue{
-		Key:   attr.Key,
+	b.data = append(b.data, attribute.KeyValue{
+		Key:   attribute.Key(attr.Key),
 		Value: convert(attr.Value),
 	})
 	return true
 }
 
-func convert(v slog.Value) log.Value {
+func convertComplex(v slog.Value) attribute.Value {
 	switch v.Kind() {
 	case slog.KindAny:
 		return convertValue(v.Any())
-	case slog.KindBool:
-		return log.BoolValue(v.Bool())
 	case slog.KindDuration:
-		return log.Int64Value(v.Duration().Nanoseconds())
-	case slog.KindFloat64:
-		return log.Float64Value(v.Float64())
-	case slog.KindInt64:
-		return log.Int64Value(v.Int64())
-	case slog.KindString:
-		return log.StringValue(v.String())
+		return attribute.Int64Value(v.Duration().Nanoseconds())
 	case slog.KindTime:
-		return log.Int64Value(v.Time().UnixNano())
+		return attribute.Int64Value(v.Time().UnixNano())
 	case slog.KindUint64:
-		const maxInt64 = ^uint64(0) >> 1
-		u := v.Uint64()
-		if u > maxInt64 {
-			return log.Float64Value(float64(u))
-		}
-		return log.Int64Value(int64(u))
+		return convertSlogUint(v.Uint64())
 	case slog.KindGroup:
 		g := v.Group()
 		buf := newKVBuffer(len(g))
 		buf.AddAttrs(g)
-		return log.MapValue(buf.data...)
+		return attribute.MapValue(buf.data...)
 	case slog.KindLogValuer:
 		return convert(v.Resolve())
 	default:
@@ -476,6 +446,44 @@ func convert(v slog.Value) log.Value {
 		// 首先发现这一点。对新类型的测试会发现这个格式错误的属性以及 panic。
 		// 但是，让用户提问为什么他们的属性有"unhandled: "前缀比说他们的代码
 		// 正在 panic 更可取。
-		return log.StringValue(fmt.Sprintf("unhandled: (%s) %+v", v.Kind(), v.Any()))
+		return attribute.StringValue(fmt.Sprintf("unhandled: (%s) %+v", v.Kind(), v.Any()))
 	}
+}
+
+func convertSlogUint(u uint64) attribute.Value {
+	const maxInt64 = ^uint64(0) >> 1
+	if u > maxInt64 {
+		return attribute.Float64Value(float64(u))
+	}
+	return attribute.Int64Value(int64(u))
+}
+
+func convert(v slog.Value) attribute.Value {
+	switch v.Kind() {
+	case slog.KindBool:
+		return attribute.BoolValue(v.Bool())
+	case slog.KindFloat64:
+		return attribute.Float64Value(v.Float64())
+	case slog.KindInt64:
+		return attribute.Int64Value(v.Int64())
+	case slog.KindString:
+		return attribute.StringValue(v.String())
+	default:
+		return convertComplex(v)
+	}
+}
+
+func (h *Handler) recordAttributes(r slog.Record) []attribute.KeyValue {
+	if r.NumAttrs() == 0 {
+		if g := h.group.NextNonEmpty(); g != nil {
+			return []attribute.KeyValue{g.KeyValue()}
+		}
+		return nil
+	}
+	buf := newKVBuffer(r.NumAttrs())
+	r.Attrs(buf.AddAttr)
+	if h.group != nil {
+		return []attribute.KeyValue{h.group.KeyValue(buf.KeyValues()...)}
+	}
+	return buf.KeyValues()
 }

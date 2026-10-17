@@ -2,14 +2,16 @@ package file
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
 	"regexp"
+	"syscall"
 
 	"github.com/h2non/filetype"
 	"github.com/h2non/filetype/types"
@@ -40,7 +42,7 @@ func DirExists(path string) (bool, error) {
 	exists, _ := FileExists(path)
 	fileInfo, _ := os.Stat(path)
 	if !exists || !fileInfo.IsDir() {
-		return false, fmt.Errorf("path either doesn't exist, or is not a directory <%s>", path)
+		return false, fmt.Errorf("directory %s: %w", path, syscall.ENOTDIR)
 	}
 	return true, nil
 }
@@ -103,10 +105,10 @@ func EmptyDir(path string) error {
 
 // ListDir 将以字符串切片的形式返回给定目录路径的内容。
 func ListDir(path string) []string {
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		path = filepath.Dir(path)
-		files, _ = ioutil.ReadDir(path)
+		files, _ = os.ReadDir(path)
 	}
 
 	//nolint: prealloc
@@ -131,47 +133,40 @@ func GetHomeDirectory() string {
 
 // SafeMove 以安全模式将 src 移动到 dst。
 func SafeMove(src, dst string) error {
-	err := os.Rename(src, dst)
-	//nolint: nestif
-	if err != nil {
-		fmt.Printf("[fileutil] unable to rename: \"%s\" due to %s. Falling back to copying.", src, err.Error())
-
-		in, err := os.Open(src)
-		if err != nil {
-			return err
-		}
-		defer in.Close()
-
-		out, err := os.Create(dst)
-		if err != nil {
-			return err
-		}
-		defer out.Close()
-
-		_, err = io.Copy(out, in)
-		if err != nil {
-			return err
-		}
-
-		err = out.Close()
-		if err != nil {
-			return err
-		}
-
-		err = os.Remove(src)
-		if err != nil {
-			return err
-		}
+	if err := os.Rename(src, dst); err == nil {
+		return nil
+	} else {
+		slog.Debug("Rename failed; copying file", "src", src, "dst", dst, "err", err)
 	}
+	if err := copyFile(src, dst); err != nil {
+		return err
+	}
+	return os.Remove(src)
+}
 
-	return nil
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		if closeErr := out.Close(); closeErr != nil {
+			return fmt.Errorf("close destination after copy failure: %w", errors.Join(err, closeErr))
+		}
+		return err
+	}
+	return out.Close()
 }
 
 // IsZipFileUncompressed 如果路径中的 zip 文件使用 0 压缩级别，则返回 true。
 func IsZipFileUncompressed(path string) (bool, error) {
 	r, err := zip.OpenReader(path)
 	if err != nil {
-		fmt.Printf("Error reading zip file %s: %s\n", path, err)
 		return false, err
 	}
 	defer r.Close()
@@ -188,12 +183,12 @@ func IsZipFileUncompressed(path string) (bool, error) {
 func WriteFile(path string, file []byte) error {
 	pathErr := EnsureDirAll(filepath.Dir(path))
 	if pathErr != nil {
-		return fmt.Errorf("cannot ensure path %s", pathErr)
+		return fmt.Errorf("cannot ensure path: %w", pathErr)
 	}
 
-	err := ioutil.WriteFile(path, file, 0o600)
+	err := os.WriteFile(path, file, 0o600)
 	if err != nil {
-		return fmt.Errorf("write error for thumbnail %s: %s ", path, err)
+		return fmt.Errorf("write file %s: %w", path, err)
 	}
 	return nil
 }
@@ -256,7 +251,7 @@ func MatchEntries(dir, pattern string) ([]string, error) {
 	}
 
 	for _, file := range files {
-		if re.Match([]byte(file)) {
+		if re.MatchString(file) {
 			res = append(res, filepath.Join(dir, file))
 		}
 	}

@@ -7,6 +7,7 @@
 package apiserver
 
 import (
+	"context"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/biz"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/validation"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
@@ -15,8 +16,8 @@ import (
 // Injectors from wire.go:
 
 // NewServer 设置并创建包含所有必要依赖的 Web 服务器。
-func NewServer(config *Config) (*Server, func(), error) {
-	db, cleanup, err := ProvideDB(config)
+func NewServer(contextContext context.Context, config *Config) (*Server, func(), error) {
+	db, cleanup, err := ProvideDB(contextContext, config)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -32,20 +33,20 @@ func NewServer(config *Config) (*Server, func(), error) {
 	userRetriever := &UserRetriever{
 		store: datastore,
 	}
-	asyncRuntime, err := NewAsyncRuntime(config, datastore)
+	asyncRuntime, err := NewBusinessAsyncRuntime(config, datastore)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	apiserverReadinessChecker := ProvideReadinessChecker(config, db, redisRefreshTokenStore, asyncRuntime)
+	apiserverDependencyReadinessChecker := ProvideReadinessChecker(config, db, redisRefreshTokenStore, asyncRuntime)
 	loginRateLimiter := ProvideLoginRateLimiter(redisRefreshTokenStore)
 	serverConfig := &ServerConfig{
 		Config:       config,
 		biz:          bizBiz,
 		val:          validator,
 		retriever:    userRetriever,
-		readiness:    apiserverReadinessChecker,
+		readiness:    apiserverDependencyReadinessChecker,
 		tokens:       manager,
 		loginLimiter: loginRateLimiter,
 	}

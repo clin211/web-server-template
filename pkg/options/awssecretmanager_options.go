@@ -36,18 +36,18 @@ func (o *AWSSecretManagerOptions) Validate() []error {
 	var errs []error
 
 	if o.Region == "" {
-		errs = append(errs, fmt.Errorf("awssm.region is required"))
+		errs = append(errs, fmt.Errorf("%w: awssm.region is required", errInvalidConfiguration))
 	} else {
 		// 宽松的健康检查，接受标准模式如 us-east-1, ap-southeast-1, eu-west-3
 		re := regexp.MustCompile(`^[a-z]{2}-[a-z]+-\d$`)
 		if !re.MatchString(o.Region) {
 			// 不阻止非标准分区；仅通过错误文本警告
-			errs = append(errs, fmt.Errorf("awssm.region %q looks unusual; expected like 'ap-southeast-1' or 'us-east-1'", o.Region))
+			errs = append(errs, fmt.Errorf("%w: awssm.region %q looks unusual; expected like 'ap-southeast-1' or 'us-east-1'", errInvalidConfiguration, o.Region))
 		}
 	}
 
 	if o.SecretName == "" {
-		errs = append(errs, fmt.Errorf("awssm.secret-name is required"))
+		errs = append(errs, fmt.Errorf("%w: awssm.secret-name is required", errInvalidConfiguration))
 	}
 
 	return errs

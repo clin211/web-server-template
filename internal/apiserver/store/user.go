@@ -1,4 +1,6 @@
-// nolint: dupl
+// Package store 实现 API 资源的持久化。
+//
+//nolint:dupl
 package store
 
 import (
@@ -16,13 +18,22 @@ import (
 
 // UserStore 定义了 user 模块在 store 层所实现的方法.
 type UserStore interface {
+	UserReader
+	UserWriter
+	UserExpansion
+}
+
+// UserReader 定义用户读取操作。
+type UserReader interface {
+	Get(ctx context.Context, opts *where.Options) (*model.UserM, error)
+	List(ctx context.Context, opts *where.Options) (int64, []*model.UserM, error)
+}
+
+// UserWriter 定义用户写入操作。
+type UserWriter interface {
 	Create(ctx context.Context, obj *model.UserM) error
 	Update(ctx context.Context, userID string, updates map[string]any) error
 	Delete(ctx context.Context, opts *where.Options) error
-	Get(ctx context.Context, opts *where.Options) (*model.UserM, error)
-	List(ctx context.Context, opts *where.Options) (int64, []*model.UserM, error)
-
-	UserExpansion
 }
 
 // Update 只更新调用方明确给出的字段，避免 Save 把读取后已过期的整行快照写回数据库。
@@ -49,6 +60,7 @@ type UserExpansion interface {
 // userStore 是 UserStore 接口的实现。
 type userStore struct {
 	*genericstore.Store[model.UserM]
+
 	core *datastore
 }
 
@@ -65,4 +77,14 @@ func newUserStore(store *datastore) *userStore {
 
 func (s *userStore) UpdateLastLoginAt(ctx context.Context, userID string, t time.Time) error {
 	return s.core.DB(ctx).Model(&model.UserM{}).Where("user_id = ?", userID).Update("last_login_at", t).Error
+}
+
+// Create atomically assigns the minimal role with account registration.
+func (s *userStore) Create(ctx context.Context, user *model.UserM) error {
+	return s.core.TX(ctx, func(tx context.Context) error {
+		if err := s.core.DB(tx).WithContext(tx).Create(user).Error; err != nil {
+			return err
+		}
+		return NewAuthorizationStore(s.core).AssignDefaultRole(tx, user.UserID)
+	})
 }

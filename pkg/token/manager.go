@@ -72,24 +72,9 @@ func (m *Manager) RotateRefreshToken(ctx context.Context, tokenString, expectedI
 	if err != nil {
 		return "", "", time.Time{}, time.Time{}, err
 	}
-	if identity != expectedIdentity {
-		return "", "", time.Time{}, time.Time{}, ErrInvalidIdentityKey
-	}
-	if version != expectedVersion {
-		return "", "", time.Time{}, time.Time{}, ErrInvalidTokenVersion
-	}
-	tokenID, ok := claims["jti"].(string)
-	if !ok || tokenID == "" {
-		return "", "", time.Time{}, time.Time{}, ErrMissingTokenID
-	}
-	expValue, ok := claims["exp"].(float64)
-	if !ok || expValue <= 0 || expValue > math.MaxInt64 {
-		return "", "", time.Time{}, time.Time{}, ErrInvalidTokenClaims
-	}
-	expiresAt := time.Unix(int64(expValue), 0)
-	ttl := time.Until(expiresAt)
-	if ttl <= 0 {
-		return "", "", time.Time{}, time.Time{}, jwt.ErrTokenExpired
+	tokenID, ttl, err := refreshTokenConsumption(claims, identity, expectedIdentity, version, expectedVersion)
+	if err != nil {
+		return "", "", time.Time{}, time.Time{}, err
 	}
 
 	accessToken, refreshToken, accessExpireAt, refreshExpireAt, err := m.SignWithVersion(identity, version)
@@ -104,6 +89,28 @@ func (m *Manager) RotateRefreshToken(ctx context.Context, tokenString, expectedI
 		return "", "", time.Time{}, time.Time{}, ErrRefreshTokenReused
 	}
 	return accessToken, refreshToken, accessExpireAt, refreshExpireAt, nil
+}
+
+func refreshTokenConsumption(claims jwt.MapClaims, identity, expectedIdentity string, version, expectedVersion int64) (string, time.Duration, error) {
+	if identity != expectedIdentity {
+		return "", 0, ErrInvalidIdentityKey
+	}
+	if version != expectedVersion {
+		return "", 0, ErrInvalidTokenVersion
+	}
+	tokenID, ok := claims["jti"].(string)
+	if !ok || tokenID == "" {
+		return "", 0, ErrMissingTokenID
+	}
+	expValue, ok := claims["exp"].(float64)
+	if !ok || expValue <= 0 || expValue > math.MaxInt64 {
+		return "", 0, ErrInvalidTokenClaims
+	}
+	ttl := time.Until(time.Unix(int64(expValue), 0))
+	if ttl <= 0 {
+		return "", 0, jwt.ErrTokenExpired
+	}
+	return tokenID, ttl, nil
 }
 
 func (m *Manager) parseWithVersion(tokenString, expectedType string) (string, int64, error) {

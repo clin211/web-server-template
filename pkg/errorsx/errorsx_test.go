@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -316,9 +317,9 @@ func TestWithMethodsDoNotMutateReceiver(t *testing.T) {
 	base := NewBizError(CodeUserNotFound, "User.NotFound", "用户不存在")
 
 	derived := []struct {
-		name   string
-		err    *BizError
-		check  func(t *testing.T, err *BizError)
+		name  string
+		err   *BizError
+		check func(t *testing.T, err *BizError)
 	}{
 		{"WithDetails", base.WithDetails("请求 A 的绑定详情"), func(t *testing.T, err *BizError) {
 			assert.Equal(t, "请求 A 的绑定详情", err.Details)
@@ -362,4 +363,50 @@ func TestWithDetailsConcurrentDerivation(t *testing.T) {
 	wg.Wait()
 
 	assert.Empty(t, base.Details)
+}
+
+func TestFromErrorKeepsWrappedGRPCDetails(t *testing.T) {
+	for _, tt := range []struct {
+		name     string
+		grpcCode codes.Code
+		bizCode  BizCode
+		message  string
+	}{
+		{"validation", codes.InvalidArgument, CodeUserInvalidCredentials, "请求参数无效。"},
+		{"authentication", codes.Unauthenticated, CodeAuthUnauthenticated, "未认证。"},
+		{"authorization", codes.PermissionDenied, CodeUserPermissionDenied, "权限不足。"},
+		{"missing resource", codes.NotFound, CodeUserNotFound, "original status message"},
+		{"conflict", codes.AlreadyExists, BizCode(11001), "original status message"},
+		{"internal", codes.Internal, CodeInternalServer, "内部服务器错误。"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			gs, err := status.New(tt.grpcCode, "original status message").WithDetails(&errdetails.ErrorInfo{Reason: "service.reason", Metadata: map[string]string{"request": "abc"}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			converted := FromError(fmt.Errorf("transport wrapper: %w", gs.Err()))
+			if converted.Code != tt.bizCode || converted.Reason != "service.reason" {
+				t.Fatalf("converted error = %#v", converted)
+			}
+			// gRPC intentionally includes the wrapper text for statuses whose messages are exposed.
+			message := tt.message
+			if message == "original status message" {
+				message = "transport wrapper: rpc error: code = " + tt.grpcCode.String() + " desc = original status message"
+			}
+			if converted.Message != message {
+				t.Fatalf("message = %q, want %q", converted.Message, message)
+			}
+			if converted.Metadata["request"] != "abc" {
+				t.Fatalf("metadata = %v", converted.Metadata)
+			}
+		})
+	}
+}
+
+func TestFromErrorKeepsBizErrorInstanceThroughWrapper(t *testing.T) {
+	original := NewBizError(CodeUserNotFound, "resource.missing", "missing").WithDetails("details").WithMetadata(map[string]any{"request": "abc"})
+	converted := FromError(fmt.Errorf("outer: %w", original))
+	if converted != original {
+		t.Fatal("wrapped BizError identity was lost")
+	}
 }

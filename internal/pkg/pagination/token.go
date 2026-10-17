@@ -7,30 +7,35 @@ import (
 	"fmt"
 )
 
+var (
+	errOddCursorPairs = errors.New("key-value pairs must be even number")
+	errCursorKeyType  = errors.New("cursor key must be string")
+)
+
 // PageToken 是我们在 Token 字符串中隐藏的结构
 // 实际生产中，你可以加入 Salt 签名或加密，防止客户端伪造
 // 使用 map 结构支持多个字段，便于扩展
 type PageToken struct {
-	Fields map[string]interface{} `json:"f"` // 存储多个字段的键值对
+	Fields map[string]any `json:"f"` // 存储多个字段的键值对
 }
 
 // Cursor 表示解析后的游标对象，提供便捷的字段访问方法
 type Cursor struct {
-	fields map[string]interface{}
+	fields map[string]any
 }
 
 // NewCursor 创建一个新的游标对象，支持传入多个 key-value 对
 // 例如：NewCursor("id", 123, "created_at", 1699123456)
-func NewCursor(kvPairs ...interface{}) (*Cursor, error) {
+func NewCursor(kvPairs ...any) (*Cursor, error) {
 	if len(kvPairs)%2 != 0 {
-		return nil, errors.New("key-value pairs must be even number")
+		return nil, errOddCursorPairs
 	}
 
-	fields := make(map[string]interface{})
+	fields := make(map[string]any)
 	for i := 0; i < len(kvPairs); i += 2 {
 		key, ok := kvPairs[i].(string)
 		if !ok {
-			return nil, fmt.Errorf("key at index %d must be string", i)
+			return nil, fmt.Errorf("key at index %d: %w", i, errCursorKeyType)
 		}
 		fields[key] = kvPairs[i+1]
 	}
@@ -128,14 +133,17 @@ func NextPageToken(length, pageSize int, lastID func() int64) string {
 		return ""
 	}
 
-	token, _ := cursor.Encode()
+	token, err := cursor.Encode()
+	if err != nil {
+		return ""
+	}
 	return token
 }
 
 // DecodeCursor 解析 page_token 字符串，返回 Cursor 对象
 func DecodeCursor(tokenStr string) (*Cursor, error) {
 	if tokenStr == "" {
-		return nil, nil
+		return &Cursor{}, nil
 	}
 	b, err := base64.URLEncoding.DecodeString(tokenStr)
 	if err != nil {
@@ -146,7 +154,7 @@ func DecodeCursor(tokenStr string) (*Cursor, error) {
 		return nil, fmt.Errorf("invalid page_token payload: %w", err)
 	}
 	if t.Fields == nil {
-		return nil, nil
+		return &Cursor{}, nil
 	}
 	return &Cursor{fields: t.Fields}, nil
 }

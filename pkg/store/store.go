@@ -94,10 +94,12 @@ func (s *Store[T]) Get(ctx context.Context, opts *where.Options) (*T, error) {
 }
 
 // List 根据提供的 where 选项从数据库中检索对象列表。
-func (s *Store[T]) List(ctx context.Context, opts *where.Options) (count int64, ret []*T, err error) {
-	err = s.db(ctx, opts).Order("id desc").Find(&ret).Offset(-1).Limit(-1).Count(&count).Error
+func (s *Store[T]) List(ctx context.Context, opts *where.Options) (int64, []*T, error) {
+	var count int64
+	var ret []*T
+	err := s.db(ctx, opts).Order("id desc").Find(&ret).Offset(-1).Limit(-1).Count(&count).Error
 	if err != nil {
 		s.logger.Error(ctx, err, "Failed to list objects from database", "conditions", opts)
 	}
-	return
+	return count, ret, err
 }

@@ -2,7 +2,6 @@ package tracing
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -31,7 +30,7 @@ func (f *FakeExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadOnl
 			f.Handle(ctx, span)
 		}
 		if f.LogSpans {
-			fmt.Printf("[FAKE EXPORTER] span finished: name=%s traceID=%s spanID=%s status=%v duration=%v\n",
+			log.Printf("[FAKE EXPORTER] span finished: name=%s traceID=%s spanID=%s status=%v duration=%v\n",
 				span.Name(),
 				span.SpanContext().TraceID().String(),
 				span.SpanContext().SpanID().String(),

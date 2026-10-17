@@ -3,7 +3,7 @@ package otelslog_test
 import (
 	"go.opentelemetry.io/otel/log/noop"
 
-	"go.opentelemetry.io/contrib/bridges/otelslog"
+	"github.com/clin211/gin-enterprise-template/pkg/otelslog"
 )
 
 func Example() {

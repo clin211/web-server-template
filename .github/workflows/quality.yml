@@ -3,7 +3,7 @@ name: Quality Gate
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, release]
 
 permissions:
   contents: read
@@ -65,6 +65,9 @@ jobs:
       - name: Install generation tools
         run: make deps
 
+      - name: Install PostgreSQL client for bootstrap script tests
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends postgresql-client
+
       - name: Install govulncheck
         env:
           GOVULNCHECK_VERSION: v1.1.4
@@ -87,14 +90,24 @@ jobs:
           fi
           echo "rev=$base" >> "$GITHUB_OUTPUT"
 
-      - name: Verify
+      - name: Start coverage integration dependencies
+        run: make integration.up
+      - name: Verify including real dependency coverage
+        env:
+          TEST_POSTGRES_DSN: postgres://postgres:integration-postgres@127.0.0.1:55432/enterprise_template_test?sslmode=disable
+          TEST_KAFKA_BROKERS: 127.0.0.1:29092
+          TEST_KAFKA_TOPIC: events
+          TEST_KAFKA_DLQ_TOPIC: events.dlq
+          TEST_REDIS_ADDR: 127.0.0.1:56380
+          TEST_REDIS_PASSWORD: integration-redis
         run: make verify LINT_NEW_FROM_REV="${{ steps.lint-base.outputs.rev }}"
+      - name: Stop coverage dependencies
+        if: always()
+        run: make integration.down
 
       - name: Vulnerability scan
         run: govulncheck ./...
 
-      - name: Build container
-        run: docker build --file Dockerfile --build-arg OS=linux --build-arg ARCH=amd64 .
 
   secrets:
     runs-on: ubuntu-latest
@@ -111,7 +124,7 @@ jobs:
 
   integration:
     runs-on: ubuntu-latest
-    needs: verify
+    needs: [verify, secrets, image]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -122,6 +135,8 @@ jobs:
           cache: true
       - name: Start integration dependencies
         run: make integration.up
+      - name: Install PostgreSQL client for bootstrap script tests
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends postgresql-client
       - name: Run integration tests
         env:
           TEST_POSTGRES_DSN: postgres://postgres:integration-postgres@127.0.0.1:55432/enterprise_template_test?sslmode=disable
@@ -129,8 +144,45 @@ jobs:
           TEST_KAFKA_TOPIC: events
           TEST_KAFKA_DLQ_TOPIC: events.dlq
         run: make integration.test
-      - name: Run startup smoke test
-        run: make integration.smoke
+      - name: Download immutable image
+        uses: actions/download-artifact@v6
+        with:
+          name: tested-image-${{ github.sha }}
+          path: _output/image
+      - name: Verify artifact and load image
+        run: |
+          cd _output/image
+          sha256sum --check image.tar.sha256
+          docker load --input image.tar
+      - name: Test the exact release image
+        run: ./scripts/image-smoke.sh "$(cat _output/image/image.id)"
+      - name: Retain smoke diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: smoke-logs-${{ github.sha }}
+          path: /tmp/template-smoke-*.log
+          if-no-files-found: ignore
       - name: Stop integration dependencies
         if: always()
         run: make integration.down
+
+  image:
+    runs-on: ubuntu-latest
+    needs: [verify, secrets]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build once and record immutable identity
+        run: |
+          mkdir -p _output/image
+          docker build --file Dockerfile --build-arg OS=linux --build-arg ARCH=amd64 --label org.opencontainers.image.revision="${{ github.sha }}" --tag template-tested:${{ github.sha }} .
+          docker image inspect --format '{{.Id}}' template-tested:${{ github.sha }} > _output/image/image.id
+          printf '%s\n' '${{ github.sha }}' > _output/image/commit
+          docker save --output _output/image/image.tar template-tested:${{ github.sha }}
+          (cd _output/image; sha256sum image.tar > image.tar.sha256)
+      - uses: actions/upload-artifact@v6
+        with:
+          name: tested-image-${{ github.sha }}
+          path: _output/image/
+          retention-days: 14
+          if-no-files-found: error

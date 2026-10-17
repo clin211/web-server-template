@@ -42,11 +42,11 @@ func (o *MongoOptions) Validate() []error {
 	}
 
 	if o.Database == "" {
-		errs = append(errs, fmt.Errorf("--mongo.database can not be empty"))
+		errs = append(errs, fmt.Errorf("%w: --mongo.database can not be empty", errInvalidConfiguration))
 	}
 
 	if o.Collection == "" {
-		errs = append(errs, fmt.Errorf("--mongo.collection can not be empty"))
+		errs = append(errs, fmt.Errorf("%w: --mongo.collection can not be empty", errInvalidConfiguration))
 	}
 
 	if o.TLSOptions != nil {

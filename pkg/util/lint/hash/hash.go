@@ -43,88 +43,66 @@ var Analyzer = &analysis.Analyzer{
 //
 // hash.Hash 接口可能会在 Go 2 中得到修复。参见 golang/go#21070。
 func run(pass *analysis.Pass) (any, error) {
-	selectorIsHash := func(s *ast.SelectorExpr) bool {
-		tv, ok := pass.TypesInfo.Types[s.X]
-		if !ok {
-			return false
-		}
-		named, ok := tv.Type.(*types.Named)
-		if !ok {
-			return false
-		}
-		if named.Obj().Type().String() != "hash.Hash" {
-			return false
-		}
-		return true
-	}
-
 	stack := make([]ast.Node, 0, 32)
-	forAllFiles(pass.Files, func(n ast.Node) bool {
-		if n == nil {
-			stack = stack[:len(stack)-1] // pop
+	forAllFiles(pass.Files, func(node ast.Node) bool {
+		if node == nil {
+			stack = stack[:len(stack)-1]
 			return true
 		}
-		stack = append(stack, n) // 压入栈
-
-		// 查找对 hash.Hash.Sum 的调用。
-		selExpr, ok := n.(*ast.SelectorExpr)
-		if !ok {
-			return true
-		}
-		if selExpr.Sel.Name != "Sum" {
-			return true
-		}
-		if !selectorIsHash(selExpr) {
-			return true
-		}
-		callExpr, ok := stack[len(stack)-2].(*ast.CallExpr)
-		if !ok {
-			return true
-		}
-		if len(callExpr.Args) != 1 {
-			return true
-		}
-		// 我们有一个对 hash.Hash.Sum 的有效调用。
-
-		// 参数是否为 nil？
-		var nilArg bool
-		if id, ok := callExpr.Args[0].(*ast.Ident); ok && id.Name == "nil" {
-			nilArg = true
-		}
-
-		// 返回值是否未使用？
-		var retUnused bool
-	Switch:
-		switch t := stack[len(stack)-3].(type) {
-		case *ast.AssignStmt:
-			for i := range t.Rhs {
-				if t.Rhs[i] == stack[len(stack)-2] {
-					if id, ok := t.Lhs[i].(*ast.Ident); ok && id.Name == "_" {
-						// 赋值给空白标识符不算作使用返回值。
-						retUnused = true
-					}
-					break Switch
-				}
-			}
-			panic("unreachable")
-		case *ast.ExprStmt:
-			// An expression statement means the return value is unused.
-			retUnused = true
-		default:
-		}
-
-		if !nilArg && !retUnused {
-			pass.Reportf(callExpr.Pos(), "probable misuse of hash.Hash.Sum: "+
-				"提供参数或使用返回值，但不能同时使用两者")
+		stack = append(stack, node)
+		if call := hashSumCall(pass, stack); call != nil && !nilArgument(call.Args[0]) && !unusedResult(stack) {
+			pass.Reportf(call.Pos(), "probable misuse of hash.Hash.Sum: provide parameter or use return value, but not both")
 		}
 		return true
 	})
+	return nil, nil //nolint:nilnil // analysis.Analyzer 没有 ResultType，成功时必须返回 nil 结果。
+}
 
-	return nil, nil
+func hashSumCall(pass *analysis.Pass, stack []ast.Node) *ast.CallExpr {
+	if len(stack) < 3 {
+		return nil
+	}
+	selector, ok := stack[len(stack)-1].(*ast.SelectorExpr)
+	if !ok || selector.Sel.Name != "Sum" {
+		return nil
+	}
+	value, ok := pass.TypesInfo.Types[selector.X]
+	if !ok {
+		return nil
+	}
+	named, ok := value.Type.(*types.Named)
+	if !ok || named.Obj().Type().String() != "hash.Hash" {
+		return nil
+	}
+	call, ok := stack[len(stack)-2].(*ast.CallExpr)
+	if !ok || len(call.Args) != 1 {
+		return nil
+	}
+	return call
+}
+
+func nilArgument(node ast.Node) bool {
+	id, ok := node.(*ast.Ident)
+	return ok && id.Name == "nil"
+}
+
+func unusedResult(stack []ast.Node) bool {
+	switch parent := stack[len(stack)-3].(type) {
+	case *ast.ExprStmt:
+		return true
+	case *ast.AssignStmt:
+		for i, expression := range parent.Rhs {
+			if expression == stack[len(stack)-2] {
+				id, ok := parent.Lhs[i].(*ast.Ident)
+				return ok && id.Name == "_"
+			}
+		}
+	}
+	return false
 }
 
 func forAllFiles(files []*ast.File, fn func(node ast.Node) bool) {
-	for _, f := range files {
-		ast.Inspect(f, fn)
+	for _, file := range files {
+		ast.Inspect(file, fn)
 	}
 }

@@ -20,11 +20,11 @@ type Where interface {
 type Query struct {
 	// Query 保存要在 GORM 查询中使用的条件。
 	// 可以是字符串、映射、结构体或 GORM 的 Where 子句支持的其他类型。
-	Query interface{}
+	Query any
 
 	// Args 保存将传递给查询条件的参数。
 	// 这些值将用于替换查询中的占位符。
-	Args []interface{}
+	Args []any
 }
 
 // Option 定义修改 Options 的函数类型。
@@ -103,7 +103,7 @@ func WithClauses(conds ...clause.Expression) Option {
 // WithQuery 创建一个 Option，向 Options 结构体添加带有参数的查询条件。
 // query 参数可以是字符串、映射、结构体或 GORM 的 Where 子句支持的任何其他类型。
 // args 参数包含将替换查询字符串中占位符的值。
-func WithQuery(query interface{}, args ...interface{}) Option {
+func WithQuery(query any, args ...any) Option {
 	return func(whr *Options) {
 		whr.Queries = append(whr.Queries, Query{Query: query, Args: args})
 	}
@@ -185,7 +185,7 @@ func (whr *Options) C(conds ...clause.Expression) *Options {
 
 // Q 向 Options 结构体添加带有参数的查询条件，并返回修改后的 Options。
 // 此方法将一个新的 Query 实例追加到 Queries 切片。
-func (whr *Options) Q(query interface{}, args ...interface{}) *Options {
+func (whr *Options) Q(query any, args ...any) *Options {
 	whr.Queries = append(whr.Queries, Query{Query: query, Args: args})
 	return whr
 }

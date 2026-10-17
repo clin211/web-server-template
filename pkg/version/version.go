@@ -75,43 +75,44 @@ func Get() Info {
 	}
 }
 
+// GetFromDebugInfo 返回指定模块的构建版本；模块不存在时版本为 unknown。
 func GetFromDebugInfo(modulePath string) Info {
-	info := Info{
-		GoVersion: runtime.Version(),
-		Compiler:  runtime.Compiler,
-		Platform:  fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH),
-	}
-
-	// 尝试从构建信息中获取版本
+	info := Info{GoVersion: runtime.Version(), Compiler: runtime.Compiler,
+		Platform: fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)}
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
-		mod := findModule(buildInfo, modulePath)
-		if mod == nil {
-			info.GitVersion = "unknown"
-		}
-		if mod.Replace != nil {
-			mod = mod.Replace
-		}
-		info.GitVersion = mod.Version
-
+		info.GitVersion = moduleVersion(buildInfo, modulePath)
 		info.GitCommit = "unknown"
 		info.BuildDate = time.Now().Format(time.RFC3339)
 		info.GitTreeState = "clean"
-		// 从构建设置中获取更多信息
-		for _, setting := range buildInfo.Settings {
-			switch setting.Key {
-			case "vcs.revision":
-				info.GitCommit = setting.Value
-			case "vcs.time":
-				info.BuildDate = setting.Value
-			case "vcs.modified":
-				if setting.Value == "true" {
-					info.GitTreeState = "dirty"
-				}
+		applyBuildSettings(&info, buildInfo.Settings)
+	}
+	return info
+}
+
+func moduleVersion(info *debug.BuildInfo, modulePath string) string {
+	mod := findModule(info, modulePath)
+	if mod == nil {
+		return "unknown"
+	}
+	if mod.Replace != nil {
+		mod = mod.Replace
+	}
+	return mod.Version
+}
+
+func applyBuildSettings(info *Info, settings []debug.BuildSetting) {
+	for _, setting := range settings {
+		switch setting.Key {
+		case "vcs.revision":
+			info.GitCommit = setting.Value
+		case "vcs.time":
+			info.BuildDate = setting.Value
+		case "vcs.modified":
+			if setting.Value == "true" {
+				info.GitTreeState = "dirty"
 			}
 		}
 	}
-
-	return info
 }
 
 func findModule(info *debug.BuildInfo, modulePath string) *debug.Module {

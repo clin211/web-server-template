@@ -16,17 +16,32 @@ var ProviderSet = wire.NewSet(NewStore, wire.Bind(new(IStore), new(*datastore)))
 
 // IStore 定义了 Store 层需要实现的方法。
 type IStore interface {
+	DatabaseStore
+	AccountStores
+	MessagingStores
+}
+
+// DatabaseStore 提供数据库与事务访问。
+type DatabaseStore interface {
 	// DB 返回 Store 层的 *gorm.DB 实例，可能在少数情况下使用。
 	DB(ctx context.Context, wheres ...where.Where) *gorm.DB
 	// TX 用于在 Biz 层实现事务。回调内必须使用传入的 txCtx 调用其他 Store 方法；
 	// 继续使用外层 ctx 会绕过事务连接，破坏业务数据与 Outbox/Inbox 状态的原子性。
 	TX(ctx context.Context, fn func(ctx context.Context) error) error
+}
+
+// AccountStores 提供账号与审计仓储。
+type AccountStores interface {
 	User() UserStore
+	AuditLog() AuditLogStore
+	UserLoginLog() UserLoginLogStore
+}
+
+// MessagingStores 提供事务消息仓储。
+type MessagingStores interface {
 	Outbox() OutboxStore
 	Inbox() InboxStore
 	DeadLetter() DeadLetterStore
-	AuditLog() AuditLogStore
-	UserLoginLog() UserLoginLogStore
 }
 
 // transactionKey 是用于在 context.Context 中存储事务上下文的键。
@@ -75,7 +90,7 @@ func (ds *datastore) FakeDB(ctx context.Context) *gorm.DB { return nil }
 // 继续传递这里提供的 context，DB(ctx) 才能选择事务连接而非进程级连接池。
 // nolint: fatcontext
 func (store *datastore) TX(ctx context.Context, fn func(ctx context.Context) error) error {
-	return store.core.WithContext(ctx).Transaction(
+	return store.DB(ctx).WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
 			ctx = context.WithValue(ctx, transactionKey{}, tx)
 			return fn(ctx)

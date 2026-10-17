@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
 	v1 "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1"
+	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"

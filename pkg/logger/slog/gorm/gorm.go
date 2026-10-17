@@ -41,21 +41,21 @@ func (l *SlogLogger) LogMode(level logger.LogLevel) logger.Interface {
 }
 
 // Info 记录信息性消息。
-func (l *SlogLogger) Info(ctx context.Context, msg string, data ...interface{}) {
+func (l *SlogLogger) Info(ctx context.Context, msg string, data ...any) {
 	if l.LogLevel >= logger.Info {
 		l.Logger.Log(ctx, slog.LevelInfo, fmt.Sprintf(msg, data...))
 	}
 }
 
 // Warn 记录警告消息。
-func (l *SlogLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
+func (l *SlogLogger) Warn(ctx context.Context, msg string, data ...any) {
 	if l.LogLevel >= logger.Warn {
 		l.Logger.Log(ctx, slog.LevelWarn, fmt.Sprintf(msg, data...))
 	}
 }
 
 // Error 记录错误消息。
-func (l *SlogLogger) Error(ctx context.Context, msg string, data ...interface{}) {
+func (l *SlogLogger) Error(ctx context.Context, msg string, data ...any) {
 	if l.LogLevel >= logger.Error {
 		l.Logger.Log(ctx, slog.LevelError, fmt.Sprintf(msg, data...))
 	}
@@ -87,4 +87,10 @@ func (l *SlogLogger) Trace(ctx context.Context, begin time.Time, fc func() (stri
 	case l.LogLevel == logger.Info:
 		l.Logger.Log(ctx, slog.LevelInfo, "SQL", fields...)
 	}
+}
+
+// ParamsFilter keeps SQL placeholders while removing all parameter values from logs.
+// Credentials and task/event payloads can occur in any query, including error paths.
+func (l *SlogLogger) ParamsFilter(ctx context.Context, sql string, params ...any) (string, []any) {
+	return sql, nil
 }

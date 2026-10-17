@@ -76,7 +76,11 @@ func (o *OutboxOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 	fs.IntVar(&o.BatchSize, fullPrefix+".batch-size", o.BatchSize, "Maximum events claimed per relay iteration.")
 	fs.DurationVar(&o.PollInterval, fullPrefix+".poll-interval", o.PollInterval, "Delay between relay iterations.")
 	fs.DurationVar(&o.LeaseDuration, fullPrefix+".lease-duration", o.LeaseDuration, "Duration of an outbox processing lease.")
+	o.addRetryFlags(fs, fullPrefix)
+	fs.IntVar(&o.MaxAttempts, fullPrefix+".max-attempts", o.MaxAttempts, "Maximum publish attempts before an event enters the terminal dead state.")
+}
+
+func (o *OutboxOptions) addRetryFlags(fs *pflag.FlagSet, fullPrefix string) {
 	fs.DurationVar(&o.RetryDelay, fullPrefix+".retry-delay", o.RetryDelay, "Base delay after a publish failure.")
 	fs.DurationVar(&o.MaxRetryDelay, fullPrefix+".max-retry-delay", o.MaxRetryDelay, "Maximum delay after repeated publish failures.")
-	fs.IntVar(&o.MaxAttempts, fullPrefix+".max-attempts", o.MaxAttempts, "Maximum publish attempts before an event enters the terminal dead state.")
 }

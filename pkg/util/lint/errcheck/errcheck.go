@@ -1,18 +1,6 @@
 package errcheck
 
-import (
-	_ "embed"
+import "github.com/kisielk/errcheck/errcheck"
 
-	"github.com/kisielk/errcheck/errcheck"
-)
-
+// Analyzer 使用上游 errcheck 分析器及其默认排除规则。
 var Analyzer = errcheck.Analyzer
-
-// go:embed errcheck_excludes.txt
-var excludesContent string
-
-func init() {
-	if err := Analyzer.Flags.Set("excludes", excludesContent); err != nil {
-		panic(err)
-	}
-}

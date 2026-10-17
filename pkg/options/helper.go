@@ -1,6 +1,7 @@
 package options
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"strings"
@@ -10,8 +11,7 @@ import (
 
 // 定义单位常量。
 const (
-	_   = iota // 忽略 onex.iota
-	KiB = 1 << (10 * iota)
+	KiB = 1 << (10 * (iota + 1))
 	MiB
 	GiB
 	TiB
@@ -35,10 +35,10 @@ func ValidateAddress(addr string) error {
 		return fmt.Errorf("%q is not in a valid format (:port or ip:port): %w", addr, err)
 	}
 	if host != "" && netutils.ParseIPSloppy(host) == nil {
-		return fmt.Errorf("%q is not a valid IP address", host)
+		return fmt.Errorf("%w: %q is not a valid IP address", errInvalidConfiguration, host)
 	}
 	if _, err := netutils.ParsePort(port, true); err != nil {
-		return fmt.Errorf("%q is not a valid number", port)
+		return fmt.Errorf("%w: %q is not a valid number", errInvalidConfiguration, port)
 	}
 
 	return nil
@@ -48,7 +48,7 @@ func ValidateAddress(addr string) error {
 func CreateListener(addr string) (net.Listener, int, error) {
 	network := "tcp"
 
-	ln, err := net.Listen(network, addr)
+	ln, err := (&net.ListenConfig{}).Listen(context.Background(), network, addr)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to listen on %v: %w", addr, err)
 	}
@@ -58,7 +58,7 @@ func CreateListener(addr string) (net.Listener, int, error) {
 	if !ok {
 		_ = ln.Close()
 
-		return nil, 0, fmt.Errorf("invalid listen address: %q", ln.Addr().String())
+		return nil, 0, fmt.Errorf("%w: invalid listen address: %q", errInvalidConfiguration, ln.Addr().String())
 	}
 
 	return ln, tcpAddr.Port, nil

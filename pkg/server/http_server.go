@@ -12,6 +12,11 @@ import (
 	genericoptions "github.com/clin211/gin-enterprise-template/pkg/options"
 )
 
+var (
+	errHTTPOptionsRequired = errors.New("HTTP options are required")
+	errHTTPTLSRequired     = errors.New("HTTP TLS certificate and key are required")
+)
+
 // HTTPServer 代表一个 HTTP 服务器.
 type HTTPServer struct {
 	srv     *http.Server
@@ -23,13 +28,13 @@ type HTTPServer struct {
 // NewHTTPServer 创建一个新的 HTTP 服务器实例.
 func NewHTTPServer(httpOptions *genericoptions.HTTPOptions, tlsOptions *genericoptions.TLSOptions, handler http.Handler) (*HTTPServer, error) {
 	if httpOptions == nil {
-		return nil, errors.New("HTTP options are required")
+		return nil, errHTTPOptionsRequired
 	}
 
 	var tlsConfig *tls.Config
 	if tlsOptions != nil && tlsOptions.UseTLS {
 		if tlsOptions.Cert == "" || tlsOptions.Key == "" {
-			return nil, errors.New("HTTP TLS certificate and key are required")
+			return nil, errHTTPTLSRequired
 		}
 		var err error
 		tlsConfig, err = tlsOptions.TLSConfig()

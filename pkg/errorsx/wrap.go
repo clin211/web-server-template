@@ -16,12 +16,12 @@ func Is(err, target error) bool { return errors.Is(err, target) }
 //
 // 该链由 err 本身以及通过重复调用 Unwrap 获得的错误序列组成。
 //
-// 如果错误的具体值可赋值给 target 指向的值，或者错误具有 As(interface{}) bool 方法
+// 如果错误的具体值可赋值给 target 指向的值，或者错误具有 As(any) bool 方法
 // 且 As(target) 返回 true，则错误匹配 target。在后一种情况下，As 方法负责设置 target。
 //
 // 如果 target 不是指向实现 error 的类型的非空指针，或不是指向任何接口类型的指针，As 将 panic。
 // 如果 err 为 nil，As 返回 false。
-func As(err error, target interface{}) bool { return errors.As(err, target) }
+func As(err error, target any) bool { return errors.As(err, target) }
 
 // Unwrap 返回在 err 上调用 Unwrap 方法的结果，如果 err 的类型包含返回 error 的 Unwrap 方法。
 // 否则，Unwrap 返回 nil。

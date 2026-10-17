@@ -48,14 +48,18 @@ service APIServer {
         key: "200"
         value: {
           description: "服务健康状态"
-          schema: { json_schema: { ref: ".apiserver.v1.HealthzResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.HealthzResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -74,42 +78,51 @@ service APIServer {
         key: "200"
         value: {
           description: "登录成功，返回访问令牌与刷新令牌"
-          schema: { json_schema: { ref: ".apiserver.v1.LoginResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.LoginResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
   }
 
   rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse) {
-    option (google.api.http) = {
-      put: "/v1/auth/refresh-token"
-    };
+    option (google.api.http) = {put: "/v1/auth/refresh-token"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "刷新令牌"
       description: "使用现有令牌刷新获取新的访问令牌"
       tags: "用户认证"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "刷新成功，返回新的访问令牌与刷新令牌"
-          schema: { json_schema: { ref: ".apiserver.v1.LoginResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.LoginResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -122,48 +135,60 @@ service APIServer {
       description: "使用当前访问令牌获取当前用户的脱敏资料"
       tags: "用户认证"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "当前登录用户的脱敏资料"
-          schema: { json_schema: { ref: ".apiserver.v1.InfoResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.InfoResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
   }
 
   rpc Logout(LogoutRequest) returns (LogoutResponse) {
-    option (google.api.http) = {
-      post: "/v1/auth/logout"
-    };
+    option (google.api.http) = {post: "/v1/auth/logout"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "退出登录"
       description: "撤销当前用户已签发的访问令牌和刷新令牌"
       tags: "用户认证"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "退出成功"
-          schema: { json_schema: { ref: ".apiserver.v1.LogoutResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.LogoutResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -182,14 +207,18 @@ service APIServer {
         key: "200"
         value: {
           description: "创建成功，返回新用户 ID"
-          schema: { json_schema: { ref: ".apiserver.v1.CreateUserResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.CreateUserResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -202,20 +231,27 @@ service APIServer {
       description: "根据用户 ID 获取用户信息"
       tags: "用户管理"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "用户信息"
-          schema: { json_schema: { ref: ".apiserver.v1.GetUserResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.GetUserResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -231,20 +267,27 @@ service APIServer {
       description: "根据用户 ID 更新用户信息"
       tags: "用户管理"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "更新成功"
-          schema: { json_schema: { ref: ".apiserver.v1.UpdateUserResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.UpdateUserResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -257,20 +300,27 @@ service APIServer {
       description: "根据用户 ID 删除用户"
       tags: "用户管理"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "删除成功"
-          schema: { json_schema: { ref: ".apiserver.v1.DeleteUserResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.DeleteUserResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -283,20 +333,27 @@ service APIServer {
       description: "获取所有用户的列表"
       tags: "用户管理"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "用户列表与分页游标"
-          schema: { json_schema: { ref: ".apiserver.v1.ListUserResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ListUserResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };
@@ -312,20 +369,27 @@ service APIServer {
       description: "当前用户修改自己的密码"
       tags: "用户管理"
       security: {
-        security_requirement: { key: "BearerAuth" value: {} }
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
       }
       responses: {
         key: "200"
         value: {
           description: "修改成功"
-          schema: { json_schema: { ref: ".apiserver.v1.ChangePasswordResponseEnvelope" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ChangePasswordResponseEnvelope"}
+          }
         }
       }
       responses: {
         key: "default"
         value: {
           description: "统一错误响应"
-          schema: { json_schema: { ref: ".apiserver.v1.APIError" } }
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
         }
       }
     };

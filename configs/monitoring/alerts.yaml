@@ -1,0 +1,64 @@
+groups:
+  - name: enterprise-runtime
+    rules:
+      - alert: RuntimeDown
+        expr: up{job=~"enterprise-.*"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: '服务指标端点不可达，检查进程和网络'}
+      - alert: TaskQueueStalled
+        expr: max(task_oldest_wait_seconds) > 300
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: '任务最老等待超过五分钟，检查 Worker 和数据库'}
+      - alert: SchedulerBehind
+        expr: max(schedule_oldest_due_seconds) > 120
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: '计划游标未及时推进，检查 Scheduler'}
+      - alert: OutboxStalled
+        expr: max(outbox_oldest_pending_seconds) > 300
+        for: 5m
+        labels: {severity: critical}
+        annotations: {summary: '事件未及时发布，检查 Kafka、Relay 和终态错误'}
+      - alert: DeadLettersPresent
+        expr: max(dlq_pending_count) + max(dlq_dead_count) > 0
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: '消费死信存在，查询受控管理接口并按手册重放'}
+      - alert: OutboxExhausted
+        expr: max(outbox_dead_count) > 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: 'Outbox 重试耗尽，需要明确人工恢复'}
+      - alert: QueueMetricsStale
+        expr: time() - max(queue_metrics_last_success_timestamp_seconds) > 60
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: '数据库指标快照陈旧，检查数据库与运行循环'}
+      - alert: WorkerUnavailable
+        expr: max(runtime_available_count{role="worker"}) == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: '没有有效 Worker 心跳'}
+      - alert: KafkaLagHigh
+        expr: sum by (consumergroup) (kafka_consumergroup_lag) > 1000
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Kafka 消费者组积压超过阈值'}
+      - alert: KafkaExporterMissing
+        expr: absent(up{job="kafka-exporter"}) or up{job="kafka-exporter"} == 0
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: '权威 Kafka lag 数据不可用'}
+
+      - alert: ReplayFailed
+        expr: max(dlq_replay_results{result="failed"}) > 0
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: '受理的死信重放再次失败，按新 event_id 定位 Inbox'}
+      - alert: ReplayStalled
+        expr: max(dlq_replay_results{result="pending"}) > 0
+        for: 10m
+        labels: {severity: warning}
+        annotations: {summary: '重放尚未消费完成，检查 Outbox 和 Consumer lag'}

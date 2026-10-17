@@ -80,7 +80,7 @@ func (c *ServerConfig) NewGinServer() (*ginServer, error) {
 	return &ginServer{srv: httpsrv}, nil
 }
 
-// 注册 API 路由。路由的路径和 HTTP 方法，严格遵循 REST 规范。
+// InstallRESTAPI 注册 API 路由。路由的路径和 HTTP 方法，严格遵循 REST 规范。
 func (c *ServerConfig) InstallRESTAPI(engine *gin.Engine) error {
 	// 注册业务无关的 API 接口
 	if err := InstallGenericAPI(engine, c.resolveServiceName()); err != nil {
@@ -92,6 +92,7 @@ func (c *ServerConfig) InstallRESTAPI(engine *gin.Engine) error {
 
 	// 创建核心业务处理器
 	hdl := handler.NewHandler(c.biz, c.val, authMiddlewares...)
+	hdl.SetReplayLimiter(c.loginLimiter)
 	// 注册健康检查接口
 	engine.GET("/healthz", hdl.Healthz)
 	engine.GET("/readyz", c.Readyz)

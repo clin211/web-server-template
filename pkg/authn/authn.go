@@ -20,6 +20,8 @@ type IToken interface {
 }
 
 // Authenticator 定义了用于令牌处理的方法。
+//
+//nolint:iface // Public contract for pluggable authenticators implemented outside this package.
 type Authenticator interface {
 	// Sign 用于生成令牌。
 	Sign(ctx context.Context, userID string) (IToken, error)

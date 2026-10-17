@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/clin211/gin-enterprise-template/internal/pkg/dbschema"
 	"io"
 	"log/slog"
 	"time"
@@ -22,8 +23,14 @@ import (
 	"github.com/clin211/gin-enterprise-template/pkg/token"
 )
 
+var (
+	errHTTPServerStopped    = errors.New("HTTP server stopped unexpectedly")
+	errKafkaBrokersRequired = errors.New("kafka brokers are not configured")
+)
+
 // Config 包含应用程序相关的配置。
 type Config struct {
+	TaskOptions       *genericoptions.TaskOptions
 	JWTOptions        *genericoptions.JWTOptions
 	TLSOptions        *genericoptions.TLSOptions
 	HTTPOptions       *genericoptions.HTTPOptions
@@ -50,6 +57,7 @@ type Server struct {
 // ServerConfig 包含服务器的核心依赖和配置。
 type ServerConfig struct {
 	*Config
+
 	biz          biz.IBiz
 	val          *validation.Validator
 	retriever    mw.UserRetriever
@@ -59,10 +67,13 @@ type ServerConfig struct {
 }
 
 // NewServer 初始化并返回一个新的 Server 实例。
-func (cfg *Config) NewServer(_ context.Context) (*Server, error) {
+func (cfg *Config) NewServer(ctx context.Context) (*Server, error) {
 	// 创建核心服务器实例。
-	server, _, err := NewServer(cfg)
-	return server, err
+	instance, _, err := NewServer(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	return instance, nil
 }
 
 // Run 启动服务器并监听终止信号。
@@ -83,7 +94,7 @@ func (s *Server) Run(ctx context.Context) error {
 	case err := <-httpDone:
 		httpExited = true
 		if err == nil {
-			err = errors.New("HTTP server stopped unexpectedly")
+			err = errHTTPServerStopped
 		}
 		runErr = fmt.Errorf("HTTP server failed: %w", err)
 	case <-s.async.Done():
@@ -103,14 +114,7 @@ func (s *Server) Run(ctx context.Context) error {
 		runErr = errors.Join(runErr, fmt.Errorf("shutdown server resources: %w", err))
 	}
 	if !httpExited {
-		select {
-		case err := <-httpDone:
-			if err != nil {
-				runErr = errors.Join(runErr, fmt.Errorf("HTTP server stopped with error: %w", err))
-			}
-		case <-shutdownCtx.Done():
-			runErr = errors.Join(runErr, fmt.Errorf("wait for HTTP server shutdown: %w", shutdownCtx.Err()))
-		}
+		runErr = errors.Join(runErr, waitHTTPShutdown(shutdownCtx, httpDone))
 	}
 
 	slog.Info("Server exited successfully.")
@@ -118,36 +122,54 @@ func (s *Server) Run(ctx context.Context) error {
 	return runErr
 }
 
+func waitHTTPShutdown(ctx context.Context, done <-chan error) error {
+	select {
+	case err := <-done:
+		if err != nil {
+			return fmt.Errorf("HTTP server stopped with error: %w", err)
+		}
+		return nil
+	case <-ctx.Done():
+		return fmt.Errorf("wait for HTTP server shutdown: %w", ctx.Err())
+	}
+}
+
 func (s *Server) shutdown(ctx context.Context) error {
-	var serverErr error
-	if s.srv != nil {
-		if err := s.srv.GracefulStop(ctx); err != nil {
-			serverErr = fmt.Errorf("stop HTTP server: %w", err)
-		}
+	return errors.Join(s.stopHTTP(ctx), s.stopAsync(ctx), closeServerResource(s.database, "database"), closeServerResource(s.redis, "redis"))
+}
+
+func (s *Server) stopHTTP(ctx context.Context) error {
+	if s.srv == nil {
+		return nil
 	}
-	var asyncErr error
-	if s.async != nil {
-		if err := s.async.Shutdown(ctx); err != nil {
-			asyncErr = fmt.Errorf("shutdown async runtime: %w", err)
-		}
+	if err := s.srv.GracefulStop(ctx); err != nil {
+		return fmt.Errorf("stop HTTP server: %w", err)
 	}
-	var databaseErr error
-	if s.database != nil {
-		if err := s.database.Close(); err != nil {
-			databaseErr = fmt.Errorf("close database: %w", err)
-		}
+	return nil
+}
+
+func (s *Server) stopAsync(ctx context.Context) error {
+	if s.async == nil {
+		return nil
 	}
-	var redisErr error
-	if s.redis != nil {
-		if err := s.redis.Close(); err != nil {
-			redisErr = fmt.Errorf("close redis: %w", err)
-		}
+	if err := s.async.Shutdown(ctx); err != nil {
+		return fmt.Errorf("shutdown async runtime: %w", err)
 	}
-	return errors.Join(serverErr, asyncErr, databaseErr, redisErr)
+	return nil
+}
+
+func closeServerResource(closer io.Closer, name string) error {
+	if closer == nil {
+		return nil
+	}
+	if err := closer.Close(); err != nil {
+		return fmt.Errorf("close %s: %w", name, err)
+	}
+	return nil
 }
 
 // NewDB 创建并返回一个用于 PostgreSQL 的 *gorm.DB 实例。
-func (cfg *Config) NewDB() (*gorm.DB, error) {
+func (cfg *Config) NewDB(ctx context.Context) (*gorm.DB, error) {
 	slog.Info("Initializing database connection", "type", "postgresql")
 	db, err := cfg.PostgreSQLOptions.NewDB()
 	if err != nil {
@@ -162,6 +184,14 @@ func (cfg *Config) NewDB() (*gorm.DB, error) {
 	// 	return nil, err
 	// }
 
+	raw, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	if err := dbschema.Check(ctx, raw); err != nil {
+		closeErr := raw.Close()
+		return nil, errors.Join(err, closeErr)
+	}
 	return db, nil
 }
 
@@ -176,8 +206,8 @@ func (r *UserRetriever) GetUser(ctx context.Context, userID string) (*model.User
 }
 
 // ProvideDB 根据配置提供数据库实例。
-func ProvideDB(cfg *Config) (*gorm.DB, func(), error) {
-	db, err := cfg.NewDB()
+func ProvideDB(ctx context.Context, cfg *Config) (*gorm.DB, func(), error) {
+	db, err := cfg.NewDB(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -210,7 +240,7 @@ func ProvideDatabaseCloser(db *gorm.DB) io.Closer {
 
 func ProvideRedisRefreshTokenStore(cfg *Config) (*token.RedisRefreshTokenStore, func(), error) {
 	if cfg == nil || cfg.RedisOptions == nil || cfg.RedisOptions.Addr == "" {
-		return nil, func() {}, nil
+		return nil, nil, token.ErrRefreshTokenStoreRequired
 	}
 	client, err := cfg.RedisOptions.NewClient()
 	if err != nil {
@@ -255,26 +285,36 @@ func (c dependencyReadinessChecker) Check(ctx context.Context) error {
 	} else if err := sqlDB.PingContext(ctx); err != nil {
 		errs = append(errs, fmt.Errorf("ping database: %w", err))
 	}
-	if c.redis != nil {
-		if err := c.redis.Ping(ctx); err != nil {
-			errs = append(errs, fmt.Errorf("check Redis: %w", err))
-		}
-	}
-	if c.async != nil {
-		if err := c.async.Check(ctx); err != nil {
-			errs = append(errs, err)
-		}
-	}
-	if kafkaEnabled(c.config) {
-		if err := checkKafka(ctx, c.config.KafkaOptions); err != nil {
-			errs = append(errs, err)
-		}
-	}
+	errs = append(errs, c.checkRedis(ctx), c.checkAsync(ctx), c.checkKafka(ctx))
 	return errors.Join(errs...)
 }
 
-func ProvideReadinessChecker(cfg *Config, db *gorm.DB, redisStore *token.RedisRefreshTokenStore, async *AsyncRuntime) readinessChecker {
-	return dependencyReadinessChecker{db: db, redis: redisStore, async: async, config: cfg}
+func (c dependencyReadinessChecker) checkRedis(ctx context.Context) error {
+	if c.redis == nil {
+		return nil
+	}
+	if err := c.redis.Ping(ctx); err != nil {
+		return fmt.Errorf("check Redis: %w", err)
+	}
+	return nil
+}
+
+func (c dependencyReadinessChecker) checkAsync(ctx context.Context) error {
+	if c.async == nil {
+		return nil
+	}
+	return c.async.Check(ctx)
+}
+
+func (c dependencyReadinessChecker) checkKafka(ctx context.Context) error {
+	if !kafkaEnabled(c.config) {
+		return nil
+	}
+	return checkKafka(ctx, c.config.KafkaOptions)
+}
+
+func ProvideReadinessChecker(cfg *Config, db *gorm.DB, redisStore *token.RedisRefreshTokenStore, async *AsyncRuntime) *dependencyReadinessChecker {
+	return &dependencyReadinessChecker{db: db, redis: redisStore, async: async, config: cfg}
 }
 
 func kafkaEnabled(cfg *Config) bool {
@@ -284,7 +324,7 @@ func kafkaEnabled(cfg *Config) bool {
 
 func checkKafka(ctx context.Context, options *genericoptions.KafkaOptions) error {
 	if options == nil || len(options.Brokers) == 0 {
-		return errors.New("Kafka brokers are not configured")
+		return errKafkaBrokersRequired
 	}
 	dialer, err := options.Dialer()
 	if err != nil {
@@ -308,3 +348,6 @@ func checkKafka(ctx context.Context, options *genericoptions.KafkaOptions) error
 func NewWebServer(serverConfig *ServerConfig) (server.Server, error) {
 	return serverConfig.NewGinServer()
 }
+
+// CheckKafka verifies a broker connection for role readiness.
+func CheckKafka(ctx context.Context, o *genericoptions.KafkaOptions) error { return checkKafka(ctx, o) }

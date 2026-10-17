@@ -1,6 +1,7 @@
 package pass
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"strings"
@@ -8,6 +9,8 @@ import (
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/ast/astutil"
 )
+
+var errMissingFile = errors.New("cannot find containing file")
 
 // FindContainingFile 在 Pass 中查找 ast 节点的文件。
 func FindContainingFile(pass *analysis.Pass, n ast.Node) *ast.File {
@@ -17,7 +20,7 @@ func FindContainingFile(pass *analysis.Pass, n ast.Node) *ast.File {
 			return f
 		}
 	}
-	panic(fmt.Errorf("cannot file file for %v", n))
+	panic(fmt.Errorf("%w for %v", errMissingFile, n))
 }
 
 // HasNolintComment 如果传递的节点上的注释包含注释 "nolint:<nolintName>"，则返回 true。
@@ -36,17 +39,8 @@ func HasNolintComment(pass *analysis.Pass, n ast.Node, nolintName string) bool {
 		// 我们通过检查注释相对于最外层相关节点的位置来做到这一点。
 		// 这是合理的，因为我们不能单独在 ident 上有注释，因为 ident 不是语句。
 		_, isIdent := cn.(*ast.Ident)
-		for _, cg := range cm[cn] {
-			for _, c := range cg.List {
-				if !strings.Contains(c.Text, nolintComment) {
-					continue
-				}
-				outermost := relevant[len(relevant)-1]
-				if isIdent && (cg.Pos() < outermost.Pos() || cg.End() > outermost.End()) {
-					continue
-				}
-				return true
-			}
+		if hasComment(cm[cn], nolintComment, relevant[len(relevant)-1], isIdent) {
+			return true
 		}
 	}
 	return false
@@ -68,7 +62,8 @@ func HasNolintComment(pass *analysis.Pass, n ast.Node, nolintName string) bool {
 //
 // 此函数将返回直到 `IfStmt` 的所有节点作为相关节点，
 // 并将函数 nonsense 的 `BlockStmt` 作为包含节点。
-func findNodesInBlock(f *ast.File, n ast.Node) (relevant []ast.Node, containing ast.Node) {
+func findNodesInBlock(f *ast.File, n ast.Node) ([]ast.Node, ast.Node) {
+	var relevant []ast.Node
 	stack, _ := astutil.PathEnclosingInterval(f, n.Pos(), n.End())
 	// 将 n 的所有子节点添加到相关节点集合。
 	ast.Walk(funcVisitor(func(node ast.Node) {
@@ -79,7 +74,7 @@ func findNodesInBlock(f *ast.File, n ast.Node) (relevant []ast.Node, containing 
 	reverseNodes(relevant)
 
 	// 添加父节点直到封闭块或声明块并发现包含节点。
-	containing = f // 最坏情况
+	var containing ast.Node = f // 最坏情况
 	for _, n := range stack {
 		switch n.(type) {
 		case *ast.GenDecl, *ast.BlockStmt:
@@ -94,7 +89,7 @@ func findNodesInBlock(f *ast.File, n ast.Node) (relevant []ast.Node, containing 
 }
 
 func reverseNodes(n []ast.Node) {
-	for i := 0; i < len(n)/2; i++ {
+	for i := range len(n) / 2 {
 		n[i], n[len(n)-i-1] = n[len(n)-i-1], n[i]
 	}
 }
@@ -103,9 +98,23 @@ type funcVisitor func(node ast.Node)
 
 var _ ast.Visitor = (funcVisitor)(nil)
 
-func (f funcVisitor) Visit(node ast.Node) (w ast.Visitor) {
+func (f funcVisitor) Visit(node ast.Node) ast.Visitor {
 	if node != nil {
 		f(node)
 	}
 	return f
+}
+
+func hasComment(groups []*ast.CommentGroup, text string, outermost ast.Node, isIdent bool) bool {
+	for _, group := range groups {
+		if isIdent && (group.Pos() < outermost.Pos() || group.End() > outermost.End()) {
+			continue
+		}
+		for _, comment := range group.List {
+			if strings.Contains(comment.Text, text) {
+				return true
+			}
+		}
+	}
+	return false
 }

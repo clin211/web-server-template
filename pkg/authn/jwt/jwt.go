@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"context"
+	"maps"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -152,9 +153,7 @@ func (a *JWTAuth) Sign(ctx context.Context, userID string) (authn.IToken, error)
 		Subject: userID,
 	})
 	if a.opts.tokenHeader != nil {
-		for k, v := range a.opts.tokenHeader {
-			token.Header[k] = v
-		}
+		maps.Copy(token.Header, a.opts.tokenHeader)
 	}
 
 	refreshToken, err := token.SignedString(a.opts.signingKey)
@@ -196,7 +195,11 @@ func (a *JWTAuth) parseToken(ctx context.Context, refreshToken string) (*jwt.Reg
 		return nil, unauthorized(reason, i18n.FromContext(ctx).LocalizeT(MessageUnSupportSigningMethod))
 	}
 
-	return token.Claims.(*jwt.RegisteredClaims), nil
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	if !ok {
+		return nil, unauthorized(reason, i18n.FromContext(ctx).LocalizeT(MessageTokenInvalid))
+	}
+	return claims, nil
 }
 
 func (a *JWTAuth) callStore(fn func(Storer) error) error {

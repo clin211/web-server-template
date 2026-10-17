@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var errServerStopped = errors.New("server stopped unexpectedly")
+
 // Server 定义所有服务器类型的接口.
 type Server interface {
 	// Run 运行服务器，并将启动或服务错误返回给调用方。
@@ -30,14 +32,14 @@ func Serve(ctx context.Context, srv Server) error {
 		if err != nil {
 			return err
 		}
-		return errors.New("server stopped unexpectedly")
+		return errServerStopped
 	case <-ctx.Done():
 	}
 
 	// 优雅关闭服务器。
 	slog.Info("Shutting down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
 	defer cancel()
 
 	// 优雅停止服务器，并传播关闭失败，避免探针或进程管理器误判已经安全退出。

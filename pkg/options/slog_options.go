@@ -50,21 +50,21 @@ func (o *SlogOptions) Validate() []error {
 	switch strings.ToUpper(strings.TrimSpace(o.Level)) {
 	case "DEBUG", "INFO", "WARN", "WARNING", "ERROR":
 	default:
-		errs = append(errs, fmt.Errorf("invalid log level: %s (must be debug, info, warn, or error)", o.Level))
+		errs = append(errs, fmt.Errorf("%w: invalid log level: %s (must be debug, info, warn, or error)", errInvalidConfiguration, o.Level))
 	}
 
 	// 验证格式
 	switch o.Format {
 	case "json", "text":
 	default:
-		errs = append(errs, fmt.Errorf("invalid log format: %s (must be json or text)", o.Format))
+		errs = append(errs, fmt.Errorf("%w: invalid log format: %s (must be json or text)", errInvalidConfiguration, o.Format))
 	}
 
 	// 验证输出
 	if o.Output != "stdout" && o.Output != "stderr" && o.Output != "" {
 		// 检查是否为有效的文件路径（基本验证）
 		if !filepath.IsAbs(o.Output) && !strings.Contains(o.Output, "/") {
-			errs = append(errs, fmt.Errorf("invalid output path: %s", o.Output))
+			errs = append(errs, fmt.Errorf("%w: invalid output path: %s", errInvalidConfiguration, o.Output))
 		}
 	}
 

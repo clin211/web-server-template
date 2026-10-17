@@ -1,3 +1,4 @@
+TEST_FLAGS ?= $(if $(TEST_POSTGRES_DSN),,-short)
 # ==============================================================================
 # Define global Makefile variables for easy reference later
 
@@ -16,7 +17,7 @@ ROOT_PACKAGE=github.com/clin211/gin-enterprise-template
 DOCKERFILE_DIR=$(PROJ_ROOT_DIR)/build/docker
 REGISTRY_PREFIX ?= gin-enterprise-template
 
-# Set the unit test coverage threshold. The value of 1 here is just for demonstration, as the project currently lacks comprehensive unit tests.
+# Keep the existing 20% coverage threshold; CI includes real dependency fault tests.
 # For production environments, it is recommended to set a higher threshold, e.g., 60.
 COVERAGE ?= 20
 PROTOC_GEN_GO_VERSION ?= v1.36.11
@@ -26,6 +27,9 @@ PROTOC_GEN_DEFAULTS_VERSION ?= v0.0.2
 PROTOC_INJECT_TAG_VERSION ?= v1.4.0
 WIRE_VERSION ?= v0.7.0
 GOLANGCI_LINT_VERSION ?= v2.12.2
+GOOSE_VERSION := v3.28.0
+GOOSE := $(OUTPUT_DIR)/tools/goose
+GOOSE_BUILD_TAGS := no_clickhouse,no_libsql,no_mssql,no_mysql,no_sqlite3,no_vertica,no_ydb
 
 # ==============================================================================
 # Define version-related variables
@@ -68,8 +72,8 @@ ifeq ($(GOOS),windows)
 endif
 
 GO_BUILD_FLAGS += -ldflags "$(GO_LDFLAGS)"
-# 只构建 gin-enterprise-template-apiserver，排除 gen-gorm-model 等工具
-COMMANDS ?= $(filter-out $(PROJ_ROOT_DIR)/cmd/gen-gorm-model, $(filter-out %.md, $(wildcard $(PROJ_ROOT_DIR)/cmd/*)))
+# 默认构建各进程入口，排除 gen-gorm-model 等工具
+COMMANDS ?= $(foreach dir,$(wildcard $(PROJ_ROOT_DIR)/cmd/*),$(if $(wildcard $(dir)/main.go),$(dir)))
 BINS ?= $(foreach cmd,${COMMANDS},$(notdir $(cmd)))
 IMAGES ?= $(filter-out tools, $(foreach dir, $(COMMANDS), $(notdir $(if $(wildcard $(dir)/*.go), $(dir),))))
 
@@ -107,7 +111,7 @@ all: deps protoc tidy format generate build cover
 define USAGE_OPTIONS
 
 Options:
-  BINS             The binary files to build. Defaults to gin-enterprise-template-apiserver only.
+  BINS             The binary files to build. Defaults to all application entrypoints.
                    This option can be used with the following command: make build
                    Example: make build BINS=<BinaryName>
   IMAGES           Backend images to make. Defaults to all files in the `cmd` directory.
@@ -173,18 +177,14 @@ verify.vet: ## Run the standard Go static analyzer.
 	@go vet ./...
 
 .PHONY: verify.test
-verify.test: ## Run unit tests with race detection and coverage.
+verify.test: $(if $(TEST_POSTGRES_DSN),tools.goose) ## Run race and coverage; TEST_POSTGRES_DSN includes integration paths.
 	@mkdir -p $(OUTPUT_DIR)
-	@go test -race -cover -coverprofile=$(OUTPUT_DIR)/coverage.out -timeout=10m -shuffle=on -short `go list ./...|egrep -v 'tools|vendor|third_party'`
+	@GOOSE_BIN="$(GOOSE)" go test -race -cover -coverpkg="$$(go list ./... | egrep -v 'tools|vendor|third_party' | paste -sd, -)" -coverprofile=$(OUTPUT_DIR)/coverage.out -timeout=10m -shuffle=on $(TEST_FLAGS) `go list ./...|egrep -v 'tools|vendor|third_party'`
 	@go tool cover -func=$(OUTPUT_DIR)/coverage.out | awk -v target=$(COVERAGE) -f $(PROJ_ROOT_DIR)/scripts/coverage.awk
 
 .PHONY: verify.generated
-verify.generated: ## Regenerate Proto/OpenAPI/Wire and fail on drift; requires a clean generated-file worktree.
-	@test -z "$$(git status --porcelain -- pkg/api/apiserver/v1 api/openapi internal/apiserver/wire_gen.go)" || \
-		(echo "generated files have local changes; commit or stash them before verification"; exit 1)
-	@$(MAKE) protoc
-	@go generate ./internal/apiserver
-	@git diff --exit-code -- pkg/api/apiserver/v1 api/openapi internal/apiserver/wire_gen.go
+verify.generated: ## Regenerate in an isolated copy and compare with current generated files.
+	@./scripts/check-generated.sh
 
 .PHONY: verify.lint
 verify.lint: ## Run static analysis for new changes without changing source files.
@@ -195,8 +195,9 @@ verify.lint: ## Run static analysis for new changes without changing source file
 	fi
 
 .PHONY: verify.build
-verify.build: ## Build the API server binary.
-	@$(MAKE) build BINS=gin-enterprise-template-apiserver
+verify.build: ## Build API, Worker and Scheduler binaries.
+	@$(MAKE) build BINS="gin-enterprise-template-apiserver gin-enterprise-template-worker gin-enterprise-template-scheduler"
+	@python3 scripts/check-runtime-migrations.py --binary-dir $(OUTPUT_DIR)/platforms/$(GOOS)/$(GOARCH) --sql-dir migrations
 
 .PHONY: integration.up
 integration.up: ## Start isolated PostgreSQL and Kafka integration dependencies.
@@ -222,8 +223,8 @@ integration.up: ## Start isolated PostgreSQL and Kafka integration dependencies.
 	 docker compose -f docker-compose.env.yml run --rm topic-init
 
 .PHONY: integration.test
-integration.test: ## Run PostgreSQL and Kafka integration tests.
-	@TEST_POSTGRES_DSN="$${TEST_POSTGRES_DSN:-postgres://postgres:integration-postgres@127.0.0.1:$(INTEGRATION_POSTGRES_PORT)/enterprise_template_test?sslmode=disable}" \
+integration.test: tools.goose ## Run PostgreSQL and Kafka integration tests.
+	@GOOSE_BIN="$(GOOSE)" TEST_POSTGRES_DSN="$${TEST_POSTGRES_DSN:-postgres://postgres:integration-postgres@127.0.0.1:$(INTEGRATION_POSTGRES_PORT)/enterprise_template_test?sslmode=disable}" \
 	 TEST_KAFKA_BROKERS="$${TEST_KAFKA_BROKERS:-127.0.0.1:$(INTEGRATION_KAFKA_PORT)}" \
 	 TEST_KAFKA_TOPIC="$${TEST_KAFKA_TOPIC:-events}" \
 	 TEST_KAFKA_DLQ_TOPIC="$${TEST_KAFKA_DLQ_TOPIC:-events.dlq}" \
@@ -232,7 +233,7 @@ integration.test: ## Run PostgreSQL and Kafka integration tests.
 	 go test -race -count=1 -v ./internal/apiserver/store ./internal/messaging/consumer ./pkg/token -run Integration
 
 .PHONY: integration.smoke
-integration.smoke: build ## Start the API against integration dependencies and verify liveness/readiness.
+integration.smoke: build integration.migrate ## Start the API against integration dependencies and verify liveness/readiness.
 	@INTEGRATION_POSTGRES_PORT=$(INTEGRATION_POSTGRES_PORT) \
 	 INTEGRATION_KAFKA_PORT=$(INTEGRATION_KAFKA_PORT) \
 	 INTEGRATION_REDIS_PORT=$(INTEGRATION_REDIS_PORT) \
@@ -323,7 +324,7 @@ lint: ## Static analysis with golangci-lint (uses .golangci.yaml).
 	@golangci-lint run -c $(PROJ_ROOT_DIR)/.golangci.yaml $(PROJ_ROOT_DIR)/...
 
 .PHONY: deps
-deps: ## Install build and codegen tools.
+deps: tools.goose ## Install build, migration and codegen tools.
 	@echo "===========> Installing dependent tools, may take a while ..."
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GEN_GO_VERSION)
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GO_GRPC_VERSION)
@@ -346,3 +347,21 @@ generate: ## Generate code for all packages using go:generate directives (recurs
 help: Makefile  ## Show available targets and usage.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<TARGETS> <OPTIONS>\033[0m\n\n\033[35mTargets:\033[0m\n"} /^[0-9A-Za-z._-]+:.*?##/ { printf "  \033[36m%-45s\033[0m %s\n", $$1, $$2 } /^\$$\([0-9A-Za-z_-]+\):.*?##/ { gsub("_","-", $$1); printf "  \033[36m%-45s\033[0m %s\n", tolower(substr($$1, 3, length($$1)-7)), $$2 } /^##@/{ printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' Makefile #$(MAKEFILE_LIST)
 	@echo "$$USAGE_OPTIONS"
+
+.PHONY: integration.migrate
+integration.migrate: tools.goose ## Apply Goose SQL to the isolated integration database.
+	@GOOSE_DRIVER=postgres GOOSE_DBSTRING="postgres://postgres:integration-postgres@127.0.0.1:$(INTEGRATION_POSTGRES_PORT)/enterprise_template_test?sslmode=disable" $(GOOSE) -env=none -dir migrations up
+
+.PHONY: tools.goose
+tools.goose: $(GOOSE) ## Install the pinned official Goose CLI (PostgreSQL only).
+
+$(GOOSE): Makefile
+	@mkdir -p $(OUTPUT_DIR)/tools
+	@go mod download github.com/pressly/goose/v3@$(GOOSE_VERSION)
+	@go -C "$$(go env GOMODCACHE)/github.com/pressly/goose/v3@$(GOOSE_VERSION)" build -mod=readonly -tags '$(GOOSE_BUILD_TAGS)' -ldflags '-X main.version=$(GOOSE_VERSION)' -o "$(GOOSE)" ./cmd/goose
+
+.PHONY: dev.worker dev.scheduler
+dev.worker: ## Run the PostgreSQL task Worker; Kafka remains opt-in.
+	@go run ./cmd/gin-enterprise-template-worker --config configs/configs.yaml
+dev.scheduler: ## Run persistent Scheduler.
+	@go run ./cmd/gin-enterprise-template-scheduler --config configs/configs.yaml

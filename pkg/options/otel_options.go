@@ -2,6 +2,7 @@ package options
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -20,7 +21,6 @@ import (
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/metric"
@@ -43,7 +43,7 @@ const (
 	OutputModeConsole OutputMode = "console" // 输出到标准输出
 	OutputModeClassic OutputMode = "classic" // 使用传统指标 + 日志（无 OTel）
 
-	// 混合模式：
+	// OutputModeHybrid 混合输出日志、指标和追踪：
 	// log->stdout, metric->prometheus, trace->otel
 	OutputModeHybrid OutputMode = "hybrid"
 )
@@ -71,7 +71,7 @@ func (f *outputModeFlag) Type() string   { return "string" }
 func (f *outputModeFlag) Set(s string) error {
 	mode := OutputMode(s)
 	if !mode.IsValid() {
-		return fmt.Errorf("invalid output mode: %s, valid options: otlp, console, file, classic, hybrid", s)
+		return fmt.Errorf("%w: invalid output mode: %s, valid options: otlp, console, file, classic, hybrid", errInvalidConfiguration, s)
 	}
 	*f = outputModeFlag(mode)
 	return nil
@@ -171,30 +171,36 @@ func (o *OTelOptions) Validate() []error {
 
 	// 验证输出模式
 	if !o.OutputMode.IsValid() {
-		errs = append(errs, fmt.Errorf("invalid output mode: %s", o.OutputMode))
+		errs = append(errs, fmt.Errorf("%w: invalid output mode: %s", errInvalidConfiguration, o.OutputMode))
 	}
 
+	errs = append(errs, o.validateSignals()...)
+	return errs
+}
+
+func (o *OTelOptions) validateSignals() []error {
+	var errs []error
 	// 验证必填字段
 	if o.ServiceName == "" {
-		errs = append(errs, fmt.Errorf("service name is required"))
+		errs = append(errs, fmt.Errorf("%w: service name is required", errInvalidConfiguration))
 	}
 	if o.ServiceInstanceID == "" {
-		errs = append(errs, fmt.Errorf("service instance ID is required"))
+		errs = append(errs, fmt.Errorf("%w: service instance ID is required", errInvalidConfiguration))
 	}
 
 	// 验证 OTLP 特定设置
 	if o.OutputMode == OutputModeOTLP && o.Endpoint == "" {
-		errs = append(errs, fmt.Errorf("endpoint is required for OTLP output mode"))
+		errs = append(errs, fmt.Errorf("%w: endpoint is required for OTLP output mode", errInvalidConfiguration))
 	}
 
 	// 验证采样率
 	if o.SamplingRatio < 0 || o.SamplingRatio > 1 {
-		errs = append(errs, fmt.Errorf("sampling ratio must be between 0 and 1, got: %f", o.SamplingRatio))
+		errs = append(errs, fmt.Errorf("%w: sampling ratio must be between 0 and 1, got: %f", errInvalidConfiguration, o.SamplingRatio))
 	}
 
 	// 验证文件模式的输出目录
 	if o.OutputMode == OutputModeFile && o.OutputDir == "" {
-		errs = append(errs, fmt.Errorf("output directory is required for file output mode"))
+		errs = append(errs, fmt.Errorf("%w: output directory is required for file output mode", errInvalidConfiguration))
 	}
 
 	return errs
@@ -221,6 +227,11 @@ func (o *OTelOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 
 // GetResource 创建或返回缓存的资源配置
 func (o *OTelOptions) GetResource() *resource.Resource {
+	return o.GetResourceContext(context.Background())
+}
+
+// GetResourceContext 使用调用方上下文检测资源，并缓存当前选项实例的资源。
+func (o *OTelOptions) GetResourceContext(ctx context.Context) *resource.Resource {
 	if o == nil {
 		return resource.Default()
 	}
@@ -232,7 +243,7 @@ func (o *OTelOptions) GetResource() *resource.Resource {
 		return o.resource
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	// 基本资源属性
@@ -313,7 +324,7 @@ func (o *OTelOptions) initTraces(ctx context.Context) error {
 
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exporter),
-		trace.WithResource(o.GetResource()),
+		trace.WithResource(o.GetResourceContext(ctx)),
 		trace.WithSampler(trace.TraceIDRatioBased(o.SamplingRatio)),
 	)
 
@@ -345,9 +356,9 @@ func (o *OTelOptions) initMetrics(ctx context.Context) error {
 		}
 		exporter, err = otlpmetricgrpc.New(ctx, opts...)
 	case OutputModeFile:
-		writer, err := o.createFileWriter("metrics")
-		if err != nil {
-			return fmt.Errorf("failed to create metrics writer: %w", err)
+		writer, writerErr := o.createFileWriter("metrics")
+		if writerErr != nil {
+			return fmt.Errorf("failed to create metrics writer: %w", writerErr)
 		}
 		exporter, err = stdoutmetric.New(stdoutmetric.WithWriter(writer))
 	default: // OutputModeConsole and fallback
@@ -364,7 +375,7 @@ func (o *OTelOptions) initMetrics(ctx context.Context) error {
 
 	mp := metric.NewMeterProvider(
 		metric.WithReader(reader),
-		metric.WithResource(o.GetResource()),
+		metric.WithResource(o.GetResourceContext(ctx)),
 	)
 
 	o.providers.meter = mp
@@ -408,21 +419,21 @@ func (o *OTelOptions) initLogs(ctx context.Context) error {
 	if o.OutputMode == OutputModeConsole {
 		processor = log.NewSimpleProcessor(exporter)
 	} else {
-		processor = log.NewBatchProcessor(exporter)
+		processor = log.NewBatchProcessor(exporter, log.WithExportTimeout(5*time.Second))
 	}
 
 	lp := log.NewLoggerProvider(
 		log.WithProcessor(processor),
-		log.WithResource(o.GetResource()),
+		log.WithResource(o.GetResourceContext(ctx)),
 	)
 
 	o.providers.logger = lp
-	global.SetLoggerProvider(lp)
+	otel.SetLoggerProvider(lp)
 
 	// 设置 slog 集成
 	logger := otelslog.NewLogger(
 		o.ServiceName,
-		otelslog.WithLoggerProvider(global.GetLoggerProvider()),
+		otelslog.WithLoggerProvider(otel.GetLoggerProvider()),
 		otelslog.WithSource(o.AddSource),
 		otelslog.WithLevelString(o.Level),
 	)
@@ -465,24 +476,7 @@ func (o *OTelOptions) Shutdown(ctx context.Context) error {
 
 	var errs []error
 
-	// 关闭提供程序
-	if o.providers.tracer != nil {
-		if err := o.providers.tracer.Shutdown(ctx); err != nil {
-			errs = append(errs, fmt.Errorf("tracer shutdown: %w", err))
-		}
-	}
-
-	if o.providers.meter != nil {
-		if err := o.providers.meter.Shutdown(ctx); err != nil {
-			errs = append(errs, fmt.Errorf("meter shutdown: %w", err))
-		}
-	}
-
-	if o.providers.logger != nil {
-		if err := o.providers.logger.Shutdown(ctx); err != nil {
-			errs = append(errs, fmt.Errorf("logger shutdown: %w", err))
-		}
-	}
+	errs = append(errs, o.shutdownProviders(ctx)...)
 
 	// 关闭文件
 	for _, file := range o.files {
@@ -492,10 +486,7 @@ func (o *OTelOptions) Shutdown(ctx context.Context) error {
 	}
 	o.files = o.files[:0] // 清空切片
 
-	if len(errs) > 0 {
-		return fmt.Errorf("shutdown errors: %v", errs)
-	}
-	return nil
+	return errors.Join(errs...)
 }
 
 // GetTracerProvider 返回 tracer provider
@@ -517,4 +508,25 @@ func (o *OTelOptions) GetLoggerProvider() *log.LoggerProvider {
 	o.mu.RLock()
 	defer o.mu.RUnlock()
 	return o.providers.logger
+}
+
+func shutdownProvider(ctx context.Context, name string, provider Provider) error {
+	if err := provider.Shutdown(ctx); err != nil {
+		return fmt.Errorf("%s shutdown: %w", name, err)
+	}
+	return nil
+}
+
+func (o *OTelOptions) shutdownProviders(ctx context.Context) []error {
+	var errs []error
+	if o.providers.tracer != nil {
+		errs = append(errs, shutdownProvider(ctx, "tracer", o.providers.tracer))
+	}
+	if o.providers.meter != nil {
+		errs = append(errs, shutdownProvider(ctx, "meter", o.providers.meter))
+	}
+	if o.providers.logger != nil {
+		errs = append(errs, shutdownProvider(ctx, "logger", o.providers.logger))
+	}
+	return errs
 }

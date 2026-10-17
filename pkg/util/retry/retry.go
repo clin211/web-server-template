@@ -1,6 +1,7 @@
 package retry
 
 import (
+	"context"
 	"time"
 
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -33,10 +34,18 @@ func Retry(fn wait.ConditionFunc, initialBackoffSec int) error {
 
 // Poll 尝试一个条件函数，直到它返回 true、错误或达到超时。
 func Poll(interval, timeout time.Duration, condition wait.ConditionFunc) error {
-	return wait.Poll(interval, timeout, condition)
+	return poll(interval, timeout, false, condition)
 }
 
 // PollImmediate 尝试一个条件函数，直到它返回 true、错误或达到超时。
 func PollImmediate(interval, timeout time.Duration, condition wait.ConditionFunc) error {
-	return wait.PollImmediate(interval, timeout, condition)
+	return poll(interval, timeout, true, condition)
+}
+
+func poll(interval, timeout time.Duration, immediate bool, condition wait.ConditionFunc) error {
+	ctx := context.Background()
+	if timeout == 0 {
+		return wait.PollUntilContextCancel(ctx, interval, immediate, condition.WithContext())
+	}
+	return wait.PollUntilContextTimeout(ctx, interval, timeout, immediate, condition.WithContext())
 }

@@ -3,14 +3,17 @@ package errorsx
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"net/http"
+
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-// 业务错误码，格式：LLMMMNNN
+// BizCode 表示业务错误码，格式：LLMMMNNN
 // LL: 错误级别（1-5）
 // MMM: 业务模块（001-999）
 // NNN: 具体错误（001-999）
@@ -73,22 +76,22 @@ type BizError struct {
 	Details string `json:"details,omitempty"`
 
 	// 元数据
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Metadata map[string]any `json:"metadata,omitempty"`
 }
 
 // APIResponse 标准API响应结构
 type APIResponse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-	Reason  string      `json:"reason,omitempty"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+	Reason  string `json:"reason,omitempty"`
 }
 
 // ResponseDetail 响应详情（用于替代 ErrorDetail）
 type ResponseDetail struct {
-	Details  string                 `json:"details,omitempty"`
-	StackID  string                 `json:"stack_id,omitempty"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Details  string         `json:"details,omitempty"`
+	StackID  string         `json:"stack_id,omitempty"`
+	Metadata map[string]any `json:"metadata,omitempty"`
 }
 
 // Headers 常用的HTTP Headers
@@ -113,27 +116,8 @@ func GetErrorLevel(code BizCode) int {
 // 未显式归类的用户/业务级错误统一 400，系统与上下游错误返回 5xx/502。
 // 由此保证"非 2xx 即业务失败"，与 OpenAPI 契约中 default 响应（APIError）的语义一致。
 func GetHTTPCode(code BizCode) int {
-	switch code {
-	case CodeOK:
-		return http.StatusOK
-	case CodeAuthUnauthenticated, CodeAuthTokenInvalid, CodeAuthTokenExpired:
-		return http.StatusUnauthorized
-	case CodeAuthSignToken:
-		return http.StatusInternalServerError
-	case CodeUserPermissionDenied:
-		return http.StatusForbidden
-	case CodeUserNotFound:
-		return http.StatusNotFound
-	case CodeUserAlreadyExists:
-		return http.StatusConflict
-	case CodeUserInvalidCredentials, CodeUserInvalidUsername, CodeUserInvalidPassword:
-		return http.StatusBadRequest
-	case CodeTooManyRequests:
-		return http.StatusTooManyRequests
-	case CodeServiceUnavailable:
-		return http.StatusServiceUnavailable
-	case CodeRequestTimeout:
-		return http.StatusGatewayTimeout
+	if httpCode, ok := businessHTTPCodes[code]; ok {
+		return httpCode
 	}
 
 	level := GetErrorLevel(code)
@@ -161,18 +145,13 @@ func NewBizError(code BizCode, reason, message string) *BizError {
 	}
 }
 
-// clone 返回错误的副本（含元数据深拷贝），是所有 WithXxx 方法共享的复制语义
+// clone 返回错误的副本（含独立的元数据映射），是所有 WithXxx 方法共享的复制语义
 // 基础。预定义错误是包级共享的哨兵值，原地修改会在并发请求间产生数据竞争并
 // 互相污染（例如把上一个请求的绑定错误详情带进下一个请求的日志），因此任何
 // 派生操作都必须返回新实例。
 func (err *BizError) clone() *BizError {
 	newErr := *err
-	if err.Metadata != nil {
-		newErr.Metadata = make(map[string]interface{}, len(err.Metadata))
-		for k, v := range err.Metadata {
-			newErr.Metadata[k] = v
-		}
-	}
+	newErr.Metadata = maps.Clone(err.Metadata)
 	return &newErr
 }
 
@@ -184,7 +163,7 @@ func (err *BizError) WithDetails(details string) *BizError {
 }
 
 // WithMetadata 设置元数据（返回新实例，不修改接收者）
-func (err *BizError) WithMetadata(metadata map[string]interface{}) *BizError {
+func (err *BizError) WithMetadata(metadata map[string]any) *BizError {
 	newErr := err.clone()
 	newErr.Metadata = metadata
 	return newErr
@@ -217,79 +196,23 @@ func (err *BizError) HTTPStatus() int {
 
 // ToGRPCCode converts HTTP status code to gRPC status code
 func ToGRPCCode(code int) codes.Code {
-	switch code {
-	case http.StatusOK:
-		return codes.OK
-	case http.StatusBadRequest:
-		return codes.InvalidArgument
-	case http.StatusUnauthorized:
-		return codes.Unauthenticated
-	case http.StatusForbidden:
-		return codes.PermissionDenied
-	case http.StatusNotFound:
-		return codes.NotFound
-	case http.StatusConflict:
-		return codes.AlreadyExists
-	case http.StatusTooManyRequests:
-		return codes.ResourceExhausted
-	case http.StatusInternalServerError:
-		return codes.Internal
-	case http.StatusNotImplemented:
-		return codes.Unimplemented
-	case http.StatusServiceUnavailable:
-		return codes.Unavailable
-	case http.StatusGatewayTimeout:
-		return codes.DeadlineExceeded
-	default:
-		return codes.Unknown
+	if grpcCode, ok := httpGRPCCodes[code]; ok {
+		return grpcCode
 	}
+	return codes.Unknown
 }
 
 // FromGRPCCode converts gRPC status code to HTTP status code
 func FromGRPCCode(code codes.Code) int {
-	switch code {
-	case codes.OK:
-		return http.StatusOK
-	case codes.Canceled:
-		return http.StatusRequestTimeout
-	case codes.Unknown:
-		return http.StatusInternalServerError
-	case codes.InvalidArgument:
-		return http.StatusBadRequest
-	case codes.DeadlineExceeded:
-		return http.StatusGatewayTimeout
-	case codes.NotFound:
-		return http.StatusNotFound
-	case codes.AlreadyExists:
-		return http.StatusConflict
-	case codes.PermissionDenied:
-		return http.StatusForbidden
-	case codes.Unauthenticated:
-		return http.StatusUnauthorized
-	case codes.ResourceExhausted:
-		return http.StatusTooManyRequests
-	case codes.FailedPrecondition:
-		return http.StatusBadRequest
-	case codes.Aborted:
-		return http.StatusConflict
-	case codes.OutOfRange:
-		return http.StatusBadRequest
-	case codes.Unimplemented:
-		return http.StatusNotImplemented
-	case codes.Internal:
-		return http.StatusInternalServerError
-	case codes.Unavailable:
-		return http.StatusServiceUnavailable
-	case codes.DataLoss:
-		return http.StatusInternalServerError
-	default:
-		return http.StatusInternalServerError
+	if httpCode, ok := grpcHTTPCodes[code]; ok {
+		return httpCode
 	}
+	return http.StatusInternalServerError
 }
 
 // Success 创建成功响应。
 // 默认 message 与 core.WriteResponse 的成功输出保持同一口径（"success"）。
-func Success(data interface{}, message ...string) *APIResponse {
+func Success(data any, message ...string) *APIResponse {
 	msg := "success"
 	if len(message) > 0 {
 		msg = message[0]
@@ -333,8 +256,12 @@ func (err *BizError) GRPCStatus() *status.Status {
 		}
 	}
 
-	s, _ := status.New(ToGRPCCode(err.HTTPStatus()), err.Message).WithDetails(&details)
-	return s
+	base := status.New(ToGRPCCode(err.HTTPStatus()), err.Message)
+	withDetails, detailErr := base.WithDetails(&details)
+	if detailErr != nil {
+		return base
+	}
+	return withDetails
 }
 
 // Code 从错误中提取错误码
@@ -370,52 +297,98 @@ func FromError(err error) *BizError {
 		return bizErr
 	}
 
-	// 处理 gRPC 错误
-	gs, ok := status.FromError(err)
-	if ok {
-		code := FromGRPCCode(gs.Code())
-		bizCode := BizCode(11001) // 默认系统错误
-		reason := "GRPCError"
-		message := gs.Message()
-		if code == http.StatusBadRequest {
-			bizCode = CodeUserInvalidCredentials
-			reason = "Common.InvalidArgument"
-			message = "请求参数无效。"
-		} else if code == http.StatusNotFound {
-			bizCode = CodeUserNotFound
-		} else if code == http.StatusUnauthorized {
-			bizCode = CodeAuthUnauthenticated
-			reason = ErrUnauthenticated.Reason
-			message = ErrUnauthenticated.Message
-		} else if code == http.StatusForbidden {
-			bizCode = CodeUserPermissionDenied
-			reason = ErrPermissionDenied.Reason
-			message = ErrPermissionDenied.Message
-		} else if code == http.StatusInternalServerError {
-			bizCode = CodeInternalServer
-			reason = ErrInternal.Reason
-			message = ErrInternal.Message
-		}
-
-		bizErr := NewBizError(bizCode, reason, message)
-
-		// 提取详细信息
-		for _, detail := range gs.Details() {
-			if typed, ok := detail.(*errdetails.ErrorInfo); ok {
-				bizErr.Reason = typed.Reason
-				metadata := make(map[string]interface{})
-				for k, v := range typed.Metadata {
-					metadata[k] = v
-				}
-				bizErr.Metadata = metadata
-				break
-			}
-		}
-
-		return bizErr
+	if gs, ok := status.FromError(err); ok {
+		return fromGRPCStatus(gs)
 	}
 
 	// 未分类错误只能在服务端日志中保留原文，对外统一成稳定的系统错误，避免泄露
 	// SQL、连接串、文件路径等内部实现细节。
 	return NewBizError(CodeInternalServer, ErrInternal.Reason, ErrInternal.Message)
+}
+
+func fromGRPCStatus(gs *status.Status) *BizError {
+	bizErr := grpcBizError(gs)
+	for _, detail := range gs.Details() {
+		info, ok := detail.(*errdetails.ErrorInfo)
+		if !ok {
+			continue
+		}
+		bizErr.Reason = info.GetReason()
+		metadata := make(map[string]any, len(info.GetMetadata()))
+		for key, value := range info.GetMetadata() {
+			metadata[key] = value
+		}
+		bizErr.Metadata = metadata
+		break
+	}
+	return bizErr
+}
+
+func grpcBizError(gs *status.Status) *BizError {
+	switch FromGRPCCode(gs.Code()) {
+	case http.StatusBadRequest:
+		return NewBizError(CodeUserInvalidCredentials, "Common.InvalidArgument", i18n.DefaultMessage("Common.BadRequest"))
+	case http.StatusNotFound:
+		return NewBizError(CodeUserNotFound, "GRPCError", gs.Message())
+	case http.StatusUnauthorized:
+		return NewBizError(CodeAuthUnauthenticated, ErrUnauthenticated.Reason, ErrUnauthenticated.Message)
+	case http.StatusForbidden:
+		return NewBizError(CodeUserPermissionDenied, ErrPermissionDenied.Reason, ErrPermissionDenied.Message)
+	case http.StatusInternalServerError:
+		return NewBizError(CodeInternalServer, ErrInternal.Reason, ErrInternal.Message)
+	default:
+		return NewBizError(BizCode(11001), "GRPCError", gs.Message())
+	}
+}
+
+// 协议映射只在初始化时创建，运行期间不修改。
+var businessHTTPCodes = map[BizCode]int{
+	CodeOK:                     http.StatusOK,
+	CodeAuthUnauthenticated:    http.StatusUnauthorized,
+	CodeAuthTokenInvalid:       http.StatusUnauthorized,
+	CodeAuthTokenExpired:       http.StatusUnauthorized,
+	CodeAuthSignToken:          http.StatusInternalServerError,
+	CodeUserPermissionDenied:   http.StatusForbidden,
+	CodeUserNotFound:           http.StatusNotFound,
+	CodeUserAlreadyExists:      http.StatusConflict,
+	CodeUserInvalidCredentials: http.StatusBadRequest,
+	CodeUserInvalidUsername:    http.StatusBadRequest,
+	CodeUserInvalidPassword:    http.StatusBadRequest,
+	CodeTooManyRequests:        http.StatusTooManyRequests,
+	CodeServiceUnavailable:     http.StatusServiceUnavailable,
+	CodeRequestTimeout:         http.StatusGatewayTimeout,
+}
+
+var httpGRPCCodes = map[int]codes.Code{
+	http.StatusOK:                  codes.OK,
+	http.StatusBadRequest:          codes.InvalidArgument,
+	http.StatusUnauthorized:        codes.Unauthenticated,
+	http.StatusForbidden:           codes.PermissionDenied,
+	http.StatusNotFound:            codes.NotFound,
+	http.StatusConflict:            codes.AlreadyExists,
+	http.StatusTooManyRequests:     codes.ResourceExhausted,
+	http.StatusInternalServerError: codes.Internal,
+	http.StatusNotImplemented:      codes.Unimplemented,
+	http.StatusServiceUnavailable:  codes.Unavailable,
+	http.StatusGatewayTimeout:      codes.DeadlineExceeded,
+}
+
+var grpcHTTPCodes = map[codes.Code]int{
+	codes.OK:                 http.StatusOK,
+	codes.Canceled:           http.StatusRequestTimeout,
+	codes.Unknown:            http.StatusInternalServerError,
+	codes.InvalidArgument:    http.StatusBadRequest,
+	codes.DeadlineExceeded:   http.StatusGatewayTimeout,
+	codes.NotFound:           http.StatusNotFound,
+	codes.AlreadyExists:      http.StatusConflict,
+	codes.PermissionDenied:   http.StatusForbidden,
+	codes.Unauthenticated:    http.StatusUnauthorized,
+	codes.ResourceExhausted:  http.StatusTooManyRequests,
+	codes.FailedPrecondition: http.StatusBadRequest,
+	codes.Aborted:            http.StatusConflict,
+	codes.OutOfRange:         http.StatusBadRequest,
+	codes.Unimplemented:      http.StatusNotImplemented,
+	codes.Internal:           http.StatusInternalServerError,
+	codes.Unavailable:        http.StatusServiceUnavailable,
+	codes.DataLoss:           http.StatusInternalServerError,
 }

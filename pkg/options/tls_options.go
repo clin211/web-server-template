@@ -36,7 +36,7 @@ func (o *TLSOptions) Validate() []error {
 	}
 
 	if (o.Cert != "" && o.Key == "") || (o.Cert == "" && o.Key != "") {
-		errs = append(errs, fmt.Errorf("only one of cert and key configuration option is setted, you should set both to enable tls"))
+		errs = append(errs, fmt.Errorf("%w: only one of cert and key configuration option is setted, you should set both to enable tls", errInvalidConfiguration))
 	}
 
 	return errs
@@ -52,6 +52,9 @@ func (o *TLSOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 	fs.StringVar(&o.Key, fullPrefix+".key", o.Key, "Path to key file for connecting to the server.")
 }
 
+// TLSConfig 返回 TLS 配置；禁用 TLS 时以 nil 配置表示明文连接。
+//
+//nolint:nilnil // nil config is the established transport contract for disabled TLS.
 func (o *TLSOptions) TLSConfig() (*tls.Config, error) {
 	if !o.UseTLS {
 		return nil, nil
@@ -73,26 +76,11 @@ func (o *TLSOptions) TLSConfig() (*tls.Config, error) {
 	}
 
 	if o.CaCert != "" {
-		data, err := os.ReadFile(o.CaCert)
+		roots, err := loadRootCertificates(o.CaCert)
 		if err != nil {
 			return nil, err
 		}
-
-		capool := x509.NewCertPool()
-		for {
-			var block *pem.Block
-			block, _ = pem.Decode(data)
-			if block == nil {
-				break
-			}
-			cacert, err := x509.ParseCertificate(block.Bytes)
-			if err != nil {
-				return nil, err
-			}
-			capool.AddCert(cacert)
-		}
-
-		tlsConfig.RootCAs = capool
+		tlsConfig.RootCAs = roots
 	}
 
 	return tlsConfig, nil
@@ -104,4 +92,25 @@ func (o *TLSOptions) Scheme() string {
 		return "https"
 	}
 	return "http"
+}
+
+func loadRootCertificates(path string) (*x509.CertPool, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read CA certificates: %w", err)
+	}
+	roots := x509.NewCertPool()
+	for len(data) > 0 {
+		block, rest := pem.Decode(data)
+		if block == nil {
+			break
+		}
+		data = rest
+		cert, err := x509.ParseCertificate(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("parse CA certificate: %w", err)
+		}
+		roots.AddCert(cert)
+	}
+	return roots, nil
 }

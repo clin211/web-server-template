@@ -2,6 +2,7 @@ package errno
 
 import (
 	"github.com/clin211/gin-enterprise-template/pkg/errorsx"
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 )
 
 // 通用预定义错误的别名。唯一词表在 pkg/errorsx/code.go；本包仅为业务层
@@ -15,17 +16,17 @@ var (
 	ErrPermissionDenied = errorsx.ErrPermissionDenied
 	ErrOperationFailed  = errorsx.ErrOperationFailed
 
-	// Token 相关错误
-	ErrSignToken    = errorsx.NewBizError(errorsx.CodeAuthSignToken, "Auth.SignFailed", "签名 JSON Web 令牌时发生错误。")
-	ErrTokenInvalid = errorsx.NewBizError(errorsx.CodeAuthTokenInvalid, "Auth.TokenInvalid", "令牌无效。")
-	ErrTokenExpired = errorsx.NewBizError(errorsx.CodeAuthTokenExpired, "Auth.TokenExpired", "令牌已过期。")
+	// ErrSignToken 表示令牌签名失败。
+	ErrSignToken    = errorsx.NewBizError(errorsx.CodeAuthSignToken, "Auth.SignFailed", i18n.DefaultMessage("Auth.SignFailed"))
+	ErrTokenInvalid = errorsx.NewBizError(errorsx.CodeAuthTokenInvalid, "Auth.TokenInvalid", i18n.DefaultMessage("Auth.TokenInvalid"))
+	ErrTokenExpired = errorsx.NewBizError(errorsx.CodeAuthTokenExpired, "Auth.TokenExpired", i18n.DefaultMessage("Auth.TokenExpired"))
 
-	// 通用业务错误
-	ErrPageNotFound       = errorsx.NewBizError(errorsx.CodeUserNotFound, "Common.PageNotFound", "页面未找到。")
-	ErrServiceUnavailable = errorsx.NewBizError(errorsx.CodeServiceUnavailable, "Service.Unavailable", "服务暂时不可用。")
-	ErrTooManyRequests    = errorsx.NewBizError(errorsx.CodeTooManyRequests, "Service.TooManyRequests", "请求过多，请稍后再试。")
+	// ErrPageNotFound 表示页面不存在。
+	ErrPageNotFound       = errorsx.NewBizError(errorsx.CodeUserNotFound, "Common.PageNotFound", i18n.DefaultMessage("Common.PageNotFound"))
+	ErrServiceUnavailable = errorsx.NewBizError(errorsx.CodeServiceUnavailable, "Service.Unavailable", i18n.DefaultMessage("Service.Unavailable"))
+	ErrTooManyRequests    = errorsx.NewBizError(errorsx.CodeTooManyRequests, "Service.TooManyRequests", i18n.DefaultMessage("Service.TooManyRequests"))
 
-	// 角色管理错误
-	ErrAddRole    = errorsx.NewBizError(errorsx.CodeInternalServer, "Auth.RoleAddFailed", "添加角色时发生错误。")
-	ErrRemoveRole = errorsx.NewBizError(errorsx.CodeInternalServer, "Auth.RoleRemoveFailed", "移除角色时发生错误。")
+	// ErrAddRole 表示角色分配失败。
+	ErrAddRole    = errorsx.NewBizError(errorsx.CodeInternalServer, "Auth.RoleAddFailed", i18n.DefaultMessage("Auth.RoleAddFailed"))
+	ErrRemoveRole = errorsx.NewBizError(errorsx.CodeInternalServer, "Auth.RoleRemoveFailed", i18n.DefaultMessage("Auth.RoleRemoveFailed"))
 )

@@ -51,7 +51,7 @@ func LogSpanError(ctx context.Context, span trace.Span, err error, attrs ...attr
 }
 
 // RecordSpanErrorf 格式化消息版本
-func RecordSpanErrorf(ctx context.Context, span trace.Span, err error, format string, args ...interface{}) {
+func RecordSpanErrorf(ctx context.Context, span trace.Span, err error, format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
 
 	// 记录错误到span
@@ -63,7 +63,7 @@ func RecordSpanErrorf(ctx context.Context, span trace.Span, err error, format st
 }
 
 // RecordSpanErrorfWithAttrs 格式化消息 + 自定义属性版本
-func RecordSpanErrorfWithAttrs(ctx context.Context, span trace.Span, err error, format string, args []interface{}, attrs ...attribute.KeyValue) {
+func RecordSpanErrorfWithAttrs(ctx context.Context, span trace.Span, err error, format string, args []any, attrs ...attribute.KeyValue) {
 	message := fmt.Sprintf(format, args...)
 
 	// 记录错误到span（带属性）

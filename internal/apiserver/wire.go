@@ -4,6 +4,7 @@
 package apiserver
 
 import (
+	"context"
 	"github.com/google/wire"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/biz"
@@ -13,7 +14,7 @@ import (
 )
 
 // NewServer 设置并创建包含所有必要依赖的 Web 服务器。
-func NewServer(*Config) (*Server, func(), error) {
+func NewServer(context.Context, *Config) (*Server, func(), error) {
 	wire.Build(
 		NewWebServer,
 		wire.Struct(new(ServerConfig), "*"), // * 表示注入全部字段
@@ -22,10 +23,11 @@ func NewServer(*Config) (*Server, func(), error) {
 		ProvideDB, // 提供数据库实例
 		ProvideDatabaseCloser,
 		ProvideReadinessChecker,
+		wire.Bind(new(readinessChecker), new(*dependencyReadinessChecker)),
 		ProvideRedisRefreshTokenStore,
 		ProvideTokenManagerWithStore,
 		ProvideLoginRateLimiter,
-		NewAsyncRuntime,
+		NewBusinessAsyncRuntime,
 		validation.ProviderSet,
 		wire.NewSet(
 			wire.Struct(new(UserRetriever), "*"),

@@ -1,0 +1,63 @@
+# Combine with docker-compose.env.yml. The migration is always an explicit command.
+services:
+  api:
+    image: ${APP_IMAGE:?set immutable registry image@sha256 digest}
+    command: ['--config', '/app/configs/configs.yaml']
+    environment: &app-env
+      APP_POSTGRESQL_ADDR: postgres:5432
+      APP_POSTGRESQL_DATABASE: ${POSTGRES_DB:-enterprise_template}
+      APP_POSTGRESQL_USERNAME: ${APP_POSTGRESQL_USERNAME:-postgres}
+      APP_POSTGRESQL_SSL_MODE: ${APP_POSTGRESQL_SSL_MODE:-disable}
+      APP_POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD:?required}
+      APP_REDIS_ADDR: redis:6379
+      APP_REDIS_PASSWORD: ${REDIS_PASSWORD:?required}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:?required}
+      APP_KAFKA_BROKERS: redpanda:9092
+      APP_OTEL_OUTPUT_MODE: classic
+    ports: ['5558:5558']
+    networks: [gin-enterprise-template_net]
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1
+  worker:
+    image: ${APP_IMAGE:?required}
+    entrypoint: ['/app/gin-enterprise-template-worker']
+    command: ['--config', '/app/configs/configs.yaml', '--outbox.enabled=true', '--consumer.enabled=true']
+    environment: *app-env
+    ports: ['5560:5560']
+    networks: [gin-enterprise-template_net]
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1
+  scheduler:
+    image: ${APP_IMAGE:?required}
+    entrypoint: ['/app/gin-enterprise-template-scheduler']
+    command: ['--config', '/app/configs/configs.yaml']
+    environment: *app-env
+    ports: ['5561:5561']
+    networks: [gin-enterprise-template_net]
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.5
+  goose:
+    image: ${APP_IMAGE:?required}
+    entrypoint: ['/app/goose']
+    command: ['-env=none', '-dir', '/app/migrations', 'up']
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: ${GOOSE_DBSTRING:-}
+    networks: [gin-enterprise-template_net]
+    profiles: [tools]
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:v1.9.0
+    command: ['--kafka.server=redpanda:9092', '--group.filter=gin-enterprise-template.*']
+    networks: [gin-enterprise-template_net]
+    profiles: [monitoring]
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    volumes:
+      - ./configs/monitoring/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./configs/monitoring/alerts.yaml:/etc/prometheus/alerts.yaml:ro
+    ports: ['9090:9090']
+    networks: [gin-enterprise-template_net]
+    profiles: [monitoring]

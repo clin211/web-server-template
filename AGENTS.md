@@ -5,18 +5,18 @@
 ## 规则优先级
 
 1. 系统和用户当前请求优先。
-2. `.claude/constitution.md` 是本项目开发宪法，优先于其他项目说明。
-3. 本文件补充 `.claude/CLAUDE.md`，并以当前仓库代码、`README.md` 和 `Makefile` 为事实来源。
-4. `.claude/skills/` 下的技能按任务触发使用：性能问题使用 `chao-go-perf`，并发问题使用 `chao-go-sync`，数据库表设计使用 `database-table-design`，Go 编码使用 `effective-go`，完整功能实现使用 `feature-implement`，代码审查使用 `go-code-reviewer`，提交消息使用 `git-commit-format`。
+2. 项目级 `.claude` 配置、宪法和技能已于 `8c2adc7` 移除；不根据历史路径假设文件存在。
+3. 以本文件、当前代码、`README.md` 和 `Makefile` 为事实来源。
+4. 使用当前会话可用且相关的技能；本文件中的开发规范继续适用。
 
 ## 项目概况
 
 - 模块：`github.com/clin211/gin-enterprise-template`
-- Go：`go 1.26.6`（项目要求 Go 1.25+）
+- Go：`go 1.26.9`（项目要求 Go 1.25+）
 - 类型：Gin 后端 API skeleton
 - 当前业务主干：用户登录、刷新令牌、用户 CRUD、修改密码。
 - 主要组件：Gin、GORM、PostgreSQL、Redis、JWT、OpenTelemetry、Prometheus、slog、Google Wire、Protobuf/OpenAPI。
-- 当前仓库已移除菜单、角色、权限、用户角色、定时任务和管理前端相关实现。不要根据历史文档假设这些模块仍然存在；以当前代码为准。
+- 当前仓库保留用户业务，并新增 PostgreSQL 任务、计划、基础 RBAC、可靠审计和报表事件示例。管理前端、菜单及多租户仍不实现；以当前代码为准。
 
 ## 目录职责
 
@@ -29,11 +29,15 @@ internal/apiserver/          业务实现
   model/                     GORM 生成模型
   pkg/conversion/            Model 与 Proto 转换
   pkg/validation/            请求校验
+internal/job/                任务注册、执行、重试和 Cron 解析
+  runtime/                   Worker/Scheduler 装配、健康检查与生命周期
 internal/messaging/          异步消息基础设施
   consumer/                  Kafka 消费、Inbox 幂等和 DLQ 处理
   outbox/                    事务事件契约、Kafka 发布和 Relay
 pkg/api/apiserver/v1/        Proto API 定义及生成代码
 pkg/                         可复用公共包
+migrations/                  Goose SQL 迁移文件（不放 Go 代码）
+internal/pkg/dbschema/       只读 Goose 版本检查（不执行迁移）
 configs/                     本地配置、数据库 schema、OTel 配置
 api/openapi/                 OpenAPI 生成产物
 docs/                        项目文档

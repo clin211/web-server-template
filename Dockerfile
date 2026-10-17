@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # 0) Build args (overridable in CI)
-ARG BUILDER_IMAGE=golang:1.26.6
+ARG BUILDER_IMAGE=golang:1.26.9
 ARG RUNTIME_IMAGE=gcr.io/distroless/base-debian12:nonroot
 ARG UID=65532
 ARG GID=65532
@@ -50,18 +50,23 @@ ENV CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} GO111MODULE=on GOCACHE=/root/.cache/
 # Build with cache mount for make build
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    make build BINS=gin-enterprise-template-apiserver
+    make build BINS="gin-enterprise-template-apiserver gin-enterprise-template-worker gin-enterprise-template-scheduler" tools.goose
 
 # 将 Makefile 的构建产物复制到固定位置，供 runtime 阶段 COPY
-RUN mkdir -p /app && cp -v _output/platforms/${OS}/${ARCH}/gin-enterprise-template-apiserver /app/gin-enterprise-template-apiserver
+RUN mkdir -p /app && cp -v \
+    _output/platforms/${OS}/${ARCH}/gin-enterprise-template-apiserver \
+    _output/platforms/${OS}/${ARCH}/gin-enterprise-template-worker \
+    _output/platforms/${OS}/${ARCH}/gin-enterprise-template-scheduler \
+    _output/tools/goose /app/
 
 # 2) Runtime stage：极小基础镜像
 FROM ${RUNTIME_IMAGE} AS runtime
 ARG UID
 ARG GID
 WORKDIR /app
-COPY --from=builder /app/gin-enterprise-template-apiserver /app/gin-enterprise-template-apiserver
+COPY --from=builder /app/ /app/
 COPY configs/configs.container.yaml /app/configs/configs.yaml
+COPY migrations/ /app/migrations/
 
 # distroless nonroot 镜像内置 65532:65532。
 USER ${UID}:${GID}

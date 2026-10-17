@@ -38,30 +38,30 @@ func (o *JWTOptions) Validate() []error {
 
 	if o.Secret == "" {
 		errs = append(errs, fmt.Errorf(
-			"--%s.secret must be specified (set via env APP_JWT_SECRET, --jwt.secret flag, or config file)",
+			"%w: --%s.secret must be specified (set via env APP_JWT_SECRET, --jwt.secret flag, or config file)", errInvalidConfiguration,
 			o.fullPrefix,
 		))
 	}
 	if o.Secret != "" && IsPlaceholderSecret(o.Secret) {
 		errs = append(errs, fmt.Errorf(
-			"--%s.secret looks like a placeholder/known-weak value (%q); please generate a real one (e.g. `openssl rand -hex 32`)",
+			"%w: --%s.secret looks like a placeholder/known-weak value (%q); please generate a real one (e.g. `openssl rand -hex 32`)", errInvalidConfiguration,
 			o.fullPrefix, o.Secret,
 		))
 	}
 	if o.Secret != "" && len(o.Secret) < 32 {
 		errs = append(errs, fmt.Errorf(
-			"--%s.secret must be at least 32 characters long (current: %d)",
+			"%w: --%s.secret must be at least 32 characters long (current: %d)", errInvalidConfiguration,
 			o.fullPrefix, len(o.Secret),
 		))
 	}
 	if o.AccessExpiration <= 0 {
-		errs = append(errs, fmt.Errorf("--%s.access-expiration must be positive", o.fullPrefix))
+		errs = append(errs, fmt.Errorf("%w: --%s.access-expiration must be positive", errInvalidConfiguration, o.fullPrefix))
 	}
 	if o.RefreshExpiration <= 0 {
-		errs = append(errs, fmt.Errorf("--%s.refresh-expiration must be positive", o.fullPrefix))
+		errs = append(errs, fmt.Errorf("%w: --%s.refresh-expiration must be positive", errInvalidConfiguration, o.fullPrefix))
 	}
 	if o.RefreshExpiration < o.AccessExpiration {
-		errs = append(errs, fmt.Errorf("--%s.refresh-expiration must be greater than or equal to access-expiration", o.fullPrefix))
+		errs = append(errs, fmt.Errorf("%w: --%s.refresh-expiration must be greater than or equal to access-expiration", errInvalidConfiguration, o.fullPrefix))
 	}
 
 	return errs

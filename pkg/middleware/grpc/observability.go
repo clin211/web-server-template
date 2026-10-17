@@ -21,7 +21,7 @@ const (
 	TraceStateHeaderKey  = "tracestate"
 )
 
-// --- 追踪注入模式 ---
+// TraceInjectionMode 定义 gRPC 元数据的追踪注入方式。
 type TraceInjectionMode int
 
 const (
@@ -31,13 +31,13 @@ const (
 	InjectNone
 )
 
-// --- 配置 ---
+// ObservabilityOptions 配置 gRPC 可观测性。
 type ObservabilityOptions struct {
 	TraceInjectionMode TraceInjectionMode
 	CustomTraceHeader  string
 }
 
-// --- 选项模式 ---
+// Option 修改 gRPC 可观测性配置。
 type Option func(*ObservabilityOptions)
 
 func WithTraceInjection(mode TraceInjectionMode) Option {
@@ -48,39 +48,27 @@ func WithCustomTraceHeader(header string) Option {
 	return func(o *ObservabilityOptions) { o.CustomTraceHeader = header }
 }
 
-// --- 主拦截器 ---
+// Observability 返回记录 RPC 请求和追踪信息的服务端拦截器。
 func Observability(opts ...Option) grpc.UnaryServerInterceptor {
 	cfg := &ObservabilityOptions{TraceInjectionMode: InjectTraceIDOnly}
 	for _, opt := range opts {
 		opt(cfg)
 	}
 
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		start := time.Now()
 		spanCtx := trace.SpanFromContext(ctx).SpanContext()
 
 		// 注入追踪头
 		md, _ := metadata.FromIncomingContext(ctx)
+		md = md.Copy()
 		md = injectTraceMetadata(ctx, md, spanCtx, cfg)
 		ctx = metadata.NewIncomingContext(ctx, md)
-		isDebugLevel := isDebugEnabled()
+		isDebugLevel := isDebugEnabled(ctx)
 
-		// 可选：捕获请求负载
-		var requestBody string
-		if isDebugLevel && req != nil {
-			data, _ := json.Marshal(req)
-			requestBody = string(data)
-		}
-
-		// 处理 RPC
+		requestBody := debugBody(ctx, req, isDebugLevel)
 		resp, err := handler(ctx, req)
-
-		// 可选：捕获响应负载
-		var responseBody string
-		if isDebugLevel && resp != nil {
-			data, _ := json.Marshal(resp)
-			responseBody = string(data)
-		}
+		responseBody := debugBody(ctx, resp, isDebugLevel)
 
 		duration := time.Since(start).Seconds()
 
@@ -95,30 +83,7 @@ func Observability(opts ...Option) grpc.UnaryServerInterceptor {
 			status = "ERROR"
 		}
 
-		// 构建结构化日志
-		rpcData := map[string]any{
-			"request": map[string]any{
-				"method": info.FullMethod,
-			},
-			"response": map[string]any{
-				"status": status,
-			},
-		}
-
-		if isDebugLevel {
-			rpcData["request"] = map[string]any{
-				"body": map[string]any{
-					"content": requestBody,
-					"bytes":   len(requestBody),
-				},
-			}
-			rpcData["response"] = map[string]any{
-				"body": map[string]any{
-					"content": responseBody,
-					"bytes":   len(responseBody),
-				},
-			}
-		}
+		rpcData := rpcLogData(info.FullMethod, status, isDebugLevel, requestBody, responseBody)
 
 		logLevel := slog.LevelInfo
 		if isDebugLevel {
@@ -143,38 +108,15 @@ func injectTraceMetadata(ctx context.Context, md metadata.MD, spanCtx trace.Span
 		return md
 	}
 
-	traceID := spanCtx.TraceID().String()
-	spanID := spanCtx.SpanID().String()
-
 	switch cfg.TraceInjectionMode {
 	case InjectW3CTraceContext:
-		traceFlags := "01"
-		if !spanCtx.IsSampled() {
-			traceFlags = "00"
-		}
-		md.Set(TraceParentHeaderKey, fmt.Sprintf("00-%s-%s-%s", traceID, spanID, traceFlags))
-
+		md.Set(TraceParentHeaderKey, traceParent(spanCtx))
 	case InjectTraceIDOnly:
-		header := TraceIDHeaderKey
-		if cfg.CustomTraceHeader != "" {
-			header = cfg.CustomTraceHeader
-		}
-		md.Set(header, traceID)
-
+		setTraceID(md, spanCtx, cfg.CustomTraceHeader)
 	case InjectBoth:
-		traceFlags := "01"
-		if !spanCtx.IsSampled() {
-			traceFlags = "00"
-		}
-		md.Set(TraceParentHeaderKey, fmt.Sprintf("00-%s-%s-%s", traceID, spanID, traceFlags))
-		header := TraceIDHeaderKey
-		if cfg.CustomTraceHeader != "" {
-			header = cfg.CustomTraceHeader
-		}
-		md.Set(header, traceID)
-
+		md.Set(TraceParentHeaderKey, traceParent(spanCtx))
+		setTraceID(md, spanCtx, cfg.CustomTraceHeader)
 	case InjectNone:
-		// 无操作
 	}
 
 	// 将请求 ID 设置到响应的 Header Metadata 中
@@ -182,16 +124,18 @@ func injectTraceMetadata(ctx context.Context, md metadata.MD, spanCtx trace.Span
 	// 此处将包含请求 ID 的 Metadata 设置到 Header 中。
 	// 注意：grpc.SetHeader 仅设置数据，它不会立即发送给客户端。
 	// Header Metadata 会在 RPC 响应返回时一并发送。
-	_ = grpc.SetHeader(ctx, md)
+	if err := grpc.SetHeader(ctx, md); err != nil {
+		slog.DebugContext(ctx, "Cannot set gRPC trace headers", "err", err)
+	}
 
 	return md
 }
 
-func isDebugEnabled() bool {
-	return slog.Default().Enabled(context.Background(), slog.LevelDebug)
+func isDebugEnabled(ctx context.Context) bool {
+	return slog.Default().Enabled(ctx, slog.LevelDebug)
 }
 
-// --- 便捷封装函数 ---
+// ObservabilityWithW3CTraceContext 使用 W3C 追踪头创建拦截器。
 func ObservabilityWithW3CTraceContext() grpc.UnaryServerInterceptor {
 	return Observability(WithTraceInjection(InjectW3CTraceContext))
 }
@@ -205,4 +149,40 @@ func ObservabilityWithCustomHeader(headerName string) grpc.UnaryServerIntercepto
 		WithTraceInjection(InjectTraceIDOnly),
 		WithCustomTraceHeader(headerName),
 	)
+}
+
+func debugBody(ctx context.Context, value any, enabled bool) string {
+	if !enabled || value == nil {
+		return ""
+	}
+	data, err := json.Marshal(value)
+	if err != nil {
+		slog.DebugContext(ctx, "Cannot serialize gRPC payload for logging", "err", err)
+		return ""
+	}
+	return string(data)
+}
+
+func rpcLogData(method, status string, debug bool, requestBody, responseBody string) map[string]any {
+	request := map[string]any{"method": method}
+	response := map[string]any{"status": status}
+	if debug {
+		request["body"] = map[string]any{"content": requestBody, "bytes": len(requestBody)}
+		response["body"] = map[string]any{"content": responseBody, "bytes": len(responseBody)}
+	}
+	return map[string]any{"request": request, "response": response}
+}
+
+func traceParent(spanCtx trace.SpanContext) string {
+	flags := "00"
+	if spanCtx.IsSampled() {
+		flags = "01"
+	}
+	return fmt.Sprintf("00-%s-%s-%s", spanCtx.TraceID().String(), spanCtx.SpanID().String(), flags)
+}
+func setTraceID(md metadata.MD, spanCtx trace.SpanContext, header string) {
+	if header == "" {
+		header = TraceIDHeaderKey
+	}
+	md.Set(header, spanCtx.TraceID().String())
 }

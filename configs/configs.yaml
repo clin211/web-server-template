@@ -109,7 +109,7 @@ consumer:
   # Inbox 处理租约应大于 process-timeout，避免多个实例同时执行同一事件。
   inbox-lease-duration: 1m
   # 死信输出 topic，必须与 reader.topic 分离，避免形成消费循环。
-  dlq-topic: inbound-events.dlq
+  dlq-topic: events.dlq
 
 # Kafka 同时服务 Outbox 输出、Consumer 输入和 DLQ 输出。
 kafka:
@@ -135,9 +135,9 @@ kafka:
     batch-bytes: 1048576
   reader:
     # Consumer 输入 topic，应与本服务 Outbox 输出 topic 分离。
-    topic: inbound-events
+    topic: events
     # 稳定的消费组 ID，同时作为 Inbox 幂等命名空间；上线后不要随意修改。
-    group-id: gin-enterprise-template-apiserver-inbound
+    group-id: gin-enterprise-template-reports
     # Reader 内部待处理消息队列容量。
     queue-capacity: 100
     # 单次 Fetch 接受的最小和最大数据量，单位为字节。
@@ -176,3 +176,14 @@ otel:
     time-format: "2006-01-02 15:04:05"
     # 可选 stdout、stderr 或文件路径；目录必须已存在且进程具有写权限。
     output: ./_output/apiserver.log
+
+# PostgreSQL 持久化任务；API 默认不运行后台消息链路。
+tasks:
+  enabled: true
+  concurrency: 4
+  poll-interval: 1s
+  lease-duration: 30s
+  heartbeat-interval: 10s
+  drain-timeout: 30s
+  worker-addr: 0.0.0.0:5560
+  scheduler-addr: 0.0.0.0:5561

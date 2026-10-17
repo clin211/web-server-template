@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Analyzer         = shadow.Analyzer
+	Analyzer         = newAnalyzer()
 	permittedShadows = []string{
 		"ctx",
 		"err",
@@ -17,9 +17,10 @@ var (
 	}
 )
 
-func init() {
-	oldRun := Analyzer.Run
-	Analyzer.Run = func(p *analysis.Pass) (any, error) {
+func newAnalyzer() *analysis.Analyzer {
+	analyzer := *shadow.Analyzer
+	oldRun := analyzer.Run
+	analyzer.Run = func(p *analysis.Pass) (any, error) {
 		pass := *p
 		oldReport := p.Report
 		pass.Report = func(diag analysis.Diagnostic) {
@@ -33,4 +34,5 @@ func init() {
 		}
 		return oldRun(&pass)
 	}
+	return &analyzer
 }

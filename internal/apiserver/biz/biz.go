@@ -1,6 +1,7 @@
 package biz
 
 import (
+	taskv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/task"
 	userv1 "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/user"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 	"github.com/clin211/gin-enterprise-template/pkg/token"
@@ -17,6 +18,7 @@ var ProviderSet = wire.NewSet(NewBiz, wire.Bind(new(IBiz), new(*biz)))
 type IBiz interface {
 	// UserV1 获取用户业务接口.
 	UserV1() userv1.UserBiz
+	TasksV1() *taskv1.Service
 }
 
 // biz 是 IBiz 的具体实现。
@@ -37,3 +39,6 @@ func NewBiz(store store.IStore, tokens *token.Manager) *biz {
 func (b *biz) UserV1() userv1.UserBiz {
 	return userv1.New(b.store, b.tokens)
 }
+
+// TasksV1 returns the shared task business module.
+func (b *biz) TasksV1() *taskv1.Service { return taskv1.New(b.store) }

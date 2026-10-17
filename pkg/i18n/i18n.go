@@ -3,7 +3,7 @@ package i18n
 import (
 	"embed"
 	"encoding/json"
-	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -23,7 +23,7 @@ type I18n struct {
 
 // New 使用给定选项创建 I18n 结构体实例。
 // 接受可变的函数选项参数，并返回指向 I18n 结构体的指针。
-func New(options ...func(*Options)) (rp *I18n) {
+func New(options ...func(*Options)) *I18n {
 	ops := getOptionsOrSetDefault(nil)
 	for _, f := range options {
 		f(ops)
@@ -38,7 +38,7 @@ func New(options ...func(*Options)) (rp *I18n) {
 	default:
 		bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
 	}
-	rp = &I18n{
+	rp := &I18n{
 		ops:       *ops,
 		bundle:    bundle,
 		localizer: localizer,
@@ -48,7 +48,7 @@ func New(options ...func(*Options)) (rp *I18n) {
 		rp.Add(item)
 	}
 	rp.AddFS(ops.fs)
-	return
+	return rp
 }
 
 // Select 可以更改语言。
@@ -71,80 +71,95 @@ func (i I18n) Language() language.Tag {
 
 // LocalizeT 本地化给定消息并返回本地化字符串。
 // 如果无法翻译，则返回消息 ID 作为默认消息。
-func (i I18n) LocalizeT(message *i18n.Message) (rp string) {
+func (i I18n) LocalizeT(message *i18n.Message) string {
 	if message == nil {
 		return ""
 	}
 
-	var err error
-	rp, err = i.localizer.Localize(&i18n.LocalizeConfig{
+	rp, err := i.localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: message,
 	})
 	if err != nil {
 		// 无法翻译时使用 id 作为默认消息
-		rp = message.ID
+		return message.ID
 	}
-	return
+	return rp
 }
 
 // LocalizeE 是 LocalizeT 方法的包装器，将本地化字符串转换为错误类型并返回。
 func (i I18n) LocalizeE(message *i18n.Message) error {
-	return errors.New(i.LocalizeT(message))
+	return &localizedError{message: i.LocalizeT(message)}
 }
 
 // T 本地化给定 ID 的消息并返回本地化字符串。
 // 使用 LocalizeT 方法执行翻译。
-func (i I18n) T(id string) (rp string) {
+func (i I18n) T(id string) string {
 	return i.LocalizeT(&i18n.Message{ID: id})
 }
 
 // E 是 T 的包装器，将本地化字符串转换为错误类型并返回。
 func (i I18n) E(id string) error {
-	return errors.New(i.T(id))
+	return &localizedError{message: i.T(id)}
 }
 
-// Add 添加语言文件或目录(通过文件名自动获取语言)。
-func (i *I18n) Add(f string) {
+type localizedError struct{ message string }
+
+func (e *localizedError) Error() string { return e.message }
+
+// Add 添加语言文件或目录，通过文件名获取语言。
+func (i I18n) Add(f string) {
 	info, err := os.Stat(f)
 	if err != nil {
 		return
 	}
-	if info.IsDir() {
-		filepath.Walk(f, func(path string, fi os.FileInfo, errBack error) (err error) {
-			if !fi.IsDir() {
-				i.bundle.LoadMessageFile(path)
-			}
-			return
-		})
-	} else {
-		i.bundle.LoadMessageFile(f)
+	if !info.IsDir() {
+		i.loadFile(f)
+		return
+	}
+	if err := filepath.Walk(f, func(path string, fi os.FileInfo, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if !fi.IsDir() {
+			i.loadFile(path)
+		}
+		return nil
+	}); err != nil {
+		slog.Warn("walk translation directory", "path", f, "error", err)
+	}
+}
+
+func (i I18n) loadFile(name string) {
+	if _, err := i.bundle.LoadMessageFile(name); err != nil {
+		slog.Warn("load translation file", "path", name, "error", err)
 	}
 }
 
 // AddFS 添加语言嵌入文件。
-func (i *I18n) AddFS(fs embed.FS) {
-	files := readFS(fs, ".")
-	for _, name := range files {
-		i.bundle.LoadMessageFileFS(fs, name)
+func (i I18n) AddFS(fs embed.FS) {
+	for _, name := range readFS(fs, ".") {
+		if _, err := i.bundle.LoadMessageFileFS(fs, name); err != nil {
+			slog.Warn("load embedded translation file", "path", name, "error", err)
+		}
 	}
 }
 
-func readFS(fs embed.FS, dir string) (rp []string) {
-	rp = make([]string, 0)
-	dirs, err := fs.ReadDir(dir)
+func readFS(fs embed.FS, dir string) []string {
+	files := make([]string, 0)
+	entries, err := fs.ReadDir(dir)
 	if err != nil {
-		return
+		return files
 	}
-	for _, item := range dirs {
-		name := dir + string(os.PathSeparator) + item.Name()
-		if dir == "." {
-			name = item.Name()
+	for _, entry := range entries {
+		name := entry.Name()
+		if dir != "." {
+			name = dir + "/" + name
 		}
-		if item.IsDir() {
-			rp = append(rp, readFS(fs, name)...)
+		if entry.IsDir() {
+			files = append(files, readFS(fs, name)...)
 		} else {
-			rp = append(rp, name)
+			files = append(files, name)
 		}
 	}
-	return
+	return files
 }

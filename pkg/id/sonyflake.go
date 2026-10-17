@@ -2,12 +2,16 @@ package id
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/sony/sonyflake"
 )
 
+var errSonyflakeInitialization = errors.New("create sonyflake failed")
+
+// Sonyflake wraps an ID generator and its initialization error.
 type Sonyflake struct {
 	ops   SonyflakeOptions
 	sf    *sonyflake.Sonyflake
@@ -33,24 +37,25 @@ func NewSonyflake(options ...func(*SonyflakeOptions)) *Sonyflake {
 	}
 	ins := sonyflake.NewSonyflake(st)
 	if ins == nil {
-		sf.Error = fmt.Errorf("创建 sonyflake 失败")
+		sf.Error = errSonyflakeInitialization
+		return sf
 	}
 	_, err := ins.NextID()
 	if err != nil {
-		sf.Error = fmt.Errorf("无效的起始时间")
+		sf.Error = fmt.Errorf("initialize sonyflake: %w", err)
 	}
 	sf.sf = ins
 	return sf
 }
 
-func (s *Sonyflake) Id(ctx context.Context) (id uint64) {
+// Id returns an ID, or zero if initialization failed.
+func (s *Sonyflake) Id(ctx context.Context) uint64 {
 	if s.Error != nil {
-		return
+		return 0
 	}
-	var err error
-	id, err = s.sf.NextID()
+	id, err := s.sf.NextID()
 	if err == nil {
-		return
+		return id
 	}
 
 	sleep := 1
@@ -58,7 +63,7 @@ func (s *Sonyflake) Id(ctx context.Context) (id uint64) {
 		time.Sleep(time.Duration(sleep) * time.Millisecond)
 		id, err = s.sf.NextID()
 		if err == nil {
-			return
+			return id
 		}
 		sleep *= 2
 	}

@@ -1,6 +1,11 @@
 package options
 
 import (
+	"errors"
+	"go.opentelemetry.io/otel"
+	apimetric "go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/metric/noop"
+	"io"
 	"testing"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -64,3 +69,52 @@ type resourceSnapshot struct {
 	ptr         any
 	serviceName string
 }
+
+func TestInitFileMetricsExporterFailure(t *testing.T) {
+	t.Setenv("OTEL_GO_X_OBSERVABILITY", "true")
+	original := otel.GetMeterProvider()
+	t.Cleanup(func() { otel.SetMeterProvider(original) })
+	otel.SetMeterProvider(failingMeterProvider{MeterProvider: noop.NewMeterProvider()})
+	opts := NewOTelOptions()
+	opts.OutputMode = OutputModeFile
+	opts.OutputDir = t.TempDir()
+	t.Cleanup(func() {
+		if err := opts.Shutdown(t.Context()); err != nil {
+			t.Errorf("shutdown: %v", err)
+		}
+	})
+	if err := opts.initMetrics(t.Context()); !errors.Is(err, io.ErrUnexpectedEOF) {
+		t.Fatalf("initMetrics error = %v, want exporter construction error", err)
+	}
+	if opts.GetMeterProvider() != nil {
+		t.Fatal("failed initialization installed a meter provider")
+	}
+}
+
+type failingMeterProvider struct{ apimetric.MeterProvider }
+
+func (p failingMeterProvider) Meter(name string, opts ...apimetric.MeterOption) apimetric.Meter {
+	return failingMeter{Meter: p.MeterProvider.Meter(name, opts...)}
+}
+
+type failingMeter struct{ apimetric.Meter }
+
+func (m failingMeter) Int64UpDownCounter(name string, opts ...apimetric.Int64UpDownCounterOption) (apimetric.Int64UpDownCounter, error) {
+	return nil, io.ErrUnexpectedEOF
+}
+
+func TestOTelShutdownPreservesAllCloseErrors(t *testing.T) {
+	opts := NewOTelOptions()
+	opts.files = []io.Closer{errorCloser{io.ErrClosedPipe}, errorCloser{io.ErrUnexpectedEOF}}
+	err := opts.Shutdown(t.Context())
+	if !errors.Is(err, io.ErrClosedPipe) || !errors.Is(err, io.ErrUnexpectedEOF) {
+		t.Fatalf("Shutdown error = %v, want both close failures in the error chain", err)
+	}
+	if err := opts.Shutdown(t.Context()); err != nil {
+		t.Fatalf("second Shutdown = %v, want no repeated close", err)
+	}
+}
+
+type errorCloser struct{ err error }
+
+func (c errorCloser) Close() error { return c.err }

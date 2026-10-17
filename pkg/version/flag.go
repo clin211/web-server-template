@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 
@@ -13,11 +14,11 @@ type versionValue int
 
 // 定义一些常量.
 const (
-	// 未设置版本.
+	// VersionNotSet 表示未设置版本.
 	VersionNotSet versionValue = 0
-	// 启用版本.
+	// VersionEnabled 表示启用版本.
 	VersionEnabled versionValue = 1
-	// 原始版本.
+	// VersionRaw 表示原始版本.
 	VersionRaw versionValue = 2
 )
 
@@ -35,7 +36,7 @@ func (v *versionValue) IsBoolFlag() bool {
 	return true
 }
 
-func (v *versionValue) Get() interface{} {
+func (v *versionValue) Get() any {
 	return v
 }
 
@@ -91,11 +92,19 @@ func AddFlags(fs *pflag.FlagSet) {
 // PrintAndExitIfRequested 将检查是否传递了 `--version` 标志，如果是，则打印版本并退出.
 func PrintAndExitIfRequested() {
 	// 检查版本标志的值并打印相应的信息
-	if *versionFlag == VersionRaw {
-		fmt.Printf("%s\n", Get().Text())
+	switch *versionFlag {
+	case VersionRaw:
+		printVersion(Get().Text())
 		os.Exit(0)
-	} else if *versionFlag == VersionEnabled {
-		fmt.Printf("%s\n", Get().String())
+	case VersionEnabled:
+		printVersion(Get().String())
 		os.Exit(0)
+	}
+}
+
+func printVersion(value string) {
+	if _, err := fmt.Fprintln(os.Stdout, value); err != nil {
+		slog.Error("write version information", "err", err)
+		os.Exit(1)
 	}
 }

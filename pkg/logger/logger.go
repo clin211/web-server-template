@@ -1,6 +1,8 @@
 package logger
 
 // Logger 定义了不同级别日志记录的方法。
+//
+//nolint:iface // Public adapter contract retained for callers; empty and onex enforce it at compile time.
 type Logger interface {
 	// Debug 以调试级别记录日志消息，可附带键值对。
 	Debug(message string, keysAndValues ...any)

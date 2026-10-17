@@ -25,25 +25,7 @@ func (b *userBiz) Update(ctx context.Context, rq *v1.UpdateUserRequest) (*v1.Upd
 		return nil, err
 	}
 
-	// 以下查询只为提前返回可读错误；并发更新的唯一性仍由数据库约束保证。
-	// 检查用户名是否已被其他用户占用
-	if rq.Username != nil && rq.GetUsername() != userM.Username {
-		if existingUser, err := b.store.User().Get(ctx, where.F("username", rq.GetUsername()).L(1)); err == nil && existingUser != nil && existingUser.UserID != userM.UserID {
-			slog.WarnContext(ctx, "Username already exists", "username", rq.GetUsername())
-			return nil, errno.ErrUserAlreadyExists
-		} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("check username uniqueness: %w", err)
-		}
-		userM.Username = rq.GetUsername()
-	}
-
-	// 检查邮箱是否已被其他用户占用
-	if err := checkUniqueField(ctx, b.store, userM, rq.Email, "email", rq.GetEmail); err != nil {
-		return nil, err
-	}
-
-	// 检查手机号是否已被其他用户占用
-	if err := checkUniqueField(ctx, b.store, userM, rq.Phone, "phone", rq.GetPhone); err != nil {
+	if err := b.applyUniqueUserFields(ctx, rq, userM); err != nil {
 		return nil, err
 	}
 
@@ -87,55 +69,39 @@ func selectedUserUpdates(rq *v1.UpdateUserRequest, userM *model.UserM) map[strin
 	return updates
 }
 
-// checkUniqueField 检查唯一字段（如 email、phone）是否已被其他用户占用.
-func checkUniqueField[T any](
-	ctx context.Context,
-	store store.IStore,
-	userM *model.UserM,
-	fieldPtr *T,
-	fieldName string,
-	getValue func() string,
-) error {
-	// 空字符串沿用当前 PATCH 语义：表示“不更新”，不是清空字段。若需要支持清空，
-	// API 必须引入明确的 presence/clear 契约，不能复用这个分支。
-	value := getValue()
-	if value == "" {
+func (b *userBiz) applyUniqueUserFields(ctx context.Context, rq *v1.UpdateUserRequest, user *model.UserM) error {
+	if rq.Username != nil && rq.GetUsername() != user.Username {
+		if err := checkUserUniqueness(ctx, b.store, "username", rq.GetUsername(), user.UserID); err != nil {
+			return err
+		}
+		user.Username = rq.GetUsername()
+	}
+	if err := updateUniqueContact(ctx, b.store, user.UserID, "email", rq.Email, &user.Email); err != nil {
+		return err
+	}
+	return updateUniqueContact(ctx, b.store, user.UserID, "phone", rq.Phone, &user.Phone)
+}
+
+func updateUniqueContact(ctx context.Context, core store.IStore, userID, name string, requested *string, current **string) error {
+	// 空联系方式沿用现有 PATCH 语义，表示不更新，不清空原字段。
+	if requested == nil || *requested == "" || (*current != nil && *requested == **current) {
 		return nil
 	}
-
-	// 获取当前值
-	var currentValue *string
-	switch fieldName {
-	case "email":
-		currentValue = userM.Email
-	case "phone":
-		currentValue = userM.Phone
+	if err := checkUserUniqueness(ctx, core, name, *requested, userID); err != nil {
+		return err
 	}
+	*current = requested
+	return nil
+}
 
-	// 如果值没有变化，跳过检查
-	if currentValue != nil && value == *currentValue {
-		return nil
-	}
-
-	// 检查是否已被其他用户占用
-	existingUser, err := store.User().Get(ctx, where.F(fieldName, value).L(1))
+func checkUserUniqueness(ctx context.Context, core store.IStore, name, value, userID string) error {
+	existing, err := core.User().Get(ctx, where.F(name, value).L(1))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return fmt.Errorf("check %s uniqueness: %w", fieldName, err)
+		return fmt.Errorf("check %s uniqueness: %w", name, err)
 	}
-	if existingUser != nil && existingUser.UserID != userM.UserID {
-		slog.WarnContext(ctx, fmt.Sprintf("%s already exists", fieldName), fieldName, value)
+	if existing != nil && existing.UserID != userID {
+		slog.WarnContext(ctx, "User field already exists", "field", name, "value", value)
 		return errno.ErrUserAlreadyExists
 	}
-
-	// 更新字段值
-	switch fieldName {
-	case "email":
-		email := value
-		userM.Email = &email
-	case "phone":
-		phone := value
-		userM.Phone = &phone
-	}
-
 	return nil
 }

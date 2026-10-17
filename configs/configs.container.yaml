@@ -56,7 +56,7 @@ consumer:
   max-retry-delay: 1m
   process-timeout: 30s
   inbox-lease-duration: 1m
-  dlq-topic: inbound-events.dlq
+  dlq-topic: events.dlq
 
 kafka:
   brokers: [kafka:9092]
@@ -71,8 +71,8 @@ kafka:
     batch-timeout: 1s
     batch-bytes: 1048576
   reader:
-    topic: inbound-events
-    group-id: gin-enterprise-template-apiserver-inbound
+    topic: events
+    group-id: gin-enterprise-template-reports
     queue-capacity: 100
     min-bytes: 1
     max-bytes: 1048576
@@ -85,9 +85,19 @@ kafka:
     max-attempts: 3
 
 otel:
-  endpoint: otel-collector:4317
+  endpoint: otel-collector:4327
   service-name: gin-enterprise-template-apiserver
-  output-mode: otel
+  output-mode: hybrid
   level: info
   add-source: true
-  use-prometheus-endpoint: true
+
+# PostgreSQL 持久化任务；API 默认不运行后台消息链路。
+tasks:
+  enabled: true
+  concurrency: 4
+  poll-interval: 1s
+  lease-duration: 30s
+  heartbeat-interval: 10s
+  drain-timeout: 30s
+  worker-addr: 0.0.0.0:5560
+  scheduler-addr: 0.0.0.0:5561

@@ -1,11 +1,13 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"path/filepath"
 	"strings"
 
+	"github.com/clin211/gin-enterprise-template/pkg/i18n"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -15,13 +17,12 @@ import (
 
 const configFlagName = "config"
 
-var cfgFile string
-
 // AddConfigFlag 为特定服务器将标志添加到指定的 FlagSet 对象。
 // 它还设置传递的函数，以便在调用每个 cobra 命令的 Execute 方法时
 // 将配置文件中的值读取到 viper 中。
 func AddConfigFlag(fs *pflag.FlagSet, name string, watch bool) {
-	fs.AddFlag(pflag.Lookup(configFlagName))
+	var cfgFile string
+	fs.StringVarP(&cfgFile, configFlagName, "c", "", i18n.DefaultMessage("CLI.ConfigFlag"))
 
 	// 启用 viper 的自动环境变量解析。这意味着
 	// viper 将自动从环境变量中读取与 viper
@@ -50,18 +51,18 @@ func AddConfigFlag(fs *pflag.FlagSet, name string, watch bool) {
 		}
 
 		if err := viper.ReadInConfig(); err != nil {
-			slog.LogAttrs(nil, slog.LevelDebug, "读取配置文件失败",
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Failed to read configuration file",
 				slog.String("file", cfgFile),
 				slog.Any("err", err))
 		} else {
-			slog.LogAttrs(nil, slog.LevelDebug, "成功读取配置文件",
+			slog.LogAttrs(context.Background(), slog.LevelDebug, "Configuration file loaded",
 				slog.String("file", viper.ConfigFileUsed()))
 		}
 
 		if watch {
 			viper.WatchConfig()
 			viper.OnConfigChange(func(e fsnotify.Event) {
-				slog.LogAttrs(nil, slog.LevelInfo, "配置文件已更改",
+				slog.LogAttrs(context.Background(), slog.LevelInfo, "Configuration file changed",
 					slog.String("name", e.Name))
 			})
 		}
@@ -70,11 +71,6 @@ func AddConfigFlag(fs *pflag.FlagSet, name string, watch bool) {
 
 func PrintConfig() {
 	for _, key := range viper.AllKeys() {
-		slog.LogAttrs(nil, slog.LevelDebug, fmt.Sprintf("CFG: %s=%v", key, viper.Get(key)))
+		slog.LogAttrs(context.Background(), slog.LevelDebug, fmt.Sprintf("CFG: %s=%v", key, viper.Get(key)))
 	}
-}
-
-func init() {
-	pflag.StringVarP(&cfgFile, configFlagName, "c", cfgFile, "从指定的 `FILE` 读取配置，"+
-		"支持 JSON、TOML、YAML、HCL 或 Java properties 格式。")
 }

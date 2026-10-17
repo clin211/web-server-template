@@ -66,7 +66,7 @@ func (o *RedisOptions) Validate() []error {
 	// Redis 保存 refresh token 单次消费和登录限流状态，网络服务必须启用认证。
 	if o.Addr != "" && o.Password != "" && IsPlaceholderSecret(o.Password) {
 		errs = append(errs, fmt.Errorf(
-			"redis.password looks like a placeholder/known-weak value (%q); please set a real password or leave it empty",
+			"%w: redis.password looks like a placeholder/known-weak value (%q); please set a real password or leave it empty", errInvalidConfiguration,
 			o.Password,
 		))
 	}

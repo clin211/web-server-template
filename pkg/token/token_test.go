@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -312,4 +313,12 @@ func TestGetRefreshExpiration(t *testing.T) {
 
 	duration := GetRefreshExpiration()
 	assert.Equal(t, 7*24*time.Hour, duration)
+}
+
+func TestLoadConfigBeforeInitialization(t *testing.T) {
+	original := loadConfig()
+	t.Cleanup(func() { storeConfig(original) })
+	configValue = atomic.Value{}
+	cfg := loadConfig()
+	assert.Equal(t, defaultConfig(), cfg)
 }

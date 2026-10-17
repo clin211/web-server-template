@@ -2,6 +2,7 @@ package validation
 
 import (
 	"context"
+	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
 
 	genericvalidation "github.com/clin211/gin-enterprise-template/pkg/validation"
 
@@ -11,55 +12,51 @@ import (
 )
 
 func (v *Validator) ValidateUserRules() genericvalidation.Rules {
-	// 通用的密码校验函数
-	validatePassword := func() genericvalidation.ValidatorFunc {
-		return func(value any) error {
-			return isValidPassword(value.(string))
-		}
-	}
-
-	// 定义各字段的校验逻辑，通过一个 map 实现模块化和简化
+	password := stringRule(isValidPassword)
 	return genericvalidation.Rules{
-		"Password":    validatePassword(),
-		"OldPassword": validatePassword(),
-		"NewPassword": validatePassword(),
-		"UserID": func(value any) error {
-			if value.(string) == "" {
+		"Password": password, "OldPassword": password, "NewPassword": password,
+		"UserID": stringRule(func(value string) error {
+			if value == "" {
 				return errno.ErrInvalidArgument.WithMessage("userID cannot be empty")
 			}
 			return nil
-		},
-		"Username": func(value any) error {
-			if !isValidUsername(value.(string)) {
+		}),
+		"Username": stringRule(func(value string) error {
+			if !isValidUsername(value) {
 				return errno.ErrUsernameInvalid
 			}
 			return nil
-		},
-		"Nickname": func(value any) error {
-			if len(value.(string)) >= 30 {
+		}),
+		"Nickname": stringRule(func(value string) error {
+			if len(value) >= 30 {
 				return errno.ErrInvalidArgument.WithMessage("nickname must be less than 30 characters")
 			}
 			return nil
-		},
-		"Email": func(value any) error {
-			return isValidEmail(value.(string))
-		},
-		"Phone": func(value any) error {
-			return isValidPhone(value.(string))
-		},
+		}),
+		"Email": stringRule(isValidEmail),
+		"Phone": stringRule(isValidPhone),
 		"Limit": func(value any) error {
-			if value.(int64) <= 0 {
+			limit, ok := value.(int64)
+			if !ok || limit <= 0 {
 				return errno.ErrInvalidArgument.WithMessage("limit must be greater than 0")
 			}
 			return nil
 		},
-		"Offset": func(value any) error {
-			return nil
-		},
+		"Offset": func(any) error { return nil },
 	}
 }
 
-// ValidateLogin 校验修改密码请求.
+func stringRule(validate func(string) error) genericvalidation.ValidatorFunc {
+	return func(value any) error {
+		text, ok := value.(string)
+		if !ok {
+			return errno.ErrInvalidArgument.WithMessage("field must be a string")
+		}
+		return validate(text)
+	}
+}
+
+// ValidateLoginRequest 校验登录请求.
 func (v *Validator) ValidateLoginRequest(ctx context.Context, rq *v1.LoginRequest) error {
 	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
 }
@@ -69,7 +66,7 @@ func (v *Validator) ValidateChangePasswordRequest(ctx context.Context, rq *v1.Ch
 	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
 		return err
 	}
-	return validateCurrentUser(ctx, rq.GetUserID())
+	return v.validateUserAccess(ctx, rq.GetUserID())
 }
 
 // ValidateCreateUserRequest 校验 CreateUserRequest 结构体的有效性.
@@ -82,7 +79,7 @@ func (v *Validator) ValidateUpdateUserRequest(ctx context.Context, rq *v1.Update
 	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
 		return err
 	}
-	return validateCurrentUser(ctx, rq.GetUserID())
+	return v.validateUserAccess(ctx, rq.GetUserID())
 }
 
 // ValidateDeleteUserRequest 校验 DeleteUserRequest 结构体的有效性.
@@ -90,7 +87,7 @@ func (v *Validator) ValidateDeleteUserRequest(ctx context.Context, rq *v1.Delete
 	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
 		return err
 	}
-	return validateCurrentUser(ctx, rq.GetUserID())
+	return v.validateUserAccess(ctx, rq.GetUserID())
 }
 
 // ValidateGetUserRequest 校验 GetUserRequest 结构体的有效性.
@@ -98,7 +95,7 @@ func (v *Validator) ValidateGetUserRequest(ctx context.Context, rq *v1.GetUserRe
 	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
 		return err
 	}
-	return validateCurrentUser(ctx, rq.GetUserID())
+	return v.validateUserAccess(ctx, rq.GetUserID())
 }
 
 // ValidateListUserRequest 校验 ListUserRequest 结构体的有效性.
@@ -107,8 +104,16 @@ func (v *Validator) ValidateListUserRequest(ctx context.Context, rq *v1.ListUser
 		return err
 	}
 
-	// 列表接口会返回所有用户。当前模型没有可验证的管理员/角色声明，因此默认拒绝，
-	// 避免把“已登录”误当成“有用户管理权限”。引入 RBAC 后应在这里替换为显式授权。
+	// 用户列表需要实时校验 user.manage，避免已签发 JWT 缓存过期的管理员授权。
+	if v.store != nil {
+		allowed, err := store.NewAuthorizationStore(v.store).Allowed(ctx, contextx.UserID(ctx), "user.manage")
+		if err != nil {
+			return errno.ErrServiceUnavailable
+		}
+		if allowed {
+			return nil
+		}
+	}
 	return errno.ErrPermissionDenied
 }
 
@@ -121,4 +126,19 @@ func validateCurrentUser(ctx context.Context, targetUserID string) error {
 		return errno.ErrPermissionDenied
 	}
 	return nil
+}
+
+func (v *Validator) validateUserAccess(ctx context.Context, id string) error {
+	err := validateCurrentUser(ctx, id)
+	if err == nil || v.store == nil || contextx.UserID(ctx) == "" {
+		return err
+	}
+	allowed, e := store.NewAuthorizationStore(v.store).Allowed(ctx, contextx.UserID(ctx), "user.manage")
+	if e != nil {
+		return errno.ErrServiceUnavailable
+	}
+	if allowed {
+		return nil
+	}
+	return err
 }

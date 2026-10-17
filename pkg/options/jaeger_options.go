@@ -48,7 +48,7 @@ func (o *JaegerOptions) AddFlags(fs *pflag.FlagSet, fullPrefix string) {
 
 func (o *JaegerOptions) SetTracerProvider() error {
 	// 创建 Jaeger 导出器
-	opts := make([]otlptracegrpc.Option, 0)
+	opts := make([]otlptracegrpc.Option, 0, 2)
 	opts = append(opts, otlptracegrpc.WithEndpoint(o.Server), otlptracegrpc.WithInsecure())
 	exporter, err := otlptracegrpc.New(context.Background(), opts...)
 	if err != nil {

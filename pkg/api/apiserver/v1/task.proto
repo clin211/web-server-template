@@ -1,0 +1,1332 @@
+syntax = "proto3";
+package apiserver.v1;
+
+import "apiserver/v1/envelope.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/clin211/gin-enterprise-template/pkg/api/apiserver/v1;v1";
+
+// ReportParams defines the persistent task REST contract.
+message ReportParams {
+  int32 days = 1 [json_name = "days"];
+}
+
+// Task defines the persistent task REST contract.
+message Task {
+  string task_id = 1 [json_name = "task_id"];
+  string task_type = 2 [json_name = "task_type"];
+  ReportParams params = 3 [json_name = "params"];
+  int32 params_version = 4 [json_name = "params_version"];
+  string source = 5 [json_name = "source"];
+  string schedule_id = 6 [json_name = "schedule_id"];
+  int64 schedule_version = 7 [
+    json_name = "schedule_version",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      type: INTEGER
+      format: "int64"
+    }
+  ];
+  string scheduled_at = 8 [json_name = "scheduled_at"];
+  string retry_of = 9 [json_name = "retry_of"];
+  string owner_id = 10 [json_name = "owner_id"];
+  string status = 11 [json_name = "status"];
+  int32 priority = 12 [json_name = "priority"];
+  string available_at = 13 [json_name = "available_at"];
+  int32 timeout_seconds = 14 [json_name = "timeout_seconds"];
+  int32 max_attempts = 15 [json_name = "max_attempts"];
+  int32 attempts = 16 [json_name = "attempts"];
+  string worker_id = 17 [json_name = "worker_id"];
+  string lease_until = 18 [json_name = "lease_until"];
+  string cancel_requested_at = 19 [json_name = "cancel_requested_at"];
+  string result_id = 20 [json_name = "result_id"];
+  string error_code = 21 [json_name = "error_code"];
+  string error_summary = 22 [json_name = "error_summary"];
+  string trace_id = 23 [json_name = "trace_id"];
+  string request_id = 24 [json_name = "request_id"];
+  string started_at = 25 [json_name = "started_at"];
+  string finished_at = 26 [json_name = "finished_at"];
+  string created_at = 27 [json_name = "created_at"];
+  string updated_at = 28 [json_name = "updated_at"];
+}
+
+// TaskAttempt defines the persistent task REST contract.
+message TaskAttempt {
+  string task_id = 1 [json_name = "task_id"];
+  int32 attempt = 2 [json_name = "attempt"];
+  string worker_id = 3 [json_name = "worker_id"];
+  string lease_until = 4 [json_name = "lease_until"];
+  string heartbeat_at = 5 [json_name = "heartbeat_at"];
+  string started_at = 6 [json_name = "started_at"];
+  string finished_at = 7 [json_name = "finished_at"];
+  string outcome = 8 [json_name = "outcome"];
+  string error_code = 9 [json_name = "error_code"];
+  string trace_id = 10 [json_name = "trace_id"];
+}
+
+// TaskListRequest defines the persistent task REST contract.
+message TaskListRequest {
+  bool all = 1 [json_name = "all"];
+  string page_token = 2 [json_name = "page_token"];
+}
+
+// TaskList defines the persistent task REST contract.
+message TaskList {
+  repeated Task items = 1 [json_name = "items"];
+  string page_token = 2 [json_name = "page_token"];
+}
+
+// TaskIDRequest defines the persistent task REST contract.
+message TaskIDRequest {
+  string task_id = 1 [json_name = "task_id"];
+}
+
+// AttemptList defines the persistent task REST contract.
+message AttemptList {
+  repeated TaskAttempt items = 1 [json_name = "items"];
+}
+
+// ScheduleInput defines the persistent task REST contract.
+message ScheduleInput {
+  string name = 1 [json_name = "name"];
+  int32 days = 2 [json_name = "days"];
+  string cron = 3 [json_name = "cron"];
+  string timezone = 4 [json_name = "timezone"];
+  string misfire_policy = 5 [json_name = "misfire_policy"];
+  string concurrency_policy = 6 [json_name = "concurrency_policy"];
+  int64 version = 7 [
+    json_name = "version",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      type: INTEGER
+      format: "int64"
+    }
+  ];
+}
+
+// ScheduleUpdateRequest defines the persistent task REST contract.
+message ScheduleUpdateRequest {
+  string schedule_id = 1 [json_name = "schedule_id"];
+  ScheduleInput input = 2 [json_name = "input"];
+}
+
+// Schedule defines the persistent task REST contract.
+message Schedule {
+  string schedule_id = 1 [json_name = "schedule_id"];
+  string name = 2 [json_name = "name"];
+  string task_type = 3 [json_name = "task_type"];
+  ReportParams params = 4 [json_name = "params"];
+  int32 params_version = 5 [json_name = "params_version"];
+  string cron = 6 [json_name = "cron"];
+  string timezone = 7 [json_name = "timezone"];
+  bool enabled = 8 [json_name = "enabled"];
+  bool archived = 9 [json_name = "archived"];
+  string next_run_at = 10 [json_name = "next_run_at"];
+  string misfire_policy = 11 [json_name = "misfire_policy"];
+  string concurrency_policy = 12 [json_name = "concurrency_policy"];
+  string owner_id = 13 [json_name = "owner_id"];
+  int64 version = 14 [
+    json_name = "version",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      type: INTEGER
+      format: "int64"
+    }
+  ];
+  string created_at = 15 [json_name = "created_at"];
+  string updated_at = 16 [json_name = "updated_at"];
+}
+
+// ScheduleListRequest defines the persistent task REST contract.
+message ScheduleListRequest {
+  bool all = 1 [json_name = "all"];
+}
+
+// ScheduleIDRequest defines the persistent task REST contract.
+message ScheduleIDRequest {
+  string schedule_id = 1 [json_name = "schedule_id"];
+}
+
+// ScheduleActionRequest defines the persistent task REST contract.
+message ScheduleActionRequest {
+  string schedule_id = 1 [json_name = "schedule_id"];
+  VersionRequest input = 2 [json_name = "input"];
+}
+
+// VersionRequest defines the persistent task REST contract.
+message VersionRequest {
+  int64 version = 1 [
+    json_name = "version",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      type: INTEGER
+      format: "int64"
+    }
+  ];
+}
+
+// ScheduleList defines the persistent task REST contract.
+message ScheduleList {
+  repeated Schedule items = 1 [json_name = "items"];
+}
+
+// ScheduleTrigger defines the persistent task REST contract.
+message ScheduleTrigger {
+  string schedule_id = 1 [json_name = "schedule_id"];
+  string scheduled_at = 2 [json_name = "scheduled_at"];
+  int64 schedule_version = 3 [
+    json_name = "schedule_version",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      type: INTEGER
+      format: "int64"
+    }
+  ];
+  string outcome = 4 [json_name = "outcome"];
+  string task_id = 5 [json_name = "task_id"];
+  string summary = 6 [json_name = "summary"];
+  string created_at = 7 [json_name = "created_at"];
+}
+
+// ScheduleHistory defines the persistent task REST contract.
+message ScheduleHistory {
+  repeated ScheduleTrigger items = 1 [json_name = "items"];
+}
+
+// Notification defines the persistent task REST contract.
+message Notification {
+  string task_id = 1 [json_name = "task_id"];
+  string result_id = 2 [json_name = "result_id"];
+  string owner_id = 3 [json_name = "owner_id"];
+  string created_at = 4 [json_name = "created_at"];
+}
+
+// NotificationList defines the persistent task REST contract.
+message NotificationList {
+  repeated Notification items = 1 [json_name = "items"];
+}
+
+// Role defines the persistent task REST contract.
+message Role {
+  string role_id = 1 [json_name = "role_id"];
+  string name = 2 [json_name = "name"];
+  bool builtin = 3 [json_name = "builtin"];
+}
+
+// RoleInput defines the persistent task REST contract.
+message RoleInput {
+  string role_id = 1 [json_name = "role_id"];
+  string name = 2 [json_name = "name"];
+}
+
+// PermissionInput defines the persistent task REST contract.
+message PermissionInput {
+  repeated string permissions = 1 [json_name = "permissions"];
+}
+
+// RolePermissionRequest defines the persistent task REST contract.
+message RolePermissionRequest {
+  string role_id = 1 [json_name = "role_id"];
+  PermissionInput input = 2 [json_name = "input"];
+}
+
+// UserRoleInput defines the persistent task REST contract.
+message UserRoleInput {
+  string user_id = 1 [json_name = "user_id"];
+}
+
+// UserRoleRequest defines the persistent task REST contract.
+message UserRoleRequest {
+  string role_id = 1 [json_name = "role_id"];
+  UserRoleInput input = 2 [json_name = "input"];
+}
+
+// RoleList defines the persistent task REST contract.
+message RoleList {
+  repeated Role items = 1 [json_name = "items"];
+}
+
+// Permission defines the persistent task REST contract.
+message Permission {
+  string code = 1 [json_name = "code"];
+}
+
+// PermissionList defines the persistent task REST contract.
+message PermissionList {
+  repeated Permission items = 1 [json_name = "items"];
+}
+
+// Audit defines the persistent task REST contract.
+message Audit {
+  string user_id = 1 [json_name = "user_id"];
+  string action = 2 [json_name = "action"];
+  string resource = 3 [json_name = "resource"];
+  string outcome = 4 [json_name = "outcome"];
+  string details = 5 [json_name = "details"];
+  string created_at = 6 [json_name = "created_at"];
+  string request_id = 7 [json_name = "request_id"];
+}
+
+// AuditList defines the persistent task REST contract.
+message AuditList {
+  repeated Audit items = 1 [json_name = "items"];
+}
+
+// DeadLetter defines the persistent task REST contract.
+message DeadLetter {
+  string dead_letter_id = 1 [json_name = "dead_letter_id"];
+  string consumer_name = 2 [json_name = "consumer_name"];
+  string original_event_id = 3 [json_name = "original_event_id"];
+  string original_event_type = 4 [json_name = "original_event_type"];
+  string failure_kind = 5 [json_name = "failure_kind"];
+  int32 consume_attempts = 6 [json_name = "consume_attempts"];
+  int32 publish_attempts = 7 [json_name = "publish_attempts"];
+  string status = 8 [json_name = "status"];
+  string source_topic = 9 [json_name = "source_topic"];
+  int32 source_partition = 10 [json_name = "source_partition"];
+  int64 source_offset = 11 [
+    json_name = "source_offset",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      type: INTEGER
+      format: "int64"
+    }
+  ];
+  string created_at = 12 [json_name = "created_at"];
+}
+
+// DeadLetterList defines the persistent task REST contract.
+message DeadLetterList {
+  repeated DeadLetter items = 1 [json_name = "items"];
+}
+
+// DeadLetterIDRequest defines the persistent task REST contract.
+message DeadLetterIDRequest {
+  string dead_letter_id = 1 [json_name = "dead_letter_id"];
+}
+
+// ReplayResponse defines the persistent task REST contract.
+message ReplayResponse {
+  string event_id = 1 [json_name = "event_id"];
+}
+
+// ReplayBatchRequest defines the persistent task REST contract.
+message ReplayBatchRequest {
+  repeated string ids = 1 [json_name = "ids"];
+}
+
+// ReplayBatchItem defines the persistent task REST contract.
+message ReplayBatchItem {
+  string dead_letter_id = 1 [json_name = "dead_letter_id"];
+  string event_id = 2 [json_name = "event_id"];
+  bool success = 3 [json_name = "success"];
+  string reason = 4 [json_name = "reason"];
+}
+
+// ReplayBatchResponse defines the persistent task REST contract.
+message ReplayBatchResponse {
+  repeated ReplayBatchItem items = 1 [json_name = "items"];
+}
+
+// TaskEnvelope is the uniform REST response.
+message TaskEnvelope {
+  int32 code = 1;
+  string message = 2;
+  Task data = 3;
+}
+
+// TaskListEnvelope is the uniform REST response.
+message TaskListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  TaskList data = 3;
+}
+
+// AttemptListEnvelope is the uniform REST response.
+message AttemptListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  AttemptList data = 3;
+}
+
+// ScheduleEnvelope is the uniform REST response.
+message ScheduleEnvelope {
+  int32 code = 1;
+  string message = 2;
+  Schedule data = 3;
+}
+
+// ScheduleListEnvelope is the uniform REST response.
+message ScheduleListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  ScheduleList data = 3;
+}
+
+// ScheduleHistoryEnvelope is the uniform REST response.
+message ScheduleHistoryEnvelope {
+  int32 code = 1;
+  string message = 2;
+  ScheduleHistory data = 3;
+}
+
+// NotificationListEnvelope is the uniform REST response.
+message NotificationListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  NotificationList data = 3;
+}
+
+// RoleListEnvelope is the uniform REST response.
+message RoleListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  RoleList data = 3;
+}
+
+// PermissionListEnvelope is the uniform REST response.
+message PermissionListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  PermissionList data = 3;
+}
+
+// AuditListEnvelope is the uniform REST response.
+message AuditListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  AuditList data = 3;
+}
+
+// DeadLetterEnvelope is the uniform REST response.
+message DeadLetterEnvelope {
+  int32 code = 1;
+  string message = 2;
+  DeadLetter data = 3;
+}
+
+// DeadLetterListEnvelope is the uniform REST response.
+message DeadLetterListEnvelope {
+  int32 code = 1;
+  string message = 2;
+  DeadLetterList data = 3;
+}
+
+// ReplayResponseEnvelope is the uniform REST response.
+message ReplayResponseEnvelope {
+  int32 code = 1;
+  string message = 2;
+  ReplayResponse data = 3;
+}
+
+// ReplayBatchResponseEnvelope is the uniform REST response.
+message ReplayBatchResponseEnvelope {
+  int32 code = 1;
+  string message = 2;
+  ReplayBatchResponse data = 3;
+}
+
+// ActionEnvelope represents an empty successful mutation.
+message ActionEnvelope {
+  int32 code = 1;
+  string message = 2;
+  google.protobuf.Empty data = 3;
+}
+
+// TaskService documents the independently executed task APIs.
+service TaskService {
+  rpc SubmitReport(ReportParams) returns (Task) {
+    option (google.api.http) = {
+      post: "/v1/reports"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "SubmitReport"
+      description: "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "202"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.TaskEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ListTasks(TaskListRequest) returns (TaskList) {
+    option (google.api.http) = {get: "/v1/tasks"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ListTasks"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.TaskListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc GetTask(TaskIDRequest) returns (Task) {
+    option (google.api.http) = {get: "/v1/tasks/{task_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "GetTask"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.TaskEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc TaskAttempts(TaskIDRequest) returns (AttemptList) {
+    option (google.api.http) = {get: "/v1/tasks/{task_id}/attempts"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "TaskAttempts"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.AttemptListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc CancelTask(TaskIDRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/tasks/{task_id}/cancel"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "CancelTask"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc RetryTask(TaskIDRequest) returns (Task) {
+    option (google.api.http) = {post: "/v1/tasks/{task_id}/retry"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "RetryTask"
+      description: "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "202"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.TaskEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc DownloadResult(TaskIDRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {get: "/v1/tasks/{task_id}/result"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "DownloadResult"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      produces: "text/csv"
+      responses: {
+        key: "200"
+        value: {
+          description: "Authorized CSV result"
+          schema: {
+            json_schema: {type: STRING}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ReportNotifications(google.protobuf.Empty) returns (NotificationList) {
+    option (google.api.http) = {get: "/v1/report-notifications"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ReportNotifications"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.NotificationListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc CreateSchedule(ScheduleInput) returns (Schedule) {
+    option (google.api.http) = {
+      post: "/v1/schedules"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "CreateSchedule"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "201"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ScheduleEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ListSchedules(ScheduleListRequest) returns (ScheduleList) {
+    option (google.api.http) = {get: "/v1/schedules"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ListSchedules"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ScheduleListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc GetSchedule(ScheduleIDRequest) returns (Schedule) {
+    option (google.api.http) = {get: "/v1/schedules/{schedule_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "GetSchedule"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ScheduleEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc UpdateSchedule(ScheduleUpdateRequest) returns (Schedule) {
+    option (google.api.http) = {
+      put: "/v1/schedules/{schedule_id}"
+      body: "input"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "UpdateSchedule"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ScheduleEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc GetScheduleHistory(ScheduleIDRequest) returns (ScheduleHistory) {
+    option (google.api.http) = {get: "/v1/schedules/{schedule_id}/history"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ScheduleHistory"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ScheduleHistoryEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ListRoles(google.protobuf.Empty) returns (RoleList) {
+    option (google.api.http) = {get: "/v1/roles"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ListRoles"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.RoleListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ListPermissions(google.protobuf.Empty) returns (PermissionList) {
+    option (google.api.http) = {get: "/v1/permissions"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ListPermissions"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.PermissionListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc CreateRole(RoleInput) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/roles"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "CreateRole"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "201"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc SetRolePermissions(RolePermissionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/roles/{role_id}/permissions"
+      body: "input"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "SetRolePermissions"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ListAudits(google.protobuf.Empty) returns (AuditList) {
+    option (google.api.http) = {get: "/v1/audits"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ListAudits"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.AuditListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ListDeadLetters(google.protobuf.Empty) returns (DeadLetterList) {
+    option (google.api.http) = {get: "/v1/dead-letters"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ListDeadLetters"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.DeadLetterListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc GetDeadLetter(DeadLetterIDRequest) returns (DeadLetter) {
+    option (google.api.http) = {get: "/v1/dead-letters/{dead_letter_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "GetDeadLetter"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.DeadLetterEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ReplayDeadLetter(DeadLetterIDRequest) returns (ReplayResponse) {
+    option (google.api.http) = {post: "/v1/dead-letters/{dead_letter_id}/replay"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ReplayDeadLetter"
+      description: "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "202"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ReplayResponseEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ReplayDeadLetters(ReplayBatchRequest) returns (ReplayBatchResponse) {
+    option (google.api.http) = {
+      post: "/v1/dead-letters/replay"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ReplayDeadLetters"
+      description: "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters. At most 20 IDs; each item has an independent audited outcome; 10 calls per operator per minute."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "202"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ReplayBatchResponseEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc PauseSchedule(ScheduleActionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/schedules/{schedule_id}/pause"
+      body: "input"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "PauseSchedule"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ResumeSchedule(ScheduleActionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/schedules/{schedule_id}/resume"
+      body: "input"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ResumeSchedule"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc ArchiveSchedule(ScheduleActionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/schedules/{schedule_id}/archive"
+      body: "input"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "ArchiveSchedule"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc AssignRole(UserRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/roles/{role_id}/assign"
+      body: "input"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "AssignRole"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc RevokeRole(UserRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/roles/{role_id}/revoke"
+      body: "input"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "RevokeRole"
+      description: "Live RBAC and owner authorization required."
+      tags: "Tasks"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.ActionEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+}

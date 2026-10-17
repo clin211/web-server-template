@@ -1,6 +1,7 @@
 package options
 
 import (
+	"crypto"
 	"errors"
 	"fmt"
 	"strings"
@@ -215,29 +216,29 @@ func (o *KafkaOptions) Validate() []error {
 	errs := []error{}
 
 	if len(o.Brokers) == 0 {
-		errs = append(errs, fmt.Errorf("kafka broker can not be empty"))
+		errs = append(errs, fmt.Errorf("%w: kafka broker can not be empty", errInvalidConfiguration))
 	}
 
 	// SASL 认证必须运行在 TLS 上，避免 PLAIN/SCRAM 交换及凭据暴露在明文链路中。
 	// Username 和 Password 也不得写入日志或提交到仓库，应由部署环境的 secret 注入。
 	if !o.TLSOptions.UseTLS && o.SASLMechanism != "" {
-		errs = append(errs, fmt.Errorf("SASL-Mechanism is setted but use_ssl is false"))
+		errs = append(errs, fmt.Errorf("%w: SASL-Mechanism is setted but use_ssl is false", errInvalidConfiguration))
 	}
 
 	if !stringsutil.StringIn(strings.ToLower(o.SASLMechanism), []string{"plain", "scram", ""}) {
-		errs = append(errs, fmt.Errorf("doesn't support '%s' SASL mechanism", o.SASLMechanism))
+		errs = append(errs, fmt.Errorf("%w: doesn't support '%s' SASL mechanism", errInvalidConfiguration, o.SASLMechanism))
 	}
 
 	if o.Timeout <= 0 {
-		errs = append(errs, fmt.Errorf("--kafka.timeout cannot be negative"))
+		errs = append(errs, fmt.Errorf("%w: --kafka.timeout cannot be negative", errInvalidConfiguration))
 	}
 
 	if o.ReaderOptions.GroupID != "" && o.ReaderOptions.Partition != 0 {
-		errs = append(errs, fmt.Errorf("either Partition or GroupID may be assigned, but not both"))
+		errs = append(errs, fmt.Errorf("%w: either Partition or GroupID may be assigned, but not both", errInvalidConfiguration))
 	}
 
 	if o.WriterOptions.BatchTimeout <= 0 {
-		errs = append(errs, fmt.Errorf("--kafka.writer.batch-timeout cannot be negative"))
+		errs = append(errs, fmt.Errorf("%w: --kafka.writer.batch-timeout cannot be negative", errInvalidConfiguration))
 	}
 	if o.WriterOptions.Async {
 		errs = append(errs, errKafkaAsyncWriter)
@@ -310,7 +311,7 @@ func (o *KafkaOptions) GetMechanism() (sasl.Mechanism, error) {
 		mechanism = plain.Mechanism{Username: o.Username, Password: o.Password}
 	case "SCRAM", "scram":
 		algorithm := scram.SHA256
-		if o.Algorithm == "sha-512" || o.Algorithm == "SHA-512" {
+		if o.Algorithm == "sha-512" || o.Algorithm == crypto.SHA512.String() {
 			algorithm = scram.SHA512
 		}
 		var err error
@@ -361,7 +362,7 @@ func (o *KafkaOptions) WriterForTopic(topic string) (*kafka.Writer, error) {
 		return nil, errKafkaAsyncWriter
 	}
 	if topic == "" {
-		return nil, fmt.Errorf("kafka writer topic is required")
+		return nil, fmt.Errorf("%w: kafka writer topic is required", errInvalidConfiguration)
 	}
 	dialer, err := o.Dialer()
 	if err != nil {

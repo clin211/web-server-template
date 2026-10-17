@@ -24,12 +24,6 @@ This is a code generator for GORM models.
 Flags:
 `
 
-// Querier 定义了数据库查询接口.
-type Querier interface {
-	// FilterWithNameAndRole 按名称和角色查询记录
-	FilterWithNameAndRole(name string) ([]gen.T, error)
-}
-
 // GenerateConfig 保存代码生成的配置.
 type GenerateConfig struct {
 	ModelPackagePath string
@@ -51,15 +45,17 @@ var (
 
 func main() {
 	// 设置自定义的使用说明函数
-	pflag.Usage = func() {
-		fmt.Printf("%s", helpText)
+	pflag.CommandLine.Usage = func() {
+		if _, err := fmt.Fprint(os.Stderr, helpText); err != nil {
+			log.Printf("write usage: %v", err)
+		}
 		pflag.PrintDefaults()
 	}
 	pflag.Parse()
 
 	// 如果设置了帮助标志，则显示帮助信息并退出
 	if *help {
-		pflag.Usage()
+		pflag.CommandLine.Usage()
 		return
 	}
 
@@ -98,7 +94,7 @@ func loadConfig(path string) (*Config, error) {
 
 	// 检查文件是否存在
 	if _, err := os.Stat(absPath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("config file not found: %s", absPath)
+		return nil, fmt.Errorf("config file not found: %s: %w", absPath, err)
 	}
 
 	v := viper.New()
@@ -208,7 +204,7 @@ func applyGeneratorOptions(g *gen.Generator) {
 	// 为特定字段自定义 GORM 标签
 	g.WithOpts(
 		// 将下划线连接起来的单词使用小驼峰的形式写入 json tag 中
-		gen.FieldJSONTagWithNS(func(columnName string) (tagContent string) {
+		gen.FieldJSONTagWithNS(func(columnName string) string {
 			// 只对包含下划线的字段名进行转换
 			if strings.Contains(columnName, "_") {
 				return lo.CamelCase(columnName)

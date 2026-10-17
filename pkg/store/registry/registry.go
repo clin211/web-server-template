@@ -6,10 +6,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// 定义一个Registry类型用于管理模型注册
+// Registry 定义一个Registry类型用于管理模型注册
 type Registry struct {
 	mu     sync.RWMutex
-	models []interface{}
+	models []any
 }
 
 var (
@@ -20,11 +20,11 @@ var (
 // NewRegistry 创建并返回一个新的Registry实例
 func NewRegistry() *Registry {
 	return &Registry{
-		models: make([]interface{}, 0),
+		models: make([]any, 0),
 	}
 }
 
-func Register(model interface{}) {
+func Register(model any) {
 	once.Do(func() {
 		globalRegistry = NewRegistry()
 	})
@@ -32,7 +32,7 @@ func Register(model interface{}) {
 }
 
 // Register 添加新的模型到Registry
-func (r *Registry) Register(model interface{}) {
+func (r *Registry) Register(model any) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -50,7 +50,7 @@ func Migrate(db *gorm.DB) error {
 // Migrate 执行所有注册模型的迁移
 func (r *Registry) Migrate(db *gorm.DB) error {
 	r.mu.RLock()
-	models := append([]interface{}{}, r.models...)
+	models := append([]any{}, r.models...)
 	r.mu.RUnlock()
 
 	for _, model := range models {

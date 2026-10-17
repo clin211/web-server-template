@@ -47,4 +47,4 @@ go.work.sum
 /data
 
 # 编译产物
-gin-enterprise-template-apiserver
+/gin-enterprise-template-apiserver

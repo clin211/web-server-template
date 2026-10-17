@@ -67,9 +67,9 @@ func (s *SecureServingOptions) Validate() []error {
 	errors := []error{}
 
 	if s.Required && s.BindPort < 1 || s.BindPort > 65535 {
-		errors = append(errors, fmt.Errorf("--"+s.fullPrefix+".bind-port %v must be between 1 and 65535, inclusive. It cannot be turned off with 0", s.BindPort))
+		errors = append(errors, fmt.Errorf("%w: --%s.bind-port %v must be between 1 and 65535, inclusive. It cannot be turned off with 0", errInvalidConfiguration, s.fullPrefix, s.BindPort))
 	} else if s.BindPort < 0 || s.BindPort > 65535 {
-		errors = append(errors, fmt.Errorf("--"+s.fullPrefix+".bind-port %v must be between 0 and 65535, inclusive. 0 for turning off secure port", s.BindPort))
+		errors = append(errors, fmt.Errorf("%w: --%s.bind-port %v must be between 0 and 65535, inclusive. 0 for turning off secure port", errInvalidConfiguration, s.fullPrefix, s.BindPort))
 	}
 
 	return errors
@@ -121,7 +121,7 @@ func (s *SecureServingOptions) Complete() error {
 
 	if len(s.ServerCert.CertDirectory) > 0 {
 		if len(s.ServerCert.PairName) == 0 {
-			return fmt.Errorf("--%s.tls.pair-name is required if --%s.tls.cert-dir is set", s.fullPrefix, s.fullPrefix)
+			return fmt.Errorf("%w: --%s.tls.pair-name is required if --%s.tls.cert-dir is set", errInvalidConfiguration, s.fullPrefix, s.fullPrefix)
 		}
 		keyCert.CertFile = path.Join(s.ServerCert.CertDirectory, s.ServerCert.PairName+".crt")
 		keyCert.KeyFile = path.Join(s.ServerCert.CertDirectory, s.ServerCert.PairName+".key")

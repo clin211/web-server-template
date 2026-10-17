@@ -39,19 +39,19 @@ type recordingKafkaWriter struct {
 func (*recordingKafkaWriter) WriteMessages(context.Context, ...kafka.Message) error { return nil }
 
 type failingKafkaFactory struct {
-	writer    kafkaMessageWriter
-	readerErr error
+	messageWriter kafkaMessageWriter
+	readerErr     error
 }
 
-func (f failingKafkaFactory) Writer() (kafkaMessageWriter, error) {
-	return f.writer, nil
+func (f failingKafkaFactory) writer() (kafkaMessageWriter, error) {
+	return f.messageWriter, nil
 }
 
-func (f failingKafkaFactory) WriterForTopic(string) (kafkaMessageWriter, error) {
+func (f failingKafkaFactory) writerForTopic(string) (kafkaMessageWriter, error) {
 	return nil, f.readerErr
 }
 
-func (f failingKafkaFactory) Reader() (kafkaMessageReader, error) {
+func (f failingKafkaFactory) reader() (kafkaMessageReader, error) {
 	return nil, f.readerErr
 }
 
@@ -93,7 +93,7 @@ func TestNewAsyncRuntimeClosesCreatedResourcesOnConstructionFailure(t *testing.T
 		KafkaOptions:    genericoptions.NewKafkaOptions(),
 		OutboxOptions:   outboxOptions,
 		ConsumerOptions: consumerOptions,
-	}, store.NewStore(nil), router, failingKafkaFactory{writer: writer, readerErr: readerErr})
+	}, store.NewStore(nil), router, failingKafkaFactory{messageWriter: writer, readerErr: readerErr})
 	if runtime != nil {
 		t.Fatal("newAsyncRuntimeWithKafkaFactory() runtime is non-nil, want construction failure")
 	}

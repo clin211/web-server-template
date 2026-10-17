@@ -11,19 +11,19 @@ import (
 //
 // 此函数仅对结构体和指向结构体的指针有效。任何其他类型
 // 都会导致 panic。传入类型化的 nil 指针将返回 true。
-func AllPtrFieldsNil(obj interface{}) bool {
+func AllPtrFieldsNil(obj any) bool {
 	v := reflect.ValueOf(obj)
 	if !v.IsValid() {
 		panic(fmt.Sprintf("reflect.ValueOf() produced a non-valid Value for %#v", obj))
 	}
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		if v.IsNil() {
 			return true
 		}
 		v = v.Elem()
 	}
-	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).Kind() == reflect.Ptr && !v.Field(i).IsNil() {
+	for _, field := range v.Fields() {
+		if field.Kind() == reflect.Pointer && !field.IsNil() {
 			return false
 		}
 	}
@@ -32,7 +32,7 @@ func AllPtrFieldsNil(obj interface{}) bool {
 
 // To 返回指向给定值的指针。
 func To[T any](v T) *T {
-	return &v
+	return new(v)
 }
 
 // From 返回指针 p 指向的值。
@@ -126,5 +126,5 @@ func Map[F, T any](p *F, f func(F) T) *T {
 	if p == nil {
 		return nil
 	}
-	return To(f(*p))
+	return new(f(*p))
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"syscall"
 )
 
 // OutDir 从路径创建绝对路径名并检查路径是否存在。
@@ -20,7 +21,7 @@ func OutDir(path string) (string, error) {
 	}
 
 	if !stat.IsDir() {
-		return "", fmt.Errorf("output directory %s is not a directory", outDir)
+		return "", fmt.Errorf("output directory %s: %w", outDir, syscall.ENOTDIR)
 	}
 	outDir = outDir + "/"
 	return outDir, nil

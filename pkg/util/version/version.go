@@ -2,9 +2,11 @@ package version
 
 import (
 	"bytes"
+	"cmp"
 	"errors"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -24,91 +26,110 @@ var (
 	extraMatchRE = regexp.MustCompile(`^(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?\s*$`)
 )
 
+var (
+	errInvalidVersion     = errors.New("invalid version")
+	errNoSupportedVersion = errors.New("no supported v1.x version")
+)
+
 func parse(str string, semver bool) (*Version, error) {
 	parts := versionMatchRE.FindStringSubmatch(str)
 	if parts == nil {
-		return nil, fmt.Errorf("could not parse %q as version", str)
+		return nil, fmt.Errorf("%w: could not parse %q", errInvalidVersion, str)
 	}
-	numbers, extra := parts[1], parts[2]
-
-	components := strings.Split(numbers, ".")
-	if (semver && len(components) != 3) || (!semver && len(components) < 2) {
-		return nil, fmt.Errorf("illegal version string %q", str)
+	components, err := parseComponents(parts[1], str, semver)
+	if err != nil {
+		return nil, err
 	}
-
-	v := &Version{
-		components: make([]uint, len(components)),
-		semver:     semver,
-	}
-	for i, comp := range components {
-		if (i == 0 || semver) && strings.HasPrefix(comp, "0") && comp != "0" {
-			return nil, fmt.Errorf("illegal zero-prefixed version component %q in %q", comp, str)
-		}
-		num, err := strconv.ParseUint(comp, 10, 0)
-		if err != nil {
-			return nil, fmt.Errorf("illegal non-numeric version component %q in %q: %v", comp, str, err)
-		}
-		v.components[i] = uint(num)
-	}
-
-	if semver && extra != "" {
-		extraParts := extraMatchRE.FindStringSubmatch(extra)
-		if extraParts == nil {
-			return nil, fmt.Errorf("could not parse pre-release/metadata (%s) in version %q", extra, str)
-		}
-		v.preRelease, v.buildMetadata = extraParts[1], extraParts[2]
-
-		for _, comp := range strings.Split(v.preRelease, ".") {
-			if _, err := strconv.ParseUint(comp, 10, 0); err == nil {
-				if strings.HasPrefix(comp, "0") && comp != "0" {
-					return nil, fmt.Errorf("illegal zero-prefixed version component %q in %q", comp, str)
-				}
-			}
+	v := &Version{components: components, semver: semver}
+	if semver && parts[2] != "" {
+		if err := v.parseExtra(parts[2], str); err != nil {
+			return nil, err
 		}
 	}
-
 	return v, nil
 }
 
-// HighestSupportedVersion 返回支持的最高版本
+func parseComponents(numbers, str string, semver bool) ([]uint, error) {
+	parts := strings.Split(numbers, ".")
+	if (semver && len(parts) != 3) || (!semver && len(parts) < 2) {
+		return nil, fmt.Errorf("%w: illegal version string %q", errInvalidVersion, str)
+	}
+	components := make([]uint, len(parts))
+	for i, component := range parts {
+		number, err := parseComponent(component, i == 0 || semver)
+		if err != nil {
+			return nil, fmt.Errorf("version %q: %w", str, err)
+		}
+		components[i] = number
+	}
+	return components, nil
+}
+
+func parseComponent(component string, rejectZeroPrefix bool) (uint, error) {
+	if rejectZeroPrefix && zeroPrefixed(component) {
+		return 0, fmt.Errorf("%w: zero-prefixed component %q", errInvalidVersion, component)
+	}
+	number, err := strconv.ParseUint(component, 10, 0)
+	if err != nil {
+		return 0, fmt.Errorf("%w: component %q: %w", errInvalidVersion, component, err)
+	}
+	return uint(number), nil
+}
+
+func zeroPrefixed(component string) bool {
+	return strings.HasPrefix(component, "0") && component != "0"
+}
+
+func (v *Version) parseExtra(extra, str string) error {
+	parts := extraMatchRE.FindStringSubmatch(extra)
+	if parts == nil {
+		return fmt.Errorf("%w: pre-release/metadata %q in %q", errInvalidVersion, extra, str)
+	}
+	v.preRelease, v.buildMetadata = parts[1], parts[2]
+	for component := range strings.SplitSeq(v.preRelease, ".") {
+		if _, err := strconv.ParseUint(component, 10, 0); err == nil && zeroPrefixed(component) {
+			return fmt.Errorf("%w: zero-prefixed component %q in %q", errInvalidVersion, component, str)
+		}
+	}
+	return nil
+}
+
+// HighestSupportedVersion 返回支持的最高版本。
 // 此函数假设支持的最高版本必须是 v1.x。
 func HighestSupportedVersion(versions []string) (*Version, error) {
 	if len(versions) == 0 {
-		return nil, errors.New("empty array for supported versions")
+		return nil, fmt.Errorf("%w: empty array", errNoSupportedVersion)
 	}
+	highest, err := highestSupportedVersion(versions)
+	if err != nil {
+		return nil, err
+	}
+	if highest.Major() != 1 {
+		return nil, fmt.Errorf("%w: highest version is %v", errNoSupportedVersion, highest)
+	}
+	return highest, nil
+}
 
-	var (
-		highestSupportedVersion *Version
-		theErr                  error
-	)
-
-	for i := len(versions) - 1; i >= 0; i-- {
-		currentHighestVer, err := ParseGeneric(versions[i])
+func highestSupportedVersion(versions []string) (*Version, error) {
+	var highest *Version
+	var parseErr error
+	for _, version := range slices.Backward(versions) {
+		current, err := ParseGeneric(version)
 		if err != nil {
-			theErr = err
+			parseErr = err
 			continue
 		}
-
-		if currentHighestVer.Major() > 1 {
+		if current.Major() > 1 {
 			continue
 		}
-
-		if highestSupportedVersion == nil || highestSupportedVersion.LessThan(currentHighestVer) {
-			highestSupportedVersion = currentHighestVer
+		if highest == nil || highest.LessThan(current) {
+			highest = current
 		}
 	}
-
-	if highestSupportedVersion == nil {
-		return nil, fmt.Errorf(
-			"could not find a highest supported version from versions (%v) reported: %+v",
-			versions, theErr)
+	if highest == nil {
+		return nil, fmt.Errorf("versions %v: %w", versions, errors.Join(errNoSupportedVersion, parseErr))
 	}
-
-	if highestSupportedVersion.Major() != 1 {
-		return nil, fmt.Errorf("highest supported version reported is %v, must be v1.x", highestSupportedVersion)
-	}
-
-	return highestSupportedVersion, nil
+	return highest, nil
 }
 
 // ParseGeneric 解析"通用"版本字符串。版本字符串必须由两个
@@ -231,7 +252,7 @@ func (v *Version) String() string {
 		if i > 0 {
 			buffer.WriteString(".")
 		}
-		buffer.WriteString(fmt.Sprintf("%d", comp))
+		fmt.Fprintf(&buffer, "%d", comp)
 	}
 	if v.preRelease != "" {
 		buffer.WriteString("-")
@@ -247,70 +268,56 @@ func (v *Version) String() string {
 
 // compareInternal 如果 v 小于 other 返回 -1，如果大于 other 返回 1，如果相等返回 0
 func (v *Version) compareInternal(other *Version) int {
-	vLen := len(v.components)
-	oLen := len(other.components)
-	for i := 0; i < vLen && i < oLen; i++ {
-		switch {
-		case other.components[i] < v.components[i]:
-			return 1
-		case other.components[i] > v.components[i]:
-			return -1
-		}
+	if order := compareComponents(v.components, other.components); order != 0 {
+		return order
 	}
-
-	// 如果组件相同，但一个有更多项目并且它们不为零，则它更大
-	switch {
-	case oLen < vLen && !onlyZeros(v.components[oLen:]):
-		return 1
-	case oLen > vLen && !onlyZeros(other.components[vLen:]):
-		return -1
-	}
-
 	if !v.semver || !other.semver {
 		return 0
 	}
+	return comparePreRelease(v.preRelease, other.preRelease)
+}
 
+func compareComponents(left, right []uint) int {
+	for i := range min(len(left), len(right)) {
+		if order := cmp.Compare(left[i], right[i]); order != 0 {
+			return order
+		}
+	}
 	switch {
-	case v.preRelease == "" && other.preRelease != "":
+	case len(left) > len(right) && !onlyZeros(left[len(right):]):
 		return 1
-	case v.preRelease != "" && other.preRelease == "":
+	case len(right) > len(left) && !onlyZeros(right[len(left):]):
 		return -1
-	case v.preRelease == other.preRelease: // includes case where both are ""
+	default:
 		return 0
 	}
+}
 
-	vPR := strings.Split(v.preRelease, ".")
-	oPR := strings.Split(other.preRelease, ".")
-	for i := 0; i < len(vPR) && i < len(oPR); i++ {
-		vNum, err := strconv.ParseUint(vPR[i], 10, 0)
-		if err == nil {
-			oNum, err := strconv.ParseUint(oPR[i], 10, 0)
-			if err == nil {
-				switch {
-				case oNum < vNum:
-					return 1
-				case oNum > vNum:
-					return -1
-				default:
-					continue
-				}
-			}
-		}
-		if oPR[i] < vPR[i] {
-			return 1
-		} else if oPR[i] > vPR[i] {
-			return -1
-		}
-	}
-
+func comparePreRelease(left, right string) int {
 	switch {
-	case len(oPR) < len(vPR):
+	case left == right:
+		return 0
+	case left == "":
 		return 1
-	case len(oPR) > len(vPR):
+	case right == "":
 		return -1
 	}
+	leftParts, rightParts := strings.Split(left, "."), strings.Split(right, ".")
+	for i := range min(len(leftParts), len(rightParts)) {
+		if order := comparePreReleaseComponent(leftParts[i], rightParts[i]); order != 0 {
+			return order
+		}
+	}
+	return cmp.Compare(len(leftParts), len(rightParts))
+}
 
-	return 0
+func comparePreReleaseComponent(left, right string) int {
+	leftNumber, leftErr := strconv.ParseUint(left, 10, 0)
+	rightNumber, rightErr := strconv.ParseUint(right, 10, 0)
+	if leftErr == nil && rightErr == nil {
+		return cmp.Compare(leftNumber, rightNumber)
+	}
+	return strings.Compare(left, right)
 }
 
 // 如果数组包含任何非零元素，则返回 false
@@ -326,8 +333,8 @@ func onlyZeros(array []uint) bool {
 // AtLeast 测试版本是否至少等于给定的最小版本。如果两个版本都是语义版本，
 // 这将使用语义版本比较算法。否则，它将仅比较数字组件，
 // 不存在的组件被认为是"0"（即，"1.4" 等于 "1.4.0"）。
-func (v *Version) AtLeast(min *Version) bool {
-	return v.compareInternal(min) != -1
+func (v *Version) AtLeast(minimum *Version) bool {
+	return v.compareInternal(minimum) != -1
 }
 
 // LessThan 测试版本是否小于给定版本。（它与 AtLeast 完全相反，

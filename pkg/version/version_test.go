@@ -68,3 +68,9 @@ func TestInfo_Text(t *testing.T) {
 	assert.Contains(t, stringOutput, "compiler: "+info.Compiler)
 	assert.Contains(t, stringOutput, "platform: "+info.Platform)
 }
+
+func TestGetFromDebugInfoMissingModule(t *testing.T) {
+	info := GetFromDebugInfo("example.invalid/missing-module")
+	assert.Equal(t, "unknown", info.GitVersion)
+	assert.NotEmpty(t, info.GoVersion)
+}

@@ -12,20 +12,9 @@
 
 ### 1.1 当前实施状态
 
-截至 2026-08-25，阶段 0、阶段 1 的应用侧闭环和阶段 2 的异步消费基础设施已落地：
+2026-10-14：已新增独立 Worker/Scheduler、PostgreSQL 持久任务、周期报表、基础 RBAC、事务审计、真实业务事件注册、受控 DLQ 重放、显式迁移、运行指标和同一镜像交付工作流。代码及实际验证状态以 [实施报告](enterprise-delivery.md) 为准；任务状态和恢复语义以 [任务指南](persistent-tasks.md)、[ADR](../adr/0001-persistent-tasks.md) 为准。
 
-- HTTP 安全日志、context 关联字段和 OTel 限时 flush 已实现；
-- `configs/otel-collector.production.yaml` 提供生产后端、持久队列和失败重试模板；
-- 通用 Outbox 已具备同事务写入、同步 Kafka producer、租约 Relay、attempt fencing 和带抖动指数退避能力；当前没有业务事件生产者，Relay 默认关闭；
-- Consumer 已实现手动 offset 提交、可取消处理、重试、显式 handler 注册入口和优雅停止；没有业务 handler 时 fail-closed；
-- Inbox 已实现基于 `(consumer_name, event_id)` 和源消息位置的持久幂等、租约及 fencing token；
-- DLQ 已实现数据库优先落库、独立 topic Relay 发布、有限重试终态和失败元数据保留；
-- Outbox、Consumer 和 DLQ 已接入低基数指标，Kafka 集群 lag 由外部 Kafka exporter 负责；
-- 已提供 PostgreSQL/Kafka/Redis 集成测试、独立 Compose 环境、readiness 和启动 smoke test；
-- 配置文件、环境变量和命令行优先级已闭合，显式配置文件错误会阻止启动；
-- 登录限流、安全审计、refresh token 单次消费和 token version 撤销已接入 Redis/PostgreSQL；
-- 规格模板、ADR、PR 模板和增量 CI 质量门禁已建立；
-- 当前语义仍是 at-least-once，不能把实现描述为端到端 exactly-once；具体业务事件 handler 和故障注入仍属于后续工作。
+下文保留原方案作为历史背景，描述“尚未接入”的条目对应实施前基线，不代表当前代码；不以历史分析替代当前状态核验。模板仍为至少一次语义，P2 不默认实现。
 
 ## 2. 实施前基线与主要风险
 
@@ -225,7 +214,7 @@ Relay 使用短事务领取批次，支持多个实例通过 `FOR UPDATE SKIP LO
 ### 5.4 发布与消费策略
 
 - Kafka Writer 必须以同步方式获取发送结果，并等待全部 ISR 确认；
-- Kafka message key 使用 `aggregate_id`，保证同一聚合内的相对顺序；
+- Kafka message key 使用 `aggregate_id` 选择分区；多 Relay、领取与重试可能反序，不能据此承诺同一聚合全链路顺序；
 - Relay 失败使用带随机抖动的指数退避；
 - 达到最大次数后标记失败并发送告警，支持显式重放；
 - Consumer 在处理成功后手动提交 offset；

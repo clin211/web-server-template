@@ -1,6 +1,7 @@
 package version
 
 import (
+	"errors"
 	"fmt"
 	"sync/atomic"
 
@@ -9,10 +10,10 @@ import (
 
 var dynamicGitVersion atomic.Value
 
-func init() {
-	// 初始化为静态 gitVersion
-	dynamicGitVersion.Store(gitVersion)
-}
+var (
+	errEmptyVersion    = errors.New("version must not be empty")
+	errVersionMismatch = errors.New("version must match major/minor/patch of default version")
+)
 
 // SetDynamicVersion 覆盖从 Get() 返回的 GitVersion。
 // 指定的版本必须非空、是有效的语义化版本，并且必须
@@ -33,7 +34,7 @@ func ValidateDynamicVersion(dynamicVersion string) error {
 
 func validateDynamicVersion(dynamicVersion, defaultVersion string) error {
 	if len(dynamicVersion) == 0 {
-		return fmt.Errorf("version must not be empty")
+		return errEmptyVersion
 	}
 	if dynamicVersion == defaultVersion {
 		// 允许无操作
@@ -55,7 +56,7 @@ func validateDynamicVersion(dynamicVersion, defaultVersion string) error {
 		return err
 	}
 	if vRuntime.Major() != vDefault.Major() || vRuntime.Minor() != vDefault.Minor() || vRuntime.Patch() != vDefault.Patch() {
-		return fmt.Errorf("version %q must match major/minor/patch of default version %q", dynamicVersion, defaultVersion)
+		return fmt.Errorf("%w: %q and %q", errVersionMismatch, dynamicVersion, defaultVersion)
 	}
 	return nil
 }

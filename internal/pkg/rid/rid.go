@@ -35,5 +35,10 @@ func (rid ResourceID) New(counter uint64) string {
 
 // MustNew 使用默认计数器创建带前缀的业务 ID。
 func (rid ResourceID) MustNew() string {
-	return rid.New(defaultIDCounter.Id(context.Background()))
+	return rid.NewContext(context.Background())
+}
+
+// NewContext 使用调用方上下文生成资源 ID。
+func (rid ResourceID) NewContext(ctx context.Context) string {
+	return rid.New(defaultIDCounter.Id(ctx))
 }

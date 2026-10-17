@@ -1,6 +1,7 @@
 package strings
 
 import (
+	"slices"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -27,8 +28,9 @@ func (fi frequencyInfoSlice) Less(i, j int) bool {
 	return fi[j].frequency > fi[i].frequency
 }
 
-// 创建一个不包含在另一个给定切片中的切片值。
-func Diff(base, exclude []string) (result []string) {
+// Diff 创建一个不包含在另一个给定切片中的切片值。
+func Diff(base, exclude []string) []string {
+	var result []string
 	excludeMap := make(map[string]bool)
 	for _, s := range exclude {
 		excludeMap[s] = true
@@ -42,8 +44,9 @@ func Diff(base, exclude []string) (result []string) {
 	return result
 }
 
-// 创建一个包含在另一个给定切片中的切片值。
-func Include(base, include []string) (result []string) {
+// Include 创建一个包含在另一个给定切片中的切片值。
+func Include(base, include []string) []string {
+	var result []string
 	baseMap := make(map[string]bool)
 	for _, s := range base {
 		baseMap[s] = true
@@ -57,7 +60,8 @@ func Include(base, include []string) (result []string) {
 	return result
 }
 
-func Unique(ss []string) (result []string) {
+func Unique(ss []string) []string {
+	var result []string
 	smap := make(map[string]bool)
 	for _, s := range ss {
 		smap[s] = true
@@ -104,34 +108,27 @@ func Reverse(s string) string {
 }
 
 // Filter 从列表中过滤指定的字符串。
-func Filter(list []string, strToFilter string) (newList []string) {
+func Filter(list []string, strToFilter string) []string {
+	var newList []string
 	for _, item := range list {
 		if item != strToFilter {
 			newList = append(newList, item)
 		}
 	}
 
-	return
+	return newList
 }
 
 func Add(list []string, str string) []string {
-	for _, item := range list {
-		if item == str {
-			return list
-		}
+	if slices.Contains(list, str) {
+		return list
 	}
 	return append(list, str)
 }
 
 // Contains 如果列表包含指定字符串则返回 true。
 func Contains(list []string, strToSearch string) bool {
-	for _, item := range list {
-		if item == strToSearch {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(list, strToSearch)
 }
 
 func FrequencySort(list []string) []string {

@@ -13,6 +13,9 @@
   "tags": [
     {
       "name": "APIServer"
+    },
+    {
+      "name": "TaskService"
     }
   ],
   "schemes": [
@@ -47,6 +50,35 @@
         },
         "tags": [
           "服务治理"
+        ]
+      }
+    },
+    "/v1/audits": {
+      "get": {
+        "summary": "ListAudits",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ListAudits",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1AuditListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -163,6 +195,1045 @@
         },
         "tags": [
           "用户认证"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dead-letters": {
+      "get": {
+        "summary": "ListDeadLetters",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ListDeadLetters",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1DeadLetterListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dead-letters/replay": {
+      "post": {
+        "summary": "ReplayDeadLetters",
+        "description": "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters. At most 20 IDs; each item has an independent audited outcome; 10 calls per operator per minute.",
+        "operationId": "TaskService_ReplayDeadLetters",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ReplayBatchResponse"
+            }
+          },
+          "202": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ReplayBatchResponseEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ReplayBatchRequest defines the persistent task REST contract.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ReplayBatchRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dead-letters/{dead_letter_id}": {
+      "get": {
+        "summary": "GetDeadLetter",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_GetDeadLetter",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1DeadLetterEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dead_letter_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dead-letters/{dead_letter_id}/replay": {
+      "post": {
+        "summary": "ReplayDeadLetter",
+        "description": "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters.",
+        "operationId": "TaskService_ReplayDeadLetter",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ReplayResponse"
+            }
+          },
+          "202": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ReplayResponseEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dead_letter_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/permissions": {
+      "get": {
+        "summary": "ListPermissions",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ListPermissions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1PermissionListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/report-notifications": {
+      "get": {
+        "summary": "ReportNotifications",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ReportNotifications",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1NotificationListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/reports": {
+      "post": {
+        "summary": "SubmitReport",
+        "description": "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters.",
+        "operationId": "TaskService_SubmitReport",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Task"
+            }
+          },
+          "202": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1TaskEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ReportParams defines the persistent task REST contract.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ReportParams"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/roles": {
+      "get": {
+        "summary": "ListRoles",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ListRoles",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1RoleListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "CreateRole",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_CreateRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "RoleInput defines the persistent task REST contract.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RoleInput"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/roles/{role_id}/assign": {
+      "post": {
+        "summary": "AssignRole",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_AssignRole",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UserRoleInput"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/roles/{role_id}/permissions": {
+      "put": {
+        "summary": "SetRolePermissions",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_SetRolePermissions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PermissionInput"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/roles/{role_id}/revoke": {
+      "post": {
+        "summary": "RevokeRole",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_RevokeRole",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UserRoleInput"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/schedules": {
+      "get": {
+        "summary": "ListSchedules",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ListSchedules",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "CreateSchedule",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_CreateSchedule",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Schedule"
+            }
+          },
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ScheduleInput defines the persistent task REST contract.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleInput"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/schedules/{schedule_id}": {
+      "get": {
+        "summary": "GetSchedule",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_GetSchedule",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "UpdateSchedule",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_UpdateSchedule",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleInput"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/schedules/{schedule_id}/archive": {
+      "post": {
+        "summary": "ArchiveSchedule",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ArchiveSchedule",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VersionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/schedules/{schedule_id}/history": {
+      "get": {
+        "summary": "ScheduleHistory",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_GetScheduleHistory",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleHistoryEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/schedules/{schedule_id}/pause": {
+      "post": {
+        "summary": "PauseSchedule",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_PauseSchedule",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VersionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/schedules/{schedule_id}/resume": {
+      "post": {
+        "summary": "ResumeSchedule",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ResumeSchedule",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VersionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/tasks": {
+      "get": {
+        "summary": "ListTasks",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_ListTasks",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1TaskListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/tasks/{task_id}": {
+      "get": {
+        "summary": "GetTask",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_GetTask",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1TaskEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/tasks/{task_id}/attempts": {
+      "get": {
+        "summary": "TaskAttempts",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_TaskAttempts",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1AttemptListEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/tasks/{task_id}/cancel": {
+      "post": {
+        "summary": "CancelTask",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_CancelTask",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1ActionEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/tasks/{task_id}/result": {
+      "get": {
+        "summary": "DownloadResult",
+        "description": "Live RBAC and owner authorization required.",
+        "operationId": "TaskService_DownloadResult",
+        "responses": {
+          "200": {
+            "description": "Authorized CSV result",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
+        ],
+        "produces": [
+          "text/csv"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/tasks/{task_id}/retry": {
+      "post": {
+        "summary": "RetryTask",
+        "description": "Live RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters.",
+        "operationId": "TaskService_RetryTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Task"
+            }
+          },
+          "202": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1TaskEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tasks"
         ],
         "security": [
           {
@@ -470,6 +1541,108 @@
       },
       "title": "APIError 表示统一错误响应包络，所有非 2xx 响应共用（default 响应）。"
     },
+    "v1ActionEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      "description": "ActionEnvelope represents an empty successful mutation."
+    },
+    "v1AttemptList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TaskAttempt"
+          }
+        }
+      },
+      "description": "AttemptList defines the persistent task REST contract."
+    },
+    "v1AttemptListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1AttemptList"
+        }
+      },
+      "description": "AttemptListEnvelope is the uniform REST response."
+    },
+    "v1Audit": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "details": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        }
+      },
+      "description": "Audit defines the persistent task REST contract."
+    },
+    "v1AuditList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Audit"
+          }
+        }
+      },
+      "description": "AuditList defines the persistent task REST contract."
+    },
+    "v1AuditListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1AuditList"
+        }
+      },
+      "description": "AuditListEnvelope is the uniform REST response."
+    },
     "v1ChangePasswordResponse": {
       "type": "object",
       "title": "ChangePasswordResponse 表示修改密码响应"
@@ -547,6 +1720,97 @@
         }
       },
       "title": "CreateUserResponseEnvelope 表示创建用户的成功响应包络"
+    },
+    "v1DeadLetter": {
+      "type": "object",
+      "properties": {
+        "dead_letter_id": {
+          "type": "string"
+        },
+        "consumer_name": {
+          "type": "string"
+        },
+        "original_event_id": {
+          "type": "string"
+        },
+        "original_event_type": {
+          "type": "string"
+        },
+        "failure_kind": {
+          "type": "string"
+        },
+        "consume_attempts": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "publish_attempts": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        },
+        "source_topic": {
+          "type": "string"
+        },
+        "source_partition": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "source_offset": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      },
+      "description": "DeadLetter defines the persistent task REST contract."
+    },
+    "v1DeadLetterEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1DeadLetter"
+        }
+      },
+      "description": "DeadLetterEnvelope is the uniform REST response."
+    },
+    "v1DeadLetterList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1DeadLetter"
+          }
+        }
+      },
+      "description": "DeadLetterList defines the persistent task REST contract."
+    },
+    "v1DeadLetterListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1DeadLetterList"
+        }
+      },
+      "description": "DeadLetterListEnvelope is the uniform REST response."
     },
     "v1DeleteUserResponse": {
       "type": "object",
@@ -786,6 +2050,440 @@
       },
       "title": "LogoutResponseEnvelope 表示退出登录的成功响应包络"
     },
+    "v1Notification": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "result_id": {
+          "type": "string"
+        },
+        "owner_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      },
+      "description": "Notification defines the persistent task REST contract."
+    },
+    "v1NotificationList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Notification"
+          }
+        }
+      },
+      "description": "NotificationList defines the persistent task REST contract."
+    },
+    "v1NotificationListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1NotificationList"
+        }
+      },
+      "description": "NotificationListEnvelope is the uniform REST response."
+    },
+    "v1Permission": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        }
+      },
+      "description": "Permission defines the persistent task REST contract."
+    },
+    "v1PermissionInput": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "PermissionInput defines the persistent task REST contract."
+    },
+    "v1PermissionList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Permission"
+          }
+        }
+      },
+      "description": "PermissionList defines the persistent task REST contract."
+    },
+    "v1PermissionListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1PermissionList"
+        }
+      },
+      "description": "PermissionListEnvelope is the uniform REST response."
+    },
+    "v1ReplayBatchItem": {
+      "type": "object",
+      "properties": {
+        "dead_letter_id": {
+          "type": "string"
+        },
+        "event_id": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "description": "ReplayBatchItem defines the persistent task REST contract."
+    },
+    "v1ReplayBatchRequest": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "ReplayBatchRequest defines the persistent task REST contract."
+    },
+    "v1ReplayBatchResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ReplayBatchItem"
+          }
+        }
+      },
+      "description": "ReplayBatchResponse defines the persistent task REST contract."
+    },
+    "v1ReplayBatchResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1ReplayBatchResponse"
+        }
+      },
+      "description": "ReplayBatchResponseEnvelope is the uniform REST response."
+    },
+    "v1ReplayResponse": {
+      "type": "object",
+      "properties": {
+        "event_id": {
+          "type": "string"
+        }
+      },
+      "description": "ReplayResponse defines the persistent task REST contract."
+    },
+    "v1ReplayResponseEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1ReplayResponse"
+        }
+      },
+      "description": "ReplayResponseEnvelope is the uniform REST response."
+    },
+    "v1ReportParams": {
+      "type": "object",
+      "properties": {
+        "days": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "ReportParams defines the persistent task REST contract."
+    },
+    "v1Role": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "builtin": {
+          "type": "boolean"
+        }
+      },
+      "description": "Role defines the persistent task REST contract."
+    },
+    "v1RoleInput": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "description": "RoleInput defines the persistent task REST contract."
+    },
+    "v1RoleList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Role"
+          }
+        }
+      },
+      "description": "RoleList defines the persistent task REST contract."
+    },
+    "v1RoleListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1RoleList"
+        }
+      },
+      "description": "RoleListEnvelope is the uniform REST response."
+    },
+    "v1Schedule": {
+      "type": "object",
+      "properties": {
+        "schedule_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "task_type": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/v1ReportParams"
+        },
+        "params_version": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "cron": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "archived": {
+          "type": "boolean"
+        },
+        "next_run_at": {
+          "type": "string"
+        },
+        "misfire_policy": {
+          "type": "string"
+        },
+        "concurrency_policy": {
+          "type": "string"
+        },
+        "owner_id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      },
+      "description": "Schedule defines the persistent task REST contract."
+    },
+    "v1ScheduleEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1Schedule"
+        }
+      },
+      "description": "ScheduleEnvelope is the uniform REST response."
+    },
+    "v1ScheduleHistory": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ScheduleTrigger"
+          }
+        }
+      },
+      "description": "ScheduleHistory defines the persistent task REST contract."
+    },
+    "v1ScheduleHistoryEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1ScheduleHistory"
+        }
+      },
+      "description": "ScheduleHistoryEnvelope is the uniform REST response."
+    },
+    "v1ScheduleInput": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "days": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "cron": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "misfire_policy": {
+          "type": "string"
+        },
+        "concurrency_policy": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "ScheduleInput defines the persistent task REST contract."
+    },
+    "v1ScheduleList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Schedule"
+          }
+        }
+      },
+      "description": "ScheduleList defines the persistent task REST contract."
+    },
+    "v1ScheduleListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1ScheduleList"
+        }
+      },
+      "description": "ScheduleListEnvelope is the uniform REST response."
+    },
+    "v1ScheduleTrigger": {
+      "type": "object",
+      "properties": {
+        "schedule_id": {
+          "type": "string"
+        },
+        "scheduled_at": {
+          "type": "string"
+        },
+        "schedule_version": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      },
+      "description": "ScheduleTrigger defines the persistent task REST contract."
+    },
     "v1ServiceStatus": {
       "type": "string",
       "enum": [
@@ -795,6 +2493,187 @@
       "default": "Healthy",
       "description": "- Healthy: Healthy 表示服务处于健康状态。\n - Unhealthy: Unhealthy 表示服务处于不健康状态。",
       "title": "ServiceStatus 表示服务的健康状态。"
+    },
+    "v1Task": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "task_type": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/v1ReportParams"
+        },
+        "params_version": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "source": {
+          "type": "string"
+        },
+        "schedule_id": {
+          "type": "string"
+        },
+        "schedule_version": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "scheduled_at": {
+          "type": "string"
+        },
+        "retry_of": {
+          "type": "string"
+        },
+        "owner_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "available_at": {
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "max_attempts": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "attempts": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "worker_id": {
+          "type": "string"
+        },
+        "lease_until": {
+          "type": "string"
+        },
+        "cancel_requested_at": {
+          "type": "string"
+        },
+        "result_id": {
+          "type": "string"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "error_summary": {
+          "type": "string"
+        },
+        "trace_id": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": "string"
+        },
+        "finished_at": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      },
+      "description": "Task defines the persistent task REST contract."
+    },
+    "v1TaskAttempt": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "attempt": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "worker_id": {
+          "type": "string"
+        },
+        "lease_until": {
+          "type": "string"
+        },
+        "heartbeat_at": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": "string"
+        },
+        "finished_at": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "trace_id": {
+          "type": "string"
+        }
+      },
+      "description": "TaskAttempt defines the persistent task REST contract."
+    },
+    "v1TaskEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1Task"
+        }
+      },
+      "description": "TaskEnvelope is the uniform REST response."
+    },
+    "v1TaskList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Task"
+          }
+        },
+        "page_token": {
+          "type": "string"
+        }
+      },
+      "description": "TaskList defines the persistent task REST contract."
+    },
+    "v1TaskListEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1TaskList"
+        }
+      },
+      "description": "TaskListEnvelope is the uniform REST response."
     },
     "v1UpdateUserResponse": {
       "type": "object",
@@ -882,6 +2761,25 @@
         }
       },
       "title": "User 表示用户信息"
+    },
+    "v1UserRoleInput": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "description": "UserRoleInput defines the persistent task REST contract."
+    },
+    "v1VersionRequest": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "VersionRequest defines the persistent task REST contract."
     }
   },
   "securityDefinitions": {

@@ -10,21 +10,35 @@ import (
 
 // UserBiz 定义处理用户请求所需的方法.
 type UserBiz interface {
+	UserResources
+	UserExpansion
+}
+
+// UserResources 定义用户资源操作。
+type UserResources interface {
 	Create(ctx context.Context, rq *v1.CreateUserRequest) (*v1.CreateUserResponse, error)
 	Update(ctx context.Context, rq *v1.UpdateUserRequest) (*v1.UpdateUserResponse, error)
 	Delete(ctx context.Context, rq *v1.DeleteUserRequest) (*v1.DeleteUserResponse, error)
 	Get(ctx context.Context, rq *v1.GetUserRequest) (*v1.GetUserResponse, error)
 	List(ctx context.Context, rq *v1.ListUserRequest) (*v1.ListUserResponse, error)
-
-	UserExpansion
 }
 
 // UserExpansion 定义用户操作的扩展方法.
 type UserExpansion interface {
+	UserAuthentication
+	UserProfile
+}
+
+// UserAuthentication 定义认证操作。
+type UserAuthentication interface {
 	Login(ctx context.Context, rq *v1.LoginRequest) (*v1.LoginResponse, error)
 	RefreshToken(ctx context.Context, rq *v1.RefreshTokenRequest) (*v1.LoginResponse, error)
-	Info(ctx context.Context, rq *v1.InfoRequest) (*v1.InfoResponse, error)
 	Logout(ctx context.Context, rq *v1.LogoutRequest) (*v1.LogoutResponse, error)
+}
+
+// UserProfile 定义个人信息与密码操作。
+type UserProfile interface {
+	Info(ctx context.Context, rq *v1.InfoRequest) (*v1.InfoResponse, error)
 	ChangePassword(ctx context.Context, rq *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error)
 }
 

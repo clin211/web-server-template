@@ -114,3 +114,14 @@ func TestValidateUpdateUserRequestValidatesChangedFields(t *testing.T) {
 		t.Fatalf("ValidateUpdateUserRequest() error = %v, want %v", err, errno.ErrInvalidArgument)
 	}
 }
+
+func TestUserRulesRejectUnexpectedTypes(t *testing.T) {
+	rules := (&Validator{}).ValidateUserRules()
+	for _, name := range []string{"Password", "OldPassword", "NewPassword", "UserID", "Username", "Nickname", "Email", "Phone", "Limit"} {
+		t.Run(name, func(t *testing.T) {
+			if err := rules[name](struct{}{}); !errors.Is(err, errno.ErrInvalidArgument) {
+				t.Fatalf("unexpected type error = %v, want invalid argument", err)
+			}
+		})
+	}
+}

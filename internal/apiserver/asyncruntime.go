@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	taskbiz "github.com/clin211/gin-enterprise-template/internal/apiserver/biz/v1/task"
 	"io"
 	"sync"
 	"time"
@@ -32,28 +33,32 @@ type kafkaMessageReader interface {
 }
 
 type asyncKafkaFactory interface {
-	Writer() (kafkaMessageWriter, error)
-	WriterForTopic(topic string) (kafkaMessageWriter, error)
-	Reader() (kafkaMessageReader, error)
+	writer() (kafkaMessageWriter, error)
+	writerForTopic(topic string) (kafkaMessageWriter, error)
+	reader() (kafkaMessageReader, error)
 }
 
 type kafkaOptionsFactory struct {
 	options *genericoptions.KafkaOptions
 }
 
-func (f kafkaOptionsFactory) Writer() (kafkaMessageWriter, error) {
+func (f kafkaOptionsFactory) writer() (kafkaMessageWriter, error) {
 	return f.options.Writer()
 }
 
-func (f kafkaOptionsFactory) WriterForTopic(topic string) (kafkaMessageWriter, error) {
+func (f kafkaOptionsFactory) writerForTopic(topic string) (kafkaMessageWriter, error) {
 	return f.options.WriterForTopic(topic)
 }
 
-func (f kafkaOptionsFactory) Reader() (kafkaMessageReader, error) {
+func (f kafkaOptionsFactory) reader() (kafkaMessageReader, error) {
 	return f.options.Reader()
 }
 
 var (
+	errAsyncNotConfigured       = errors.New("async runtime is not configured")
+	errAsyncShuttingDown        = errors.New("async runtime is shutting down")
+	errAsyncNotStarted          = errors.New("async runtime has not started")
+	errAsyncStopped             = errors.New("async runtime stopped unexpectedly")
 	errKafkaOptionsRequired     = errors.New("kafka options are required when async messaging is enabled")
 	errConsumerHandlersRequired = errors.New("consumer cannot start before business event handlers are registered")
 )
@@ -104,120 +109,156 @@ func newAsyncRuntimeWithKafkaFactory(
 	datastore store.IStore,
 	router *consumer.EventRouter,
 	kafkaFactory asyncKafkaFactory,
-) (_ *AsyncRuntime, returnErr error) {
-	outboxEnabled := cfg != nil && cfg.OutboxOptions != nil && cfg.OutboxOptions.Enabled
-	consumerEnabled := cfg != nil && cfg.ConsumerOptions != nil && cfg.ConsumerOptions.Enabled
-	if cfg == nil || (!outboxEnabled && !consumerEnabled) {
+) (*AsyncRuntime, error) {
+
+	outboxEnabled, consumerEnabled := asyncEnablement(cfg)
+	if !outboxEnabled && !consumerEnabled {
 		return newAsyncRuntime(nil, nil), nil
 	}
 	if cfg.KafkaOptions == nil || kafkaFactory == nil {
 		return nil, errKafkaOptionsRequired
 	}
-	// 当前应用尚未实现任何入站业务事件 handler。Consumer 必须 fail-closed，不能
-	// 创建空 Router 后把所有合法业务事件当成 unsupported 并写入 DLQ。待首个消费
-	// 垂直切片提供显式 handler 注册后，再移除此保护并在启动前校验 Router 非空。
+	// 创建 Kafka 连接前拒绝空路由，避免正常消息被写入 DLQ。
 	if consumerEnabled && !router.HasHandlers() {
 		return nil, errConsumerHandlersRequired
 	}
+	builder := asyncRuntimeBuilder{cfg: cfg, datastore: datastore, factory: kafkaFactory}
+	if err := builder.build(router, outboxEnabled, consumerEnabled); err != nil {
+		return nil, errors.Join(err, closeAll{closers: builder.closers}.Close())
+	}
+	return newAsyncRuntime(multiRunner{runners: builder.runners}, closeAll{closers: builder.closers}), nil
+}
 
-	var runners []asyncRunner
-	var closers []io.Closer
-	defer func() {
-		if returnErr != nil {
-			returnErr = errors.Join(returnErr, closeAll{closers: closers}.Close())
-		}
-	}()
-	var observer *metrics.AsyncMetrics
-	newObserver := func() (*metrics.AsyncMetrics, error) {
-		if observer != nil {
-			return observer, nil
-		}
-		var err error
-		observer, err = metrics.NewAsyncMetrics(otel.Meter("async-runtime.metrics"))
-		if err != nil {
-			return nil, err
-		}
-		return observer, nil
+func asyncEnablement(cfg *Config) (bool, bool) {
+	if cfg == nil {
+		return false, false
 	}
-	if outboxEnabled {
-		writer, err := kafkaFactory.Writer()
-		if err != nil {
-			return nil, fmt.Errorf("create Kafka outbox writer: %w", err)
+	return cfg.OutboxOptions != nil && cfg.OutboxOptions.Enabled,
+		cfg.ConsumerOptions != nil && cfg.ConsumerOptions.Enabled
+}
+
+type asyncRuntimeBuilder struct {
+	cfg       *Config
+	datastore store.IStore
+	factory   asyncKafkaFactory
+	observer  *metrics.AsyncMetrics
+	runners   []asyncRunner
+	closers   []io.Closer
+}
+
+func (b *asyncRuntimeBuilder) build(router *consumer.EventRouter, enableOutbox, enableConsumer bool) error {
+	if enableOutbox {
+		if err := b.addOutbox(); err != nil {
+			return err
 		}
-		closers = append(closers, writer)
-		publisher, err := outbox.NewKafkaPublisher(writer)
-		if err != nil {
-			return nil, fmt.Errorf("create Kafka publisher: %w", err)
-		}
-		observer, metricsErr := newObserver()
-		if metricsErr != nil {
-			return nil, fmt.Errorf("create async metrics: %w", metricsErr)
-		}
-		relay, err := outbox.NewRelay(datastore.Outbox(), publisher, outbox.RelayOptions{
-			BatchSize: cfg.OutboxOptions.BatchSize, PollInterval: cfg.OutboxOptions.PollInterval,
-			LeaseDuration: cfg.OutboxOptions.LeaseDuration, RetryDelay: cfg.OutboxOptions.RetryDelay,
-			MaxRetryDelay: cfg.OutboxOptions.MaxRetryDelay, MaxAttempts: cfg.OutboxOptions.MaxAttempts, Observer: observer,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("create outbox relay: %w", err)
-		}
-		runners = append(runners, relay)
 	}
-	if consumerEnabled {
-		reader, err := kafkaFactory.Reader()
-		if err != nil {
-			return nil, fmt.Errorf("create Kafka consumer reader: %w", err)
-		}
-		closers = append(closers, reader)
-		dlqWriter, err := kafkaFactory.WriterForTopic(cfg.ConsumerOptions.DLQTopic)
-		if err != nil {
-			return nil, fmt.Errorf("create Kafka DLQ writer: %w", err)
-		}
-		closers = append(closers, dlqWriter)
-		storedDLQ, err := consumer.NewPersistentDeadLetterPublisher(datastore, datastore.DeadLetter(), datastore.Inbox(), cfg.KafkaOptions.ReaderOptions.GroupID, cfg.ConsumerOptions.DLQTopic)
-		if err != nil {
-			return nil, fmt.Errorf("create persistent DLQ publisher: %w", err)
-		}
-		metricsObserver, err := newObserver()
-		if err != nil {
-			return nil, fmt.Errorf("create consumer metrics: %w", err)
-		}
-		processor, err := consumer.NewInboxProcessor(datastore, datastore.Inbox(), router, consumer.InboxOptions{
-			ConsumerName:  cfg.KafkaOptions.ReaderOptions.GroupID,
-			LeaseDuration: cfg.ConsumerOptions.InboxLeaseDuration,
-			RetryDelay:    cfg.ConsumerOptions.RetryDelay,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("create Inbox processor: %w", err)
-		}
-		worker, err := consumer.New(reader, processor, storedDLQ, consumer.Options{
-			MaxAttempts:    cfg.ConsumerOptions.MaxAttempts,
-			RetryDelay:     cfg.ConsumerOptions.RetryDelay,
-			MaxRetryDelay:  cfg.ConsumerOptions.MaxRetryDelay,
-			ProcessTimeout: cfg.ConsumerOptions.ProcessTimeout,
-			Observer:       metricsObserver,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("create Kafka consumer: %w", err)
-		}
-		dlqPublisher, err := outbox.NewKafkaPublisher(dlqWriter)
-		if err != nil {
-			return nil, fmt.Errorf("create Kafka DLQ publisher: %w", err)
-		}
-		dlqRelay, err := outbox.NewRelay(datastore.DeadLetter(), dlqPublisher, outbox.RelayOptions{
-			BatchSize: 100, PollInterval: time.Second,
-			LeaseDuration: cfg.ConsumerOptions.InboxLeaseDuration,
-			RetryDelay:    cfg.ConsumerOptions.RetryDelay,
-			MaxRetryDelay: cfg.ConsumerOptions.MaxRetryDelay,
-			MaxAttempts:   cfg.ConsumerOptions.MaxAttempts,
-			Observer:      metricsObserver,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("create DLQ relay: %w", err)
-		}
-		runners = append(runners, worker, dlqRelay)
+	if enableConsumer {
+		return b.addConsumer(router)
 	}
-	return newAsyncRuntime(multiRunner{runners: runners}, closeAll{closers: closers}), nil
+	return nil
+}
+
+func (b *asyncRuntimeBuilder) metrics() (*metrics.AsyncMetrics, error) {
+	if b.observer != nil {
+		return b.observer, nil
+	}
+	observer, err := metrics.NewAsyncMetrics(otel.Meter("async-runtime.metrics"))
+	if err != nil {
+		return nil, err
+	}
+	b.observer = observer
+	return observer, nil
+}
+
+func (b *asyncRuntimeBuilder) addOutbox() error {
+	writer, err := b.factory.writer()
+	if err != nil {
+		return fmt.Errorf("create Kafka outbox writer: %w", err)
+	}
+	b.closers = append(b.closers, writer)
+	publisher, err := outbox.NewKafkaPublisher(writer)
+	if err != nil {
+		return fmt.Errorf("create Kafka publisher: %w", err)
+	}
+	observer, err := b.metrics()
+	if err != nil {
+		return fmt.Errorf("create async metrics: %w", err)
+	}
+	o := b.cfg.OutboxOptions
+	relay, err := outbox.NewRelay(b.datastore.Outbox(), publisher, outbox.RelayOptions{
+		BatchSize: o.BatchSize, PollInterval: o.PollInterval, LeaseDuration: o.LeaseDuration,
+		RetryDelay: o.RetryDelay, MaxRetryDelay: o.MaxRetryDelay, MaxAttempts: o.MaxAttempts, Observer: observer,
+	})
+	if err != nil {
+		return fmt.Errorf("create outbox relay: %w", err)
+	}
+	b.runners = append(b.runners, relay)
+	return nil
+}
+
+func (b *asyncRuntimeBuilder) addConsumer(router *consumer.EventRouter) error {
+	reader, err := b.factory.reader()
+	if err != nil {
+		return fmt.Errorf("create Kafka consumer reader: %w", err)
+	}
+	b.closers = append(b.closers, reader)
+	dlqWriter, err := b.factory.writerForTopic(b.cfg.ConsumerOptions.DLQTopic)
+	if err != nil {
+		return fmt.Errorf("create Kafka DLQ writer: %w", err)
+	}
+	b.closers = append(b.closers, dlqWriter)
+	worker, err := b.newConsumer(reader, router)
+	if err != nil {
+		return err
+	}
+	dlqRelay, err := b.newDLQRelay(dlqWriter)
+	if err != nil {
+		return err
+	}
+	b.runners = append(b.runners, worker, dlqRelay)
+	return nil
+}
+
+func (b *asyncRuntimeBuilder) newConsumer(reader kafkaMessageReader, router *consumer.EventRouter) (*consumer.Consumer, error) {
+	o := b.cfg.ConsumerOptions
+	storedDLQ, err := consumer.NewPersistentDeadLetterPublisher(b.datastore, b.datastore.DeadLetter(), b.datastore.Inbox(), b.cfg.KafkaOptions.ReaderOptions.GroupID, o.DLQTopic)
+	if err != nil {
+		return nil, fmt.Errorf("create persistent DLQ publisher: %w", err)
+	}
+	observer, err := b.metrics()
+	if err != nil {
+		return nil, fmt.Errorf("create consumer metrics: %w", err)
+	}
+	processor, err := consumer.NewInboxProcessor(b.datastore, b.datastore.Inbox(), router, consumer.InboxOptions{
+		ConsumerName: b.cfg.KafkaOptions.ReaderOptions.GroupID, LeaseDuration: o.InboxLeaseDuration, RetryDelay: o.RetryDelay,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create Inbox processor: %w", err)
+	}
+	worker, err := consumer.New(reader, processor, storedDLQ, consumer.Options{
+		MaxAttempts: o.MaxAttempts, RetryDelay: o.RetryDelay, MaxRetryDelay: o.MaxRetryDelay,
+		ProcessTimeout: o.ProcessTimeout, Observer: observer,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create Kafka consumer: %w", err)
+	}
+	return worker, nil
+}
+
+func (b *asyncRuntimeBuilder) newDLQRelay(writer kafkaMessageWriter) (*outbox.Relay, error) {
+	publisher, err := outbox.NewKafkaPublisher(writer)
+	if err != nil {
+		return nil, fmt.Errorf("create Kafka DLQ publisher: %w", err)
+	}
+	o := b.cfg.ConsumerOptions
+	relay, err := outbox.NewRelay(b.datastore.DeadLetter(), publisher, outbox.RelayOptions{
+		BatchSize: 100, PollInterval: time.Second, LeaseDuration: o.InboxLeaseDuration,
+		RetryDelay: o.RetryDelay, MaxRetryDelay: o.MaxRetryDelay, MaxAttempts: o.MaxAttempts, Observer: b.observer,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create DLQ relay: %w", err)
+	}
+	return relay, nil
 }
 
 type multiRunner struct{ runners []asyncRunner }
@@ -311,7 +352,7 @@ func (r *AsyncRuntime) Err() error {
 // checker 单独探测；这里负责发现 worker 提前退出或关闭中的假健康。
 func (r *AsyncRuntime) Check(context.Context) error {
 	if r == nil {
-		return errors.New("async runtime is not configured")
+		return errAsyncNotConfigured
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -319,10 +360,10 @@ func (r *AsyncRuntime) Check(context.Context) error {
 		return nil
 	}
 	if r.shutdownStarted {
-		return errors.New("async runtime is shutting down")
+		return errAsyncShuttingDown
 	}
 	if !r.started {
-		return errors.New("async runtime has not started")
+		return errAsyncNotStarted
 	}
 	if r.finished != nil {
 		select {
@@ -330,7 +371,7 @@ func (r *AsyncRuntime) Check(context.Context) error {
 			if r.runErr != nil {
 				return fmt.Errorf("async runtime stopped: %w", r.runErr)
 			}
-			return errors.New("async runtime stopped unexpectedly")
+			return errAsyncStopped
 		default:
 		}
 	}
@@ -374,4 +415,13 @@ func (r *AsyncRuntime) finishShutdown(started bool, cancel context.CancelFunc, d
 	}
 	r.shutdownErr = errors.Join(runErr, closeErr)
 	close(r.shutdownDone)
+}
+
+// NewBusinessAsyncRuntime wires the report consumer explicitly.
+func NewBusinessAsyncRuntime(cfg *Config, core store.IStore) (*AsyncRuntime, error) {
+	router, err := taskbiz.New(core).EventRouter()
+	if err != nil {
+		return nil, err
+	}
+	return NewAsyncRuntimeWithRouter(cfg, core, router)
 }

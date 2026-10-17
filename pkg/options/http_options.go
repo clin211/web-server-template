@@ -67,7 +67,7 @@ func (o *HTTPOptions) Validate() []error {
 	return errs
 }
 
-// AddFlagsWithPrefix 将 HTTP 服务器相关标志注册到指定的 FlagSet，
+// AddFlags 将 HTTP 服务器相关标志注册到指定的 FlagSet，
 // 使用 fullPrefix 作为标志名称的完整前缀。
 //
 // 示例：
@@ -94,7 +94,8 @@ func validateCORSOrigin(origin string) error {
 	parsed, err := url.Parse(origin)
 	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" ||
 		parsed.User != nil || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" {
-		return fmt.Errorf("invalid CORS origin %q", origin)
+
+		return fmt.Errorf("%w: invalid CORS origin %q", errInvalidConfiguration, origin)
 	}
 	return nil
 }

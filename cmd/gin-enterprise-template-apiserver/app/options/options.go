@@ -1,8 +1,8 @@
-// nolint: err113
+// Package options 定义应用配置及其校验规则。
 package options
 
 import (
-	"fmt"
+	"errors"
 
 	genericoptions "github.com/clin211/gin-enterprise-template/pkg/options"
 	"github.com/spf13/pflag"
@@ -11,8 +11,19 @@ import (
 	"github.com/clin211/gin-enterprise-template/internal/apiserver"
 )
 
+var (
+	errRedisRequired          = errors.New("redis is required for refresh token rotation")
+	errOutboxTopicRequired    = errors.New("kafka topic is required when outbox relay is enabled")
+	errConsumerKafkaRequired  = errors.New("kafka options are required when consumer is enabled")
+	errConsumerTopicRequired  = errors.New("kafka reader topic is required when consumer is enabled")
+	errConsumerGroupRequired  = errors.New("kafka reader group-id is required when consumer is enabled")
+	errConsumerCommitInterval = errors.New("kafka reader commit-interval must be zero when consumer is enabled")
+	errConsumerDLQRequired    = errors.New("consumer dlq topic is required when consumer is enabled")
+)
+
 // ServerOptions 包含服务器的配置选项。
 type ServerOptions struct {
+	TaskOptions *genericoptions.TaskOptions `json:"tasks" mapstructure:"tasks"`
 	// JWTOptions 包含 JWT 认证配置选项。
 	JWTOptions *genericoptions.JWTOptions `json:"jwt" mapstructure:"jwt"`
 	// TLSOptions 包含 TLS 配置选项。
@@ -38,6 +49,7 @@ type ServerOptions struct {
 // NewServerOptions 创建一个使用默认值的 ServerOptions 实例。
 func NewServerOptions() *ServerOptions {
 	opts := &ServerOptions{
+		TaskOptions:          genericoptions.NewTaskOptions(),
 		JWTOptions:           genericoptions.NewJWTOptions(),
 		TLSOptions:           genericoptions.NewTLSOptions(),
 		HTTPOptions:          genericoptions.NewHTTPOptions(),
@@ -57,6 +69,7 @@ func NewServerOptions() *ServerOptions {
 // AddFlags 将 ServerOptions 中的选项绑定到命令行标志。
 func (o *ServerOptions) AddFlags(fs *pflag.FlagSet) {
 	// 添加 JWT 选项标志
+	o.TaskOptions.AddFlags(fs, "tasks")
 	o.JWTOptions.AddFlags(fs, "jwt")
 	// 为子选项添加命令行标志。
 	o.TLSOptions.AddFlags(fs, "tls")
@@ -87,43 +100,20 @@ func (o *ServerOptions) Validate() error {
 	errs = append(errs, o.HTTPOptions.Validate()...)
 	errs = append(errs, o.PostgreSQLOptions.Validate()...)
 	errs = append(errs, o.RedisOptions.Validate()...)
+	errs = append(errs, o.TaskOptions.Validate()...)
 	errs = append(errs, o.OTelOptions.Validate()...)
 	errs = append(errs, o.OutboxOptions.Validate()...)
 	errs = append(errs, o.ConsumerOptions.Validate()...)
 	errs = append(errs, o.LoginSecurityOptions.Validate()...)
 	// Refresh token rotation always requires Redis, regardless of login limiter state.
 	if o.RedisOptions == nil || o.RedisOptions.Addr == "" {
-		errs = append(errs, fmt.Errorf("redis is required for refresh token rotation"))
+		errs = append(errs, errRedisRequired)
 	}
-	// Kafka 仅在异步链路启用时是强依赖；Outbox 和 Consumer 共用主 topic、连接及
-	// Writer 配置，Consumer 还额外依赖稳定 group、同步提交和独立 DLQ topic。
 	if o.OutboxOptions.Enabled {
-		errs = append(errs, o.KafkaOptions.Validate()...)
-		if o.KafkaOptions.Topic == "" {
-			errs = append(errs, fmt.Errorf("kafka topic is required when outbox relay is enabled"))
-		}
+		errs = append(errs, o.validateOutboxKafka()...)
 	}
-	//nolint:nestif
 	if o.ConsumerOptions.Enabled {
-		if o.KafkaOptions == nil {
-			errs = append(errs, fmt.Errorf("kafka options are required when consumer is enabled"))
-		} else {
-			errs = append(errs, o.KafkaOptions.Validate()...)
-			if o.KafkaOptions.ReaderOptions.Topic == "" {
-				errs = append(errs, fmt.Errorf("kafka reader topic is required when consumer is enabled"))
-			}
-			if o.KafkaOptions.ReaderOptions.GroupID == "" {
-				errs = append(errs, fmt.Errorf("kafka reader group-id is required when consumer is enabled"))
-			}
-			// 非零 CommitInterval 会让 kafka-go 异步批量提交；这不是普通调优项，可能在
-			// Inbox 完成或 DLQ 持久化前确认 offset，从而造成不可恢复的消息丢失。
-			if o.KafkaOptions.ReaderOptions.CommitInterval != 0 {
-				errs = append(errs, fmt.Errorf("kafka reader commit-interval must be zero when consumer is enabled"))
-			}
-			if o.ConsumerOptions.DLQTopic == "" {
-				errs = append(errs, fmt.Errorf("consumer dlq topic is required when consumer is enabled"))
-			}
-		}
+		errs = append(errs, o.validateConsumerKafka()...)
 	}
 
 	// 汇总所有错误并返回。
@@ -133,6 +123,7 @@ func (o *ServerOptions) Validate() error {
 // Config 基于 ServerOptions 构建 apiserver.Config。
 func (o *ServerOptions) Config() (*apiserver.Config, error) {
 	return &apiserver.Config{
+		TaskOptions:          o.TaskOptions,
 		JWTOptions:           o.JWTOptions,
 		TLSOptions:           o.TLSOptions,
 		HTTPOptions:          o.HTTPOptions,
@@ -144,4 +135,33 @@ func (o *ServerOptions) Config() (*apiserver.Config, error) {
 		ConsumerOptions:      o.ConsumerOptions,
 		LoginSecurityOptions: o.LoginSecurityOptions,
 	}, nil
+}
+
+func (o *ServerOptions) validateOutboxKafka() []error {
+	errs := o.KafkaOptions.Validate()
+	if o.KafkaOptions.Topic == "" {
+		errs = append(errs, errOutboxTopicRequired)
+	}
+	return errs
+}
+
+func (o *ServerOptions) validateConsumerKafka() []error {
+	if o.KafkaOptions == nil {
+		return []error{errConsumerKafkaRequired}
+	}
+	errs := o.KafkaOptions.Validate()
+	if o.KafkaOptions.ReaderOptions.Topic == "" {
+		errs = append(errs, errConsumerTopicRequired)
+	}
+	if o.KafkaOptions.ReaderOptions.GroupID == "" {
+		errs = append(errs, errConsumerGroupRequired)
+	}
+	// 异步提交 offset 可能在 Inbox/DLQ 持久化前确认消息。
+	if o.KafkaOptions.ReaderOptions.CommitInterval != 0 {
+		errs = append(errs, errConsumerCommitInterval)
+	}
+	if o.ConsumerOptions.DLQTopic == "" {
+		errs = append(errs, errConsumerDLQRequired)
+	}
+	return errs
 }

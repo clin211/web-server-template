@@ -64,29 +64,18 @@ func (l *zapLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql s
 	}
 
 	elapsed := time.Since(begin)
+	level := levelM[l.opts.Level]
 	switch {
-	case err != nil && levelM[l.opts.Level] >= gormlogger.Error:
+	case err != nil && level >= gormlogger.Error:
 		sql, rows := fc()
-		if rows == -1 {
-			l.z.Sugar().Errorf(traceErrStr, fileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, "-", sql)
-		} else {
-			l.z.Sugar().Errorf(traceErrStr, fileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, rows, sql)
-		}
-	case elapsed > slowThreshold && slowThreshold != 0 && levelM[l.opts.Level] >= gormlogger.Warn:
+		l.z.Sugar().Errorf(traceErrStr, fileWithLineNum(), err, float64(elapsed.Nanoseconds())/1e6, traceRows(rows), sql)
+	case elapsed > slowThreshold && slowThreshold != 0 && level >= gormlogger.Warn:
 		sql, rows := fc()
 		slowLog := fmt.Sprintf("SLOW SQL >= %v", slowThreshold)
-		if rows == -1 {
-			l.z.Sugar().Warnf(traceWarnStr, fileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, "-", sql)
-		} else {
-			l.z.Sugar().Warnf(traceWarnStr, fileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, rows, sql)
-		}
-	case levelM[l.opts.Level] >= gormlogger.Info:
+		l.z.Sugar().Warnf(traceWarnStr, fileWithLineNum(), slowLog, float64(elapsed.Nanoseconds())/1e6, traceRows(rows), sql)
+	case level >= gormlogger.Info:
 		sql, rows := fc()
-		if rows == -1 {
-			l.z.Sugar().Infof(traceStr, fileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, "-", sql)
-		} else {
-			l.z.Sugar().Infof(traceStr, fileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, rows, sql)
-		}
+		l.z.Sugar().Infof(traceStr, fileWithLineNum(), float64(elapsed.Nanoseconds())/1e6, traceRows(rows), sql)
 	}
 }
 
@@ -103,4 +92,11 @@ func fileWithLineNum() string {
 	}
 
 	return ""
+}
+
+func traceRows(rows int64) any {
+	if rows == -1 {
+		return "-"
+	}
+	return rows
 }

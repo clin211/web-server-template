@@ -2,7 +2,9 @@ package consumer
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -18,15 +20,39 @@ func TestIntegrationKafkaManualCommit(t *testing.T) {
 	if brokers == "" || topic == "" {
 		t.Skip("TEST_KAFKA_BROKERS and TEST_KAFKA_TOPIC are required")
 	}
-	writer := &kafka.Writer{Addr: kafka.TCP(brokers), Topic: topic, Balancer: &kafka.LeastBytes{}}
-	defer writer.Close()
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	topic += "-test-" + uuid.NewString()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+	conn, err := kafka.DialContext(ctx, "tcp", strings.Split(brokers, ",")[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := conn.CreateTopics(kafka.TopicConfig{Topic: topic, NumPartitions: 1, ReplicationFactor: 1}); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := conn.DeleteTopics(topic); err != nil {
+			t.Error(err)
+		}
+		if err := conn.Close(); err != nil {
+			t.Error(err)
+		}
+	})
+	writer := &kafka.Writer{Addr: kafka.TCP(brokers), Topic: topic, Balancer: &kafka.LeastBytes{}}
+	t.Cleanup(func() {
+		if err := writer.Close(); err != nil {
+			t.Error(err)
+		}
+	})
 	if err := writer.WriteMessages(ctx, kafka.Message{Key: []byte("integration"), Value: []byte("integration-payload")}); err != nil {
 		t.Fatalf("write Kafka message: %v", err)
 	}
 	reader := kafka.NewReader(kafka.ReaderConfig{Brokers: []string{brokers}, Topic: topic, GroupID: "integration-consumer-" + time.Now().Format("150405.000000000"), MinBytes: 1, MaxBytes: 1 << 20})
-	defer reader.Close()
+	t.Cleanup(func() {
+		if err := reader.Close(); err != nil {
+			t.Error(err)
+		}
+	})
 	message, err := reader.FetchMessage(ctx)
 	if err != nil {
 		t.Fatalf("fetch Kafka message: %v", err)

@@ -8,98 +8,58 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/log"
 )
 
-// convertValue 将各种类型转换为 log.Value。
-func convertValue(v any) log.Value {
+// convertValue 将各种类型转换为 attribute.Value。
+func convertValue(v any) attribute.Value {
 	// 在不使用 reflect 的情况下处理最常见的类型是一个小的性能提升。
 	switch val := v.(type) {
 	case bool:
-		return log.BoolValue(val)
+		return attribute.BoolValue(val)
 	case string:
-		return log.StringValue(val)
-	case int:
-		return log.Int64Value(int64(val))
-	case int8:
-		return log.Int64Value(int64(val))
-	case int16:
-		return log.Int64Value(int64(val))
-	case int32:
-		return log.Int64Value(int64(val))
-	case int64:
-		return log.Int64Value(val)
-	case uint:
-		return convertUintValue(uint64(val))
-	case uint8:
-		return log.Int64Value(int64(val))
-	case uint16:
-		return log.Int64Value(int64(val))
-	case uint32:
-		return log.Int64Value(int64(val))
-	case uint64:
-		return convertUintValue(val)
-	case uintptr:
-		return convertUintValue(uint64(val))
-	case float32:
-		return log.Float64Value(float64(val))
-	case float64:
-		return log.Float64Value(val)
+		return attribute.StringValue(val)
 	case time.Duration:
-		return log.Int64Value(val.Nanoseconds())
+		return attribute.Int64Value(val.Nanoseconds())
 	case complex64:
-		r := log.Float64("r", real(complex128(val)))
-		i := log.Float64("i", imag(complex128(val)))
-		return log.MapValue(r, i)
+		r := attribute.Float64("r", real(complex128(val)))
+		i := attribute.Float64("i", imag(complex128(val)))
+		return attribute.MapValue(r, i)
 	case complex128:
-		r := log.Float64("r", real(val))
-		i := log.Float64("i", imag(val))
-		return log.MapValue(r, i)
+		r := attribute.Float64("r", real(val))
+		i := attribute.Float64("i", imag(val))
+		return attribute.MapValue(r, i)
 	case time.Time:
-		return log.Int64Value(val.UnixNano())
+		return attribute.Int64Value(val.UnixNano())
 	case []byte:
-		return log.BytesValue(val)
+		return attribute.ByteSliceValue(val)
 	case error:
-		return log.StringValue(val.Error())
+		return attribute.StringValue(val.Error())
 	case attribute.Value:
-		return log.ValueFromAttribute(val)
-	case log.Value:
-		return val
+		return normalizeAttribute(val)
 	}
 
+	return convertOtherValue(v)
+}
+func convertReflected(v any) attribute.Value {
 	t := reflect.TypeOf(v)
 	if t == nil {
-		return log.Value{}
+		return attribute.Value{}
 	}
 	val := reflect.ValueOf(v)
 	switch t.Kind() {
 	case reflect.Struct:
-		return log.StringValue(fmt.Sprintf("%+v", v))
+		return attribute.StringValue(fmt.Sprintf("%+v", v))
 	case reflect.Slice, reflect.Array:
-		items := make([]log.Value, 0, val.Len())
-		for i := 0; i < val.Len(); i++ {
+		items := make([]attribute.Value, 0, val.Len())
+		for i := range val.Len() {
 			items = append(items, convertValue(val.Index(i).Interface()))
 		}
-		return log.SliceValue(items...)
+		return attribute.SliceValue(items...)
 	case reflect.Map:
-		kvs := make([]log.KeyValue, 0, val.Len())
-		for _, k := range val.MapKeys() {
-			var key string
-			switch k.Kind() {
-			case reflect.String:
-				key = k.String()
-			default:
-				key = fmt.Sprintf("%+v", k.Interface())
-			}
-			kvs = append(kvs, log.KeyValue{
-				Key:   key,
-				Value: convertValue(val.MapIndex(k).Interface()),
-			})
-		}
-		return log.MapValue(kvs...)
-	case reflect.Ptr, reflect.Interface:
+		return convertMap(val)
+	case reflect.Pointer, reflect.Interface:
 		if val.IsNil() {
-			return log.Value{}
+			return attribute.Value{}
 		}
 		return convertValue(val.Elem().Interface())
 	}
@@ -108,14 +68,95 @@ func convertValue(v any) log.Value {
 	//
 	// 不要在这里 panic。让用户提问为什么他们的属性有"unhandled: "前缀
 	// 比说他们的代码正在 panic 更可取。
-	return log.StringValue(fmt.Sprintf("unhandled: (%s) %+v", t, v))
+	return attribute.StringValue(fmt.Sprintf("unhandled: (%s) %+v", t, v))
 }
 
-// convertUintValue 将 uint64 转换为 log.Value。
+// convertUintValue 将 uint64 转换为 attribute.Value。
 // 如果值太大而无法放入 int64，它将被转换为字符串。
-func convertUintValue(v uint64) log.Value {
+func convertUintValue(v uint64) attribute.Value {
 	if v > math.MaxInt64 {
-		return log.StringValue(strconv.FormatUint(v, 10))
+		return attribute.StringValue(strconv.FormatUint(v, 10))
 	}
-	return log.Int64Value(int64(v))
+	return attribute.Int64Value(int64(v))
+}
+
+func convertOtherValue(v any) attribute.Value {
+	if scalar, ok := convertNumber(v); ok {
+		return scalar
+	}
+	return convertReflected(v)
+}
+func convertNumber(v any) (attribute.Value, bool) {
+	if value, ok := convertSigned(v); ok {
+		return value, true
+	}
+	if value, ok := convertUnsigned(v); ok {
+		return value, true
+	}
+	switch val := v.(type) {
+	case float32:
+		return attribute.Float64Value(float64(val)), true
+	case float64:
+		return attribute.Float64Value(val), true
+	}
+	return attribute.Value{}, false
+}
+func convertSigned(v any) (attribute.Value, bool) {
+	switch val := v.(type) {
+	case int:
+		return attribute.Int64Value(int64(val)), true
+	case int8:
+		return attribute.Int64Value(int64(val)), true
+	case int16:
+		return attribute.Int64Value(int64(val)), true
+	case int32:
+		return attribute.Int64Value(int64(val)), true
+	case int64:
+		return attribute.Int64Value(val), true
+	}
+	return attribute.Value{}, false
+}
+func convertUnsigned(v any) (attribute.Value, bool) {
+	switch val := v.(type) {
+	case uint:
+		return convertUintValue(uint64(val)), true
+	case uint8:
+		return attribute.Int64Value(int64(val)), true
+	case uint16:
+		return attribute.Int64Value(int64(val)), true
+	case uint32:
+		return attribute.Int64Value(int64(val)), true
+	case uint64:
+		return convertUintValue(val), true
+	case uintptr:
+		return convertUintValue(uint64(val)), true
+	}
+	return attribute.Value{}, false
+}
+
+func convertMap(val reflect.Value) attribute.Value {
+	kvs := make([]attribute.KeyValue, 0, val.Len())
+	for _, k := range val.MapKeys() {
+		var key string
+		switch k.Kind() {
+		case reflect.String:
+			key = k.String()
+		default:
+			key = fmt.Sprintf("%+v", k.Interface())
+		}
+		kvs = append(kvs, attribute.KeyValue{
+			Key:   attribute.Key(key),
+			Value: convertValue(val.MapIndex(k).Interface()),
+		})
+	}
+	return attribute.MapValue(kvs...)
+}
+
+func normalizeAttribute(v attribute.Value) attribute.Value {
+	switch v.Type() {
+	case attribute.BOOLSLICE, attribute.INT64SLICE, attribute.FLOAT64SLICE, attribute.STRINGSLICE:
+		return convertReflected(v.AsInterface())
+	default:
+		return v
+	}
 }

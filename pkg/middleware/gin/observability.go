@@ -13,16 +13,16 @@ import (
 
 // 标准追踪头常量
 const (
-	// W3C 追踪上下文标准（最推荐）
+	// TraceParentHeaderKey W3C 追踪上下文标准（最推荐）
 	TraceParentHeaderKey = "traceparent"
 
-	// 简单追踪 ID（最广泛使用）
+	// TraceIDHeaderKey 简单追踪 ID（最广泛使用）
 	TraceIDHeaderKey = "X-Trace-Id"
 
-	// 通用请求 ID（通用兼容）
+	// RequestIDHeaderKey 通用请求 ID（通用兼容）
 	RequestIDHeaderKey = "X-Request-Id"
 
-	// 用于额外上下文的追踪状态
+	// TraceStateHeaderKey 用于额外上下文的追踪状态
 	TraceStateHeaderKey = "tracestate"
 )
 

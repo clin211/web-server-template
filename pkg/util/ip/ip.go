@@ -9,7 +9,7 @@ import (
 const (
 	XForwardedFor = "X-Forwarded-For"
 	XRealIP       = "X-Real-IP"
-	XClientIP     = "x-client-ip"
+	XClientIP     = "X-Client-Ip"
 )
 
 // GetLocalIP 返回主机的非环回本地 IP。

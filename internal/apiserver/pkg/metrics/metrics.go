@@ -65,6 +65,7 @@ func NewAsyncMetrics(meter metric.Meter) (*AsyncMetrics, error) {
 
 // RecordPublish 实现 outbox.Observer。
 func (m *AsyncMetrics) RecordPublish(ctx context.Context, eventType, result string, duration time.Duration) {
+	eventType = boundedEventType(eventType)
 	attrs := metric.WithAttributes(attribute.String("event_type", eventType), attribute.String("result", result))
 	m.outboxPublishTotal.Add(ctx, 1, attrs)
 	// 成功率由带 result 的 counter 计算；duration 有意只按 event_type 聚合，以控制时序数量。
@@ -73,6 +74,7 @@ func (m *AsyncMetrics) RecordPublish(ctx context.Context, eventType, result stri
 
 // RecordProcess 实现 consumer.Observer。
 func (m *AsyncMetrics) RecordProcess(ctx context.Context, eventType, result string, duration time.Duration) {
+	eventType = boundedEventType(eventType)
 	attrs := metric.WithAttributes(attribute.String("event_type", eventType), attribute.String("result", result))
 	m.consumerProcessTotal.Add(ctx, 1, attrs)
 	// duration 不附加 result，避免每新增一种处理结果都成倍扩张 histogram 时序。
@@ -81,6 +83,7 @@ func (m *AsyncMetrics) RecordProcess(ctx context.Context, eventType, result stri
 
 // RecordDLQ 实现 consumer.Observer。
 func (m *AsyncMetrics) RecordDLQ(ctx context.Context, eventType, result string, failedAt time.Time) {
+	eventType = boundedEventType(eventType)
 	attrs := metric.WithAttributes(attribute.String("event_type", eventType), attribute.String("result", result))
 	m.consumerDLQTotal.Add(ctx, 1, attrs)
 	if result == "success" {
@@ -107,4 +110,13 @@ func sanitizeMetricPrefix(scope string) string {
 		return "apiserver"
 	}
 	return prefix
+}
+
+func boundedEventType(t string) string {
+	switch t {
+	case "report.generated.v1", "report.generated.v1.dlq", "example.created.v1":
+		return t
+	default:
+		return "unknown"
+	}
 }

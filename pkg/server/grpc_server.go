@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -14,6 +15,8 @@ import (
 
 	genericoptions "github.com/clin211/gin-enterprise-template/pkg/options"
 )
+
+var errGRPCOptionsRequired = errors.New("gRPC options are required")
 
 // GRPCServer 代表一个 GRPC 服务器.
 type GRPCServer struct {
@@ -28,10 +31,12 @@ func NewGRPCServer(
 	serverOptions []grpc.ServerOption,
 	registerBuilder func() (func(grpc.ServiceRegistrar), string),
 ) (*GRPCServer, error) {
+
 	if grpcOptions == nil {
-		return nil, fmt.Errorf("gRPC options are required")
+		return nil, errGRPCOptionsRequired
 	}
-	lis, err := net.Listen("tcp", grpcOptions.Addr)
+	listenConfig := net.ListenConfig{}
+	lis, err := listenConfig.Listen(context.Background(), "tcp", grpcOptions.Addr)
 	if err != nil {
 		slog.Error("Failed to listen", "err", err)
 		return nil, err
@@ -40,7 +45,9 @@ func NewGRPCServer(
 	if tlsOptions != nil && tlsOptions.UseTLS {
 		tlsConfig, err := tlsOptions.TLSConfig()
 		if err != nil {
-			_ = lis.Close()
+			if closeErr := lis.Close(); closeErr != nil {
+				return nil, fmt.Errorf("close gRPC listener after TLS failure: %w", errors.Join(err, closeErr))
+			}
 			return nil, fmt.Errorf("create gRPC TLS config: %w", err)
 		}
 		serverOptions = append(serverOptions, grpc.Creds(credentials.NewTLS(tlsConfig)))
