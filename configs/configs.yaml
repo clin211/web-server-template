@@ -19,7 +19,7 @@ http:
 jwt:
   # 启动必填，且至少 32 个字符。推荐通过 APP_JWT_SECRET 或 secret manager 注入，
   # 可使用 `openssl rand -hex 32` 生成；不要把真实密钥提交到仓库。
-  secret: ""
+  secret: "12CPdLM0nRRpaC06Su2hoPBbD3DW0kX5m7"
   # Access Token 有效期，必须大于 0。
   access-expiration: 2h
   # Refresh Token 有效期，必须大于等于 access-expiration。
