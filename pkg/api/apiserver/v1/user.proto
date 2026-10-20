@@ -66,6 +66,8 @@ message InfoRequest {}
 message InfoResponse {
   // user 表示当前登录用户信息，不包含密码等敏感字段
   User user = 1;
+  // permissions 表示当前账号的有效权限集合。
+  repeated string permissions = 2;
 }
 
 // RefreshTokenResponse 表示刷新令牌的响应

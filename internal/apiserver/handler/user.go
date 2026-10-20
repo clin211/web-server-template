@@ -9,13 +9,9 @@ import (
 )
 
 func installUserRoutes(v1 *gin.RouterGroup, handler *Handler) {
-	// POST /users 是公开注册入口。它与受保护的用户资源路由显式分组，避免后续
-	// 调整中间件顺序时意外改变注册接口的认证策略。
-	v1.POST("/users", handler.CreateUser)
-
-	// 当前没有角色/权限模型，受保护的用户资源只能由登录用户操作自己的数据；
-	// 具体的对象级授权由 validation 层在绑定 URI 后执行。
+	// 用户管理按数据库中的实时授权校验；个人资料允许本人访问。
 	rg := v1.Group("/users", handler.mws...)
+	rg.POST("", handler.CreateUser)
 	rg.PUT(":userID/change-password", handler.ChangePassword) // 修改用户密码
 	rg.PUT(":userID", handler.UpdateUser)                     // 更新用户信息
 	rg.DELETE(":userID", handler.DeleteUser)                  // 删除用户

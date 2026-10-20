@@ -3,6 +3,7 @@ package validation
 import (
 	"context"
 	"errors"
+	genericvalidation "github.com/clin211/gin-enterprise-template/pkg/validation"
 	"strings"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestCreateUserValidationTranslations(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			request := &v1.CreateUserRequest{Username: "user1", Password: "pass123", Email: "test@example.com", Phone: "13800138000"}
 			tt.change(request)
-			err := validator.ValidateCreateUserRequest(context.Background(), request)
+			err := genericvalidation.ValidateAllFields(request, validator.ValidateUserRules())
 			var bizErr *errorsx.BizError
 			if !errors.As(err, &bizErr) {
 				t.Fatalf("error = %v", err)
@@ -84,7 +85,7 @@ func TestUserValidationBoundaryMessages(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			request := &v1.CreateUserRequest{Username: "user1", Password: "pass123", Email: "test@example.com", Phone: "13800138000"}
 			tt.change(request)
-			err := validator.ValidateCreateUserRequest(ctx, request)
+			err := genericvalidation.ValidateAllFields(request, validator.ValidateUserRules())
 			if tt.want == "" {
 				if err != nil {
 					t.Fatalf("valid boundary rejected: %v", err)

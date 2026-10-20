@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"errors"
+	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -22,6 +25,7 @@ func TestInfoReturnsCurrentUserWithoutPassword(t *testing.T) {
 		return &model.UserM{UserID: "user-1", Username: "alice", Password: password, Nickname: "Alice"}, nil
 	}}
 	biz := New(&fakeStore{user: userStore, outbox: &fakeOutboxStore{}}, newTestTokenManager())
+	biz.authorization = fakePermissions{values: []string{"user.manage"}}
 	ctx := contextx.WithUserID(context.Background(), "user-1")
 
 	response, err := biz.Info(ctx, &v1.InfoRequest{})
@@ -33,6 +37,9 @@ func TestInfoReturnsCurrentUserWithoutPassword(t *testing.T) {
 	}
 	if response.GetUser().GetUsername() != "alice" {
 		t.Fatalf("Info() user.username = %q, want alice", response.GetUser().GetUsername())
+	}
+	if !reflect.DeepEqual(response.GetPermissions(), []string{"user.manage"}) {
+		t.Fatalf("permissions = %v", response.GetPermissions())
 	}
 	payload, err := protojson.Marshal(response.GetUser())
 	if err != nil {
@@ -60,5 +67,32 @@ func TestLogoutRevokesCurrentTokenVersion(t *testing.T) {
 	}
 	if _, ok := userStore.updates["token_version"]; !ok {
 		t.Fatal("Logout() did not increment token_version")
+	}
+}
+
+type fakePermissions struct {
+	values []string
+	err    error
+}
+
+func (s fakePermissions) Permissions(context.Context, string) ([]string, error) {
+	return s.values, s.err
+}
+
+func TestInfoFailsWhenPermissionLookupFails(t *testing.T) {
+	biz := New(&fakeStore{user: &fakeUserStore{get: func(context.Context, *where.Options) (*model.UserM, error) {
+		return &model.UserM{UserID: "user-1"}, nil
+	}}}, newTestTokenManager())
+	biz.authorization = fakePermissions{err: errors.New("database unavailable")}
+	if _, err := biz.Info(contextx.WithUserID(context.Background(), "user-1"), &v1.InfoRequest{}); !errors.Is(err, errno.ErrServiceUnavailable) {
+		t.Fatalf("Info error = %v, want unavailable", err)
+	}
+}
+
+func TestChangePasswordRejectsDifferentTargetBeforeLoadingUser(t *testing.T) {
+	biz := New(&fakeStore{user: &fakeUserStore{}}, newTestTokenManager())
+	_, err := biz.ChangePassword(contextx.WithUserID(context.Background(), "admin"), &v1.ChangePasswordRequest{UserID: "other", OldPassword: "abc123", NewPassword: "def123"})
+	if !errors.Is(err, errno.ErrPermissionDenied) {
+		t.Fatalf("ChangePassword error = %v, want permission denied", err)
 	}
 }

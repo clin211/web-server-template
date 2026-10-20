@@ -7,6 +7,9 @@ COMMON_SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 PROJ_ROOT_DIR := $(strip $(abspath $(shell cd $(COMMON_SELF_DIR)/ && pwd -P)))
 # Directory for build artifacts and temporary files
 OUTPUT_DIR := $(PROJ_ROOT_DIR)/_output
+CONFIG ?= configs/configs.yaml
+RUN_SERVICES := apiserver worker scheduler
+RUN_BIN_DIR = $(OUTPUT_DIR)/platforms/$(GOOS)/$(GOARCH)
 INTEGRATION_PROJECT ?= gin-enterprise-template-integration
 INTEGRATION_POSTGRES_PORT ?= 55432
 INTEGRATION_KAFKA_PORT ?= 29092
@@ -118,6 +121,8 @@ Options:
                    This option is available when using command: make image
                    Example: make image IMAGES=<BinaryName>
   VERSION          Version information to embed into the binary.
+  CONFIG           Config file for make run or make run.<service>. Defaults to configs/configs.yaml.
+  GOOSE_DBSTRING   Target PostgreSQL connection string for make migrate or make migrate.status.
   V                Set to 1 to enable verbose build output. Default is 0.
 endef
 export USAGE_OPTIONS
@@ -142,6 +147,32 @@ build.%: ## 编译 Go 源码.
 	@CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build $(GO_BUILD_FLAGS) \
 		-o $(OUTPUT_DIR)/platforms/$(OS)/$(ARCH)/$(COMMAND)$(GO_OUT_EXT) \
 		$(ROOT_PACKAGE)/cmd/$(COMMAND)
+.PHONY: run run.apiserver run.worker run.scheduler
+run: $(foreach service,$(RUN_SERVICES),build.$(PLATFORM).gin-enterprise-template-$(service)) ## Build and run all three services; Ctrl+C stops them together.
+	@set -e; cd "$(PROJ_ROOT_DIR)"; \
+	for service in $(RUN_SERVICES); do \
+		binary="$(RUN_BIN_DIR)/gin-enterprise-template-$$service$(GO_OUT_EXT)"; \
+		if [ ! -x "$$binary" ]; then \
+			echo "Binary missing or not executable: $$binary. Run make build first." >&2; \
+			exit 1; \
+		fi; \
+	done; \
+	pids=""; \
+	trap 'for pid in $$pids; do kill "$$pid" 2>/dev/null || :; done; wait' 0; \
+	trap 'exit 130' INT; \
+	trap 'exit 143' TERM; \
+	for service in $(RUN_SERVICES); do \
+		"$(RUN_BIN_DIR)/gin-enterprise-template-$$service$(GO_OUT_EXT)" --config "$(CONFIG)" & \
+		pids="$$pids $$!"; \
+	done; \
+	for pid in $$pids; do wait "$$pid"; done
+
+run.apiserver: ## Build and run the current API server.
+run.worker: ## Build and run the current Worker.
+run.scheduler: ## Build and run the current Scheduler.
+run.apiserver run.worker run.scheduler: run.%: build.$(PLATFORM).gin-enterprise-template-%
+	@cd "$(PROJ_ROOT_DIR)" && exec "$(RUN_BIN_DIR)/gin-enterprise-template-$*$(GO_OUT_EXT)" --config "$(CONFIG)"
+
 .PHONY: image
 image: $(addprefix image., $(addprefix $(PLATFORM)., $(IMAGES))) ## Build all docker images for the selected platform.
 
@@ -347,6 +378,13 @@ generate: ## Generate code for all packages using go:generate directives (recurs
 help: Makefile  ## Show available targets and usage.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<TARGETS> <OPTIONS>\033[0m\n\n\033[35mTargets:\033[0m\n"} /^[0-9A-Za-z._-]+:.*?##/ { printf "  \033[36m%-45s\033[0m %s\n", $$1, $$2 } /^\$$\([0-9A-Za-z_-]+\):.*?##/ { gsub("_","-", $$1); printf "  \033[36m%-45s\033[0m %s\n", tolower(substr($$1, 3, length($$1)-7)), $$2 } /^##@/{ printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' Makefile #$(MAKEFILE_LIST)
 	@echo "$$USAGE_OPTIONS"
+
+.PHONY: migrate migrate.status
+migrate: ## Apply pending migrations to GOOSE_DBSTRING before starting services.
+migrate.status: ## Show migration status for GOOSE_DBSTRING.
+migrate migrate.status: tools.goose
+	@test -n "$$GOOSE_DBSTRING" || { echo 'Export GOOSE_DBSTRING for the same database used by the services.' >&2; exit 1; }
+	@GOOSE_DRIVER=postgres "$(GOOSE)" -env=none -dir "$(PROJ_ROOT_DIR)/migrations" $(if $(filter migrate.status,$@),status,up)
 
 .PHONY: integration.migrate
 integration.migrate: tools.goose ## Apply Goose SQL to the isolated integration database.

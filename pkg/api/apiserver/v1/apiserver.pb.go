@@ -27,7 +27,7 @@ var File_apiserver_v1_apiserver_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\n" +
-	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xca\x1c\n" +
+	"\x1capiserver/v1/apiserver.proto\x12\fapiserver.v1\x1a\x1aapiserver/v1/healthz.proto\x1a\x17apiserver/v1/user.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xf8\x1c\n" +
 	"\tAPIServer\x12\x98\x02\n" +
 	"\aHealthz\x12\x16.google.protobuf.Empty\x1a\x1d.apiserver.v1.HealthzResponse\"\xd5\x01\x92A\xc1\x01\n" +
 	"\f服务治理\x12\f健康检查\x1a\x1e检查服务是否健康运行JF\n" +
@@ -78,16 +78,19 @@ const file_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x11\"\x0f/v1/auth/logout\x12\xb7\x02\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x11\"\x0f/v1/auth/logout\x12\xe5\x02\n" +
 	"\n" +
-	"CreateUser\x12\x1f.apiserver.v1.CreateUserRequest\x1a .apiserver.v1.CreateUserResponse\"\xe5\x01\x92A\xcd\x01\n" +
-	"\f用户管理\x12\f创建用户\x1a\x18创建一个新的用户JX\n" +
+	"CreateUser\x12\x1f.apiserver.v1.CreateUserRequest\x1a .apiserver.v1.CreateUserResponse\"\x93\x02\x92A\xfb\x01\n" +
+	"\f用户管理\x12\f创建用户\x1a4创建一个新的用户，需要 user.manage 权限JX\n" +
 	"\x03200\x12Q\n" +
 	"!创建成功，返回新用户 ID\x12,\n" +
 	"*\x1a(.apiserver.v1.CreateUserResponseEnvelopeJ;\n" +
 	"\adefault\x120\n" +
 	"\x12统一错误响应\x12\x1a\n" +
-	"\x18\x1a\x16.apiserver.v1.APIError\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/users\x12\xb8\x02\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/v1/users\x12\xb8\x02\n" +
 	"\aGetUser\x12\x1c.apiserver.v1.GetUserRequest\x1a\x1d.apiserver.v1.GetUserResponse\"\xef\x01\x92A\xd1\x01\n" +
 	"\f用户管理\x12\f获取用户\x1a\"根据用户 ID 获取用户信息J@\n" +
 	"\x03200\x129\n" +

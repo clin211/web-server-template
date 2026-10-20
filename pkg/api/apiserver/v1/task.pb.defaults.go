@@ -74,6 +74,18 @@ func (x *NotificationList) Default() {
 func (x *Role) Default() {
 }
 
+func (x *RoleDetail) Default() {
+}
+
+func (x *RoleIDRequest) Default() {
+}
+
+func (x *UserRolesRequest) Default() {
+}
+
+func (x *UserRoles) Default() {
+}
+
 func (x *RoleInput) Default() {
 }
 
@@ -147,6 +159,12 @@ func (x *NotificationListEnvelope) Default() {
 }
 
 func (x *RoleListEnvelope) Default() {
+}
+
+func (x *RoleDetailEnvelope) Default() {
+}
+
+func (x *UserRolesEnvelope) Default() {
 }
 
 func (x *PermissionListEnvelope) Default() {

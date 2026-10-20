@@ -201,7 +201,13 @@ service APIServer {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "创建用户"
-      description: "创建一个新的用户"
+      description: "创建一个新的用户，需要 user.manage 权限"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
       tags: "用户管理"
       responses: {
         key: "200"

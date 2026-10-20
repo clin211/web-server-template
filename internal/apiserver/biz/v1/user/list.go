@@ -19,7 +19,7 @@ func (b *userBiz) List(ctx context.Context, rq *v1.ListUserRequest) (*v1.ListUse
 	// 构建 where.Options，使用游标分页
 	pageSize := pagination.NormalizePageSize(rq.GetPageSize())
 
-	whr := where.NewWhere(where.WithLimit(int64(pageSize)))
+	whr := where.NewWhere(where.WithLimit(int64(pageSize + 1)))
 	if cursor != nil {
 		whr.Cursor = cursor
 	}
@@ -29,11 +29,16 @@ func (b *userBiz) List(ctx context.Context, rq *v1.ListUserRequest) (*v1.ListUse
 		return nil, err
 	}
 
+	hasMore := len(userList) > pageSize
+	if hasMore {
+		userList = userList[:pageSize]
+	}
 	users := conversion.UserModelListToUserV1List(userList)
 
-	nextPageToken := pagination.NextPageToken(len(userList), pageSize, func() int64 {
-		return userList[len(userList)-1].ID
-	})
+	nextPageToken := ""
+	if hasMore {
+		nextPageToken = pagination.NextPageToken(len(userList), pageSize, func() int64 { return userList[len(userList)-1].ID })
+	}
 
 	slog.InfoContext(ctx, "Get users from backend storage", "count", len(users))
 

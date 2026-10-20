@@ -373,7 +373,9 @@ func (*InfoRequest) Descriptor() ([]byte, []int) {
 type InfoResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// user 表示当前登录用户信息，不包含密码等敏感字段
-	User          *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	User *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	// permissions 表示当前账号的有效权限集合。
+	Permissions   []string `protobuf:"bytes,2,rep,name=permissions,proto3" json:"permissions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -411,6 +413,13 @@ func (*InfoResponse) Descriptor() ([]byte, []int) {
 func (x *InfoResponse) GetUser() *User {
 	if x != nil {
 		return x.User
+	}
+	return nil
+}
+
+func (x *InfoResponse) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
 	}
 	return nil
 }
@@ -1239,9 +1248,10 @@ const file_apiserver_v1_user_proto_rawDesc = "" +
 	"\frefreshToken\x18\x03 \x01(\tR\frefreshToken\x12\x1a\n" +
 	"\bexpireAt\x18\x02 \x01(\tR\bexpireAt\"\x15\n" +
 	"\x13RefreshTokenRequest\"\r\n" +
-	"\vInfoRequest\"6\n" +
+	"\vInfoRequest\"X\n" +
 	"\fInfoResponse\x12&\n" +
-	"\x04user\x18\x01 \x01(\v2\x12.apiserver.v1.UserR\x04user\"\x96\x01\n" +
+	"\x04user\x18\x01 \x01(\v2\x12.apiserver.v1.UserR\x04user\x12 \n" +
+	"\vpermissions\x18\x02 \x03(\tR\vpermissions\"\x96\x01\n" +
 	"\x14RefreshTokenResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1a\n" +
 	"\bexpireAt\x18\x02 \x01(\x03R\bexpireAt\x12\"\n" +

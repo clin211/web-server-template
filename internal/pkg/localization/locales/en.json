@@ -47,5 +47,9 @@
   "jwt.token.parse.failed": "Fail to parse token",
   "jwt.wrong.signing.method": "Wrong signing method",
   "jwt.token.sign.failed": "Failed to sign token",
-  "Validation.UsernameInvalid": "Invalid username: use {{.MinLength}} to {{.MaxLength}} letters, numbers or underscores."
+  "Validation.UsernameInvalid": "Invalid username: use {{.MinLength}} to {{.MaxLength}} letters, numbers or underscores.",
+  "RBAC.BuiltinRoleReadOnly": "Built-in role permissions cannot be changed.",
+  "RBAC.LastAdministrator": "At least one active administrator must remain.",
+  "RBAC.InvalidPermission": "Unknown permission. Refresh the permission catalog and try again.",
+  "RBAC.RoleExists": "The role identifier or name already exists."
 }

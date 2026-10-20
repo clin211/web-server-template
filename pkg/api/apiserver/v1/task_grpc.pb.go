@@ -34,6 +34,8 @@ const (
 	TaskService_UpdateSchedule_FullMethodName      = "/apiserver.v1.TaskService/UpdateSchedule"
 	TaskService_GetScheduleHistory_FullMethodName  = "/apiserver.v1.TaskService/GetScheduleHistory"
 	TaskService_ListRoles_FullMethodName           = "/apiserver.v1.TaskService/ListRoles"
+	TaskService_GetRole_FullMethodName             = "/apiserver.v1.TaskService/GetRole"
+	TaskService_GetUserRoles_FullMethodName        = "/apiserver.v1.TaskService/GetUserRoles"
 	TaskService_ListPermissions_FullMethodName     = "/apiserver.v1.TaskService/ListPermissions"
 	TaskService_CreateRole_FullMethodName          = "/apiserver.v1.TaskService/CreateRole"
 	TaskService_SetRolePermissions_FullMethodName  = "/apiserver.v1.TaskService/SetRolePermissions"
@@ -69,6 +71,8 @@ type TaskServiceClient interface {
 	UpdateSchedule(ctx context.Context, in *ScheduleUpdateRequest, opts ...grpc.CallOption) (*Schedule, error)
 	GetScheduleHistory(ctx context.Context, in *ScheduleIDRequest, opts ...grpc.CallOption) (*ScheduleHistory, error)
 	ListRoles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RoleList, error)
+	GetRole(ctx context.Context, in *RoleIDRequest, opts ...grpc.CallOption) (*RoleDetail, error)
+	GetUserRoles(ctx context.Context, in *UserRolesRequest, opts ...grpc.CallOption) (*UserRoles, error)
 	ListPermissions(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PermissionList, error)
 	CreateRole(ctx context.Context, in *RoleInput, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetRolePermissions(ctx context.Context, in *RolePermissionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -232,6 +236,26 @@ func (c *taskServiceClient) ListRoles(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
+func (c *taskServiceClient) GetRole(ctx context.Context, in *RoleIDRequest, opts ...grpc.CallOption) (*RoleDetail, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleDetail)
+	err := c.cc.Invoke(ctx, TaskService_GetRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *taskServiceClient) GetUserRoles(ctx context.Context, in *UserRolesRequest, opts ...grpc.CallOption) (*UserRoles, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserRoles)
+	err := c.cc.Invoke(ctx, TaskService_GetUserRoles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *taskServiceClient) ListPermissions(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PermissionList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PermissionList)
@@ -382,6 +406,8 @@ type TaskServiceServer interface {
 	UpdateSchedule(context.Context, *ScheduleUpdateRequest) (*Schedule, error)
 	GetScheduleHistory(context.Context, *ScheduleIDRequest) (*ScheduleHistory, error)
 	ListRoles(context.Context, *emptypb.Empty) (*RoleList, error)
+	GetRole(context.Context, *RoleIDRequest) (*RoleDetail, error)
+	GetUserRoles(context.Context, *UserRolesRequest) (*UserRoles, error)
 	ListPermissions(context.Context, *emptypb.Empty) (*PermissionList, error)
 	CreateRole(context.Context, *RoleInput) (*emptypb.Empty, error)
 	SetRolePermissions(context.Context, *RolePermissionRequest) (*emptypb.Empty, error)
@@ -446,6 +472,12 @@ func (UnimplementedTaskServiceServer) GetScheduleHistory(context.Context, *Sched
 }
 func (UnimplementedTaskServiceServer) ListRoles(context.Context, *emptypb.Empty) (*RoleList, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRoles not implemented")
+}
+func (UnimplementedTaskServiceServer) GetRole(context.Context, *RoleIDRequest) (*RoleDetail, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRole not implemented")
+}
+func (UnimplementedTaskServiceServer) GetUserRoles(context.Context, *UserRolesRequest) (*UserRoles, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserRoles not implemented")
 }
 func (UnimplementedTaskServiceServer) ListPermissions(context.Context, *emptypb.Empty) (*PermissionList, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListPermissions not implemented")
@@ -759,6 +791,42 @@ func _TaskService_ListRoles_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TaskService_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).GetRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_GetRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).GetRole(ctx, req.(*RoleIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TaskService_GetUserRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserRolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TaskServiceServer).GetUserRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TaskService_GetUserRoles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TaskServiceServer).GetUserRoles(ctx, req.(*UserRolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TaskService_ListPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -1055,6 +1123,14 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRoles",
 			Handler:    _TaskService_ListRoles_Handler,
+		},
+		{
+			MethodName: "GetRole",
+			Handler:    _TaskService_GetRole_Handler,
+		},
+		{
+			MethodName: "GetUserRoles",
+			Handler:    _TaskService_GetUserRoles_Handler,
 		},
 		{
 			MethodName: "ListPermissions",

@@ -536,6 +536,43 @@
         ]
       }
     },
+    "/v1/roles/{role_id}": {
+      "get": {
+        "summary": "GetRole",
+        "description": "Requires rbac.manage; independent of user.manage.",
+        "operationId": "TaskService_GetRole",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1RoleDetailEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RBAC"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/v1/roles/{role_id}/assign": {
       "post": {
         "summary": "AssignRole",
@@ -1289,7 +1326,7 @@
       },
       "post": {
         "summary": "创建用户",
-        "description": "创建一个新的用户",
+        "description": "创建一个新的用户，需要 user.manage 权限",
         "operationId": "APIServer_CreateUser",
         "responses": {
           "200": {
@@ -1317,6 +1354,11 @@
         ],
         "tags": [
           "用户管理"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ]
       }
     },
@@ -1476,6 +1518,43 @@
         ],
         "tags": [
           "用户管理"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/users/{userID}/roles": {
+      "get": {
+        "summary": "GetUserRoles",
+        "description": "Requires rbac.manage; independent of user.manage.",
+        "operationId": "TaskService_GetUserRoles",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/v1UserRolesEnvelope"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/v1APIError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RBAC"
         ],
         "security": [
           {
@@ -1911,6 +1990,13 @@
         "user": {
           "$ref": "#/definitions/v1User",
           "title": "user 表示当前登录用户信息，不包含密码等敏感字段"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "permissions 表示当前账号的有效权限集合。"
         }
       },
       "title": "InfoResponse 表示当前用户信息响应。"
@@ -2255,6 +2341,43 @@
         }
       },
       "description": "Role defines the persistent task REST contract."
+    },
+    "v1RoleDetail": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "builtin": {
+          "type": "boolean"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "RoleDetail returns a role and its currently bound permissions."
+    },
+    "v1RoleDetailEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1RoleDetail"
+        }
+      },
+      "description": "RoleDetailEnvelope is the uniform REST response."
     },
     "v1RoleInput": {
       "type": "object",
@@ -2770,6 +2893,44 @@
         }
       },
       "description": "UserRoleInput defines the persistent task REST contract."
+    },
+    "v1UserRoles": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Role"
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "UserRoles contains assigned roles and live effective permissions."
+    },
+    "v1UserRolesEnvelope": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1UserRoles"
+        }
+      },
+      "description": "UserRolesEnvelope is the uniform REST response."
     },
     "v1VersionRequest": {
       "type": "object",

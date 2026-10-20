@@ -47,5 +47,9 @@
   "jwt.token.parse.failed": "解析令牌失败。",
   "jwt.wrong.signing.method": "令牌签名算法无效。",
   "jwt.token.sign.failed": "令牌签名失败。",
-  "Validation.UsernameInvalid": "用户名无效：用户名只能包含字母、数字和下划线，长度必须在 {{.MinLength}} 到 {{.MaxLength}} 个字符之间。"
+  "Validation.UsernameInvalid": "用户名无效：用户名只能包含字母、数字和下划线，长度必须在 {{.MinLength}} 到 {{.MaxLength}} 个字符之间。",
+  "RBAC.BuiltinRoleReadOnly": "内置角色的权限不可修改。",
+  "RBAC.LastAdministrator": "至少需要保留一名活跃管理员。",
+  "RBAC.InvalidPermission": "包含不存在的权限，请刷新后重试。",
+  "RBAC.RoleExists": "角色标识或名称已存在。"
 }

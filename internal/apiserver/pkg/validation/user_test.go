@@ -169,3 +169,17 @@ func TestPasswordValidationPreservesExistingCredentials(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateUserRequiresManagementPermission(t *testing.T) {
+	for _, identity := range []string{"", "user-1"} {
+		t.Run(identity, func(t *testing.T) {
+			ctx := contextx.WithUserID(context.Background(), identity)
+			err := (&Validator{}).ValidateCreateUserRequest(ctx, &v1.CreateUserRequest{
+				Username: "alice", Password: "abc123", Email: "alice@example.com", Phone: "13800138000",
+			})
+			if !errors.Is(err, errno.ErrPermissionDenied) {
+				t.Fatalf("create without grants = %v, want permission denied", err)
+			}
+		})
+	}
+}

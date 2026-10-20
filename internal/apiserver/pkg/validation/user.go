@@ -78,12 +78,15 @@ func (v *Validator) ValidateChangePasswordRequest(ctx context.Context, rq *v1.Ch
 	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
 		return err
 	}
-	return v.validateUserAccess(ctx, rq.GetUserID())
+	return validateCurrentUser(ctx, rq.GetUserID())
 }
 
 // ValidateCreateUserRequest 校验 CreateUserRequest 结构体的有效性.
 func (v *Validator) ValidateCreateUserRequest(ctx context.Context, rq *v1.CreateUserRequest) error {
-	return genericvalidation.ValidateAllFields(rq, v.ValidateUserRules())
+	if err := genericvalidation.ValidateAllFields(rq, v.ValidateUserRules()); err != nil {
+		return err
+	}
+	return v.validateUserManagement(ctx)
 }
 
 // ValidateUpdateUserRequest 校验更新用户请求.
@@ -116,7 +119,11 @@ func (v *Validator) ValidateListUserRequest(ctx context.Context, rq *v1.ListUser
 		return err
 	}
 
-	// 用户列表需要实时校验 user.manage，避免已签发 JWT 缓存过期的管理员授权。
+	return v.validateUserManagement(ctx)
+}
+
+func (v *Validator) validateUserManagement(ctx context.Context) error {
+	// 用户管理需要实时校验 user.manage，避免已签发 JWT 缓存过期的管理员授权。
 	if v.store != nil {
 		allowed, err := store.NewAuthorizationStore(v.store).Allowed(ctx, contextx.UserID(ctx), "user.manage")
 		if err != nil {

@@ -236,7 +236,7 @@ _output/platforms/$(go env GOOS)/$(go env GOARCH)/gin-enterprise-template-apiser
 执行前完成以下准备：
 
 1. 已对目标数据库执行 `goose -dir migrations up`。
-2. 已启动 API，通过 `POST /v1/users` 注册正常账号，并取得返回的 `userID`；该账号必须处于活跃状态。
+2. 已有受控预置或升级保留的活跃账号，并取得其 `userID`。创建接口现已要求 `user.manage`；空库需先由受控离线流程预置账号（密码存储必须使用 bcrypt 哈希），再执行首次管理员授权，不能通过匿名注册引导。
 3. 执行机器已安装 Bash 和 `psql`，且 `psql` 在 `PATH` 中。使用包含 `scripts/` 和 `migrations/` 的仓库副本，在仓库根目录执行以下命令。
 
 ```bash
@@ -288,7 +288,10 @@ export PGPASSWORD=dev-only-postgres
 | `DELETE` | `/v1/users/{userID}`                 | 删除用户 |
 | `PUT`    | `/v1/users/{userID}/change-password` | 修改密码 |
 
-除公开注册外，普通用户资源只允许访问当前账号；用户列表及跨用户管理要求显式 `user.manage`。所有响应均使用 `{code,message,data,reason}` 包络；当前用户资料通过受保护的 `/v1/auth/info` 获取。
+创建用户要求登录及 `user.manage`，不再开放匿名注册。普通用户资源允许本人访问；用户列表及跨用户管理要求显式 `user.manage`，修改密码仅允许本人。所有响应均使用 `{code,message,data,reason}` 包络；当前用户资料及实时有效权限通过受保护的 `/v1/auth/info` 获取，响应 `data` 包含 `user` 和去重后的 `permissions`。用户列表总数不随分页游标变化，只有确实存在后续记录时才返回下一页游标。
+
+角色管理沿用 `rbac.manage`，与 `user.manage` 独立：`GET /v1/roles/{role_id}` 返回角色及已绑定权限；`GET /v1/users/{userID}/roles` 返回角色列表和去重的有效权限。角色与权限目录完整、稳定排序返回。内置角色权限不可修改，撤销角色时保留最后一名活跃管理员；授权写入经过事务、实时鉴权与审计。无需新增迁移。开发启动使用 `make run.apiserver`（或 `make run`），会先构建当前源码再运行；更新代码后需结束旧进程并重新启动，避免新读取接口在旧实例上返回路由 404。前端接入和验证边界见 [角色权限模块](../lin-console/docs/09-rbac-module.md)。
+
 
 ## 验证服务
 

@@ -210,6 +210,31 @@ message Role {
   bool builtin = 3 [json_name = "builtin"];
 }
 
+// RoleDetail returns a role and its currently bound permissions.
+message RoleDetail {
+  string role_id = 1 [json_name = "role_id"];
+  string name = 2 [json_name = "name"];
+  bool builtin = 3 [json_name = "builtin"];
+  repeated string permissions = 4 [json_name = "permissions"];
+}
+
+// RoleIDRequest identifies a role.
+message RoleIDRequest {
+  string role_id = 1 [json_name = "role_id"];
+}
+
+// UserRolesRequest identifies the user whose grants are being managed.
+message UserRolesRequest {
+  string userID = 1;
+}
+
+// UserRoles contains assigned roles and live effective permissions.
+message UserRoles {
+  string user_id = 1 [json_name = "user_id"];
+  repeated Role roles = 2 [json_name = "roles"];
+  repeated string permissions = 3 [json_name = "permissions"];
+}
+
 // RoleInput defines the persistent task REST contract.
 message RoleInput {
   string role_id = 1 [json_name = "role_id"];
@@ -378,6 +403,20 @@ message RoleListEnvelope {
   int32 code = 1;
   string message = 2;
   RoleList data = 3;
+}
+
+// RoleDetailEnvelope is the uniform REST response.
+message RoleDetailEnvelope {
+  int32 code = 1;
+  string message = 2;
+  RoleDetail data = 3;
+}
+
+// UserRolesEnvelope is the uniform REST response.
+message UserRolesEnvelope {
+  int32 code = 1;
+  string message = 2;
+  UserRoles data = 3;
 }
 
 // PermissionListEnvelope is the uniform REST response.
@@ -875,6 +914,70 @@ service TaskService {
           description: "Success"
           schema: {
             json_schema: {ref: ".apiserver.v1.RoleListEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc GetRole(RoleIDRequest) returns (RoleDetail) {
+    option (google.api.http) = {get: "/v1/roles/{role_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "GetRole"
+      description: "Requires rbac.manage; independent of user.manage."
+      tags: "RBAC"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.RoleDetailEnvelope"}
+          }
+        }
+      }
+      responses: {
+        key: "default"
+        value: {
+          description: "Error"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.APIError"}
+          }
+        }
+      }
+    };
+  }
+  rpc GetUserRoles(UserRolesRequest) returns (UserRoles) {
+    option (google.api.http) = {get: "/v1/users/{userID}/roles"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "GetUserRoles"
+      description: "Requires rbac.manage; independent of user.manage."
+      tags: "RBAC"
+      security: {
+        security_requirement: {
+          key: "BearerAuth"
+          value: {}
+        }
+      }
+      responses: {
+        key: "200"
+        value: {
+          description: "Success"
+          schema: {
+            json_schema: {ref: ".apiserver.v1.UserRolesEnvelope"}
           }
         }
       }

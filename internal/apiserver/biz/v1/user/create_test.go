@@ -25,6 +25,7 @@ func newTestTokenManager() *token.Manager {
 
 type fakeUserStore struct {
 	created   *model.UserM
+	list      func(context.Context, *where.Options) (int64, []*model.UserM, error)
 	get       func(context.Context, *where.Options) (*model.UserM, error)
 	updatedID string
 	updates   map[string]any
@@ -51,7 +52,10 @@ func (s *fakeUserStore) Get(ctx context.Context, opts *where.Options) (*model.Us
 	}
 	return nil, gorm.ErrRecordNotFound
 }
-func (*fakeUserStore) List(context.Context, *where.Options) (int64, []*model.UserM, error) {
+func (s *fakeUserStore) List(ctx context.Context, opts *where.Options) (int64, []*model.UserM, error) {
+	if s.list != nil {
+		return s.list(ctx, opts)
+	}
 	return 0, nil, nil
 }
 func (*fakeUserStore) UpdateLastLoginAt(context.Context, string, time.Time) error { return nil }

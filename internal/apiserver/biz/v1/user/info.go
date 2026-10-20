@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/pkg/conversion"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
@@ -21,5 +22,10 @@ func (b *userBiz) Info(ctx context.Context, _ *v1.InfoRequest) (*v1.InfoResponse
 		// 认证后用户被删除等场景：按未认证处理，而非 500 系统错误。
 		return nil, errno.FromStore(err)
 	}
-	return &v1.InfoResponse{User: conversion.UserModelToUserV1(userM)}, nil
+	permissions, err := b.authorization.Permissions(ctx, userID)
+	if err != nil {
+		slog.ErrorContext(ctx, "Failed to load effective user permissions", "userID", userID, "error", err)
+		return nil, errno.ErrServiceUnavailable
+	}
+	return &v1.InfoResponse{User: conversion.UserModelToUserV1(userM), Permissions: permissions}, nil
 }

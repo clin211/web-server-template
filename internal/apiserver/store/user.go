@@ -5,6 +5,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -34,6 +35,26 @@ type UserWriter interface {
 	Create(ctx context.Context, obj *model.UserM) error
 	Update(ctx context.Context, userID string, updates map[string]any) error
 	Delete(ctx context.Context, opts *where.Options) error
+}
+
+// List returns a cursor page and the count before applying pagination.
+func (s *userStore) List(ctx context.Context, opts *where.Options) (int64, []*model.UserM, error) {
+	if opts == nil {
+		opts = where.NewWhere()
+	}
+	var users []*model.UserM
+	if err := s.core.DB(ctx, opts).WithContext(ctx).Order("id desc").Find(&users).Error; err != nil {
+		return 0, nil, fmt.Errorf("list users: %w", err)
+	}
+	countOpts := *opts
+	countOpts.Cursor = nil
+	countOpts.Offset = 0
+	countOpts.Limit = -1
+	var total int64
+	if err := s.core.DB(ctx, &countOpts).WithContext(ctx).Model(&model.UserM{}).Count(&total).Error; err != nil {
+		return 0, nil, fmt.Errorf("count users: %w", err)
+	}
+	return total, users, nil
 }
 
 // Update 只更新调用方明确给出的字段，避免 Save 把读取后已过期的整行快照写回数据库。

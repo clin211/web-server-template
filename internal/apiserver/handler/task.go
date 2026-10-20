@@ -107,6 +107,14 @@ func installScheduleRoutes(g *gin.RouterGroup, s *taskbiz.Service) {
 	}
 }
 func installRBACRoutes(g *gin.RouterGroup, s *taskbiz.Service) {
+	g.GET("/roles/:roleID", func(c *gin.Context) {
+		role, err := s.Role(c.Request.Context(), c.Param("roleID"))
+		reply(c, 200, role, err)
+	})
+	g.GET("/users/:userID/roles", func(c *gin.Context) {
+		roles, err := s.UserRoles(c.Request.Context(), c.Param("userID"))
+		reply(c, 200, roles, err)
+	})
 	for _, kind := range []string{"roles", "permissions", "audits", "dead-letters"} {
 		g.GET("/"+kind, func(c *gin.Context) {
 			items, err := s.AdminList(c.Request.Context(), kind)

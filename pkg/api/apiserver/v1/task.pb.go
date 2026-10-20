@@ -1500,6 +1500,226 @@ func (x *Role) GetBuiltin() bool {
 	return false
 }
 
+// RoleDetail returns a role and its currently bound permissions.
+type RoleDetail struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoleId        string                 `protobuf:"bytes,1,opt,name=role_id,proto3" json:"role_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Builtin       bool                   `protobuf:"varint,3,opt,name=builtin,proto3" json:"builtin,omitempty"`
+	Permissions   []string               `protobuf:"bytes,4,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RoleDetail) Reset() {
+	*x = RoleDetail{}
+	mi := &file_apiserver_v1_task_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RoleDetail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RoleDetail) ProtoMessage() {}
+
+func (x *RoleDetail) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_task_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RoleDetail.ProtoReflect.Descriptor instead.
+func (*RoleDetail) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *RoleDetail) GetRoleId() string {
+	if x != nil {
+		return x.RoleId
+	}
+	return ""
+}
+
+func (x *RoleDetail) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RoleDetail) GetBuiltin() bool {
+	if x != nil {
+		return x.Builtin
+	}
+	return false
+}
+
+func (x *RoleDetail) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+// RoleIDRequest identifies a role.
+type RoleIDRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoleId        string                 `protobuf:"bytes,1,opt,name=role_id,proto3" json:"role_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RoleIDRequest) Reset() {
+	*x = RoleIDRequest{}
+	mi := &file_apiserver_v1_task_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RoleIDRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RoleIDRequest) ProtoMessage() {}
+
+func (x *RoleIDRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_task_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RoleIDRequest.ProtoReflect.Descriptor instead.
+func (*RoleIDRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *RoleIDRequest) GetRoleId() string {
+	if x != nil {
+		return x.RoleId
+	}
+	return ""
+}
+
+// UserRolesRequest identifies the user whose grants are being managed.
+type UserRolesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserID        string                 `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserRolesRequest) Reset() {
+	*x = UserRolesRequest{}
+	mi := &file_apiserver_v1_task_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserRolesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserRolesRequest) ProtoMessage() {}
+
+func (x *UserRolesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_task_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserRolesRequest.ProtoReflect.Descriptor instead.
+func (*UserRolesRequest) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *UserRolesRequest) GetUserID() string {
+	if x != nil {
+		return x.UserID
+	}
+	return ""
+}
+
+// UserRoles contains assigned roles and live effective permissions.
+type UserRoles struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,proto3" json:"user_id,omitempty"`
+	Roles         []*Role                `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
+	Permissions   []string               `protobuf:"bytes,3,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserRoles) Reset() {
+	*x = UserRoles{}
+	mi := &file_apiserver_v1_task_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserRoles) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserRoles) ProtoMessage() {}
+
+func (x *UserRoles) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_task_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserRoles.ProtoReflect.Descriptor instead.
+func (*UserRoles) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *UserRoles) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UserRoles) GetRoles() []*Role {
+	if x != nil {
+		return x.Roles
+	}
+	return nil
+}
+
+func (x *UserRoles) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
 // RoleInput defines the persistent task REST contract.
 type RoleInput struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1511,7 +1731,7 @@ type RoleInput struct {
 
 func (x *RoleInput) Reset() {
 	*x = RoleInput{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[20]
+	mi := &file_apiserver_v1_task_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1523,7 +1743,7 @@ func (x *RoleInput) String() string {
 func (*RoleInput) ProtoMessage() {}
 
 func (x *RoleInput) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[20]
+	mi := &file_apiserver_v1_task_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1536,7 +1756,7 @@ func (x *RoleInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleInput.ProtoReflect.Descriptor instead.
 func (*RoleInput) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{20}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *RoleInput) GetRoleId() string {
@@ -1563,7 +1783,7 @@ type PermissionInput struct {
 
 func (x *PermissionInput) Reset() {
 	*x = PermissionInput{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[21]
+	mi := &file_apiserver_v1_task_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1575,7 +1795,7 @@ func (x *PermissionInput) String() string {
 func (*PermissionInput) ProtoMessage() {}
 
 func (x *PermissionInput) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[21]
+	mi := &file_apiserver_v1_task_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1588,7 +1808,7 @@ func (x *PermissionInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionInput.ProtoReflect.Descriptor instead.
 func (*PermissionInput) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{21}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *PermissionInput) GetPermissions() []string {
@@ -1609,7 +1829,7 @@ type RolePermissionRequest struct {
 
 func (x *RolePermissionRequest) Reset() {
 	*x = RolePermissionRequest{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[22]
+	mi := &file_apiserver_v1_task_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1621,7 +1841,7 @@ func (x *RolePermissionRequest) String() string {
 func (*RolePermissionRequest) ProtoMessage() {}
 
 func (x *RolePermissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[22]
+	mi := &file_apiserver_v1_task_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1634,7 +1854,7 @@ func (x *RolePermissionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RolePermissionRequest.ProtoReflect.Descriptor instead.
 func (*RolePermissionRequest) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{22}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *RolePermissionRequest) GetRoleId() string {
@@ -1661,7 +1881,7 @@ type UserRoleInput struct {
 
 func (x *UserRoleInput) Reset() {
 	*x = UserRoleInput{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[23]
+	mi := &file_apiserver_v1_task_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1673,7 +1893,7 @@ func (x *UserRoleInput) String() string {
 func (*UserRoleInput) ProtoMessage() {}
 
 func (x *UserRoleInput) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[23]
+	mi := &file_apiserver_v1_task_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1686,7 +1906,7 @@ func (x *UserRoleInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserRoleInput.ProtoReflect.Descriptor instead.
 func (*UserRoleInput) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{23}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *UserRoleInput) GetUserId() string {
@@ -1707,7 +1927,7 @@ type UserRoleRequest struct {
 
 func (x *UserRoleRequest) Reset() {
 	*x = UserRoleRequest{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[24]
+	mi := &file_apiserver_v1_task_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1719,7 +1939,7 @@ func (x *UserRoleRequest) String() string {
 func (*UserRoleRequest) ProtoMessage() {}
 
 func (x *UserRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[24]
+	mi := &file_apiserver_v1_task_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1732,7 +1952,7 @@ func (x *UserRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserRoleRequest.ProtoReflect.Descriptor instead.
 func (*UserRoleRequest) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{24}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *UserRoleRequest) GetRoleId() string {
@@ -1759,7 +1979,7 @@ type RoleList struct {
 
 func (x *RoleList) Reset() {
 	*x = RoleList{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[25]
+	mi := &file_apiserver_v1_task_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1771,7 +1991,7 @@ func (x *RoleList) String() string {
 func (*RoleList) ProtoMessage() {}
 
 func (x *RoleList) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[25]
+	mi := &file_apiserver_v1_task_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1784,7 +2004,7 @@ func (x *RoleList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleList.ProtoReflect.Descriptor instead.
 func (*RoleList) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{25}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *RoleList) GetItems() []*Role {
@@ -1804,7 +2024,7 @@ type Permission struct {
 
 func (x *Permission) Reset() {
 	*x = Permission{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[26]
+	mi := &file_apiserver_v1_task_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1816,7 +2036,7 @@ func (x *Permission) String() string {
 func (*Permission) ProtoMessage() {}
 
 func (x *Permission) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[26]
+	mi := &file_apiserver_v1_task_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1829,7 +2049,7 @@ func (x *Permission) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Permission.ProtoReflect.Descriptor instead.
 func (*Permission) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{26}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *Permission) GetCode() string {
@@ -1849,7 +2069,7 @@ type PermissionList struct {
 
 func (x *PermissionList) Reset() {
 	*x = PermissionList{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[27]
+	mi := &file_apiserver_v1_task_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1861,7 +2081,7 @@ func (x *PermissionList) String() string {
 func (*PermissionList) ProtoMessage() {}
 
 func (x *PermissionList) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[27]
+	mi := &file_apiserver_v1_task_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1874,7 +2094,7 @@ func (x *PermissionList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionList.ProtoReflect.Descriptor instead.
 func (*PermissionList) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{27}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *PermissionList) GetItems() []*Permission {
@@ -1900,7 +2120,7 @@ type Audit struct {
 
 func (x *Audit) Reset() {
 	*x = Audit{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[28]
+	mi := &file_apiserver_v1_task_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1912,7 +2132,7 @@ func (x *Audit) String() string {
 func (*Audit) ProtoMessage() {}
 
 func (x *Audit) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[28]
+	mi := &file_apiserver_v1_task_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1925,7 +2145,7 @@ func (x *Audit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Audit.ProtoReflect.Descriptor instead.
 func (*Audit) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{28}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *Audit) GetUserId() string {
@@ -1987,7 +2207,7 @@ type AuditList struct {
 
 func (x *AuditList) Reset() {
 	*x = AuditList{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[29]
+	mi := &file_apiserver_v1_task_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1999,7 +2219,7 @@ func (x *AuditList) String() string {
 func (*AuditList) ProtoMessage() {}
 
 func (x *AuditList) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[29]
+	mi := &file_apiserver_v1_task_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2012,7 +2232,7 @@ func (x *AuditList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditList.ProtoReflect.Descriptor instead.
 func (*AuditList) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{29}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *AuditList) GetItems() []*Audit {
@@ -2043,7 +2263,7 @@ type DeadLetter struct {
 
 func (x *DeadLetter) Reset() {
 	*x = DeadLetter{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[30]
+	mi := &file_apiserver_v1_task_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2055,7 +2275,7 @@ func (x *DeadLetter) String() string {
 func (*DeadLetter) ProtoMessage() {}
 
 func (x *DeadLetter) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[30]
+	mi := &file_apiserver_v1_task_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2068,7 +2288,7 @@ func (x *DeadLetter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeadLetter.ProtoReflect.Descriptor instead.
 func (*DeadLetter) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{30}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *DeadLetter) GetDeadLetterId() string {
@@ -2165,7 +2385,7 @@ type DeadLetterList struct {
 
 func (x *DeadLetterList) Reset() {
 	*x = DeadLetterList{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[31]
+	mi := &file_apiserver_v1_task_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2177,7 +2397,7 @@ func (x *DeadLetterList) String() string {
 func (*DeadLetterList) ProtoMessage() {}
 
 func (x *DeadLetterList) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[31]
+	mi := &file_apiserver_v1_task_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2190,7 +2410,7 @@ func (x *DeadLetterList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeadLetterList.ProtoReflect.Descriptor instead.
 func (*DeadLetterList) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{31}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *DeadLetterList) GetItems() []*DeadLetter {
@@ -2210,7 +2430,7 @@ type DeadLetterIDRequest struct {
 
 func (x *DeadLetterIDRequest) Reset() {
 	*x = DeadLetterIDRequest{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[32]
+	mi := &file_apiserver_v1_task_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2222,7 +2442,7 @@ func (x *DeadLetterIDRequest) String() string {
 func (*DeadLetterIDRequest) ProtoMessage() {}
 
 func (x *DeadLetterIDRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[32]
+	mi := &file_apiserver_v1_task_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2235,7 +2455,7 @@ func (x *DeadLetterIDRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeadLetterIDRequest.ProtoReflect.Descriptor instead.
 func (*DeadLetterIDRequest) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{32}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *DeadLetterIDRequest) GetDeadLetterId() string {
@@ -2255,7 +2475,7 @@ type ReplayResponse struct {
 
 func (x *ReplayResponse) Reset() {
 	*x = ReplayResponse{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[33]
+	mi := &file_apiserver_v1_task_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2267,7 +2487,7 @@ func (x *ReplayResponse) String() string {
 func (*ReplayResponse) ProtoMessage() {}
 
 func (x *ReplayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[33]
+	mi := &file_apiserver_v1_task_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2280,7 +2500,7 @@ func (x *ReplayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplayResponse.ProtoReflect.Descriptor instead.
 func (*ReplayResponse) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{33}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ReplayResponse) GetEventId() string {
@@ -2300,7 +2520,7 @@ type ReplayBatchRequest struct {
 
 func (x *ReplayBatchRequest) Reset() {
 	*x = ReplayBatchRequest{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[34]
+	mi := &file_apiserver_v1_task_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2312,7 +2532,7 @@ func (x *ReplayBatchRequest) String() string {
 func (*ReplayBatchRequest) ProtoMessage() {}
 
 func (x *ReplayBatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[34]
+	mi := &file_apiserver_v1_task_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2325,7 +2545,7 @@ func (x *ReplayBatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplayBatchRequest.ProtoReflect.Descriptor instead.
 func (*ReplayBatchRequest) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{34}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ReplayBatchRequest) GetIds() []string {
@@ -2348,7 +2568,7 @@ type ReplayBatchItem struct {
 
 func (x *ReplayBatchItem) Reset() {
 	*x = ReplayBatchItem{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[35]
+	mi := &file_apiserver_v1_task_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2360,7 +2580,7 @@ func (x *ReplayBatchItem) String() string {
 func (*ReplayBatchItem) ProtoMessage() {}
 
 func (x *ReplayBatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[35]
+	mi := &file_apiserver_v1_task_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2373,7 +2593,7 @@ func (x *ReplayBatchItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplayBatchItem.ProtoReflect.Descriptor instead.
 func (*ReplayBatchItem) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{35}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ReplayBatchItem) GetDeadLetterId() string {
@@ -2414,7 +2634,7 @@ type ReplayBatchResponse struct {
 
 func (x *ReplayBatchResponse) Reset() {
 	*x = ReplayBatchResponse{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[36]
+	mi := &file_apiserver_v1_task_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2426,7 +2646,7 @@ func (x *ReplayBatchResponse) String() string {
 func (*ReplayBatchResponse) ProtoMessage() {}
 
 func (x *ReplayBatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[36]
+	mi := &file_apiserver_v1_task_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2439,7 +2659,7 @@ func (x *ReplayBatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplayBatchResponse.ProtoReflect.Descriptor instead.
 func (*ReplayBatchResponse) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{36}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ReplayBatchResponse) GetItems() []*ReplayBatchItem {
@@ -2461,7 +2681,7 @@ type TaskEnvelope struct {
 
 func (x *TaskEnvelope) Reset() {
 	*x = TaskEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[37]
+	mi := &file_apiserver_v1_task_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2473,7 +2693,7 @@ func (x *TaskEnvelope) String() string {
 func (*TaskEnvelope) ProtoMessage() {}
 
 func (x *TaskEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[37]
+	mi := &file_apiserver_v1_task_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2486,7 +2706,7 @@ func (x *TaskEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskEnvelope.ProtoReflect.Descriptor instead.
 func (*TaskEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{37}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *TaskEnvelope) GetCode() int32 {
@@ -2522,7 +2742,7 @@ type TaskListEnvelope struct {
 
 func (x *TaskListEnvelope) Reset() {
 	*x = TaskListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[38]
+	mi := &file_apiserver_v1_task_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2534,7 +2754,7 @@ func (x *TaskListEnvelope) String() string {
 func (*TaskListEnvelope) ProtoMessage() {}
 
 func (x *TaskListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[38]
+	mi := &file_apiserver_v1_task_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2547,7 +2767,7 @@ func (x *TaskListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskListEnvelope.ProtoReflect.Descriptor instead.
 func (*TaskListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{38}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *TaskListEnvelope) GetCode() int32 {
@@ -2583,7 +2803,7 @@ type AttemptListEnvelope struct {
 
 func (x *AttemptListEnvelope) Reset() {
 	*x = AttemptListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[39]
+	mi := &file_apiserver_v1_task_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2595,7 +2815,7 @@ func (x *AttemptListEnvelope) String() string {
 func (*AttemptListEnvelope) ProtoMessage() {}
 
 func (x *AttemptListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[39]
+	mi := &file_apiserver_v1_task_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2608,7 +2828,7 @@ func (x *AttemptListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AttemptListEnvelope.ProtoReflect.Descriptor instead.
 func (*AttemptListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{39}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AttemptListEnvelope) GetCode() int32 {
@@ -2644,7 +2864,7 @@ type ScheduleEnvelope struct {
 
 func (x *ScheduleEnvelope) Reset() {
 	*x = ScheduleEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[40]
+	mi := &file_apiserver_v1_task_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2656,7 +2876,7 @@ func (x *ScheduleEnvelope) String() string {
 func (*ScheduleEnvelope) ProtoMessage() {}
 
 func (x *ScheduleEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[40]
+	mi := &file_apiserver_v1_task_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2669,7 +2889,7 @@ func (x *ScheduleEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduleEnvelope.ProtoReflect.Descriptor instead.
 func (*ScheduleEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{40}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ScheduleEnvelope) GetCode() int32 {
@@ -2705,7 +2925,7 @@ type ScheduleListEnvelope struct {
 
 func (x *ScheduleListEnvelope) Reset() {
 	*x = ScheduleListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[41]
+	mi := &file_apiserver_v1_task_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2717,7 +2937,7 @@ func (x *ScheduleListEnvelope) String() string {
 func (*ScheduleListEnvelope) ProtoMessage() {}
 
 func (x *ScheduleListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[41]
+	mi := &file_apiserver_v1_task_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2730,7 +2950,7 @@ func (x *ScheduleListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduleListEnvelope.ProtoReflect.Descriptor instead.
 func (*ScheduleListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{41}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *ScheduleListEnvelope) GetCode() int32 {
@@ -2766,7 +2986,7 @@ type ScheduleHistoryEnvelope struct {
 
 func (x *ScheduleHistoryEnvelope) Reset() {
 	*x = ScheduleHistoryEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[42]
+	mi := &file_apiserver_v1_task_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2778,7 +2998,7 @@ func (x *ScheduleHistoryEnvelope) String() string {
 func (*ScheduleHistoryEnvelope) ProtoMessage() {}
 
 func (x *ScheduleHistoryEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[42]
+	mi := &file_apiserver_v1_task_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2791,7 +3011,7 @@ func (x *ScheduleHistoryEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduleHistoryEnvelope.ProtoReflect.Descriptor instead.
 func (*ScheduleHistoryEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{42}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ScheduleHistoryEnvelope) GetCode() int32 {
@@ -2827,7 +3047,7 @@ type NotificationListEnvelope struct {
 
 func (x *NotificationListEnvelope) Reset() {
 	*x = NotificationListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[43]
+	mi := &file_apiserver_v1_task_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2839,7 +3059,7 @@ func (x *NotificationListEnvelope) String() string {
 func (*NotificationListEnvelope) ProtoMessage() {}
 
 func (x *NotificationListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[43]
+	mi := &file_apiserver_v1_task_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2852,7 +3072,7 @@ func (x *NotificationListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationListEnvelope.ProtoReflect.Descriptor instead.
 func (*NotificationListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{43}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *NotificationListEnvelope) GetCode() int32 {
@@ -2888,7 +3108,7 @@ type RoleListEnvelope struct {
 
 func (x *RoleListEnvelope) Reset() {
 	*x = RoleListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[44]
+	mi := &file_apiserver_v1_task_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2900,7 +3120,7 @@ func (x *RoleListEnvelope) String() string {
 func (*RoleListEnvelope) ProtoMessage() {}
 
 func (x *RoleListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[44]
+	mi := &file_apiserver_v1_task_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2913,7 +3133,7 @@ func (x *RoleListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleListEnvelope.ProtoReflect.Descriptor instead.
 func (*RoleListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{44}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *RoleListEnvelope) GetCode() int32 {
@@ -2937,6 +3157,128 @@ func (x *RoleListEnvelope) GetData() *RoleList {
 	return nil
 }
 
+// RoleDetailEnvelope is the uniform REST response.
+type RoleDetailEnvelope struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          int32                  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Data          *RoleDetail            `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RoleDetailEnvelope) Reset() {
+	*x = RoleDetailEnvelope{}
+	mi := &file_apiserver_v1_task_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RoleDetailEnvelope) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RoleDetailEnvelope) ProtoMessage() {}
+
+func (x *RoleDetailEnvelope) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_task_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RoleDetailEnvelope.ProtoReflect.Descriptor instead.
+func (*RoleDetailEnvelope) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *RoleDetailEnvelope) GetCode() int32 {
+	if x != nil {
+		return x.Code
+	}
+	return 0
+}
+
+func (x *RoleDetailEnvelope) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *RoleDetailEnvelope) GetData() *RoleDetail {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+// UserRolesEnvelope is the uniform REST response.
+type UserRolesEnvelope struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          int32                  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Data          *UserRoles             `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserRolesEnvelope) Reset() {
+	*x = UserRolesEnvelope{}
+	mi := &file_apiserver_v1_task_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserRolesEnvelope) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserRolesEnvelope) ProtoMessage() {}
+
+func (x *UserRolesEnvelope) ProtoReflect() protoreflect.Message {
+	mi := &file_apiserver_v1_task_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserRolesEnvelope.ProtoReflect.Descriptor instead.
+func (*UserRolesEnvelope) Descriptor() ([]byte, []int) {
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *UserRolesEnvelope) GetCode() int32 {
+	if x != nil {
+		return x.Code
+	}
+	return 0
+}
+
+func (x *UserRolesEnvelope) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *UserRolesEnvelope) GetData() *UserRoles {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
 // PermissionListEnvelope is the uniform REST response.
 type PermissionListEnvelope struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2949,7 +3291,7 @@ type PermissionListEnvelope struct {
 
 func (x *PermissionListEnvelope) Reset() {
 	*x = PermissionListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[45]
+	mi := &file_apiserver_v1_task_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2961,7 +3303,7 @@ func (x *PermissionListEnvelope) String() string {
 func (*PermissionListEnvelope) ProtoMessage() {}
 
 func (x *PermissionListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[45]
+	mi := &file_apiserver_v1_task_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2974,7 +3316,7 @@ func (x *PermissionListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionListEnvelope.ProtoReflect.Descriptor instead.
 func (*PermissionListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{45}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *PermissionListEnvelope) GetCode() int32 {
@@ -3010,7 +3352,7 @@ type AuditListEnvelope struct {
 
 func (x *AuditListEnvelope) Reset() {
 	*x = AuditListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[46]
+	mi := &file_apiserver_v1_task_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3022,7 +3364,7 @@ func (x *AuditListEnvelope) String() string {
 func (*AuditListEnvelope) ProtoMessage() {}
 
 func (x *AuditListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[46]
+	mi := &file_apiserver_v1_task_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3035,7 +3377,7 @@ func (x *AuditListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditListEnvelope.ProtoReflect.Descriptor instead.
 func (*AuditListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{46}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *AuditListEnvelope) GetCode() int32 {
@@ -3071,7 +3413,7 @@ type DeadLetterEnvelope struct {
 
 func (x *DeadLetterEnvelope) Reset() {
 	*x = DeadLetterEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[47]
+	mi := &file_apiserver_v1_task_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3083,7 +3425,7 @@ func (x *DeadLetterEnvelope) String() string {
 func (*DeadLetterEnvelope) ProtoMessage() {}
 
 func (x *DeadLetterEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[47]
+	mi := &file_apiserver_v1_task_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3096,7 +3438,7 @@ func (x *DeadLetterEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeadLetterEnvelope.ProtoReflect.Descriptor instead.
 func (*DeadLetterEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{47}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *DeadLetterEnvelope) GetCode() int32 {
@@ -3132,7 +3474,7 @@ type DeadLetterListEnvelope struct {
 
 func (x *DeadLetterListEnvelope) Reset() {
 	*x = DeadLetterListEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[48]
+	mi := &file_apiserver_v1_task_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3144,7 +3486,7 @@ func (x *DeadLetterListEnvelope) String() string {
 func (*DeadLetterListEnvelope) ProtoMessage() {}
 
 func (x *DeadLetterListEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[48]
+	mi := &file_apiserver_v1_task_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3157,7 +3499,7 @@ func (x *DeadLetterListEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeadLetterListEnvelope.ProtoReflect.Descriptor instead.
 func (*DeadLetterListEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{48}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *DeadLetterListEnvelope) GetCode() int32 {
@@ -3193,7 +3535,7 @@ type ReplayResponseEnvelope struct {
 
 func (x *ReplayResponseEnvelope) Reset() {
 	*x = ReplayResponseEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[49]
+	mi := &file_apiserver_v1_task_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3205,7 +3547,7 @@ func (x *ReplayResponseEnvelope) String() string {
 func (*ReplayResponseEnvelope) ProtoMessage() {}
 
 func (x *ReplayResponseEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[49]
+	mi := &file_apiserver_v1_task_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3218,7 +3560,7 @@ func (x *ReplayResponseEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplayResponseEnvelope.ProtoReflect.Descriptor instead.
 func (*ReplayResponseEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{49}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ReplayResponseEnvelope) GetCode() int32 {
@@ -3254,7 +3596,7 @@ type ReplayBatchResponseEnvelope struct {
 
 func (x *ReplayBatchResponseEnvelope) Reset() {
 	*x = ReplayBatchResponseEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[50]
+	mi := &file_apiserver_v1_task_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3266,7 +3608,7 @@ func (x *ReplayBatchResponseEnvelope) String() string {
 func (*ReplayBatchResponseEnvelope) ProtoMessage() {}
 
 func (x *ReplayBatchResponseEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[50]
+	mi := &file_apiserver_v1_task_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3279,7 +3621,7 @@ func (x *ReplayBatchResponseEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplayBatchResponseEnvelope.ProtoReflect.Descriptor instead.
 func (*ReplayBatchResponseEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{50}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ReplayBatchResponseEnvelope) GetCode() int32 {
@@ -3315,7 +3657,7 @@ type ActionEnvelope struct {
 
 func (x *ActionEnvelope) Reset() {
 	*x = ActionEnvelope{}
-	mi := &file_apiserver_v1_task_proto_msgTypes[51]
+	mi := &file_apiserver_v1_task_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3327,7 +3669,7 @@ func (x *ActionEnvelope) String() string {
 func (*ActionEnvelope) ProtoMessage() {}
 
 func (x *ActionEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_apiserver_v1_task_proto_msgTypes[51]
+	mi := &file_apiserver_v1_task_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3340,7 +3682,7 @@ func (x *ActionEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActionEnvelope.ProtoReflect.Descriptor instead.
 func (*ActionEnvelope) Descriptor() ([]byte, []int) {
-	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{51}
+	return file_apiserver_v1_task_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *ActionEnvelope) GetCode() int32 {
@@ -3509,7 +3851,21 @@ const file_apiserver_v1_task_proto_rawDesc = "" +
 	"\x04Role\x12\x18\n" +
 	"\arole_id\x18\x01 \x01(\tR\arole_id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
-	"\abuiltin\x18\x03 \x01(\bR\abuiltin\"9\n" +
+	"\abuiltin\x18\x03 \x01(\bR\abuiltin\"v\n" +
+	"\n" +
+	"RoleDetail\x12\x18\n" +
+	"\arole_id\x18\x01 \x01(\tR\arole_id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
+	"\abuiltin\x18\x03 \x01(\bR\abuiltin\x12 \n" +
+	"\vpermissions\x18\x04 \x03(\tR\vpermissions\")\n" +
+	"\rRoleIDRequest\x12\x18\n" +
+	"\arole_id\x18\x01 \x01(\tR\arole_id\"*\n" +
+	"\x10UserRolesRequest\x12\x16\n" +
+	"\x06userID\x18\x01 \x01(\tR\x06userID\"q\n" +
+	"\tUserRoles\x12\x18\n" +
+	"\auser_id\x18\x01 \x01(\tR\auser_id\x12(\n" +
+	"\x05roles\x18\x02 \x03(\v2\x12.apiserver.v1.RoleR\x05roles\x12 \n" +
+	"\vpermissions\x18\x03 \x03(\tR\vpermissions\"9\n" +
 	"\tRoleInput\x12\x18\n" +
 	"\arole_id\x18\x01 \x01(\tR\arole_id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"3\n" +
@@ -3607,7 +3963,15 @@ const file_apiserver_v1_task_proto_rawDesc = "" +
 	"\x10RoleListEnvelope\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12*\n" +
-	"\x04data\x18\x03 \x01(\v2\x16.apiserver.v1.RoleListR\x04data\"x\n" +
+	"\x04data\x18\x03 \x01(\v2\x16.apiserver.v1.RoleListR\x04data\"p\n" +
+	"\x12RoleDetailEnvelope\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12,\n" +
+	"\x04data\x18\x03 \x01(\v2\x18.apiserver.v1.RoleDetailR\x04data\"n\n" +
+	"\x11UserRolesEnvelope\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12+\n" +
+	"\x04data\x18\x03 \x01(\v2\x17.apiserver.v1.UserRolesR\x04data\"x\n" +
 	"\x16PermissionListEnvelope\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x120\n" +
@@ -3635,7 +3999,7 @@ const file_apiserver_v1_task_proto_rawDesc = "" +
 	"\x0eActionEnvelope\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12*\n" +
-	"\x04data\x18\x03 \x01(\v2\x16.google.protobuf.EmptyR\x04data2\xadB\n" +
+	"\x04data\x18\x03 \x01(\v2\x16.google.protobuf.EmptyR\x04data2\xffF\n" +
 	"\vTaskService\x12\xca\x02\n" +
 	"\fSubmitReport\x12\x1a.apiserver.v1.ReportParams\x1a\x12.apiserver.v1.Task\"\x89\x02\x92A\xef\x01\n" +
 	"\x05Tasks\x12\fSubmitReport\x1adLive RBAC and owner authorization required. Required Idempotency-Key header, at most 128 characters.J0\n" +
@@ -3792,7 +4156,29 @@ const file_apiserver_v1_task_proto_rawDesc = "" +
 	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\v\x12\t/v1/roles\x12\xa8\x02\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\v\x12\t/v1/roles\x12\x9e\x02\n" +
+	"\aGetRole\x12\x1b.apiserver.v1.RoleIDRequest\x1a\x18.apiserver.v1.RoleDetail\"\xdb\x01\x92A\xbc\x01\n" +
+	"\x04RBAC\x12\aGetRole\x1a1Requires rbac.manage; independent of user.manage.J6\n" +
+	"\x03200\x12/\n" +
+	"\aSuccess\x12$\n" +
+	"\"\x1a .apiserver.v1.RoleDetailEnvelopeJ.\n" +
+	"\adefault\x12#\n" +
+	"\x05Error\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/roles/{role_id}\x12\xae\x02\n" +
+	"\fGetUserRoles\x12\x1e.apiserver.v1.UserRolesRequest\x1a\x17.apiserver.v1.UserRoles\"\xe4\x01\x92A\xc0\x01\n" +
+	"\x04RBAC\x12\fGetUserRoles\x1a1Requires rbac.manage; independent of user.manage.J5\n" +
+	"\x03200\x12.\n" +
+	"\aSuccess\x12#\n" +
+	"!\x1a\x1f.apiserver.v1.UserRolesEnvelopeJ.\n" +
+	"\adefault\x12#\n" +
+	"\x05Error\x12\x1a\n" +
+	"\x18\x1a\x16.apiserver.v1.APIErrorb\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x1a\x12\x18/v1/users/{userID}/roles\x12\xa8\x02\n" +
 	"\x0fListPermissions\x12\x16.google.protobuf.Empty\x1a\x1c.apiserver.v1.PermissionList\"\xde\x01\x92A\xc3\x01\n" +
 	"\x05Tasks\x12\x0fListPermissions\x1a+Live RBAC and owner authorization required.J:\n" +
 	"\x03200\x123\n" +
@@ -3958,7 +4344,7 @@ func file_apiserver_v1_task_proto_rawDescGZIP() []byte {
 	return file_apiserver_v1_task_proto_rawDescData
 }
 
-var file_apiserver_v1_task_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
+var file_apiserver_v1_task_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
 var file_apiserver_v1_task_proto_goTypes = []any{
 	(*ReportParams)(nil),                // 0: apiserver.v1.ReportParams
 	(*Task)(nil),                        // 1: apiserver.v1.Task
@@ -3980,39 +4366,45 @@ var file_apiserver_v1_task_proto_goTypes = []any{
 	(*Notification)(nil),                // 17: apiserver.v1.Notification
 	(*NotificationList)(nil),            // 18: apiserver.v1.NotificationList
 	(*Role)(nil),                        // 19: apiserver.v1.Role
-	(*RoleInput)(nil),                   // 20: apiserver.v1.RoleInput
-	(*PermissionInput)(nil),             // 21: apiserver.v1.PermissionInput
-	(*RolePermissionRequest)(nil),       // 22: apiserver.v1.RolePermissionRequest
-	(*UserRoleInput)(nil),               // 23: apiserver.v1.UserRoleInput
-	(*UserRoleRequest)(nil),             // 24: apiserver.v1.UserRoleRequest
-	(*RoleList)(nil),                    // 25: apiserver.v1.RoleList
-	(*Permission)(nil),                  // 26: apiserver.v1.Permission
-	(*PermissionList)(nil),              // 27: apiserver.v1.PermissionList
-	(*Audit)(nil),                       // 28: apiserver.v1.Audit
-	(*AuditList)(nil),                   // 29: apiserver.v1.AuditList
-	(*DeadLetter)(nil),                  // 30: apiserver.v1.DeadLetter
-	(*DeadLetterList)(nil),              // 31: apiserver.v1.DeadLetterList
-	(*DeadLetterIDRequest)(nil),         // 32: apiserver.v1.DeadLetterIDRequest
-	(*ReplayResponse)(nil),              // 33: apiserver.v1.ReplayResponse
-	(*ReplayBatchRequest)(nil),          // 34: apiserver.v1.ReplayBatchRequest
-	(*ReplayBatchItem)(nil),             // 35: apiserver.v1.ReplayBatchItem
-	(*ReplayBatchResponse)(nil),         // 36: apiserver.v1.ReplayBatchResponse
-	(*TaskEnvelope)(nil),                // 37: apiserver.v1.TaskEnvelope
-	(*TaskListEnvelope)(nil),            // 38: apiserver.v1.TaskListEnvelope
-	(*AttemptListEnvelope)(nil),         // 39: apiserver.v1.AttemptListEnvelope
-	(*ScheduleEnvelope)(nil),            // 40: apiserver.v1.ScheduleEnvelope
-	(*ScheduleListEnvelope)(nil),        // 41: apiserver.v1.ScheduleListEnvelope
-	(*ScheduleHistoryEnvelope)(nil),     // 42: apiserver.v1.ScheduleHistoryEnvelope
-	(*NotificationListEnvelope)(nil),    // 43: apiserver.v1.NotificationListEnvelope
-	(*RoleListEnvelope)(nil),            // 44: apiserver.v1.RoleListEnvelope
-	(*PermissionListEnvelope)(nil),      // 45: apiserver.v1.PermissionListEnvelope
-	(*AuditListEnvelope)(nil),           // 46: apiserver.v1.AuditListEnvelope
-	(*DeadLetterEnvelope)(nil),          // 47: apiserver.v1.DeadLetterEnvelope
-	(*DeadLetterListEnvelope)(nil),      // 48: apiserver.v1.DeadLetterListEnvelope
-	(*ReplayResponseEnvelope)(nil),      // 49: apiserver.v1.ReplayResponseEnvelope
-	(*ReplayBatchResponseEnvelope)(nil), // 50: apiserver.v1.ReplayBatchResponseEnvelope
-	(*ActionEnvelope)(nil),              // 51: apiserver.v1.ActionEnvelope
-	(*emptypb.Empty)(nil),               // 52: google.protobuf.Empty
+	(*RoleDetail)(nil),                  // 20: apiserver.v1.RoleDetail
+	(*RoleIDRequest)(nil),               // 21: apiserver.v1.RoleIDRequest
+	(*UserRolesRequest)(nil),            // 22: apiserver.v1.UserRolesRequest
+	(*UserRoles)(nil),                   // 23: apiserver.v1.UserRoles
+	(*RoleInput)(nil),                   // 24: apiserver.v1.RoleInput
+	(*PermissionInput)(nil),             // 25: apiserver.v1.PermissionInput
+	(*RolePermissionRequest)(nil),       // 26: apiserver.v1.RolePermissionRequest
+	(*UserRoleInput)(nil),               // 27: apiserver.v1.UserRoleInput
+	(*UserRoleRequest)(nil),             // 28: apiserver.v1.UserRoleRequest
+	(*RoleList)(nil),                    // 29: apiserver.v1.RoleList
+	(*Permission)(nil),                  // 30: apiserver.v1.Permission
+	(*PermissionList)(nil),              // 31: apiserver.v1.PermissionList
+	(*Audit)(nil),                       // 32: apiserver.v1.Audit
+	(*AuditList)(nil),                   // 33: apiserver.v1.AuditList
+	(*DeadLetter)(nil),                  // 34: apiserver.v1.DeadLetter
+	(*DeadLetterList)(nil),              // 35: apiserver.v1.DeadLetterList
+	(*DeadLetterIDRequest)(nil),         // 36: apiserver.v1.DeadLetterIDRequest
+	(*ReplayResponse)(nil),              // 37: apiserver.v1.ReplayResponse
+	(*ReplayBatchRequest)(nil),          // 38: apiserver.v1.ReplayBatchRequest
+	(*ReplayBatchItem)(nil),             // 39: apiserver.v1.ReplayBatchItem
+	(*ReplayBatchResponse)(nil),         // 40: apiserver.v1.ReplayBatchResponse
+	(*TaskEnvelope)(nil),                // 41: apiserver.v1.TaskEnvelope
+	(*TaskListEnvelope)(nil),            // 42: apiserver.v1.TaskListEnvelope
+	(*AttemptListEnvelope)(nil),         // 43: apiserver.v1.AttemptListEnvelope
+	(*ScheduleEnvelope)(nil),            // 44: apiserver.v1.ScheduleEnvelope
+	(*ScheduleListEnvelope)(nil),        // 45: apiserver.v1.ScheduleListEnvelope
+	(*ScheduleHistoryEnvelope)(nil),     // 46: apiserver.v1.ScheduleHistoryEnvelope
+	(*NotificationListEnvelope)(nil),    // 47: apiserver.v1.NotificationListEnvelope
+	(*RoleListEnvelope)(nil),            // 48: apiserver.v1.RoleListEnvelope
+	(*RoleDetailEnvelope)(nil),          // 49: apiserver.v1.RoleDetailEnvelope
+	(*UserRolesEnvelope)(nil),           // 50: apiserver.v1.UserRolesEnvelope
+	(*PermissionListEnvelope)(nil),      // 51: apiserver.v1.PermissionListEnvelope
+	(*AuditListEnvelope)(nil),           // 52: apiserver.v1.AuditListEnvelope
+	(*DeadLetterEnvelope)(nil),          // 53: apiserver.v1.DeadLetterEnvelope
+	(*DeadLetterListEnvelope)(nil),      // 54: apiserver.v1.DeadLetterListEnvelope
+	(*ReplayResponseEnvelope)(nil),      // 55: apiserver.v1.ReplayResponseEnvelope
+	(*ReplayBatchResponseEnvelope)(nil), // 56: apiserver.v1.ReplayBatchResponseEnvelope
+	(*ActionEnvelope)(nil),              // 57: apiserver.v1.ActionEnvelope
+	(*emptypb.Empty)(nil),               // 58: google.protobuf.Empty
 }
 var file_apiserver_v1_task_proto_depIdxs = []int32{
 	0,  // 0: apiserver.v1.Task.params:type_name -> apiserver.v1.ReportParams
@@ -4024,87 +4416,94 @@ var file_apiserver_v1_task_proto_depIdxs = []int32{
 	9,  // 6: apiserver.v1.ScheduleList.items:type_name -> apiserver.v1.Schedule
 	15, // 7: apiserver.v1.ScheduleHistory.items:type_name -> apiserver.v1.ScheduleTrigger
 	17, // 8: apiserver.v1.NotificationList.items:type_name -> apiserver.v1.Notification
-	21, // 9: apiserver.v1.RolePermissionRequest.input:type_name -> apiserver.v1.PermissionInput
-	23, // 10: apiserver.v1.UserRoleRequest.input:type_name -> apiserver.v1.UserRoleInput
-	19, // 11: apiserver.v1.RoleList.items:type_name -> apiserver.v1.Role
-	26, // 12: apiserver.v1.PermissionList.items:type_name -> apiserver.v1.Permission
-	28, // 13: apiserver.v1.AuditList.items:type_name -> apiserver.v1.Audit
-	30, // 14: apiserver.v1.DeadLetterList.items:type_name -> apiserver.v1.DeadLetter
-	35, // 15: apiserver.v1.ReplayBatchResponse.items:type_name -> apiserver.v1.ReplayBatchItem
-	1,  // 16: apiserver.v1.TaskEnvelope.data:type_name -> apiserver.v1.Task
-	4,  // 17: apiserver.v1.TaskListEnvelope.data:type_name -> apiserver.v1.TaskList
-	6,  // 18: apiserver.v1.AttemptListEnvelope.data:type_name -> apiserver.v1.AttemptList
-	9,  // 19: apiserver.v1.ScheduleEnvelope.data:type_name -> apiserver.v1.Schedule
-	14, // 20: apiserver.v1.ScheduleListEnvelope.data:type_name -> apiserver.v1.ScheduleList
-	16, // 21: apiserver.v1.ScheduleHistoryEnvelope.data:type_name -> apiserver.v1.ScheduleHistory
-	18, // 22: apiserver.v1.NotificationListEnvelope.data:type_name -> apiserver.v1.NotificationList
-	25, // 23: apiserver.v1.RoleListEnvelope.data:type_name -> apiserver.v1.RoleList
-	27, // 24: apiserver.v1.PermissionListEnvelope.data:type_name -> apiserver.v1.PermissionList
-	29, // 25: apiserver.v1.AuditListEnvelope.data:type_name -> apiserver.v1.AuditList
-	30, // 26: apiserver.v1.DeadLetterEnvelope.data:type_name -> apiserver.v1.DeadLetter
-	31, // 27: apiserver.v1.DeadLetterListEnvelope.data:type_name -> apiserver.v1.DeadLetterList
-	33, // 28: apiserver.v1.ReplayResponseEnvelope.data:type_name -> apiserver.v1.ReplayResponse
-	36, // 29: apiserver.v1.ReplayBatchResponseEnvelope.data:type_name -> apiserver.v1.ReplayBatchResponse
-	52, // 30: apiserver.v1.ActionEnvelope.data:type_name -> google.protobuf.Empty
-	0,  // 31: apiserver.v1.TaskService.SubmitReport:input_type -> apiserver.v1.ReportParams
-	3,  // 32: apiserver.v1.TaskService.ListTasks:input_type -> apiserver.v1.TaskListRequest
-	5,  // 33: apiserver.v1.TaskService.GetTask:input_type -> apiserver.v1.TaskIDRequest
-	5,  // 34: apiserver.v1.TaskService.TaskAttempts:input_type -> apiserver.v1.TaskIDRequest
-	5,  // 35: apiserver.v1.TaskService.CancelTask:input_type -> apiserver.v1.TaskIDRequest
-	5,  // 36: apiserver.v1.TaskService.RetryTask:input_type -> apiserver.v1.TaskIDRequest
-	5,  // 37: apiserver.v1.TaskService.DownloadResult:input_type -> apiserver.v1.TaskIDRequest
-	52, // 38: apiserver.v1.TaskService.ReportNotifications:input_type -> google.protobuf.Empty
-	7,  // 39: apiserver.v1.TaskService.CreateSchedule:input_type -> apiserver.v1.ScheduleInput
-	10, // 40: apiserver.v1.TaskService.ListSchedules:input_type -> apiserver.v1.ScheduleListRequest
-	11, // 41: apiserver.v1.TaskService.GetSchedule:input_type -> apiserver.v1.ScheduleIDRequest
-	8,  // 42: apiserver.v1.TaskService.UpdateSchedule:input_type -> apiserver.v1.ScheduleUpdateRequest
-	11, // 43: apiserver.v1.TaskService.GetScheduleHistory:input_type -> apiserver.v1.ScheduleIDRequest
-	52, // 44: apiserver.v1.TaskService.ListRoles:input_type -> google.protobuf.Empty
-	52, // 45: apiserver.v1.TaskService.ListPermissions:input_type -> google.protobuf.Empty
-	20, // 46: apiserver.v1.TaskService.CreateRole:input_type -> apiserver.v1.RoleInput
-	22, // 47: apiserver.v1.TaskService.SetRolePermissions:input_type -> apiserver.v1.RolePermissionRequest
-	52, // 48: apiserver.v1.TaskService.ListAudits:input_type -> google.protobuf.Empty
-	52, // 49: apiserver.v1.TaskService.ListDeadLetters:input_type -> google.protobuf.Empty
-	32, // 50: apiserver.v1.TaskService.GetDeadLetter:input_type -> apiserver.v1.DeadLetterIDRequest
-	32, // 51: apiserver.v1.TaskService.ReplayDeadLetter:input_type -> apiserver.v1.DeadLetterIDRequest
-	34, // 52: apiserver.v1.TaskService.ReplayDeadLetters:input_type -> apiserver.v1.ReplayBatchRequest
-	12, // 53: apiserver.v1.TaskService.PauseSchedule:input_type -> apiserver.v1.ScheduleActionRequest
-	12, // 54: apiserver.v1.TaskService.ResumeSchedule:input_type -> apiserver.v1.ScheduleActionRequest
-	12, // 55: apiserver.v1.TaskService.ArchiveSchedule:input_type -> apiserver.v1.ScheduleActionRequest
-	24, // 56: apiserver.v1.TaskService.AssignRole:input_type -> apiserver.v1.UserRoleRequest
-	24, // 57: apiserver.v1.TaskService.RevokeRole:input_type -> apiserver.v1.UserRoleRequest
-	1,  // 58: apiserver.v1.TaskService.SubmitReport:output_type -> apiserver.v1.Task
-	4,  // 59: apiserver.v1.TaskService.ListTasks:output_type -> apiserver.v1.TaskList
-	1,  // 60: apiserver.v1.TaskService.GetTask:output_type -> apiserver.v1.Task
-	6,  // 61: apiserver.v1.TaskService.TaskAttempts:output_type -> apiserver.v1.AttemptList
-	52, // 62: apiserver.v1.TaskService.CancelTask:output_type -> google.protobuf.Empty
-	1,  // 63: apiserver.v1.TaskService.RetryTask:output_type -> apiserver.v1.Task
-	52, // 64: apiserver.v1.TaskService.DownloadResult:output_type -> google.protobuf.Empty
-	18, // 65: apiserver.v1.TaskService.ReportNotifications:output_type -> apiserver.v1.NotificationList
-	9,  // 66: apiserver.v1.TaskService.CreateSchedule:output_type -> apiserver.v1.Schedule
-	14, // 67: apiserver.v1.TaskService.ListSchedules:output_type -> apiserver.v1.ScheduleList
-	9,  // 68: apiserver.v1.TaskService.GetSchedule:output_type -> apiserver.v1.Schedule
-	9,  // 69: apiserver.v1.TaskService.UpdateSchedule:output_type -> apiserver.v1.Schedule
-	16, // 70: apiserver.v1.TaskService.GetScheduleHistory:output_type -> apiserver.v1.ScheduleHistory
-	25, // 71: apiserver.v1.TaskService.ListRoles:output_type -> apiserver.v1.RoleList
-	27, // 72: apiserver.v1.TaskService.ListPermissions:output_type -> apiserver.v1.PermissionList
-	52, // 73: apiserver.v1.TaskService.CreateRole:output_type -> google.protobuf.Empty
-	52, // 74: apiserver.v1.TaskService.SetRolePermissions:output_type -> google.protobuf.Empty
-	29, // 75: apiserver.v1.TaskService.ListAudits:output_type -> apiserver.v1.AuditList
-	31, // 76: apiserver.v1.TaskService.ListDeadLetters:output_type -> apiserver.v1.DeadLetterList
-	30, // 77: apiserver.v1.TaskService.GetDeadLetter:output_type -> apiserver.v1.DeadLetter
-	33, // 78: apiserver.v1.TaskService.ReplayDeadLetter:output_type -> apiserver.v1.ReplayResponse
-	36, // 79: apiserver.v1.TaskService.ReplayDeadLetters:output_type -> apiserver.v1.ReplayBatchResponse
-	52, // 80: apiserver.v1.TaskService.PauseSchedule:output_type -> google.protobuf.Empty
-	52, // 81: apiserver.v1.TaskService.ResumeSchedule:output_type -> google.protobuf.Empty
-	52, // 82: apiserver.v1.TaskService.ArchiveSchedule:output_type -> google.protobuf.Empty
-	52, // 83: apiserver.v1.TaskService.AssignRole:output_type -> google.protobuf.Empty
-	52, // 84: apiserver.v1.TaskService.RevokeRole:output_type -> google.protobuf.Empty
-	58, // [58:85] is the sub-list for method output_type
-	31, // [31:58] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	19, // 9: apiserver.v1.UserRoles.roles:type_name -> apiserver.v1.Role
+	25, // 10: apiserver.v1.RolePermissionRequest.input:type_name -> apiserver.v1.PermissionInput
+	27, // 11: apiserver.v1.UserRoleRequest.input:type_name -> apiserver.v1.UserRoleInput
+	19, // 12: apiserver.v1.RoleList.items:type_name -> apiserver.v1.Role
+	30, // 13: apiserver.v1.PermissionList.items:type_name -> apiserver.v1.Permission
+	32, // 14: apiserver.v1.AuditList.items:type_name -> apiserver.v1.Audit
+	34, // 15: apiserver.v1.DeadLetterList.items:type_name -> apiserver.v1.DeadLetter
+	39, // 16: apiserver.v1.ReplayBatchResponse.items:type_name -> apiserver.v1.ReplayBatchItem
+	1,  // 17: apiserver.v1.TaskEnvelope.data:type_name -> apiserver.v1.Task
+	4,  // 18: apiserver.v1.TaskListEnvelope.data:type_name -> apiserver.v1.TaskList
+	6,  // 19: apiserver.v1.AttemptListEnvelope.data:type_name -> apiserver.v1.AttemptList
+	9,  // 20: apiserver.v1.ScheduleEnvelope.data:type_name -> apiserver.v1.Schedule
+	14, // 21: apiserver.v1.ScheduleListEnvelope.data:type_name -> apiserver.v1.ScheduleList
+	16, // 22: apiserver.v1.ScheduleHistoryEnvelope.data:type_name -> apiserver.v1.ScheduleHistory
+	18, // 23: apiserver.v1.NotificationListEnvelope.data:type_name -> apiserver.v1.NotificationList
+	29, // 24: apiserver.v1.RoleListEnvelope.data:type_name -> apiserver.v1.RoleList
+	20, // 25: apiserver.v1.RoleDetailEnvelope.data:type_name -> apiserver.v1.RoleDetail
+	23, // 26: apiserver.v1.UserRolesEnvelope.data:type_name -> apiserver.v1.UserRoles
+	31, // 27: apiserver.v1.PermissionListEnvelope.data:type_name -> apiserver.v1.PermissionList
+	33, // 28: apiserver.v1.AuditListEnvelope.data:type_name -> apiserver.v1.AuditList
+	34, // 29: apiserver.v1.DeadLetterEnvelope.data:type_name -> apiserver.v1.DeadLetter
+	35, // 30: apiserver.v1.DeadLetterListEnvelope.data:type_name -> apiserver.v1.DeadLetterList
+	37, // 31: apiserver.v1.ReplayResponseEnvelope.data:type_name -> apiserver.v1.ReplayResponse
+	40, // 32: apiserver.v1.ReplayBatchResponseEnvelope.data:type_name -> apiserver.v1.ReplayBatchResponse
+	58, // 33: apiserver.v1.ActionEnvelope.data:type_name -> google.protobuf.Empty
+	0,  // 34: apiserver.v1.TaskService.SubmitReport:input_type -> apiserver.v1.ReportParams
+	3,  // 35: apiserver.v1.TaskService.ListTasks:input_type -> apiserver.v1.TaskListRequest
+	5,  // 36: apiserver.v1.TaskService.GetTask:input_type -> apiserver.v1.TaskIDRequest
+	5,  // 37: apiserver.v1.TaskService.TaskAttempts:input_type -> apiserver.v1.TaskIDRequest
+	5,  // 38: apiserver.v1.TaskService.CancelTask:input_type -> apiserver.v1.TaskIDRequest
+	5,  // 39: apiserver.v1.TaskService.RetryTask:input_type -> apiserver.v1.TaskIDRequest
+	5,  // 40: apiserver.v1.TaskService.DownloadResult:input_type -> apiserver.v1.TaskIDRequest
+	58, // 41: apiserver.v1.TaskService.ReportNotifications:input_type -> google.protobuf.Empty
+	7,  // 42: apiserver.v1.TaskService.CreateSchedule:input_type -> apiserver.v1.ScheduleInput
+	10, // 43: apiserver.v1.TaskService.ListSchedules:input_type -> apiserver.v1.ScheduleListRequest
+	11, // 44: apiserver.v1.TaskService.GetSchedule:input_type -> apiserver.v1.ScheduleIDRequest
+	8,  // 45: apiserver.v1.TaskService.UpdateSchedule:input_type -> apiserver.v1.ScheduleUpdateRequest
+	11, // 46: apiserver.v1.TaskService.GetScheduleHistory:input_type -> apiserver.v1.ScheduleIDRequest
+	58, // 47: apiserver.v1.TaskService.ListRoles:input_type -> google.protobuf.Empty
+	21, // 48: apiserver.v1.TaskService.GetRole:input_type -> apiserver.v1.RoleIDRequest
+	22, // 49: apiserver.v1.TaskService.GetUserRoles:input_type -> apiserver.v1.UserRolesRequest
+	58, // 50: apiserver.v1.TaskService.ListPermissions:input_type -> google.protobuf.Empty
+	24, // 51: apiserver.v1.TaskService.CreateRole:input_type -> apiserver.v1.RoleInput
+	26, // 52: apiserver.v1.TaskService.SetRolePermissions:input_type -> apiserver.v1.RolePermissionRequest
+	58, // 53: apiserver.v1.TaskService.ListAudits:input_type -> google.protobuf.Empty
+	58, // 54: apiserver.v1.TaskService.ListDeadLetters:input_type -> google.protobuf.Empty
+	36, // 55: apiserver.v1.TaskService.GetDeadLetter:input_type -> apiserver.v1.DeadLetterIDRequest
+	36, // 56: apiserver.v1.TaskService.ReplayDeadLetter:input_type -> apiserver.v1.DeadLetterIDRequest
+	38, // 57: apiserver.v1.TaskService.ReplayDeadLetters:input_type -> apiserver.v1.ReplayBatchRequest
+	12, // 58: apiserver.v1.TaskService.PauseSchedule:input_type -> apiserver.v1.ScheduleActionRequest
+	12, // 59: apiserver.v1.TaskService.ResumeSchedule:input_type -> apiserver.v1.ScheduleActionRequest
+	12, // 60: apiserver.v1.TaskService.ArchiveSchedule:input_type -> apiserver.v1.ScheduleActionRequest
+	28, // 61: apiserver.v1.TaskService.AssignRole:input_type -> apiserver.v1.UserRoleRequest
+	28, // 62: apiserver.v1.TaskService.RevokeRole:input_type -> apiserver.v1.UserRoleRequest
+	1,  // 63: apiserver.v1.TaskService.SubmitReport:output_type -> apiserver.v1.Task
+	4,  // 64: apiserver.v1.TaskService.ListTasks:output_type -> apiserver.v1.TaskList
+	1,  // 65: apiserver.v1.TaskService.GetTask:output_type -> apiserver.v1.Task
+	6,  // 66: apiserver.v1.TaskService.TaskAttempts:output_type -> apiserver.v1.AttemptList
+	58, // 67: apiserver.v1.TaskService.CancelTask:output_type -> google.protobuf.Empty
+	1,  // 68: apiserver.v1.TaskService.RetryTask:output_type -> apiserver.v1.Task
+	58, // 69: apiserver.v1.TaskService.DownloadResult:output_type -> google.protobuf.Empty
+	18, // 70: apiserver.v1.TaskService.ReportNotifications:output_type -> apiserver.v1.NotificationList
+	9,  // 71: apiserver.v1.TaskService.CreateSchedule:output_type -> apiserver.v1.Schedule
+	14, // 72: apiserver.v1.TaskService.ListSchedules:output_type -> apiserver.v1.ScheduleList
+	9,  // 73: apiserver.v1.TaskService.GetSchedule:output_type -> apiserver.v1.Schedule
+	9,  // 74: apiserver.v1.TaskService.UpdateSchedule:output_type -> apiserver.v1.Schedule
+	16, // 75: apiserver.v1.TaskService.GetScheduleHistory:output_type -> apiserver.v1.ScheduleHistory
+	29, // 76: apiserver.v1.TaskService.ListRoles:output_type -> apiserver.v1.RoleList
+	20, // 77: apiserver.v1.TaskService.GetRole:output_type -> apiserver.v1.RoleDetail
+	23, // 78: apiserver.v1.TaskService.GetUserRoles:output_type -> apiserver.v1.UserRoles
+	31, // 79: apiserver.v1.TaskService.ListPermissions:output_type -> apiserver.v1.PermissionList
+	58, // 80: apiserver.v1.TaskService.CreateRole:output_type -> google.protobuf.Empty
+	58, // 81: apiserver.v1.TaskService.SetRolePermissions:output_type -> google.protobuf.Empty
+	33, // 82: apiserver.v1.TaskService.ListAudits:output_type -> apiserver.v1.AuditList
+	35, // 83: apiserver.v1.TaskService.ListDeadLetters:output_type -> apiserver.v1.DeadLetterList
+	34, // 84: apiserver.v1.TaskService.GetDeadLetter:output_type -> apiserver.v1.DeadLetter
+	37, // 85: apiserver.v1.TaskService.ReplayDeadLetter:output_type -> apiserver.v1.ReplayResponse
+	40, // 86: apiserver.v1.TaskService.ReplayDeadLetters:output_type -> apiserver.v1.ReplayBatchResponse
+	58, // 87: apiserver.v1.TaskService.PauseSchedule:output_type -> google.protobuf.Empty
+	58, // 88: apiserver.v1.TaskService.ResumeSchedule:output_type -> google.protobuf.Empty
+	58, // 89: apiserver.v1.TaskService.ArchiveSchedule:output_type -> google.protobuf.Empty
+	58, // 90: apiserver.v1.TaskService.AssignRole:output_type -> google.protobuf.Empty
+	58, // 91: apiserver.v1.TaskService.RevokeRole:output_type -> google.protobuf.Empty
+	63, // [63:92] is the sub-list for method output_type
+	34, // [34:63] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_apiserver_v1_task_proto_init() }
@@ -4119,7 +4518,7 @@ func file_apiserver_v1_task_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_apiserver_v1_task_proto_rawDesc), len(file_apiserver_v1_task_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   52,
+			NumMessages:   58,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

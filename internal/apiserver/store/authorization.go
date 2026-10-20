@@ -5,13 +5,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/clin211/gin-enterprise-template/internal/pkg/contextx"
 	"github.com/clin211/gin-enterprise-template/internal/pkg/errno"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
-var errBuiltinRolesCannotBeEdited = errors.New("builtin roles cannot be edited")
-var errCannotRevokeLastAdministrator = errors.New("cannot revoke last administrator")
+// ErrBuiltinRoleReadOnly prevents edits to builtin permission bindings.
+var ErrBuiltinRoleReadOnly = errors.New("builtin roles cannot be edited")
+
+// ErrLastAdministrator prevents removing the final active administrator.
+var ErrLastAdministrator = errors.New("cannot revoke last administrator")
+
+// ErrInvalidPermission rejects unknown permission catalog entries.
+var ErrInvalidPermission = errors.New("unknown permission")
+
+// ErrRoleExists reports an existing role identifier or name.
+var ErrRoleExists = errors.New("role identifier or name exists")
 var errUnsupportedRoleMutation = errors.New("unsupported role mutation")
 
 // AuthorizationStore queries live database grants. JWTs never carry authoritative roles.
@@ -28,6 +39,16 @@ func (s *AuthorizationStore) Allowed(ctx context.Context, user, permission strin
 		return false, fmt.Errorf("lookup permission: %w", err)
 	}
 	return allowed, nil
+}
+
+// Permissions returns the current active user's effective grants, deduplicated across roles.
+func (s *AuthorizationStore) Permissions(ctx context.Context, user string) ([]string, error) {
+	permissions := make([]string, 0)
+	err := s.core.DB(ctx).WithContext(ctx).Raw(`SELECT DISTINCT rp.permission_code FROM "user" u JOIN user_role ur ON ur.user_id=u.user_id JOIN role_permission rp ON rp.role_id=ur.role_id WHERE u.user_id=? AND u.status=0 ORDER BY rp.permission_code`, user).Scan(&permissions).Error
+	if err != nil {
+		return nil, fmt.Errorf("lookup effective permissions: %w", err)
+	}
+	return permissions, nil
 }
 
 // Audit writes a sanitized management outcome in the caller's transaction.
@@ -71,12 +92,25 @@ func (s *AuthorizationStore) ManageRole(ctx context.Context, actor, action, id, 
 func mutateRole(db *gorm.DB, action, id, target string, permissions []string) error {
 	switch action {
 	case "create":
-		return db.Exec("INSERT INTO role(role_id,name) VALUES(?,?)", id, target).Error
+		result := db.Table("role").Clauses(clause.OnConflict{DoNothing: true}).Create(map[string]any{"role_id": id, "name": target})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return ErrRoleExists
+		}
+		return nil
 	case "permissions":
 		return setRolePermissions(db, id, permissions)
 	case "assign":
+		if err := requireRoleAndUser(db, id, target); err != nil {
+			return err
+		}
 		return db.Exec("INSERT INTO user_role(user_id,role_id) VALUES(?,?) ON CONFLICT DO NOTHING", target, id).Error
 	case "revoke":
+		if err := requireRoleAndUser(db, id, target); err != nil {
+			return err
+		}
 		return revokeRole(db, id, target)
 	default:
 		return errUnsupportedRoleMutation
@@ -92,7 +126,16 @@ func setRolePermissions(db *gorm.DB, id string, permissions []string) error {
 		return gorm.ErrRecordNotFound
 	}
 	if builtin {
-		return errBuiltinRolesCannotBeEdited
+		return ErrBuiltinRoleReadOnly
+	}
+	var known int64
+	if len(permissions) > 0 {
+		if err := db.Table("permission").Where("code IN ?", permissions).Count(&known).Error; err != nil {
+			return err
+		}
+		if known != int64(len(permissions)) {
+			return ErrInvalidPermission
+		}
 	}
 	if err := db.Exec("DELETE FROM role_permission WHERE role_id=?", id).Error; err != nil {
 		return err
@@ -105,14 +148,31 @@ func setRolePermissions(db *gorm.DB, id string, permissions []string) error {
 	return nil
 }
 func revokeRole(db *gorm.DB, id, target string) error {
+	var active bool
 	if id == "role_admin" {
+		if err := db.Raw(`SELECT EXISTS(SELECT 1 FROM user_role ur JOIN "user" u ON u.user_id=ur.user_id WHERE ur.role_id=? AND ur.user_id=? AND u.status=0)`, id, target).Scan(&active).Error; err != nil {
+			return err
+		}
+	}
+	if active {
 		var n int64
 		if err := db.Table("user_role ur").Joins(`JOIN "user" u ON u.user_id=ur.user_id`).Where("role_id='role_admin' AND u.status=0").Count(&n).Error; err != nil {
 			return err
 		}
 		if n <= 1 {
-			return errCannotRevokeLastAdministrator
+			return ErrLastAdministrator
 		}
 	}
 	return db.Exec("DELETE FROM user_role WHERE user_id=? AND role_id=?", target, id).Error
+}
+
+func requireRoleAndUser(db *gorm.DB, role, user string) error {
+	var exists bool
+	if err := db.Raw(`SELECT EXISTS(SELECT 1 FROM role r CROSS JOIN "user" u WHERE r.role_id=? AND u.user_id=?)`, role, user).Scan(&exists).Error; err != nil {
+		return err
+	}
+	if !exists {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

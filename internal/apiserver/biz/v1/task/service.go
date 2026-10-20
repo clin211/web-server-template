@@ -9,9 +9,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/model"
 	"github.com/clin211/gin-enterprise-template/internal/apiserver/store"
@@ -391,10 +393,39 @@ func (s *Service) RoleMutation(ctx context.Context, action, id, target string, p
 	if err := s.Require(ctx, "rbac.manage", ""); err != nil {
 		return err
 	}
-	if len(id) == 0 || len(id) > 64 || len(target) > 80 || len(permissions) > 32 {
+	if len(id) == 0 || len(id) > 64 || strings.TrimSpace(id) != id || len(permissions) > 32 {
+		return errno.ErrInvalidArgument
+	}
+	switch action {
+	case "create":
+		target = strings.TrimSpace(target)
+		if target == "" || utf8.RuneCountInString(target) > 80 {
+			return errno.ErrInvalidArgument
+		}
+	case "assign", "revoke":
+		if target == "" || len(target) > 32 || strings.TrimSpace(target) != target {
+			return errno.ErrInvalidArgument
+		}
+	case "permissions":
+		permissions = slices.Clone(permissions)
+		slices.Sort(permissions)
+		permissions = slices.Compact(permissions)
+	default:
 		return errno.ErrInvalidArgument
 	}
 	err := s.auth.ManageRole(ctx, contextx.UserID(ctx), action, id, target, permissions)
+	switch {
+	case errors.Is(err, store.ErrBuiltinRoleReadOnly):
+		err = errno.ErrInvalidArgument.WithMessageID("RBAC.BuiltinRoleReadOnly")
+	case errors.Is(err, store.ErrLastAdministrator):
+		err = errno.ErrInvalidArgument.WithMessageID("RBAC.LastAdministrator")
+	case errors.Is(err, store.ErrInvalidPermission):
+		err = errno.ErrInvalidArgument.WithMessageID("RBAC.InvalidPermission")
+	case errors.Is(err, store.ErrRoleExists):
+		err = errno.ErrInvalidArgument.WithMessageID("RBAC.RoleExists")
+	default:
+		err = errno.FromStore(err)
+	}
 	return s.auditFailure(ctx, "rbac."+action, id, err)
 }
 
@@ -425,7 +456,15 @@ func (s *Service) AdminList(ctx context.Context, kind string) ([]map[string]any,
 		return nil, err
 	}
 	rows := make([]map[string]any, 0)
-	err := s.core.DB(ctx).WithContext(ctx).Table(table).Select(fields).Limit(100).Find(&rows).Error
+	query := s.core.DB(ctx).WithContext(ctx).Table(table).Select(fields)
+	if kind == "roles" {
+		query = query.Order("role_id")
+	} else if kind == "permissions" {
+		query = query.Order("code")
+	} else {
+		query = query.Limit(100)
+	}
+	err := query.Find(&rows).Error
 	return rows, err
 }
 

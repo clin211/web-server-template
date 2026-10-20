@@ -44,8 +44,11 @@ type UserProfile interface {
 
 // userBiz 是 UserBiz 接口的实现.
 type userBiz struct {
-	store        store.IStore
-	tokenManager TokenManager
+	store         store.IStore
+	tokenManager  TokenManager
+	authorization interface {
+		Permissions(context.Context, string) ([]string, error)
+	}
 }
 
 // TokenManager 定义用户业务签发令牌所需的最小能力。
@@ -58,6 +61,6 @@ type TokenManager interface {
 var _ UserBiz = (*userBiz)(nil)
 
 // New 创建用户业务服务。
-func New(store store.IStore, tokenManager TokenManager) *userBiz {
-	return &userBiz{store: store, tokenManager: tokenManager}
+func New(core store.IStore, tokenManager TokenManager) *userBiz {
+	return &userBiz{store: core, tokenManager: tokenManager, authorization: store.NewAuthorizationStore(core)}
 }
